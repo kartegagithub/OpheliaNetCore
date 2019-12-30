@@ -912,17 +912,46 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 {
                     if (column.Visible)
                     {
-                        if (this.Groupers.Where(op => op.IsSelected && (op.FormatName() == column.FormatName())).Any())
+                        var columnName = column.FormatName();
+                        if (this.Groupers.Where(op => op.IsSelected && (op.FormatName() == columnName)).Any())
                             continue;
 
                         this.Output.Write("<" + tag + ">");
                         if (column.EnableColumnFiltering)
                         {
-                            if (column is Columns.DateColumn<TModel, T>)
+                            var includedToFilters = false;
+                            foreach (Binders.Fields.BaseField<TModel> item in this.FilterPanel.Controls)
                             {
-                                (column as Columns.DateColumn<TModel, T>).Mode = Fields.DateFieldMode.DoubleSelection;
+                                var path = "";
+                                if (item.Expression != null)
+                                {
+                                    path = item.Expression.ParsePath();
+                                }
+                                else if (!string.IsNullOrEmpty(item.DataControl.ID))
+                                {
+                                    path = item.DataControl.ID.Replace("_", ".");
+                                    if (item.DataControl.ID.IndexOf("Filters") == -1)
+                                        path = "Filters." + path;
+                                }
+                                else if (!string.IsNullOrEmpty(item.Text))
+                                {
+                                    path = item.Text.Replace("_", ".");
+                                    if (item.Text.IndexOf("Filters") == -1)
+                                        path = "Filters." + path;
+                                }
+
+                                includedToFilters = path.Replace("Filters.", "") == columnName;
+                                if (includedToFilters)
+                                    break;
                             }
-                            this.Output.Write(column.GetEditableControl(null, null).Draw());
+                            if (includedToFilters)
+                            {
+                                if (column is Columns.DateColumn<TModel, T>)
+                                {
+                                    (column as Columns.DateColumn<TModel, T>).Mode = Fields.DateFieldMode.DoubleSelection;
+                                }
+                                this.Output.Write(column.GetEditableControl(null, null).Draw());
+                            }
                         }
                         this.Output.Write("</" + tag + ">");
                     }
