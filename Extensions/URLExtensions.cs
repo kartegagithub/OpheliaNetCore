@@ -137,10 +137,9 @@ namespace Ophelia
                 response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
                 return JsonConvert.DeserializeObject<TResult>(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                throw new Exception("Can not convert data: " + response, ex);
             }
         }
         public static ServiceObjectResult<T> GetObject<T>(this string URL, WebApiObjectRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
@@ -151,10 +150,9 @@ namespace Ophelia
                 response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
                 return JsonConvert.DeserializeObject<ServiceObjectResult<T>>(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                throw new Exception("Can not convert data: " + response, ex);
             }
         }
         public static ServiceCollectionResult<T> GetCollection<T>(this string URL, int page, int pageSize, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)

@@ -11,13 +11,20 @@ namespace Ophelia.Service
         public long ID { get; set; }
         public long LanguageID { get; set; }
         public string Name { get; set; }
+        public string TypeName { get; set; }
         public T Data { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
         public List<FileData> Files { get; set; }
+        public WebApiObjectRequest<T> AddParam(string key, object value)
+        {
+            this.Parameters[key] = value;
+            return this;
+        }
         public WebApiObjectRequest()
         {
             this.Parameters = new Dictionary<string, object>();
             this.Files = new List<FileData>();
+            this.TypeName = typeof(T).FullName;
         }
 
         public void Dispose()

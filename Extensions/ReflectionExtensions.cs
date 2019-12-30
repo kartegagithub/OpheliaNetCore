@@ -459,6 +459,7 @@ namespace Ophelia
         }
         public static Type GetRealType(this Type baseType, bool baseTypeIsDefault = true)
         {
+            Type foundType = null;
             try
             {
                 foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
@@ -474,7 +475,8 @@ namespace Ophelia
                             Types = Types.Where(op => !op.IsInterface && (op.IsSubclassOf(baseType) || baseType.IsAssignableFrom(op))).ToArray();
                             if (Types != null && Types.Length > 0)
                             {
-                                return Types.FirstOrDefault();
+                                if (Types.FirstOrDefault() != baseType)
+                                    foundType = Types.FirstOrDefault();
                             }
                         }
                     }
@@ -488,6 +490,8 @@ namespace Ophelia
             {
 
             }
+            if (foundType != null)
+                return foundType;
             if (baseTypeIsDefault && !baseType.IsInterface)
                 return baseType;
             return null;

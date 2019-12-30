@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Ophelia.Service;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 {
@@ -42,7 +43,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         public TModel DataSource { get; private set; }
         public Client Client { get { return Client.Current; } }
         public string Title { get; set; }
-        public Func<Ophelia.Service.WebServiceCollectionRequest, Ophelia.Service.ServiceCollectionResult> RemoteDataSource { get; set; }
+        public Func<string, WebApiCollectionRequest<T>, ServiceCollectionResult<T>> RemoteDataSource { get; set; }
         private readonly ViewContext viewContext;
         protected IQueryable<IGrouping<object, T>> GroupedData { get; set; }
         public Configuration Configuration { get; private set; }
@@ -471,7 +472,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                                 this.OnBeforeQueryExecuted();
 
-                                var response = this.RemoteDataSource(new Service.WebServiceCollectionRequest() { Page = this.DataSource.Pagination.PageNumber, PageSize = this.DataSource.Pagination.PageSize, QueryData = queryData.Serialize(), Parameters = additionalParams, TypeName = typeof(T).FullName });
+                                var response = this.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), new Service.WebApiCollectionRequest<T>() { Page = this.DataSource.Pagination.PageNumber, PageSize = this.DataSource.Pagination.PageSize, QueryData = queryData.Serialize(), Parameters = additionalParams, TypeName = typeof(T).FullName, Data = this.FiltersToEntity() });
                                 if (response.RawData != null)
                                     this.DataSource.Items = (List<T>)response.RawData;
                                 else
@@ -529,6 +530,35 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         protected virtual object GetReferencedEntity(Type entityType, object value)
         {
             return null;
+        }
+        protected virtual T FiltersToEntity()
+        {
+            try
+            {
+                var entity = (T)Activator.CreateInstance(typeof(T));
+                var filters = this.DataSource.GetPropertyValue("Filters");
+                var props = filters.GetType().GetProperties();
+                foreach (var prop in props)
+                {
+                    var entityProp = entity.GetType().GetProperty(prop.Name);
+                    try
+                    {
+                        if (entityProp == null)
+                            continue;
+
+                        entityProp.SetValue(entity, prop.GetValue(filters));
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+                return entity;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
         public virtual void RenderHeader()
         {
