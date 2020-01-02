@@ -4,6 +4,7 @@ using System.Web;
 using Ophelia;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace Ophelia.Web
 {
@@ -14,6 +15,12 @@ namespace Ophelia.Web
         {
             get
             {
+                if (_Current == null)
+                    _Current = new AsyncLocal<Client>();
+                if (_Current.Value == null)
+                {
+                    _Current.Value = (Client)typeof(Client).GetRealTypeInstance(true);
+                }
                 return _Current.Value;
             }
         }
@@ -84,6 +91,7 @@ namespace Ophelia.Web
         public virtual void Dispose()
         {
             this.Disconnect();
+            Debug.WriteLine("Client.Dispose ManagedThreadId: " + Thread.CurrentThread.ManagedThreadId);
         }
 
         public Client()
