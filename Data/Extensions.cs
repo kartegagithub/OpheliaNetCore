@@ -77,9 +77,10 @@ namespace Ophelia.Data
             {
                 if (data.Left != null)
                     source = source.Apply(data.Left);
-                else if (data.Right != null)
+                if (data.Right != null)
                     source = source.Apply(data.Right);
-                else
+
+                if (data.Left == null && data.Right == null)
                 {
                     if (data.SubFilter != null)
                         return source.Apply(data.SubFilter);
