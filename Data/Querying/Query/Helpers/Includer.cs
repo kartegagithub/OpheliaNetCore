@@ -320,12 +320,13 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             p.SetValue(referencedEntity, p.PropertyType.ConvertData(row[fieldName]));
                     }
                 }
-                if (referencedEntity != null && referencedEntity is Model.DataEntity)
+                if (referencedEntity != null)
                 {
                     if (Convert.ToInt64(referencedEntity.GetPropertyValue("ID")) > 0)
                     {
                         this.PropertyInfo.SetValue(entity, referencedEntity);
-                        (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loaded;
+                        if (referencedEntity is Model.DataEntity)
+                            (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loaded;
 
                         foreach (var subInc in this.SubIncluders)
                         {
