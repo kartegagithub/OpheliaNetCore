@@ -45,6 +45,11 @@ namespace Ophelia.Data
         {
             return (Model.QueryableDataSet)Activator.CreateInstance(typeof(Model.QueryableDataSet<>).MakeGenericType(entityType), new object[] { query });
         }
+        public static Model.QueryableDataSet<T> Apply<T>(this Model.QueryableDataSet<T> source, Querying.Query.QueryData data)
+        {
+            source.ExtendData(data);
+            return source;
+        }
         public static IQueryable<T> Apply<T>(this IQueryable<T> source, Querying.Query.QueryData data)
         {
             if (data != null)
