@@ -63,25 +63,25 @@ namespace Ophelia.Data
         }
         internal static QueryableDataSet<TSource> Where<TSource>(this QueryableDataSet<TSource> source, Expression predicate)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.Where(
                         default(QueryableDataSet<TSource>),
                         default(Expression<Func<TSource, bool>>))),
                     new Expression[] { source.Expression, new Expressions.WhereExpression(predicate) }
-                    ));
+                    ))).Extend(source);
         }
         public static QueryableDataSet<TSource> Where<TSource>(this QueryableDataSet<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.Where(
                         default(QueryableDataSet<TSource>),
                         default(Expression<Func<TSource, bool>>))),
                     new Expression[] { source.Expression, new Expressions.WhereExpression(predicate) }
-                    ));
+                    ))).Extend(source);
         }
         public static QueryableDataSet Where(this QueryableDataSet source, System.Reflection.MemberInfo[] tree, object value, Comparison comparison = Comparison.Equal)
         {
@@ -222,26 +222,26 @@ namespace Ophelia.Data
 
         public static QueryableDataSet<TSource> Where<TSource>(this QueryableDataSet<TSource> source, Expressions.InExpression value)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.Where(
                         default(QueryableDataSet<TSource>),
                         default(Expressions.InExpression))),
                     new Expression[] { source.Expression, value }
-                    ));
+                    ))).Extend(source);
         }
 
         public static QueryableDataSet<TSource> Where<TSource>(this QueryableDataSet<TSource> source, Expression<Func<TSource, int, bool>> predicate)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.Where(
                         default(QueryableDataSet<TSource>),
                         default(Expression<Func<TSource, int, bool>>))),
                     new Expression[] { source.Expression, new Expressions.WhereExpression(predicate) }
-                    ));
+                    ))).Extend(source);
         }
 
         public static QueryableDataSet<TResult> Select<TSource, TResult>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TResult>> selector)
@@ -271,14 +271,14 @@ namespace Ophelia.Data
         }
         public static QueryableDataSet<TSource> CombineExpression<TSource>(this QueryableDataSet<TSource> source, Expression exp)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.CombineExpression(
                         default(QueryableDataSet<TSource>),
                         default(Expression))),
                     new Expression[] { source.Expression, exp }
-                    ));
+                    ))).Extend(source);
         }
         //public static IQueryable<TResult> SelectMany<TSource, TResult>(this QueryableDataSet<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector)
         //{
@@ -424,36 +424,36 @@ namespace Ophelia.Data
         //}
         public static QueryableDataSet<TSource> Exclude<TSource>(this QueryableDataSet<TSource> source, string keySelector)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.Exclude(
                         default(QueryableDataSet<TSource>),
                         default(string))),
                     new Expression[] { source.Expression, new Expressions.ExcludeExpression(keySelector, false) }
-                    ));
+                    ))).Extend(source);
         }
         public static QueryableDataSet<TSource> ExcludeFromAll<TSource>(this QueryableDataSet<TSource> source, string keySelector)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.ExcludeFromAll(
                         default(QueryableDataSet<TSource>),
                         default(string))),
                     new Expression[] { source.Expression, new Expressions.ExcludeExpression(keySelector, true) }
-                    ));
+                    ))).Extend(source);
         }
         public static QueryableDataSet<TSource> Exclude<TSource, TKey>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.Exclude(
                         default(QueryableDataSet<TSource>),
                         default(Expression<Func<TSource, TKey>>))),
                     new Expression[] { source.Expression, new Expressions.ExcludeExpression(keySelector, false) }
-                    ));
+                    ))).Extend(source);
         }
         public static QueryableDataSet<TSource> OrderBy<TSource>(this QueryableDataSet<TSource> source, string propertyAndDirection)
         {
@@ -469,14 +469,14 @@ namespace Ophelia.Data
         }
         public static QueryableDataSet<TSource> OrderBy<TSource>(this QueryableDataSet<TSource> source, PropertyInfo property, bool ascending = true)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.OrderBy(
                         default(QueryableDataSet<TSource>),
                         default(object))),
                     new Expression[] { source.Expression, new Expressions.OrderExpression(Expression.Property(Expression.Parameter(typeof(TSource)), property), ascending, true) }
-                    ));
+                    ))).Extend(source);
         }
         public static QueryableDataSet<TSource> OrderBy<TSource>(this QueryableDataSet<TSource> source, object expression)
         {
@@ -484,50 +484,50 @@ namespace Ophelia.Data
         }
         public static QueryableDataSet<TSource> OrderBy<TSource, TKey>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.OrderBy(
                         default(QueryableDataSet<TSource>),
                         default(Expression<Func<TSource, TKey>>))),
                     new Expression[] { source.Expression, new Expressions.OrderExpression(keySelector, true, true) }
-                    ));
+                    ))).Extend(source);
         }
 
         public static QueryableDataSet<TSource> OrderByDescending<TSource, TKey>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.OrderByDescending(
                         default(QueryableDataSet<TSource>),
                         default(Expression<Func<TSource, TKey>>))),
                     new Expression[] { source.Expression, new Expressions.OrderExpression(keySelector, false, true) }
-                    ));
+                    ))).Extend(source);
         }
 
         public static QueryableDataSet<TSource> ThenBy<TSource, TKey>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                Expression.Call(
                    null,
                    GetMethodInfoOf(() => QueryableDataSetExtensions.ThenBy(
                        default(QueryableDataSet<TSource>),
                        default(Expression<Func<TSource, TKey>>))),
                    new Expression[] { source.Expression, new Expressions.OrderExpression(keySelector, true) }
-                   ));
+                   ))).Extend(source);
         }
 
         public static QueryableDataSet<TSource> ThenByDescending<TSource, TKey>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TKey>> keySelector)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                Expression.Call(
                    null,
                    GetMethodInfoOf(() => QueryableDataSetExtensions.ThenByDescending(
                        default(QueryableDataSet<TSource>),
                        default(Expression<Func<TSource, TKey>>))),
                    new Expression[] { source.Expression, new Expressions.OrderExpression(keySelector, false) }
-                   ));
+                   ))).Extend(source);
         }
         public static QueryableDataSet<TSource> Paginate<TSource>(this QueryableDataSet<TSource> source, int page, int pageSize)
         {
@@ -541,26 +541,26 @@ namespace Ophelia.Data
 
         public static QueryableDataSet<TSource> Take<TSource>(this QueryableDataSet<TSource> source, int count)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.Take(
                         default(QueryableDataSet<TSource>),
                         default(int))),
                     new Expression[] { source.Expression, new Expressions.TakeExpression(count) }
-                    ));
+                    ))).Extend(source);
         }
 
         public static QueryableDataSet<TSource> Skip<TSource>(this QueryableDataSet<TSource> source, int count)
         {
-            return (QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
+            return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.Skip(
                         default(QueryableDataSet<TSource>),
                         default(int))),
                     new Expression[] { source.Expression, new Expressions.SkipExpression(count) }
-                    ));
+                    ))).Extend(source);
         }
 
         public static QueryableDataSet<OGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TKey>> keySelector)
@@ -574,7 +574,12 @@ namespace Ophelia.Data
                     new Expression[] { source.Expression, new Expressions.GroupExpression(keySelector) }
                     ));
         }
-
+        public static QueryableDataSet<TSource> Extend<TSource>(this QueryableDataSet<TSource> newSource, QueryableDataSet<TSource> oldSource)
+        {
+            if (oldSource.ExtendedData != null)
+                newSource.ExtendData(oldSource.ExtendedData);
+            return newSource;
+        }
         //public static QueryableDataSet<TSource> Union<TSource>(this QueryableDataSet<TSource> source1, IEnumerable<TSource> source2)
         //{
         //    return (QueryableDataSet<TSource>)source1.InternalProvider.CreateQuery<TSource>(
@@ -1026,7 +1031,7 @@ namespace Ophelia.Data
                     new Expression[] { source.Expression, Expression.Quote(selector) }
                     ));
         }
-        
+
         //public static TSource Aggregate<TSource>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TSource, TSource>> func)
         //{
         //    return source.InternalProvider.Execute<TSource>(
