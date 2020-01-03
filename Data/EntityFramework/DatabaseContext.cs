@@ -78,6 +78,7 @@ namespace Ophelia.Data.EntityFramework
                     }
                     var newValue = JsonConvert.SerializeObject(changes);
                     auditLogModel.NewValue = newValue;
+                    auditLogModel.NewObject = entry.CurrentValues;
 
                     if (entry.OriginalValues.Properties.Count > 0 && entry.State != Microsoft.EntityFrameworkCore.EntityState.Added)
                     {
@@ -107,6 +108,7 @@ namespace Ophelia.Data.EntityFramework
 
                         var originalValue = JsonConvert.SerializeObject(changes);
                         auditLogModel.OldValue = originalValue;
+                        auditLogModel.OldObject = entry.OriginalValues;
                     }
                 }
             }
