@@ -97,10 +97,19 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.ID = title;
             this.Title = this.Client.TranslateText(title);
             this.FilterPanel = new FilterPanel<TModel, T>(this);
+            this.SetPageSize();
             this.Configure();
             this.ProcessQuery();
             this.CheckAjaxFunctions();
             this.Export();
+        }
+        protected virtual void SetPageSize()
+        {
+            if (this.DataSource != null && this.DataSource.Pagination != null)
+            {
+                if (!string.IsNullOrEmpty(this.Request.GetValue(this.DataSource.Pagination.PageKey)))
+                    this.DataSource.Pagination.PageNumber = this.Request.GetValue(this.DataSource.Pagination.PageKey).ToInt32();
+            }
         }
         protected virtual void CheckAjaxFunctions()
         {
