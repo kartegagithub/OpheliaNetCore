@@ -61,5 +61,9 @@ namespace Ophelia.Service
         {
 
         }
+        public virtual void LogResponse(int status, string requestInfo, string message)
+        {
+
+        }
     }
 }
