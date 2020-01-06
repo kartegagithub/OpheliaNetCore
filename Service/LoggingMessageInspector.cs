@@ -13,6 +13,7 @@ namespace Ophelia.Service
     public class LoggingMessageInspector : IClientMessageInspector
     {
         public ServiceLogHandler Logger { get; private set; }
+        private string URL { get; set; }
         public LoggingMessageInspector(ServiceLogHandler logger)
         {
             this.Logger = logger;
@@ -23,7 +24,7 @@ namespace Ophelia.Service
             using (var buffer = reply.CreateBufferedCopy(int.MaxValue))
             {
                 var document = GetDocument(buffer.CreateMessage());
-                this.Logger.LogResponse(200, "", document.OuterXml);
+                this.Logger.LogResponse(200, this.URL, document.OuterXml);
 
                 reply = buffer.CreateMessage();
             }
@@ -31,10 +32,11 @@ namespace Ophelia.Service
 
         public object BeforeSendRequest(ref Message request, IClientChannel channel)
         {
+            this.URL = channel.RemoteAddress.ToString();
             using (var buffer = request.CreateBufferedCopy(int.MaxValue))
             {
                 var document = GetDocument(buffer.CreateMessage());
-                this.Logger.LogRequest(0, "", document.OuterXml);
+                this.Logger.LogRequest(0, this.URL, document.OuterXml);
 
                 request = buffer.CreateMessage();
                 return null;
