@@ -116,6 +116,7 @@ namespace Ophelia.LDAP
             }
             return false;
         }
+        
         public static ServiceObjectResult<SearchResult> GetAuthenticatedUserInfo(string domain, string username, string pwd, string path)
         {
             var Result = new ServiceObjectResult<SearchResult>();
@@ -133,7 +134,7 @@ namespace Ophelia.LDAP
                         using (var search = new DirectorySearcher(entry))
                         {
                             search.Filter = string.Format("(SAMAccountName={0})", username);
-                            search.PropertiesToLoad.Add("cn");
+                            //search.PropertiesToLoad.Add("cn");
                             obj = null;
                             Result.SetData(search.FindOne());
                         }

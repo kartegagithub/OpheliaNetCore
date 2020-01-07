@@ -23,15 +23,15 @@ namespace Ophelia.LDAP
         }
         public static string GetUserFirstName(this SearchResult result)
         {
-            return Convert.ToString(result.GetPropertyValue("givenname"));
+            return Convert.ToString(result.GetPropertyValue(ADProperties.FIRSTNAME));
         }
         public static string GetUserLastName(this SearchResult result)
         {
-            return Convert.ToString(result.GetPropertyValue("sn"));
+            return Convert.ToString(result.GetPropertyValue(ADProperties.LASTNAME));
         }
         public static string GetUserEmail(this SearchResult result)
         {
-            return Convert.ToString(result.GetPropertyValue("mail"));
+            return Convert.ToString(result.GetPropertyValue(ADProperties.EMAILADDRESS));
         }
         public static List<string> GetUserMemberOf(this SearchResult result)
         {

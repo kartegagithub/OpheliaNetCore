@@ -514,7 +514,7 @@ namespace Ophelia
         }
         public static string GetPropertyStringValue<TResult>(this TResult source, string property) where TResult : class
         {
-            return GetPropertyValue(source, property).ToString();
+            return GetPropertyValue(source, property)?.ToString();
         }
 
         public static bool IsStaticProperty(this PropertyInfo source)
