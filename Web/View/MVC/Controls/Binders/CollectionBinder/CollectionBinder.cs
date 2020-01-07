@@ -182,7 +182,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 this.DataSource.Query = this.DataSource.Items.AsQueryable();
             }
-            if ((this.RemoteDataSource != null || this.DataSource.Items == null || this.DataSource.Items.Count == 0) && this.DataSource.Query != null)
+            if ((this.RemoteDataSource != null || this.DataSource.Items == null || this.DataSource.Items.Count == 0) && this.DataSource.Query != null && !this.DataSource.DataImportPreview)
             {
                 var defaultModel = Activator.CreateInstance(typeof(TModel));
 
@@ -471,7 +471,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
                 else
                 {
-                    if (this.RemoteDataSource != null)
+                    if (this.RemoteDataSource != null && !this.DataSource.DataImportPreview)
                     {
                         using (var queryData = new QueryData())
                         {
@@ -1107,7 +1107,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         protected virtual void RenderCellProperties(T item, Columns.BaseColumn<TModel, T> column, Link link)
         {
-
+            if (this.DataSource.DataImportPreview)
+            {
+                link.URL = "javascript:void(0)";
+            }
         }
         protected virtual void OnBeforeRenderCell(T item, Columns.BaseColumn<TModel, T> column)
         {
