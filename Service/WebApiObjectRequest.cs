@@ -20,6 +20,10 @@ namespace Ophelia.Service
             this.Parameters[key] = value;
             return this;
         }
+        public FileData GetFile(string Key)
+        {
+            return this.Files?.Where(op => op.KeyName == Key).FirstOrDefault();
+        }
         public WebApiObjectRequest()
         {
             this.Parameters = new Dictionary<string, object>();
