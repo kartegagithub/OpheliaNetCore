@@ -350,7 +350,28 @@ namespace Ophelia
         }
 
         /// <summary>
-        /// String'i parçalar.
+        /// Splits to lines. Every line has max 'length' size chars.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static List<string> SplitToLines(this string value, int length)
+        {
+            var splitted = new List<string>();
+            while (value.Length > 0)
+            {
+                if (value.Length <= length)
+                    splitted.Add(value);
+                else
+                    splitted.Add(value.Substring(0, Math.Min(value.Length, length)));
+
+                value = value.Remove(0, splitted.LastOrDefault().Length);
+            }
+            return splitted;
+        }
+
+        /// <summary>
+        /// Splits by pattern.
         /// </summary>
         public static string[] SplitString(this string value, string regexPattern, int maxLength)
         {

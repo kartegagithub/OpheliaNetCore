@@ -14,7 +14,7 @@ namespace Ophelia.Web.View.Mvc.Html
 {
     public static class EnumExtensions
     {
-        public static HtmlString EnumListBox<TModel>(this HtmlHelper<TModel> htmlHelper, string name, byte[] modelData, Type typeToDrawEnum, object htmlAttributes)
+        public static HtmlString EnumListBox<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, byte[] modelData, Type typeToDrawEnum, object htmlAttributes)
         {
             var source = Enum.GetValues(typeToDrawEnum);
 
@@ -52,7 +52,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return new HtmlString(html);
         }
 
-        public static IHtmlContent EnumDropDownList<TModel>(this HtmlHelper<TModel> htmlHelper, string name, object modelData, Type typeToDrawEnum, object htmlAttributes, string DefaultText = "", string DefaultValue = "")
+        public static IHtmlContent EnumDropDownList<TModel>(this IHtmlHelper<TModel> htmlHelper, string name, object modelData, Type typeToDrawEnum, object htmlAttributes, string DefaultText = "", string DefaultValue = "")
         {
             var source = Enum.GetValues(typeToDrawEnum);
 
@@ -73,7 +73,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.DropDownList(name, items, htmlAttributes);
         }
 
-        public static IHtmlContent EnumDropDownListFor<TModel>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, short>> expression, Type typeToDrawEnum, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "")
+        public static IHtmlContent EnumDropDownListFor<TModel>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, short>> expression, Type typeToDrawEnum, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "")
         {
             short model = 0;
             if (htmlHelper.ViewData.Model != null)
@@ -82,7 +82,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.EnumDropDownList(ExpressionHelper.GetExpressionText(expression), model, typeToDrawEnum, htmlAttributes, DefaultText, DefaultValue);
         }
 
-        public static IHtmlContent EnumDropDownListFor<TModel>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, byte>> expression, Type typeToDrawEnum, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "")
+        public static IHtmlContent EnumDropDownListFor<TModel>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, byte>> expression, Type typeToDrawEnum, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "")
         {
             byte model = 0;
             if (htmlHelper.ViewData.Model != null)
@@ -91,7 +91,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.EnumDropDownList(ExpressionHelper.GetExpressionText(expression), model, typeToDrawEnum, htmlAttributes, DefaultText, DefaultValue);
         }
 
-        public static IHtmlContent EnumDropDownListFor<TModel>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, byte?>> expression, Type typeToDrawEnum, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "")
+        public static IHtmlContent EnumDropDownListFor<TModel>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, byte?>> expression, Type typeToDrawEnum, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "")
         {
             byte? model = 0;
             if (htmlHelper.ViewData.Model != null)
@@ -100,7 +100,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.EnumDropDownList(ExpressionHelper.GetExpressionText(expression), model.GetValueOrDefault(0), typeToDrawEnum, htmlAttributes, DefaultText, DefaultValue);
         }
 
-        public static HtmlString EnumListBoxFor<TModel>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, short>> expression, Type typeToDrawEnum, object htmlAttributes = null)
+        public static HtmlString EnumListBoxFor<TModel>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, short>> expression, Type typeToDrawEnum, object htmlAttributes = null)
         {
             short model = 0;
             if (htmlHelper.ViewData.Model != null)
@@ -109,7 +109,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.EnumListBox(ExpressionHelper.GetExpressionText(expression), model.ToString().ToByteList().ToArray(), typeToDrawEnum, htmlAttributes);
         }
 
-        public static HtmlString EnumListBoxFor<TModel>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, byte>> expression, Type typeToDrawEnum, object htmlAttributes = null)
+        public static HtmlString EnumListBoxFor<TModel>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, byte>> expression, Type typeToDrawEnum, object htmlAttributes = null)
         {
             byte model = 0;
             if (htmlHelper.ViewData.Model != null)
@@ -118,7 +118,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.EnumListBox(ExpressionHelper.GetExpressionText(expression), model.ToString().ToByteList().ToArray(), typeToDrawEnum, htmlAttributes);
         }
 
-        public static HtmlString EnumListBoxFor<TModel>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, byte?>> expression, Type typeToDrawEnum, object htmlAttributes = null)
+        public static HtmlString EnumListBoxFor<TModel>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, byte?>> expression, Type typeToDrawEnum, object htmlAttributes = null)
         {
             byte? model = 0;
             if (htmlHelper.ViewData.Model != null)
@@ -127,7 +127,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.EnumListBox(ExpressionHelper.GetExpressionText(expression), model.GetValueOrDefault(0).ToString().ToByteList().ToArray(), typeToDrawEnum, htmlAttributes);
         }
 
-        public static HtmlString EnumListBoxFor<TModel>(this HtmlHelper<TModel> htmlHelper, Expression<Func<TModel, string>> expression, Type typeToDrawEnum, object htmlAttributes = null)
+        public static HtmlString EnumListBoxFor<TModel>(this IHtmlHelper<TModel> htmlHelper, Expression<Func<TModel, string>> expression, Type typeToDrawEnum, object htmlAttributes = null)
         {
             string model = "";
             if (htmlHelper.ViewData.Model != null)
@@ -138,7 +138,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.EnumListBox(ExpressionHelper.GetExpressionText(expression), model.ToByteList().ToArray(), typeToDrawEnum, htmlAttributes);
         }
 
-        public static IHtmlContent EnumDisplayFor<TModel>(this HtmlHelper<TModel> htmlHelper, object selectedValue, Type typeToDrawEnum, object htmlAttributes = null)
+        public static IHtmlContent EnumDisplayFor<TModel>(this IHtmlHelper<TModel> htmlHelper, object selectedValue, Type typeToDrawEnum, object htmlAttributes = null)
         {
             var source = Enum.GetValues(typeToDrawEnum);
 
@@ -159,7 +159,7 @@ namespace Ophelia.Web.View.Mvc.Html
             return htmlHelper.Label("", selectedEnum, htmlAttributes);
         }
 
-        public static string Translate<TModel>(this HtmlHelper<TModel> htmlHelper, string Key)
+        public static string Translate<TModel>(this IHtmlHelper<TModel> htmlHelper, string Key)
         {
             return Client.Current.TranslateText(Key);
         }

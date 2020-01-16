@@ -90,7 +90,7 @@ namespace Ophelia.Data.EntityFramework
 
                             //We find the value of entity
                             var value = "";
-                            if (entry.CurrentValues[item] != null)
+                            if (entry.OriginalValues[item] != null)
                                 value = entry.OriginalValues[item].ToString();
 
                             if (key == "ID")
