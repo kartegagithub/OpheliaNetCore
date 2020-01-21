@@ -15,6 +15,8 @@ namespace Ophelia.Web.View.Mvc.Models
         }
         public List<T> Items { get; set; }
         public IQueryable<T> Query { get; set; }
+        public Func<IQueryable<T>, IQueryable<T>> OnBeforeQueryExecuted { get; set; }
+
         public bool DataImportPreview { get; set; }
         public string DataImportKey { get; set; }
         public override void Dispose()
@@ -25,7 +27,7 @@ namespace Ophelia.Web.View.Mvc.Models
                 this.Items.Clear();
                 this.Items = null;
             }
-            if(this.Query != null)
+            if (this.Query != null)
             {
                 this.Query = null;
             }

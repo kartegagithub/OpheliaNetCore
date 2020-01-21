@@ -531,7 +531,19 @@ namespace Ophelia.Data.Querying.Query.Helpers
             }
             filter.Exclude = this.Exclude;
             filter.Value = this.Value;
+            if (this.Value != null)
+            {
+                filter.ValueType = this.Value.GetType().Name;
+                if (this.Value.GetType().IsGenericType)
+                    filter.ValueType += "," + this.Value.GetType().GetGenericArguments()[0].Name;
+            }
             filter.Value2 = this.Value2;
+            if (this.Value2 != null)
+            {
+                filter.Value2Type = this.Value2.GetType().Name;
+                if (this.Value2.GetType().IsGenericType)
+                    filter.Value2Type += "," + this.Value2.GetType().GetGenericArguments()[0].Name;
+            }
             filter.Take = this.Take;
             filter.Skip = this.Skip;
             return filter;

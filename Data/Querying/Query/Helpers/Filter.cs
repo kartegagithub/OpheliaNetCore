@@ -44,7 +44,13 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public object Value { get; set; }
 
         [DataMember]
+        public string ValueType { get; set; }
+
+        [DataMember]
         public object Value2 { get; set; }
+
+        [DataMember]
+        public string Value2Type { get; set; }
 
         [DataMember]
         public int Take { get; set; }
@@ -533,6 +539,8 @@ namespace Ophelia.Data.Querying.Query.Helpers
             entity.Exclude = this.Exclude;
             entity.Value = this.Value;
             entity.Value2 = this.Value2;
+            entity.ValueType = this.ValueType;
+            entity.Value2Type = this.Value2Type;
             entity.Take = this.Take;
             entity.Skip = this.Skip;
             entity.IsDataEntity = this.IsDataEntity;
@@ -545,6 +553,63 @@ namespace Ophelia.Data.Querying.Query.Helpers
             if (this.Right != null)
                 entity.Right = this.Right.Serialize();
             return entity;
+        }
+
+        public object ProcessValue(object val, string type)
+        {
+            if (val != null)
+            {
+                bool isList = type.IndexOf("List") > -1;
+                bool isArray = type.IndexOf("Array") > -1;
+
+                var subType = type.Right(type.Length - type.IndexOf(",") - 1);
+                Type dataType = null;
+                switch (subType)
+                {
+                    case "Int64":
+                        dataType = typeof(Int64);
+                        break;
+                    case "Int32":
+                        dataType = typeof(Int32);
+                        break;
+                    case "Int16":
+                        dataType = typeof(Int16);
+                        break;
+                    case "DateTime":
+                        dataType = typeof(DateTime);
+                        break;
+                    default:
+                        dataType = typeof(string);
+                        break;
+                }
+                if (isList)
+                {
+                    if(val is Newtonsoft.Json.Linq.JArray)
+                    {
+                        var arr = val as Newtonsoft.Json.Linq.JArray;
+                        var listType = typeof(List<>).MakeGenericType(dataType);
+                        var list = (System.Collections.IList)Activator.CreateInstance(listType);
+                        foreach (var item in arr)
+                        {
+                            list.Add(dataType.ConvertData(item.ToString()));
+                        }
+                        return list;
+                    }
+                }
+                else if (isArray)
+                {
+
+                }
+                try
+                {
+                    return dataType.ConvertData(val);
+                }
+                catch (Exception)
+                {
+                    return val;
+                }                
+            }
+            return null;
         }
     }
 }

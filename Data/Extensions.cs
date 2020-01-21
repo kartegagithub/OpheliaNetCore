@@ -90,6 +90,7 @@ namespace Ophelia.Data
                     if (data.SubFilter != null)
                         return source.Apply(data.SubFilter);
 
+                    var applyFilter = true;
                     var comparison = "";
                     switch (data.Comparison)
                     {
@@ -112,6 +113,10 @@ namespace Ophelia.Data
                             comparison = " <= @0";
                             break;
                         case Comparison.In:
+                            applyFilter = false;
+                            var value = data.ProcessValue(data.Value, data.ValueType);
+                            if (value != null)
+                                source = source.Where("@0.Contains(outerIt." + data.Name + ")", value);
                             break;
                         case Comparison.Between:
                             break;
@@ -129,7 +134,13 @@ namespace Ophelia.Data
                         default:
                             break;
                     }
-                    source = source.Where(data.Name + comparison, data.Value);
+                    if (applyFilter)
+                    {
+                        if (data.Value != null)
+                            source = source.Where(data.Name + comparison, data.Value);
+                        else
+                            source = source.Where(data.Name + comparison.Replace("@0", "null"));
+                    }
                 }
             }
             return source;

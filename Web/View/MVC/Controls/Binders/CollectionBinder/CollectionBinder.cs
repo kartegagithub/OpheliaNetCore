@@ -477,10 +477,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         {
                             using (var visitor = new SQLPreparationVisitor(queryData))
                             {
-                                visitor.Visit(this.DataSource.Query.Expression);
+                                if (this.DataSource.OnBeforeQueryExecuted != null)
+                                    this.DataSource.Query = this.DataSource.OnBeforeQueryExecuted(this.DataSource.Query);
 
                                 this.OnBeforeQueryExecuted();
-
+                                visitor.Visit(this.DataSource.Query.Expression);
                                 var response = this.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), new Service.WebApiCollectionRequest<T>() { Page = this.DataSource.Pagination.PageNumber, PageSize = this.DataSource.Pagination.PageSize, QueryData = queryData.Serialize(), Parameters = additionalParams, TypeName = typeof(T).FullName, Data = this.FiltersToEntity() });
                                 if (response.RawData != null)
                                     this.DataSource.Items = (List<T>)response.RawData;
@@ -495,6 +496,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                     else
                     {
+                        if (this.DataSource.OnBeforeQueryExecuted != null)
+                            this.DataSource.Query = this.DataSource.OnBeforeQueryExecuted(this.DataSource.Query);
+
                         this.OnBeforeQueryExecuted();
                         if (this.DataSource.Query.GetType().IsQueryableDataSet())
                         {
