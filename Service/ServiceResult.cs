@@ -9,7 +9,7 @@ using Ophelia.Reflection;
 namespace Ophelia.Service
 {
     [DataContract(IsReference = true)]
-    public class ServiceResult: IDisposable
+    public class ServiceResult : IDisposable
     {
         [DataMember]
         public ServicePerformance Performance { get; set; }
@@ -34,6 +34,26 @@ namespace Ophelia.Service
         public void Fail()
         {
             this.HasFailed = true;
+        }
+
+        public void AddSuccessMessage(string message)
+        {
+            this.AddSuccessMessage("", message);
+        }
+
+        public void AddSuccessMessage(string code, string message)
+        {
+            this.Messages.Add(new ServiceResultMessage() { Code = code, Description = message, IsSuccess = true });
+        }
+
+        public void AddWarningMessage(string message)
+        {
+            this.AddWarningMessage("", message);
+        }
+
+        public void AddWarningMessage(string code, string message)
+        {
+            this.Messages.Add(new ServiceResultMessage() { Code = code, Description = message, IsWarning = true });
         }
 
         public void Fail(ServiceResult result)
