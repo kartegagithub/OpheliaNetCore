@@ -26,13 +26,16 @@ namespace Ophelia.Service
             var requestInfo = string.Format("{0} {1}", request.Method, request.RequestUri);
 
             var requestMessage = new byte[0];
-
+            var headers = "";
             if (request.Content != null)
             {
                 requestMessage = request.Content.ReadAsByteArrayAsync().Result;
             }
-
-            this.LogRequest(0, requestInfo, Encoding.UTF8.GetString(requestMessage));
+            if(request.Headers != null)
+            {
+                headers = request.Headers.ToJson();
+            }
+            this.LogRequest(0, requestInfo, Encoding.UTF8.GetString(requestMessage), headers);
 
             var response = base.SendAsync(request, cancellationToken).Result;
             var httpStatus = (int)response.StatusCode;
@@ -53,7 +56,7 @@ namespace Ophelia.Service
             return Task<HttpResponseMessage>.Factory.StartNew(() => response);
         }
 
-        public virtual void LogRequest(int status, string requestInfo, string message)
+        public virtual void LogRequest(int status, string requestInfo, string message, string headers)
         {
 
         }

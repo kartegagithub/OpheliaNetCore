@@ -33,10 +33,11 @@ namespace Ophelia.Service
         public object BeforeSendRequest(ref Message request, IClientChannel channel)
         {
             this.URL = channel.RemoteAddress.ToString();
+            var headers = request.Headers.ToJson();
             using (var buffer = request.CreateBufferedCopy(int.MaxValue))
             {
                 var document = GetDocument(buffer.CreateMessage());
-                this.Logger.LogRequest(0, this.URL, document.OuterXml);
+                this.Logger.LogRequest(0, this.URL, document.OuterXml, headers);
 
                 request = buffer.CreateMessage();
                 return null;
