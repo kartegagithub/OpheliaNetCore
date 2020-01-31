@@ -482,7 +482,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                                 this.OnBeforeQueryExecuted();
                                 visitor.Visit(this.DataSource.Query.Expression);
-                                var response = this.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), new Service.WebApiCollectionRequest<T>() { Page = this.DataSource.Pagination.PageNumber, PageSize = this.DataSource.Pagination.PageSize, QueryData = queryData.Serialize(), Parameters = additionalParams, TypeName = typeof(T).FullName, Data = this.FiltersToEntity() });
+                                var request = new Service.WebApiCollectionRequest<T>() { Page = this.DataSource.Pagination.PageNumber, PageSize = this.DataSource.Pagination.PageSize, QueryData = queryData.Serialize(), Parameters = additionalParams, TypeName = typeof(T).FullName, Data = this.FiltersToEntity() };
+                                if (this.DataSource.OnBeforeRemoteDataSourceCall != null)
+                                    request = this.DataSource.OnBeforeRemoteDataSourceCall(request);
+
+                                var response = this.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
                                 if (response.RawData != null)
                                     this.DataSource.Items = (List<T>)response.RawData;
                                 else
