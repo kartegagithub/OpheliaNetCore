@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using Ophelia.Web;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Ophelia
 {
@@ -60,10 +61,13 @@ namespace Ophelia
             {
                 FieldInfo field = value.GetType().GetField(value.ToString());
 
-                var attrs = (DisplayAttribute)field.GetCustomAttributes(displayAttributeType, false).FirstOrDefault();
-                object underlyingValue = Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType()));
+                if (!field.GetCustomAttributes(typeof(NotMappedAttribute), false).Any())
+                {
+                    var attrs = (DisplayAttribute)field.GetCustomAttributes(displayAttributeType, false).FirstOrDefault();
+                    object underlyingValue = Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType()));
 
-                items.Add(new SelectListItem() { Text = (attrs != null ? client.TranslateText(attrs.GetName()) : client.TranslateText(value.ToString())), Value = Convert.ToString(underlyingValue) });
+                    items.Add(new SelectListItem() { Text = (attrs != null ? client.TranslateText(attrs.GetName()) : client.TranslateText(value.ToString())), Value = Convert.ToString(underlyingValue) });
+                }
             }
             return items;
         }
