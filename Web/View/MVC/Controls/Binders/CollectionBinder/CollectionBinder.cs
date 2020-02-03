@@ -594,7 +594,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             if (this.ContentRenderMode == ContentRenderMode.Group)
             {
                 var paginator = new Paginator(this.Request, Convert.ToInt32(this.DataSource.GroupPagination.ItemCount), this.DataSource.GroupPagination.PageSize, this.DataSource.GroupPagination.PageNumber, this.DataSource.GroupPagination.LinkedPageCount, this.DataSource.GroupPagination.PageKey);
-                paginator.ExcludedKeys = new string[] { "IsAjaxRequest" };
+                paginator.ExcludedKeys = new string[] { "IsAjaxRequest", "AjaxEntityBinder", "isajaxrequest", "ajaxentitybinder" };
                 paginator.StartTitle = this.Client.TranslateText("FirstPage");
                 paginator.EndTitle = this.Client.TranslateText("LastPage");
                 paginator.NextPageTitle = this.Client.TranslateText("NextPage");
@@ -605,7 +605,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             else if (this.ContentRenderMode == ContentRenderMode.Normal)
             {
                 var paginator = new Paginator(this.Request, Convert.ToInt32(this.DataSource.Pagination.ItemCount), this.DataSource.Pagination.PageSize, this.DataSource.Pagination.PageNumber, this.DataSource.Pagination.LinkedPageCount, this.DataSource.Pagination.PageKey);
-                paginator.ExcludedKeys = new string[] { "IsAjaxRequest" };
+                paginator.ExcludedKeys = new string[] { "IsAjaxRequest", "AjaxEntityBinder", "isajaxrequest", "ajaxentitybinder" };
                 paginator.StartTitle = this.Client.TranslateText("FirstPage");
                 paginator.EndTitle = this.Client.TranslateText("LastPage");
                 paginator.NextPageTitle = this.Client.TranslateText("NextPage");
