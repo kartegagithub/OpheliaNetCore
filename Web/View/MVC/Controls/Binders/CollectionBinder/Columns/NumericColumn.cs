@@ -24,6 +24,21 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             else
                 return Convert.ToDecimal(value).ToString(this.Format);
         }
+        public override WebControl GetEditableControl(T entity, object value)
+        {
+            var identifierValue = this.IdentifierExpression.GetValue(entity);
+
+            var textbox = new Textbox();
+            textbox.ID = this.IdentifierKeyword + identifierValue;
+            textbox.AddAttribute("data-identifier", Convert.ToString(identifierValue));
+            textbox.AddAttribute("data-column", this.FormatColumnName());
+            textbox.Name = textbox.ID;
+            textbox.HtmlAttributes = this.HtmlAttributes;
+            textbox.CssClass = "form-control numeric";
+            textbox.Value = Convert.ToString(this.GetValue(entity));
+            this.SetAttributes(textbox);
+            return textbox;
+        }
         public NumericColumn(CollectionBinder<TModel,T> binder, string Name) : base(binder, Name)
         {
             this.Alignment = HorizontalAlign.Right;

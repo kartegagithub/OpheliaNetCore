@@ -131,6 +131,17 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             return (Columns.EnumColumn<TModel, T>)binder.AddColumn(column);
         }
 
+        public static Columns.TextColumn<TModel, T> AddEditableNumericColumn<TModel, T>(this CollectionBinder<TModel, T> binder, Expression<Func<T, object>> expression, Expression<Func<T, object>> identifierExpression, string identifierKeyword = "", string Text = "", object htmlAttributes = null) where T : class where TModel : ListModel<T>
+        {
+            var column = new Columns.NumericColumn<TModel, T>(binder, Text);
+            column.Expression = expression;
+            column.IdentifierExpression = identifierExpression;
+            column.IdentifierKeyword = identifierKeyword;
+            column.HtmlAttributes = htmlAttributes;
+            column.Text = Text;
+            column.AllowEdit = true;
+            return (Columns.TextColumn<TModel, T>)binder.AddColumn(column);
+        }
         public static Columns.NumericColumn<TModel, T> AddNumericColumn<TModel, T>(this CollectionBinder<TModel, T> binder, Expression<Func<T, object>> expression) where T : class where TModel : ListModel<T> { return binder.AddNumericColumn(expression, ""); }
         public static Columns.NumericColumn<TModel, T> AddNumericColumn<TModel, T>(this CollectionBinder<TModel, T> binder, Expression<Func<T, object>> expression, string Text) where T : class where TModel : ListModel<T> { return binder.AddNumericColumn(expression, Text, true); }
         public static Columns.NumericColumn<TModel, T> AddNumericColumn<TModel, T>(this CollectionBinder<TModel, T> binder, Expression<Func<T, object>> expression, string Text, bool IsSortable) where T : class where TModel : ListModel<T> { return binder.AddNumericColumn(expression, Text, IsSortable, false); }
