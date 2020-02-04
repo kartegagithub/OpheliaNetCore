@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ophelia.Service;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,6 +16,7 @@ namespace Ophelia.Web.View.Mvc.Models
         }
         public List<T> Items { get; set; }
         public IQueryable<T> Query { get; set; }
+        public Func<string, WebApiCollectionRequest<T>, ServiceCollectionResult<T>> RemoteDataSource { get; set; }
         public Func<IQueryable<T>, IQueryable<T>> OnBeforeQueryExecuted { get; set; }
         public Func<Service.WebApiCollectionRequest<T>, Service.WebApiCollectionRequest<T>> OnBeforeRemoteDataSourceCall { get; set; }
         public bool DataImportPreview { get; set; }

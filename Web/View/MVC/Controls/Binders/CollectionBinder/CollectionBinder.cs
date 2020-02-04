@@ -43,7 +43,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         public TModel DataSource { get; private set; }
         public Client Client { get { return Client.Current; } }
         public string Title { get; set; }
-        public Func<string, WebApiCollectionRequest<T>, ServiceCollectionResult<T>> RemoteDataSource { get; set; }
         private readonly ViewContext viewContext;
         protected IQueryable<IGrouping<object, T>> GroupedData { get; set; }
         public Configuration Configuration { get; private set; }
@@ -178,11 +177,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             if (this.DataSource.Query != null)
                 isQueryableDataSet = this.DataSource.Query.GetType().IsQueryableDataSet();
 
-            if (this.RemoteDataSource != null && this.DataSource.Query == null)
+            if (this.DataSource.RemoteDataSource != null && this.DataSource.Query == null)
             {
                 this.DataSource.Query = this.DataSource.Items.AsQueryable();
             }
-            if ((this.RemoteDataSource != null || this.DataSource.Items == null || this.DataSource.Items.Count == 0) && this.DataSource.Query != null && !this.DataSource.DataImportPreview)
+            if ((this.DataSource.RemoteDataSource != null || this.DataSource.Items == null || this.DataSource.Items.Count == 0) && this.DataSource.Query != null && !this.DataSource.DataImportPreview)
             {
                 var defaultModel = Activator.CreateInstance(typeof(TModel));
 
@@ -456,7 +455,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     this.ContentRenderMode = ContentRenderMode.Group;
 
                     var groupedData = (IQueryable<IGrouping<object, T>>)this.DataSource.Query.GroupBy(selectedGroupers.ToArray());
-                    if (this.RemoteDataSource != null)
+                    if (this.DataSource.RemoteDataSource != null)
                     {
                         this.DataSource.GroupPagination.ItemCount = groupedData.Count();
                         this.GroupedData = groupedData.Paginate(this.CanExport ? 1 : this.DataSource.GroupPagination.PageNumber, this.CanExport ? int.MaxValue : this.DataSource.GroupPagination.PageSize);
@@ -471,7 +470,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
                 else
                 {
-                    if (this.RemoteDataSource != null && !this.DataSource.DataImportPreview)
+                    if (this.DataSource.RemoteDataSource != null && !this.DataSource.DataImportPreview)
                     {
                         using (var queryData = new QueryData())
                         {
@@ -486,7 +485,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 if (this.DataSource.OnBeforeRemoteDataSourceCall != null)
                                     request = this.DataSource.OnBeforeRemoteDataSourceCall(request);
 
-                                var response = this.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
+                                var response = this.DataSource.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
                                 if (response.RawData != null)
                                     this.DataSource.Items = (List<T>)response.RawData;
                                 else
