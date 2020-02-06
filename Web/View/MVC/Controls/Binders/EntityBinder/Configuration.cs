@@ -27,6 +27,12 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public string DataControlParentCssClass { get; set; }
         public string LabelCssClass { get; set; }
         public string TabPaneCssClass { get; set; }
+        public string EditButtonText { get; set; }
+        public string BackButtonText { get; set; }
+        public string SaveButtonText { get; set; }
+        public string DeleteButtonText { get; set; }
+        public string NewButtonText { get; set; }
+        public string SettingsButtonText { get; set; }
         public void AddModeField(string Mode)
         {
 
@@ -40,6 +46,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
 
         public Configuration()
         {
+            this.EditButtonText = "Edit";
+            this.SaveButtonText = "Save";
+            this.DeleteButtonText = "Delete";
+            this.NewButtonText = "AddNew";
+            this.BackButtonText = "Back";
+            this.SettingsButtonText = "Back";
+
             this.Help = new HelpConfiguration();
             this.AllowDelete = true;
             this.AllowNew = true;
