@@ -117,7 +117,7 @@ namespace Ophelia.LDAP
             return false;
         }
         
-        public static ServiceObjectResult<SearchResult> GetAuthenticatedUserInfo(string domain, string username, string pwd, string path)
+        public static ServiceObjectResult<SearchResult> GetAuthenticatedUserInfo(string domain, string username, string pwd, string path, string requestedUserName = "")
         {
             var Result = new ServiceObjectResult<SearchResult>();
             string whitelist = @"^[a-zA-Z\-\.']$";
@@ -125,6 +125,9 @@ namespace Ophelia.LDAP
 
             if (!pattern.IsMatch(domain) && !pattern.IsMatch(username))
             {
+                if (string.IsNullOrEmpty(requestedUserName))
+                    requestedUserName = username;
+
                 string domainAndUsername = domain + @"\" + username;
                 try
                 {
@@ -133,7 +136,7 @@ namespace Ophelia.LDAP
                         object obj = entry.NativeObject;
                         using (var search = new DirectorySearcher(entry))
                         {
-                            search.Filter = string.Format("(SAMAccountName={0})", username);
+                            search.Filter = string.Format("(SAMAccountName={0})", requestedUserName);
                             //search.PropertiesToLoad.Add("cn");
                             obj = null;
                             Result.SetData(search.FindOne());

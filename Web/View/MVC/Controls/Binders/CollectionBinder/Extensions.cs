@@ -196,6 +196,22 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             control.AllowEdit = true;
             return (Columns.FilterboxColumn<TModel, T>)binder.AddColumn(control);
         }
+
+        //public static Columns.SelectboxColumn<TModel, T> AddSelectboxColumn<TModel, T>(this CollectionBinder<TModel, T> binder, Expression<Func<T, object>> expression, IEnumerable dataSource, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class where TModel : ListModel<T> { return (Columns.SelectboxColumn<TModel, T>)binder.AddSelectboxColumn("", expression, dataSource, isRequired, htmlAttributes, DefaultText, DefaultValue); }
+        //public static Columns.SelectboxColumn<TModel, T> AddSelectboxColumn<TModel, T>(this CollectionBinder<TModel, T> binder, string Text, Expression<Func<T, object>> expression, IEnumerable dataSource, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class where TModel : ListModel<T>
+        //{
+        //    var control = new Columns.SelectboxColumn<TModel, T>(binder, Text);
+        //    control.Expression = expression;
+        //    control.DataControl.DataSource = dataSource;
+        //    control.DataControl.DefaultText = DefaultText;
+        //    control.DataControl.DefaultValue = DefaultValue;
+        //    control.Text = Text;
+        //    control.IsRequired = isRequired;
+        //    control.ID = Text;
+        //    container.AddField(control);
+        //    container.SetFieldProperties(control);
+        //    return (Columns.SelectboxColumn<TModel, T>)binder.AddColumn(control);
+        //}
         public static Columns.BaseColumn<TModel, T> AddColumn<TModel, T>(this CollectionBinder<TModel, T> binder, Columns.BaseColumn<TModel, T> column) where T : class where TModel : ListModel<T>
         {
             column.Visible = binder.CanAddColumn(column);
