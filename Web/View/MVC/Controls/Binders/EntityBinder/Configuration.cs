@@ -31,6 +31,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public string BackButtonText { get; set; }
         public string SaveButtonText { get; set; }
         public string SaveButtonIcon { get; set; }
+        public string SaveButtonClass { get; set; }
         public string DeleteButtonText { get; set; }
         public string NewButtonText { get; set; }
         public string SettingsButtonText { get; set; }
@@ -54,6 +55,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.BackButtonText = "Back";
             this.SettingsButtonText = "Back";
             this.SaveButtonIcon = "icon-floppy-disk";
+            this.SaveButtonClass = "save-button";
 
             this.Help = new HelpConfiguration();
             this.AllowDelete = true;

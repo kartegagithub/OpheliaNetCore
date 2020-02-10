@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Ophelia.Data.Logging;
@@ -23,6 +25,14 @@ namespace Ophelia.Data.EntityFramework
             {
                 ((Ophelia.Data.EntityFramework.IEntityConfigurator)Activator.CreateInstance(type)).Configure(builder);
             }
+        }
+        public override EntityEntry Add(object entity)
+        {
+            return base.Add(entity);
+        }
+        public override EntityEntry<TEntity> Add<TEntity>(TEntity entity)
+        {
+            return base.Add(entity);
         }
         public override int SaveChanges()
         {
