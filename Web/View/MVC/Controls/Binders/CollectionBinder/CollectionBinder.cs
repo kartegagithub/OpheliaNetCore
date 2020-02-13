@@ -470,7 +470,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
                 else
                 {
-                    if (this.DataSource.RemoteDataSource != null && !this.DataSource.DataImportPreview)
+                    if (this.DataSource.RemoteDataSource != null && !this.DataSource.DataImportPreview && !this.DataSource.ParentDrawsLayout)
                     {
                         using (var queryData = new QueryData())
                         {
