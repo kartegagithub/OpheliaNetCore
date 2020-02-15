@@ -81,6 +81,26 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 return null;
             }
         }
+        public CollectionBinder(ViewContext viewContext, TModel dataSource, string title) : this(dataSource, title)
+        {
+            if (viewContext == null)
+                throw new ArgumentNullException("viewContext");
+
+            this.viewContext = viewContext;
+            this.Output = this.viewContext.Writer;
+            if (this.IsAjaxRequest && this.Response != null && !this.CanExport)
+            {
+                this.Response.Clear();
+            }
+            this.SetPageSize();
+            this.onViewContextSet();
+            if (viewContext.ViewData.Model != this.DataSource)
+                this.ParentDrawsLayout = true;
+            this.Configure();
+            this.ProcessQuery();
+            this.CheckAjaxFunctions();
+            this.Export();
+        }
         public CollectionBinder(TModel dataSource, string title)
         {
             this.ContentRenderMode = ContentRenderMode.Normal;
@@ -96,11 +116,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.ID = title;
             this.Title = this.Client.TranslateText(title);
             this.FilterPanel = new FilterPanel<TModel, T>(this);
-            this.SetPageSize();
-            this.Configure();
-            this.ProcessQuery();
-            this.CheckAjaxFunctions();
-            this.Export();
         }
         protected virtual void SetPageSize()
         {
@@ -530,19 +545,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             return info.Name + "ID";
         }
-        public CollectionBinder(ViewContext viewContext, TModel dataSource, string title) : this(dataSource, title)
-        {
-            if (viewContext == null)
-                throw new ArgumentNullException("viewContext");
-
-            this.viewContext = viewContext;
-            this.Output = this.viewContext.Writer;
-            if (this.IsAjaxRequest && this.Response != null && !this.CanExport)
-            {
-                this.Response.Clear();
-            }
-            this.onViewContextSet();
-        }
+        
         protected virtual object GetReferencedEntity(Type entityType, object value)
         {
             return null;
