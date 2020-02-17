@@ -5,34 +5,39 @@ using Ophelia;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Ophelia.Web
 {
     public class Client : IDisposable
     {
-        protected static AsyncLocal<Client> _Current;
+        //protected static AsyncLocal<Client> _Current;
         public static Client Current
         {
             get
             {
-                if (_Current == null)
-                    _Current = new AsyncLocal<Client>();
-                if (_Current.Value == null)
-                {
-                    _Current.Value = (Client)typeof(Client).GetRealTypeInstance(true);
-                }
-                return _Current.Value;
+                //if (_Current == null)
+                //    _Current = new AsyncLocal<Client>();
+                //if (_Current.Value == null)
+                //{
+                //    _Current.Value = (Client)typeof(Client).GetRealTypeInstance(true);
+                //}
+                //return _Current.Value;
+                return (Client)Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"];
             }
         }
         private string sSessionID;
         private string sUserHostAddress = string.Empty;
         public decimal InstanceID { get; set; }
         public string ApplicationName { get; set; }
+        public Dictionary<string, object> SharedData { get; set; }
         public Ophelia.Web.View.Mvc.Controllers.Base.Controller Controller { get; set; }
         public HttpContext Context
         {
-            get;
-            set;
+            get
+            {
+                return View.Mvc.Middlewares.HTTPContextAccessor.Current;
+            }
         }
 
         public ISession Session
@@ -85,7 +90,8 @@ namespace Ophelia.Web
         }
         public virtual void Disconnect()
         {
-            _Current = null;
+            //_Current = null;
+            this.SharedData = null;
         }
 
         public virtual void Dispose()
@@ -96,10 +102,11 @@ namespace Ophelia.Web
 
         public Client()
         {
-            _Current.Value = this;
+            //_Current.Value = this;
             var rnd = new Random();
             this.InstanceID = rnd.Next(int.MaxValue);
             rnd = null;
+            this.SharedData = new Dictionary<string, object>();
         }
     }
 }

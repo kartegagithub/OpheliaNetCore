@@ -8,6 +8,13 @@ namespace Ophelia.Web.View.Mvc.Middlewares
 {
     public class HTTPContextAccessor : IHttpContextAccessor
     {
+        public static HttpContext Current
+        {
+            get
+            {
+                return _httpContextCurrent.Value.Context;
+            }
+        }
         private static AsyncLocal<HttpContextHolder> _httpContextCurrent = new AsyncLocal<HttpContextHolder>();
 
         public virtual HttpContext HttpContext
@@ -26,6 +33,7 @@ namespace Ophelia.Web.View.Mvc.Middlewares
 
                 if (value != null)
                 {
+                    value.Items["Client"] = (Client)typeof(Client).GetRealTypeInstance(true);
                     _httpContextCurrent.Value = new HttpContextHolder { Context = value };
                 }
             }
