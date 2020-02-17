@@ -34,7 +34,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             get
             {
-                return this.Request.GetValue("IsAjaxRequest") == "1";
+                return this.Request.GetValue("IsAjaxRequest") == "1" || this.Request.GetValue("ajaxentitybinder") == "1";
             }
         }
         public ControllerContext ControllerContext { get; private set; }
@@ -91,6 +91,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             if (this.IsAjaxRequest && this.Response != null && !this.CanExport)
             {
                 this.Response.Clear();
+                this.Response.ClearContent();
+                this.Response.ClearHeaders();
             }
             this.SetPageSize();
             this.onViewContextSet();
@@ -127,7 +129,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         protected virtual void CheckAjaxFunctions()
         {
-            if (this.Request.GetValue("IsAjaxRequest") == "1" && !string.IsNullOrEmpty(this.Request.GetValue("CollectionBinderTriggerFunction")))
+            if (this.IsAjaxRequest && !string.IsNullOrEmpty(this.Request.GetValue("CollectionBinderTriggerFunction")))
             {
                 this.Response.Clear();
                 this.Response.ClearContent();
@@ -798,7 +800,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             {
                                 using (var editControl = column.GetEditableControl(item, value))
                                 {
-                                    editControl.AddAttribute("data-filters", this.Request.QueryString.ToString().Replace("IsAjaxRequest=1", "").Trim('&'));
+                                    editControl.AddAttribute("data-filters", this.Request.QueryString.ToString().Replace("IsAjaxRequest=1", "").Replace("ajaxentitybinder=1", "").Trim('&'));
                                     this.Output.Write(editControl.Draw());
                                 }
                             }
@@ -1165,12 +1167,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 this.Response.Write(this.Output);
             }
             this.Response.Flush();
-            this.Response.End();
         }
         public override void Dispose()
         {
-            if (this.IsAjaxRequest && this.Response != null && !this.CanExport)
-                this.FinishRequest();
+            //if (this.IsAjaxRequest && this.Response != null && !this.CanExport)
+            //    this.FinishRequest();
 
             this.FilterPanel = null;
             this.DataSource = null;
