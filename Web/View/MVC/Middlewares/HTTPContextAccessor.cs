@@ -12,7 +12,7 @@ namespace Ophelia.Web.View.Mvc.Middlewares
         {
             get
             {
-                return _httpContextCurrent.Value.Context;
+                return _httpContextCurrent?.Value?.Context;
             }
         }
         private static AsyncLocal<HttpContextHolder> _httpContextCurrent = new AsyncLocal<HttpContextHolder>();

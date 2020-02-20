@@ -21,27 +21,34 @@ namespace Ophelia.Service
 
         public void AfterReceiveReply(ref Message reply, object correlationState)
         {
-            using (var buffer = reply.CreateBufferedCopy(int.MaxValue))
+            if (this.Logger != null)
             {
-                var document = GetDocument(buffer.CreateMessage());
-                this.Logger.LogResponse(200, this.URL, document.OuterXml);
+                using (var buffer = reply.CreateBufferedCopy(int.MaxValue))
+                {
+                    var document = GetDocument(buffer.CreateMessage());
+                    this.Logger.LogResponse(200, this.URL, document.OuterXml);
 
-                reply = buffer.CreateMessage();
-            }
+                    reply = buffer.CreateMessage();
+                }
+            }                
         }
 
         public object BeforeSendRequest(ref Message request, IClientChannel channel)
         {
-            this.URL = channel.RemoteAddress.ToString();
-            var headers = request.Headers.ToJson();
-            using (var buffer = request.CreateBufferedCopy(int.MaxValue))
+            if(this.Logger != null)
             {
-                var document = GetDocument(buffer.CreateMessage());
-                this.Logger.LogRequest(0, this.URL, document.OuterXml, headers);
+                this.URL = channel.RemoteAddress.ToString();
+                var headers = request.Headers.ToJson();
+                using (var buffer = request.CreateBufferedCopy(int.MaxValue))
+                {
+                    var document = GetDocument(buffer.CreateMessage());
+                    this.Logger.LogRequest(0, this.URL, document.OuterXml, headers);
 
-                request = buffer.CreateMessage();
-                return null;
+                    request = buffer.CreateMessage();
+                    return null;
+                }
             }
+            return null;
         }
 
         private XmlDocument GetDocument(Message request)

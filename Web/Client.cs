@@ -11,18 +11,21 @@ namespace Ophelia.Web
 {
     public class Client : IDisposable
     {
-        //protected static AsyncLocal<Client> _Current;
+        protected static AsyncLocal<Client> _Current;
         public static Client Current
         {
             get
             {
-                //if (_Current == null)
-                //    _Current = new AsyncLocal<Client>();
-                //if (_Current.Value == null)
-                //{
-                //    _Current.Value = (Client)typeof(Client).GetRealTypeInstance(true);
-                //}
-                //return _Current.Value;
+                if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current == null)
+                {
+                    if (_Current == null)
+                        _Current = new AsyncLocal<Client>();
+                    if (_Current.Value == null)
+                    {
+                        _Current.Value = (Client)typeof(Client).GetRealTypeInstance(true);
+                    }
+                    return _Current.Value;
+                }
                 return (Client)Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"];
             }
         }
@@ -90,7 +93,7 @@ namespace Ophelia.Web
         }
         public virtual void Disconnect()
         {
-            //_Current = null;
+            _Current = null;
             this.SharedData = null;
         }
 
@@ -102,7 +105,8 @@ namespace Ophelia.Web
 
         public Client()
         {
-            //_Current.Value = this;
+            if (_Current != null)
+                _Current.Value = this;
             var rnd = new Random();
             this.InstanceID = rnd.Next(int.MaxValue);
             rnd = null;
