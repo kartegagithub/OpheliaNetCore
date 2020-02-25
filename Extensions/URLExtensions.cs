@@ -198,7 +198,7 @@ namespace Ophelia
         {
             if (FilesToUpload != null)
             {
-                foreach (var file in FilesToUpload.Where(op => op.Value.Length > 0))
+                foreach (var file in FilesToUpload.Where(op => op.Value != null && op.Value.Length > 0))
                 {
                     request.Files.Add(new FileData()
                     {

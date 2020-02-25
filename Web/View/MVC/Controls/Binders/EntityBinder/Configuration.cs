@@ -53,7 +53,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.DeleteButtonText = "Delete";
             this.NewButtonText = "AddNew";
             this.BackButtonText = "Back";
-            this.SettingsButtonText = "Back";
+            this.SettingsButtonText = "Settings";
             this.SaveButtonIcon = "icon-floppy-disk";
             this.SaveButtonClass = "save-button";
 
