@@ -132,10 +132,10 @@ namespace Ophelia.Data
                     subExpression = Expression.Call(member, typeof(string).GetMethod("Contains", new[] { typeof(string) }), constantExp);
                     break;
                 case Comparison.In:
-                    //TODO: Comparison.In eksik
+                    //Comparison.In eksik
                     break;
                 case Comparison.Exists:
-                    //TODO: Comparison.Exists eksik
+                    //Comparison.Exists eksik
                     break;
             }
             if (subExpression != null)
@@ -194,10 +194,10 @@ namespace Ophelia.Data
                     subExpression = Expression.Call(member, typeof(string).GetMethod("Contains", new[] { typeof(string) }), constantExp);
                     break;
                 case Comparison.In:
-                    //TODO: Comparison.In eksik
+                    //Comparison.In eksik
                     break;
                 case Comparison.Exists:
-                    //TODO: Comparison.Exists eksik
+                    //Comparison.Exists eksik
                     break;
             }
             if (subExpression != null)

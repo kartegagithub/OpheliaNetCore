@@ -149,7 +149,7 @@ namespace Ophelia.Data.Querying.Query
             else
                 includer = Helpers.Includer.Create(this.Data.EntityType.GetPropertyInfo(expression.Path), expression.Path, expression.JoinType);
 
-            //TODO: Burada derin include (3 ve üzeri) eksik. Include(op => op.Customer.BusinessPartner.BusinessPartnerType)
+            //Burada derin include (3 ve üzeri) eksik. Include(op => op.Customer.BusinessPartner.BusinessPartnerType)
             //var parent = this.GetParentIncluder(includer.Name);
 
             if (includer.Name.IndexOf(".") > -1)

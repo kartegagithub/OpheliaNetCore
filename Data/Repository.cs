@@ -110,7 +110,7 @@ namespace Ophelia.Data
                                             {
                                                 if (refMethods.Count > 1)
                                                 {
-                                                    //TODO: Burada aynı tipte iki özellik varsa olacak karışıklık giderilecek.
+                                                    //Burada aynı tipte iki özellik varsa olacak karışıklık giderilecek.
                                                     //Örneğin: ProjectProgress üzerinde NodeID ve ResponsibleNodeID gibi dönüş tipleri aynı olanlar.
                                                 }
                                                 var refMethod = refMethods.FirstOrDefault();

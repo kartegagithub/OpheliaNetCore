@@ -75,7 +75,7 @@ namespace Ophelia.Tasks
         }
         public virtual DateTime GetNextExecutionTime(Job job)
         {
-            //TODO: Buraya spesifik olarak hangi saatlerde çalışacağı eklenecek
+            //Buraya spesifik olarak hangi saatlerde çalışacağı eklenecek
             if (job.Routine == null)
                 return DateTime.Now;
 
