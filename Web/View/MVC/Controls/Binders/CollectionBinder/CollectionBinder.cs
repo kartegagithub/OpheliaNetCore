@@ -48,6 +48,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         public Configuration Configuration { get; private set; }
         public FilterPanel<TModel, T> FilterPanel { get; private set; }
         public GrouperList<T> Groupers { get; private set; }
+        public Panel PageTitles { get; private set; }
+        public Panel HeadingElements { get; private set; }
         public List Breadcrumb { get; private set; }
         public List ActionButtons { get; private set; }
         public List<Columns.BaseColumn<TModel, T>> Columns { get; private set; }
@@ -115,6 +117,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.ActionButtons.CssClass = "breadcrumb-elements";
             this.Groupers = new GrouperList<T>();
 
+            this.PageTitles = new Panel();
+            this.HeadingElements = new Panel();
+
             this.ID = title;
             this.Title = this.Client.TranslateText(title);
             this.FilterPanel = new FilterPanel<TModel, T>(this);
@@ -178,6 +183,36 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 this.Response.Write(result.ToJson());
                 this.Response.End();
             }
+        }
+        public WebControl AddHeadingElementButton(string url, string text, bool openInNewWindow, string cssClass = "btn btn-link btn-float has-text")
+        {
+            var control = new Link() { URL = url, Text = text, NewWindow = openInNewWindow, CssClass = CssClass };
+            this.HeadingElements.Controls.Add(control);
+            return control;
+        }
+        public WebControl AddHeadingElementHtml(string html)
+        {
+            var control = new Literal() { Text = html };
+            this.HeadingElements.Controls.Add(control);
+            return control;
+        }
+        public WebControl AddPageTitleLink(string url, string text, bool openInNewWindow, string cssClass = "")
+        {
+            var control = new Link() { URL = url, Text = text, NewWindow = openInNewWindow, CssClass = CssClass };
+            this.PageTitles.Controls.Add(control);
+            return control;
+        }
+        public WebControl AddPageTitleH4(string text)
+        {
+            var control = new Literal() { Text = "<h4>" + text + "</h4>" };
+            this.PageTitles.Controls.Add(control);
+            return control;
+        }
+        public WebControl AddPageTitleHtml(string html)
+        {
+            var control = new Literal() { Text = html };
+            this.PageTitles.Controls.Add(control);
+            return control;
         }
         protected virtual object OnColumnOrderChanged(List<string> Columns)
         {

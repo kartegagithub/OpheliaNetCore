@@ -29,6 +29,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public Form Form { get; set; }
         public string Title { get; set; }
         public TabControl<T> TabControl { get; protected set; }
+        public Panel PageTitles { get; private set; }
+        public Panel HeadingElements { get; private set; }
         public List Breadcrumb { get; private set; }
         public List ActionButtons { get; private set; }
         public Configuration Configuration { get; private set; }
@@ -86,6 +88,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.ActionButtons = new List();
             this.ActionButtons.CssClass = "breadcrumb-elements";
 
+            this.PageTitles = new Panel();
+            this.HeadingElements = new Panel();
+
             this.Controls.Add(this.Breadcrumb);
             this.Controls.Add(this.ActionButtons);
             this.Controls.Add(this.Content);
@@ -130,6 +135,36 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
 
             return this;
         }
+        public WebControl AddHeadingElementButton(string url, string text, bool openInNewWindow, string cssClass = "btn btn-link btn-float has-text")
+        {
+            var control = new Link() { URL = url, Text = text, NewWindow = openInNewWindow, CssClass = CssClass };
+            this.HeadingElements.Controls.Add(control);
+            return control;
+        }
+        public WebControl AddHeadingElementHtml(string html)
+        {
+            var control = new Literal() { Text = html };
+            this.HeadingElements.Controls.Add(control);
+            return control;
+        }
+        public WebControl AddPageTitleLink(string url, string text, bool openInNewWindow, string cssClass = "")
+        {
+            var control = new Link() { URL = url, Text = text, NewWindow = openInNewWindow, CssClass = CssClass };
+            this.PageTitles.Controls.Add(control);
+            return control;
+        }
+        public WebControl AddPageTitleH4(string text)
+        {
+            var control = new Literal() { Text = "<h4>" + text + "</h4>" };
+            this.PageTitles.Controls.Add(control);
+            return control;
+        }
+        public WebControl AddPageTitleHtml(string html)
+        {
+            var control = new Literal() { Text = html };
+            this.PageTitles.Controls.Add(control);
+            return control;
+        }
         public EntityBinder<T> AddSearchHelp(Expression<Func<T, object>> expression, string URL, string Callback = "")
         {
             return this.AddSearchHelp(expression.Body.ParsePath(), URL, Callback);
@@ -138,7 +173,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         {
             if (!this.Configuration.Help.SearchHelps.Where(op => op.Path == Key).Any())
                 this.Configuration.Help.SearchHelps.Add(new SearchHelp() { Path = Key, URL = URL, Callback = Callback });
-            
+
             return this;
         }
         public EntityBinder<T> AddDocumentation(Expression<Func<T, object>> expression, string HelpTip)
