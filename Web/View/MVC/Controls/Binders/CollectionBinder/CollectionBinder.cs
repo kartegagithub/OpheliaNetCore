@@ -54,6 +54,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         public List ActionButtons { get; private set; }
         public List<Columns.BaseColumn<TModel, T>> Columns { get; private set; }
         public bool ParentDrawsLayout { get; set; }
+        public List<ServiceResultMessage> Messages { get; set; }
         protected ContentRenderMode ContentRenderMode { get; set; }
         protected virtual bool CanExport
         {
@@ -98,6 +99,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             }
             this.SetPageSize();
             this.onViewContextSet();
+            if (viewContext.ViewBag.Messages != null)
+            {
+                this.Messages = viewContext.ViewBag.Messages;
+            }
             if (viewContext.ViewData.Model != this.DataSource)
                 this.ParentDrawsLayout = true;
             this.Configure();

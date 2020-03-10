@@ -26,5 +26,11 @@ namespace Ophelia
         {
             return string.Format("{0}://{1}{2}{3}", request.Scheme, request.Host, request.Path, request.QueryString);
         }
+        public static bool IsLocalhost(this HttpRequest request)
+        {
+            if (request == null)
+                return false;
+            return request.Host.Host.IndexOf("localhost") > -1;
+        }
     }
 }

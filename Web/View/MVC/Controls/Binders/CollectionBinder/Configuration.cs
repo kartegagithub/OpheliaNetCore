@@ -34,6 +34,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         public ColumnFilteringType ColumnFilteringType { get; set; }
         public bool AddBlankColumnToStart { get; set; }
         public RowUpdateType RowUpdateType { get; set; }
+        public string SaveButtonText { get; set; }
+        public string SaveButtonIcon { get; set; }
+        public string SaveButtonClass { get; set; }
         public Configuration()
         {
             this.AppendListOfIDOnItemLink = true;
@@ -51,6 +54,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.CheckboxProperty = "IsSelected";
             this.CheckboxIdentifierProperty = "ID";
             this.ShowCheckAll = true;
+            this.SaveButtonIcon = "icon-floppy-disk";
+            this.SaveButtonClass = "save-button";
+            this.SaveButtonText = "Save";
         }
     }
     public enum ColumnFilteringType
