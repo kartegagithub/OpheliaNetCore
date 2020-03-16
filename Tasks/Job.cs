@@ -64,6 +64,7 @@ namespace Ophelia.Tasks
 
                 var instance = Activator.CreateInstance(type, this.DataParent);
                 var methodInfo = methods.FirstOrDefault();
+                this.Manager.OnBeforeInvoke(instance, this.DataParent);
                 methodInfo.Invoke(instance, null);
                 this.LastExecutionStatus = JobExecutionStatus.Finished;
                 result.Status = this.LastExecutionStatus;

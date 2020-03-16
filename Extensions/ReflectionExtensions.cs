@@ -516,6 +516,40 @@ namespace Ophelia
             }
             return null;
         }
+        public static Type ResolveType(this string typeName)
+        {
+            Type finalType = Type.GetType(typeName);
+            try
+            {
+                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    try
+                    {
+                        if (a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
+                            continue;
+
+                        var Types = a.GetTypes();
+                        if (Types != null)
+                        {
+                            Types = Types.Where(op => op.FullName == typeName).ToArray();
+                            if (Types != null && Types.Length > 0)
+                            {
+                                finalType = Types.FirstOrDefault();
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            return finalType;
+        }
         public static string GetPropertyStringValue<TResult>(this TResult source, string property) where TResult : class
         {
             return GetPropertyValue(source, property)?.ToString();

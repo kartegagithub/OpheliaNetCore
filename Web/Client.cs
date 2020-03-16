@@ -11,7 +11,9 @@ namespace Ophelia.Web
 {
     public class Client : IDisposable
     {
-        protected static AsyncLocal<Client> _Current;
+        [ThreadStatic]
+        protected static Client _Current;
+
         public static Client Current
         {
             get
@@ -19,12 +21,10 @@ namespace Ophelia.Web
                 if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current == null)
                 {
                     if (_Current == null)
-                        _Current = new AsyncLocal<Client>();
-                    if (_Current.Value == null)
                     {
-                        _Current.Value = (Client)typeof(Client).GetRealTypeInstance(true);
+                        _Current = (Client)typeof(Client).GetRealTypeInstance(true);
                     }
-                    return _Current.Value;
+                    return _Current;
                 }
                 return (Client)Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"];
             }
@@ -105,8 +105,8 @@ namespace Ophelia.Web
 
         public Client()
         {
-            if (_Current != null)
-                _Current.Value = this;
+            _Current = this;
+
             var rnd = new Random();
             this.InstanceID = rnd.Next(int.MaxValue);
             rnd = null;
