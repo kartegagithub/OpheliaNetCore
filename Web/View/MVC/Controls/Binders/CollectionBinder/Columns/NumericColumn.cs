@@ -35,6 +35,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             textbox.Name = textbox.ID;
             textbox.HtmlAttributes = this.HtmlAttributes;
             textbox.CssClass = "form-control numeric";
+            if (BinderConfiguration.UseHtml5DataTypes)
+                textbox.Type = "number";
             textbox.Value = Convert.ToString(this.GetValue(entity));
             this.SetAttributes(textbox);
             return textbox;

@@ -35,6 +35,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             base.onBeforeRenderControl(writer);
             this.DataControl.CssClass += " numeric";
             this.DataControl.Value = this.FormatValue(this.DataControl.Value);
+            if (BinderConfiguration.UseHtml5DataTypes)
+                this.DataControl.Type = "number";
+
             if (this.Mode == NumberboxFieldMode.SingleSelection)
             {
                 this.HasValue = this.DataControl.Value.IsNumeric() && this.DataControl.Value.ToInt64() > 0;

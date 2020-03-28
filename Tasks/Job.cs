@@ -15,6 +15,8 @@ namespace Ophelia.Tasks
         public string AssemblyName { get; set; }
         public string ClassName { get; set; }
         public string MethodName { get; set; }
+        public string Parameters { get; set; }
+        public bool OneTimeJob { get; set; }
         public DateTime? LastExecutionTime { get; set; }
         public JobExecutionStatus LastExecutionStatus { get; set; }
         public DateTime? NextExecutionTime { get; set; }
@@ -27,7 +29,7 @@ namespace Ophelia.Tasks
             {
                 try
                 {
-                    if(this.LastExecutionStatus != JobExecutionStatus.Running)
+                    if (this.LastExecutionStatus != JobExecutionStatus.Running)
                     {
                         this.LastExecutionStatus = JobExecutionStatus.Running;
                         this.Manager.OnBeforeJobExecuted(this);
@@ -52,21 +54,44 @@ namespace Ophelia.Tasks
             try
             {
                 var assembly = this.Manager.GetAssembly(this.AssemblyName);
-                if(assembly == null)
+                if (assembly == null)
                     throw new Exception("Assembly could not be loaded " + this.AssemblyName);
                 var type = assembly.GetType(this.ClassName);
-                if(type == null)
+                if (type == null)
                     throw new Exception("Class " + this.ClassName + " could not be loaded from assembly " + this.AssemblyName);
 
                 var methods = type.GetMethods().Where(op => op.Name == this.MethodName).ToList();
-                if(methods.Count == 0)
+                if (methods.Count == 0)
                     throw new Exception("Method " + this.MethodName + " not found at type " + this.ClassName + " from assembly " + this.AssemblyName);
 
                 var instance = Activator.CreateInstance(type, this.DataParent);
                 var methodInfo = methods.FirstOrDefault();
                 this.Manager.OnBeforeInvoke(instance, this.DataParent);
-                methodInfo.Invoke(instance, null);
-                this.LastExecutionStatus = JobExecutionStatus.Finished;
+                if (string.IsNullOrEmpty(this.Parameters))
+                {
+                    methodInfo.Invoke(instance, null);
+                    this.LastExecutionStatus = JobExecutionStatus.Finished;
+                }
+                else
+                {
+                    try
+                    {
+                        var parameters = this.Parameters.FromJson<Dictionary<string, object>>();
+                        var parameterValues = new List<object>();
+                        var counter = 0;
+                        foreach (var item in methodInfo.GetParameters())
+                        {
+                            parameterValues.Add(item.ParameterType.ConvertData(parameters[item.Name]));
+                            counter++;
+                        }
+                        methodInfo.Invoke(instance, parameterValues.ToArray());
+                        this.LastExecutionStatus = JobExecutionStatus.Finished;
+                    }
+                    catch (Exception)
+                    {
+                        this.LastExecutionStatus = JobExecutionStatus.Failed;
+                    }
+                }
                 result.Status = this.LastExecutionStatus;
             }
             catch (Exception ex)

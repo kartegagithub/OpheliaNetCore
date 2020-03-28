@@ -40,9 +40,25 @@ namespace Ophelia.Service
 
     public class FileData
     {
+        private byte[] oByteData;
         public string KeyName { get; set; }
         public string FileName { get; set; }
-        public byte[] ByteData { get; set; }
+        public byte[] ByteData
+        {
+            get
+            {
+                if (this.oByteData == null && !string.IsNullOrEmpty(this.Base64Data))
+                {
+                    if (this.Base64Data.IndexOf(',') > -1)
+                        this.Base64Data = this.Base64Data.Substring(this.Base64Data.IndexOf(',') + 1);
+                    this.oByteData = Convert.FromBase64String(this.Base64Data);
+
+                    this.Base64Data = null;
+                }
+                return this.oByteData;
+            }
+            set { this.oByteData = value; }
+        }
         public string Base64Data { get; set; }
     }
 }

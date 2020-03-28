@@ -72,7 +72,7 @@ namespace Ophelia.Tasks
         int OccurenceLimit { get; set; }
     }
 
-    public enum IntervalType: byte
+    public enum IntervalType : byte
     {
         Second = 0,
         Minute = 1,

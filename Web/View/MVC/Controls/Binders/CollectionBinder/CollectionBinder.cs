@@ -733,7 +733,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         }
                         if (!string.IsNullOrEmpty(className))
                             this.Output.Write(" class='" + className + "'");
-                        this.Output.Write(" data-name='" + column.Name + "'");
+                        this.Output.Write(" data-name='" + column.FormatColumnName() + "'");
                         this.Output.Write(">");
                         if (!column.HideColumnTitle)
                             this.Output.Write(column.FormatText());
@@ -973,7 +973,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 {
                     if (column.Visible)
                     {
-                        var columnName = column.FormatName();
+                        var columnName = column.FormatColumnName();
                         if (this.Groupers.Where(op => op.IsSelected && (op.FormatName() == columnName)).Any())
                             continue;
 

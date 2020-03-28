@@ -84,7 +84,6 @@ namespace Ophelia.Tasks
         }
         public virtual DateTime GetNextExecutionTime(Job job)
         {
-            //Buraya spesifik olarak hangi saatlerde çalışacağı eklenecek
             if (job.Routine == null)
                 return DateTime.Now;
 
@@ -114,17 +113,16 @@ namespace Ophelia.Tasks
                     NextExecution = DateTime.Now.AddYears(job.Routine.Interval);
                     break;
             }
+            if (job.Routine.OnlyRunAfterMidnight && string.IsNullOrEmpty(job.Routine.StartTime))
+                job.Routine.StartTime = "01:00";
 
-            if (!string.IsNullOrEmpty(job.Routine.StartTime) && (IntervalType == IntervalType.Day || IntervalType == IntervalType.Week || IntervalType == IntervalType.Month || IntervalType == IntervalType.Year))
+            if (!string.IsNullOrEmpty(job.Routine.StartTime))
             {
                 NextExecution = NextExecution.SetTime(job.Routine.StartTime, "HH:mm");
+                if (NextExecution < DateTime.Now)
+                    NextExecution = NextExecution.AddDays(1);
             }
 
-            if (job.Routine.OnlyRunAfterMidnight)
-            {
-                if (NextExecution.Hour > 4)
-                    NextExecution = Convert.ToDateTime(NextExecution.ToShortDateString() + " 01:00");
-            }
             if (!job.Routine.CanRunAtWorkingHours)
             {
                 var WorkingHourStart = NextExecution.SetTime(job.Routine.WorkingHourStart, "HH:mm");

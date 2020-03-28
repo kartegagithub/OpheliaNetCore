@@ -124,15 +124,16 @@ namespace Ophelia.Web.UI.Controls
 
             foreach (var attr in this.Attributes)
             {
+                writer.Write(" ");
                 writer.Write(attr.Key);
                 writer.Write("=");
                 writer.Write("\"");
                 writer.Write(attr.Value);
-                writer.Write("\"");
+                writer.Write("\" ");
             }
             if (this.Style.Count > 0)
             {
-                writer.Write("style=\"");
+                writer.Write(" style=\"");
                 foreach (var style in this.Style)
                 {
                     writer.Write(style.Key);
@@ -140,7 +141,7 @@ namespace Ophelia.Web.UI.Controls
                     writer.Write(style.Value);
                     writer.Write(";");
                 }
-                writer.Write("\"");
+                writer.Write("\" ");
             }
             writer.Write(">");
             foreach (var control in this.Controls)
