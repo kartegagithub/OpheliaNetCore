@@ -56,6 +56,7 @@ namespace Ophelia.Service
         public void AddWarningMessage(string code, string message)
         {
             this.Messages.Add(new ServiceResultMessage() { Code = code, Description = message, IsWarning = true });
+            this.WriteLog();
         }
         protected void WriteLog()
         {
