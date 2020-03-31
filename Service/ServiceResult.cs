@@ -77,7 +77,7 @@ namespace Ophelia.Service
                 }
                 foreach (var message in this.Messages)
                 {
-                    logger.Write(callingFunction, (message.IsError ? "ERR" : message.IsWarning ? "WRN" : "SCS") + "-" + message.Code + "-" + message.Description);
+                    logger.Write(callingFunction, (message.IsError ? "ERR" : message.IsWarning ? "WRN" : "SCS") + "-" + message.Code + "-" + message.Description, null, null);
                 }
             }
         }
