@@ -50,7 +50,7 @@ namespace Ophelia.Data
             source.ExtendData(data);
             return source;
         }
-        public static IQueryable<T> Apply<T>(this IQueryable<T> source, Querying.Query.QueryData data)
+        public static IQueryable<T> Apply<T>(this IQueryable<T> source, Querying.Query.QueryData data, bool inMemory = false)
         {
             if (data != null)
             {
@@ -70,13 +70,13 @@ namespace Ophelia.Data
                 }
                 if (data.Filter != null)
                 {
-                    source = source.Apply(data.Filter);
+                    source = source.Apply(data.Filter, inMemory);
                 }
             }
             return source;
         }
 
-        public static IQueryable<T> Apply<T>(this IQueryable<T> source, Filter data)
+        public static IQueryable<T> Apply<T>(this IQueryable<T> source, Filter data, bool inMemory = false)
         {
             if (data != null)
             {
