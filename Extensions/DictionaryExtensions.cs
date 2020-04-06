@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Threading.Tasks;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Ophelia
 {
@@ -55,6 +57,25 @@ namespace Ophelia
                 propInfo => propInfo.Name,
                 propInfo => propInfo.GetValue(source, null)
             );
+        }
+
+        public static List<Dictionary<string, object>> Import(this List<Dictionary<string, object>> data, string strFilePath)
+        {
+            using (var sr = new StreamReader(strFilePath))
+            {
+                string[] headers = sr.ReadLine().Split(',');
+                while (!sr.EndOfStream)
+                {
+                    string[] rows = Regex.Split(sr.ReadLine(), ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                    var row = new Dictionary<string, object>();
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        row[headers[i].Replace("\"", "")] = rows[i].Replace("\"", "");
+                    }
+                    data.Add(row);
+                }
+                return data;
+            }
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Ophelia
 {
@@ -11,7 +13,7 @@ namespace Ophelia
     {
         public static int ToInt32(this DataRow row, string ColumnName)
         {
-            if(!string.IsNullOrEmpty(ColumnName) && row != null && row.Table.Columns.Contains(ColumnName) && row[ColumnName] != DBNull.Value)
+            if (!string.IsNullOrEmpty(ColumnName) && row != null && row.Table.Columns.Contains(ColumnName) && row[ColumnName] != DBNull.Value)
             {
                 return Convert.ToInt32(row[ColumnName]);
             }
