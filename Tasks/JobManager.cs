@@ -15,7 +15,7 @@ namespace Ophelia.Tasks
         public bool Executing { get; private set; }
         public List<Job> Jobs { get; private set; }
         public List<AssemblyDefinition> ExternalAssemblies { get; protected set; }
-
+        public bool AppStarted { get; set; }
         public virtual void Execute()
         {
             if (!this.Executing)
@@ -36,7 +36,10 @@ namespace Ophelia.Tasks
                 this.Timer.Stop();
                 this.Timer = null;
             }
-            this.OnApplicationStart();
+            if (!this.AppStarted)
+                this.OnApplicationStart();
+            this.AppStarted = true;
+
             this.Timer = new System.Timers.Timer(interval);
             this.Timer.Elapsed += new System.Timers.ElapsedEventHandler(this.TimeElapsed);
             this.Timer.Start();
