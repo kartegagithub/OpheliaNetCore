@@ -352,5 +352,37 @@ namespace Ophelia.Web.Routing
             }
             return null;
         }
+
+        public virtual RouteItemURL GetFixedURLFromAction(string nonFriendlyUrl, string languageCode = "en")
+        {
+            var items = nonFriendlyUrl.Trim('/').Split('/');
+            var area = "";
+            var controller = "";
+            var action = "";
+            if(items.Length == 3)
+            {
+                area = items[0];
+                controller = items[1];
+                action = items[2];
+            }
+            else if (items.Length == 2)
+            {
+                controller = items[0];
+                action = items[1];
+            }
+            var URL = this.Where(op => op.Controller.Equals(controller, StringComparison.InvariantCultureIgnoreCase) && op.Action.Equals(action, StringComparison.InvariantCultureIgnoreCase) && op.Area.Equals(area, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            if (URL != null)
+            {
+                if (!string.IsNullOrEmpty(URL.Controller))
+                {
+                    var urls = URL.FixedURLs.Where(op => op.LanguageCode == languageCode).FirstOrDefault();
+                    if (urls == null)
+                        return URL.FixedURLs.FirstOrDefault();
+                    else
+                        return urls;
+                }
+            }
+            return null;
+        }
     }
 }

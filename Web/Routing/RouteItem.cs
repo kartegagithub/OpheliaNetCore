@@ -9,6 +9,7 @@ namespace Ophelia.Web.Routing
     public class RouteItem
     {
         public string Name { get; set; }
+        public string Area { get; set; }
         public string Controller { get; set; }
         public string Action { get; set; }
         public bool IsSecure { get; set; }

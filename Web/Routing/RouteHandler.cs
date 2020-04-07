@@ -88,6 +88,7 @@ namespace Ophelia.Web.Routing
                     this.SetLanguageCode(URL.LanguageCode);
                     context.RouteData.Values["controller"] = URL.RouteItem.Controller;
                     context.RouteData.Values["action"] = URL.RouteItem.Action;
+                    context.RouteData.Values["Area"] = URL.RouteItem.Area;
                     URL.RouteItem.AddParamsToDictionary(friendlyUrl, context.RouteData.Values);
                     return true;
                 }
@@ -119,36 +120,38 @@ namespace Ophelia.Web.Routing
             {
                 this.OnBeforeRoute(requestContext);
 
-                if (requestContext.RouteData.Values["pageURL"] != null)
-                {
-                    if (requestContext.RouteData.Values["pageURL"].GetType().Name == "String")
-                    {
-                        var friendlyUrl = (string)requestContext.RouteData.Values["pageURL"];
-                        friendlyUrl = friendlyUrl.Trim('/');
-                        bool HandledCustom = false;
-                        foreach (var CustomHandler in this.CustomHandlers)
-                        {
-                            bool hasHandled = false;
-                            var item = CustomHandler.Handle(requestContext, friendlyUrl, out hasHandled);
-                            if (!hasHandled && item != null)
-                            {
-                                if (!string.IsNullOrEmpty(item.Controller))
-                                {
-                                    requestContext.RouteData.Values["controller"] = item.Controller;
-                                    requestContext.RouteData.Values["action"] = item.Action;
-                                    item.AddParamsToDictionary(friendlyUrl, requestContext.RouteData.Values);
-                                    HandledCustom = true;
-                                }
-                                break;
-                            }
-                        }
+                string pageURL = Convert.ToString(requestContext.RouteData.Values["pageURL"]);
+                if (string.IsNullOrEmpty(Convert.ToString(pageURL)))
+                    pageURL = requestContext.HttpContext.Request.Path;
 
-                        if (!HandledCustom && this.Routes != null)
+                if (pageURL != "/")
+                {
+                    var friendlyUrl = pageURL;
+                    friendlyUrl = friendlyUrl.Trim('/');
+                    bool HandledCustom = false;
+                    foreach (var CustomHandler in this.CustomHandlers)
+                    {
+                        bool hasHandled = false;
+                        var item = CustomHandler.Handle(requestContext, friendlyUrl, out hasHandled);
+                        if (!hasHandled && item != null)
                         {
-                            if (!this.CheckFixedURL(friendlyUrl.ToString(), requestContext))
+                            if (!string.IsNullOrEmpty(item.Controller))
                             {
-                                this.CheckPattern(friendlyUrl.ToString(), requestContext);
+                                requestContext.RouteData.Values["controller"] = item.Controller;
+                                requestContext.RouteData.Values["action"] = item.Action;
+                                requestContext.RouteData.Values["area"] = item.Area;
+                                item.AddParamsToDictionary(friendlyUrl, requestContext.RouteData.Values);
+                                HandledCustom = true;
                             }
+                            break;
+                        }
+                    }
+
+                    if (!HandledCustom && this.Routes != null)
+                    {
+                        if (!this.CheckFixedURL(friendlyUrl.ToString(), requestContext))
+                        {
+                            this.CheckPattern(friendlyUrl.ToString(), requestContext);
                         }
                     }
                 }
