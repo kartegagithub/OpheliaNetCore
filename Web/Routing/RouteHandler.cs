@@ -41,7 +41,6 @@ namespace Ophelia.Web.Routing
                 {
                     context.HttpContext.Response.StatusCode = 301;
                     context.HttpContext.Response.AddHeader("Location", "https://" + context.HttpContext.Request.Host.ToString() + "/" + friendlyUrl);
-                    context.HttpContext.Response.End();
                     return false;
                 }
                 else
@@ -116,6 +115,7 @@ namespace Ophelia.Web.Routing
 
         public virtual async Task RouteAsync(RouteContext requestContext)
         {
+            bool found = false;
             try
             {
                 this.OnBeforeRoute(requestContext);
@@ -142,6 +142,7 @@ namespace Ophelia.Web.Routing
                                 requestContext.RouteData.Values["area"] = item.Area;
                                 item.AddParamsToDictionary(friendlyUrl, requestContext.RouteData.Values);
                                 HandledCustom = true;
+                                found = true;
                             }
                             break;
                         }
@@ -151,18 +152,27 @@ namespace Ophelia.Web.Routing
                     {
                         if (!this.CheckFixedURL(friendlyUrl.ToString(), requestContext))
                         {
-                            this.CheckPattern(friendlyUrl.ToString(), requestContext);
+                            found = this.CheckPattern(friendlyUrl.ToString(), requestContext);
                         }
+                        else
+                            found = true;
                     }
                 }
+
+                if (!found)
+                    this.OnRouteNotFound(requestContext, pageURL);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+            
             await this.DefaulRouter.RouteAsync(requestContext);
         }
+        protected virtual void OnRouteNotFound(RouteContext requestContext, string pageURL)
+        {
 
+        }
         public virtual VirtualPathData GetVirtualPath(VirtualPathContext context)
         {
             return this.DefaulRouter.GetVirtualPath(context);
