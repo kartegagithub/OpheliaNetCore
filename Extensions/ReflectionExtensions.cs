@@ -94,7 +94,7 @@ namespace Ophelia
                 }
                 return convertedValue;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

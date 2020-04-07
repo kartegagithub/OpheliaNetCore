@@ -181,7 +181,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             container.AddField(control);
             if (HasNullableControl)
             {
-                if (control.ExpressionValue != null && control.ExpressionValue != "")
+                if (control.ExpressionValue != null && Convert.ToString(control.ExpressionValue) != "")
                     return control.Render();
             }
             return new HtmlString("");
