@@ -29,19 +29,20 @@ namespace Ophelia.Web.UI.Controls
             }
             if (!string.IsNullOrEmpty(this.DefaultText) || !string.IsNullOrEmpty(this.DefaultValue))
             {
-                this.Controls.Add(new Option() { Text = this.DefaultText, Value = this.DefaultValue});
+                this.Controls.Add(new Option() { Text = this.DefaultText, Value = this.DefaultValue });
             }
-            if(this.DataSource != null)
+            if (this.DataSource != null)
             {
                 var accessor = new Ophelia.Reflection.Accessor();
                 Option option = null;
                 foreach (var item in this.DataSource)
                 {
-                    if(item.GetType().FullName == "System.Web.Mvc.SelectListItem")
+                    if (item.GetType().FullName == "System.Web.Mvc.SelectListItem" || item.GetType().FullName == "Microsoft.AspNetCore.Mvc.Rendering.SelectListItem")
                     {
                         this.DisplayMemberName = "Text";
                         this.ValueMemberName = "Value";
                     }
+
                     option = new Option();
 
                     accessor.Item = item;
@@ -65,7 +66,7 @@ namespace Ophelia.Web.UI.Controls
                     accessor.MemberName = this.ValueMemberName;
                     option.Value = Convert.ToString(accessor.Value);
 
-                    if(!string.IsNullOrEmpty(this.SelectedValue) && this.SelectedValue.IndexOf(",") > -1)
+                    if (!string.IsNullOrEmpty(this.SelectedValue) && this.SelectedValue.IndexOf(",") > -1)
                     {
                         option.IsSelected = this.SelectedValue.Split(',').Where(op => op.Equals(option.Value)).Any();
                     }
@@ -85,7 +86,7 @@ namespace Ophelia.Web.UI.Controls
         }
     }
 
-    public class Option: WebControl
+    public class Option : WebControl
     {
         public string Text { get; set; }
         public string Value { get; set; }

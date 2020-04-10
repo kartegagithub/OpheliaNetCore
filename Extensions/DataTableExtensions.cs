@@ -15,7 +15,7 @@ namespace Ophelia
         {
             if (!string.IsNullOrEmpty(ColumnName) && row != null && row.Table.Columns.Contains(ColumnName) && row[ColumnName] != DBNull.Value)
             {
-                return Convert.ToInt32(row[ColumnName]);
+                return Convert.ToInt32(Convert.ToString(row[ColumnName]).Replace(" ", ""));
             }
             return 0;
         }
@@ -24,7 +24,7 @@ namespace Ophelia
         {
             if (!string.IsNullOrEmpty(ColumnName) && row != null && row.Table.Columns.Contains(ColumnName) && row[ColumnName] != DBNull.Value)
             {
-                return Convert.ToInt64(row[ColumnName]);
+                return Convert.ToInt64(Convert.ToString(row[ColumnName]).Replace(" ", ""));
             }
             return 0;
         }
@@ -42,7 +42,27 @@ namespace Ophelia
         {
             if (!string.IsNullOrEmpty(ColumnName) && row != null && row.Table.Columns.Contains(ColumnName) && row[ColumnName] != DBNull.Value)
             {
-                return Convert.ToDecimal(row[ColumnName]);
+                return Convert.ToDecimal(Convert.ToString(row[ColumnName]).Replace(" ", ""));
+            }
+            return 0;
+        }
+        public static decimal ToDecimal(this DataRow row, string ColumnName, string seperator, List<string> replaces = null)
+        {
+            if (!string.IsNullOrEmpty(ColumnName) && row != null && row.Table.Columns.Contains(ColumnName) && row[ColumnName] != DBNull.Value)
+            {
+                var rowValue = Convert.ToString(row[ColumnName]).Replace(" ", "");
+                if (replaces != null && replaces.Count > 0)
+                {
+                    foreach (var item in replaces)
+                    {
+                        rowValue = rowValue.Replace(item, "");
+                    }
+                }
+
+                if (seperator == ",")
+                    return Convert.ToDecimal(rowValue.Replace(".", ","));
+                else
+                    return Convert.ToDecimal(rowValue.Replace(",", "."));
             }
             return 0;
         }

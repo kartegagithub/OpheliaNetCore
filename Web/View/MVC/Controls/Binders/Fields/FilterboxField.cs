@@ -29,10 +29,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         {
             base.onBeforeRenderControl(writer);
             if (!this.DataControl.IsMultiple)
-                this.DataControl.CssClass = "filterbox single-value select-remote-data select2-hidden-accessible";
+                this.DataControl.CssClass += " filterbox single-value select-remote-data select2-hidden-accessible";
             else
             {
-                this.DataControl.CssClass = "filterbox multiple-value select2-hidden-accessible";
+                this.DataControl.CssClass += " filterbox multiple-value select2-hidden-accessible";
                 this.DataControl.AddAttribute("multiple", "multiple");
             }
 

@@ -29,10 +29,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         protected override void onBeforeRenderControl(TextWriter writer)
         {
             base.onBeforeRenderControl(writer);
-            this.DataControl.CssClass = "form-control date-field pickadate-selectors";
+            this.DataControl.CssClass += " form-control date-field pickadate-selectors";
             if (BinderConfiguration.UseHtml5DataTypes)
             {
-                this.DataControl.CssClass = "form-control";
+                this.DataControl.CssClass = this.DataControl.CssClass.Replace("date-field pickadate-selectors", "");
                 this.DataControl.Type = "date";
             }
             if (this.Mode == DateFieldMode.SingleSelection)
@@ -41,7 +41,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 {
                     this.DataControl.Value = this.FormatValue(Convert.ToDateTime(this.ExpressionValue));
                 }
-                if(this.Format == DateTimeFormatType.DateTimeWithHour)
+                if (this.Format == DateTimeFormatType.DateTimeWithHour)
                 {
                     var SecondDataControl = new Textbox();
                     SecondDataControl.CssClass = "form-control time";
@@ -93,7 +93,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 {
                     SecondDataControl.Name = this.HighPropertyName;
                     SecondDataControl.ID = SecondDataControl.Name;
-                    if(this.HighExpressionValue.IsDate() && Convert.ToDateTime(this.HighExpressionValue) > DateTime.MinValue)
+                    if (this.HighExpressionValue.IsDate() && Convert.ToDateTime(this.HighExpressionValue) > DateTime.MinValue)
                         SecondDataControl.Value = this.FormatValue(Convert.ToDateTime(this.HighExpressionValue));
                 }
                 if (this.LowExpression != null && this.LowExpressionValue == null)
@@ -125,7 +125,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         }
         private string FormatValue(DateTime value)
         {
-            if(value == DateTime.MinValue)
+            if (value == DateTime.MinValue)
             {
                 return "";
             }
@@ -145,7 +145,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             else
                 return value.ToString("dd.MM.yyyy HH:mm");
         }
-        public DateField(FieldContainer<T> FieldContainer) :base(FieldContainer)
+        public DateField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {
             this.Format = DateTimeFormatType.DateOnly;
             this.Mode = DateFieldMode.SingleSelection;

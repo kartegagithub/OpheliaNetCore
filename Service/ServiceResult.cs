@@ -19,6 +19,9 @@ namespace Ophelia.Service
         public ServiceExceptionHandler Handler { get; set; }
 
         [DataMember]
+        public string EncryptedData { get; set; }
+
+        [DataMember]
         public Dictionary<string, object> ExtraData { get; set; }
 
         [DataMember]
@@ -26,6 +29,9 @@ namespace Ophelia.Service
 
         [DataMember]
         public string Token { get; set; }
+
+        [DataMember]
+        public string AppID { get; set; }
 
         [DataMember]
         public bool HasFailed { get; set; }

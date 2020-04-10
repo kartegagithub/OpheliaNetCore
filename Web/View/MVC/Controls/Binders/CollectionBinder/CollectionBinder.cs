@@ -234,7 +234,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             if (this.DataSource.Query != null)
                 isQueryableDataSet = this.DataSource.Query.GetType().IsQueryableDataSet();
 
-            if (this.DataSource.RemoteDataSource != null && this.DataSource.Query == null)
+            if (this.DataSource.RemoteDataSource != null && this.DataSource.Query == null && !this.DataSource.DataImportPreview && !this.ParentDrawsLayout)
             {
                 this.DataSource.Query = this.DataSource.Items.AsQueryable();
             }
@@ -263,6 +263,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 path = item.Text.Replace("_", ".");
                                 if (item.Text.IndexOf("Filters") == -1)
                                     path = "Filters." + path;
+                            }
+                            else if (item is Fields.DateField<TModel> dateFieldItem)
+                            {
+                                if (dateFieldItem.LowExpression != null)
+                                    path = dateFieldItem.LowExpression.ParsePath().Replace("Low", "");
+                                else if (dateFieldItem.HighExpression != null)
+                                    path = dateFieldItem.HighExpression.ParsePath().Replace("High", "");
                             }
                         }
                         if (string.IsNullOrEmpty(path))
@@ -325,7 +332,22 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             {
                                 if (propType.IsGenericType && propType.Name.StartsWith("Null"))
                                     propType = propType.GenericTypeArguments[0];
-                                if (propType.Name.Contains("String"))
+
+                                if (propType.Name == "Boolean")
+                                {
+                                    if (value == "-1")
+                                        continue;
+                                    else
+                                    {
+                                        value = value == "1" ? "true" : "false";
+                                        formattedValue = Convert.ChangeType(value, propType);
+                                        if (isQueryableDataSet)
+                                            this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue);
+                                        else
+                                            this.DataSource.Query = this.DataSource.Query.Where(entityProp + " = @0", formattedValue);
+                                    }
+                                }
+                                else if (propType.Name.Contains("String"))
                                 {
                                     formattedValue = Convert.ChangeType(value, propType);
                                     if (isQueryableDataSet)
@@ -335,37 +357,28 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 }
                                 else if (propType.IsNumeric())
                                 {
-                                    if (value.IndexOf(",") > -1)
+                                    if (propType.Name == "Decimal")
                                     {
-                                        var orParams = "";
-                                        var parameters = new List<object>();
-                                        var values = value.Split(',');
-                                        var counter = 0;
-                                        foreach (var val in values)
+                                        var customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+                                        if (customCulture.NumberFormat.NumberDecimalSeparator == ",")
                                         {
-                                            try
-                                            {
-                                                parameters.Add(Convert.ChangeType(val, propType));
-                                                if (!string.IsNullOrEmpty(orParams))
-                                                    orParams += " || ";
-                                                orParams += entityProp + " = @" + counter;
-                                            }
-#pragma warning disable CS0168 // Variable is declared but never used
-                                            catch (Exception ex)
-#pragma warning restore CS0168 // Variable is declared but never used
-                                            {
-
-                                            }
-                                            counter++;
+                                            if (!string.IsNullOrEmpty(value))
+                                                value = value.Replace(".", ",");
+                                            if (!string.IsNullOrEmpty(lowValue))
+                                                lowValue = lowValue.Replace(".", ",");
+                                            if (!string.IsNullOrEmpty(highValue))
+                                                highValue = highValue.Replace(".", ",");
                                         }
-                                        if (parameters.Count > 0)
-                                            if (isQueryableDataSet)
-                                                this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, parameters.ToArray(), Comparison.In);
-                                            else
-                                                this.DataSource.Query = this.DataSource.Query.Where(orParams, parameters.ToArray());
-                                    }
-                                    else
-                                    {
+                                        else if (customCulture.NumberFormat.NumberDecimalSeparator == ".")
+                                        {
+                                            if (!string.IsNullOrEmpty(value))
+                                                value = value.Replace(",", ".");
+                                            if (!string.IsNullOrEmpty(lowValue))
+                                                lowValue = lowValue.Replace(",", ".");
+                                            if (!string.IsNullOrEmpty(highValue))
+                                                highValue = highValue.Replace(",", ".");
+                                        }
+
                                         if (doubleSelection)
                                         {
                                             if (!string.IsNullOrEmpty(lowValue))
@@ -392,6 +405,68 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                                 this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue);
                                             else
                                                 this.DataSource.Query = this.DataSource.Query.Where(entityProp + " = @0", formattedValue);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (value.IndexOf(",") > -1)
+                                        {
+                                            var orParams = "";
+                                            var parameters = new List<object>();
+                                            var values = value.Split(',');
+                                            var counter = 0;
+                                            foreach (var val in values)
+                                            {
+                                                try
+                                                {
+                                                    parameters.Add(Convert.ChangeType(val, propType));
+                                                    if (!string.IsNullOrEmpty(orParams))
+                                                        orParams += " || ";
+                                                    orParams += entityProp + " = @" + counter;
+                                                }
+#pragma warning disable CS0168 // Variable is declared but never used
+                                                catch (Exception ex)
+#pragma warning restore CS0168 // Variable is declared but never used
+                                                {
+
+                                                }
+                                                counter++;
+                                            }
+                                            if (parameters.Count > 0)
+                                                if (isQueryableDataSet)
+                                                    this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, parameters.ToArray(), Comparison.In);
+                                                else
+                                                    this.DataSource.Query = this.DataSource.Query.Where(orParams, parameters.ToArray());
+                                        }
+                                        else
+                                        {
+                                            if (doubleSelection)
+                                            {
+                                                if (!string.IsNullOrEmpty(lowValue))
+                                                {
+                                                    formattedValue = Convert.ChangeType(lowValue, propType);
+                                                    if (isQueryableDataSet)
+                                                        this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, Comparison.GreaterAndEqual);
+                                                    else
+                                                        this.DataSource.Query = this.DataSource.Query.Where(entityProp + " >= @0", formattedValue);
+                                                }
+                                                if (!string.IsNullOrEmpty(highValue))
+                                                {
+                                                    formattedValue = Convert.ChangeType(highValue, propType);
+                                                    if (isQueryableDataSet)
+                                                        this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, Comparison.LessAndEqual);
+                                                    else
+                                                        this.DataSource.Query = this.DataSource.Query.Where(entityProp + " <= @0", formattedValue);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                formattedValue = Convert.ChangeType(value, propType);
+                                                if (isQueryableDataSet)
+                                                    this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue);
+                                                else
+                                                    this.DataSource.Query = this.DataSource.Query.Where(entityProp + " = @0", formattedValue);
+                                            }
                                         }
                                     }
                                 }
@@ -664,6 +739,21 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         public virtual void RenderContent()
         {
+            if (this.Messages != null && this.Messages.Count > 0)
+            {
+                var messageType = !this.Messages.Where(op => op.IsSuccess == true).Any() ? "warning" : "success";
+                this.Output.Write("<div class=\"alert alert-" + messageType + " alert-styled-left\">");
+                this.Output.Write("<button type=\"button\" class=\"close\" data-dismiss=\"alert\"><span>×</span><span class=\"sr-only\">" + this.Client.TranslateText("Close") + "</span></button>");
+                this.Output.Write("<ul>");
+                foreach (var message in this.Messages)
+                {
+                    this.Output.Write("<li>");
+                    this.Output.Write(this.Client.TranslateText(message.Description));
+                    this.Output.Write("</li>");
+                }
+                this.Output.Write("</ul>");
+                this.Output.Write("</div>"); /* alert */
+            }
             if (this.DataSource != null && this.DataSource.Items != null && this.DataSource.Items.Count > 0 && this.ContentRenderMode == ContentRenderMode.Normal)
             {
                 this.ReorderColumns();
@@ -1001,17 +1091,24 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                         path = "Filters." + path;
                                 }
 
-                                includedToFilters = path.Replace("Filters.", "") == columnName;
+                                includedToFilters = path.Replace("Filters.", "").Replace("Low", "") == columnName;
                                 if (includedToFilters)
                                     break;
                             }
                             if (includedToFilters)
                             {
-                                if (column is Columns.DateColumn<TModel, T>)
+                                if (column is Columns.BoolColumn<TModel, T>)
                                 {
-                                    (column as Columns.DateColumn<TModel, T>).Mode = Fields.DateFieldMode.DoubleSelection;
+                                    this.Output.Write((column as Columns.BoolColumn<TModel, T>).GetEditableControlAsSelect(null, null).Draw());
                                 }
-                                this.Output.Write(column.GetEditableControl(null, null).Draw());
+                                else
+                                {
+                                    if (column is Columns.DateColumn<TModel, T>)
+                                    {
+                                        (column as Columns.DateColumn<TModel, T>).Mode = Fields.DateFieldMode.DoubleSelection;
+                                    }
+                                    this.Output.Write(column.GetEditableControl(null, null).Draw());
+                                }
                             }
                         }
                         this.Output.Write("</" + tag + ">");
@@ -1066,7 +1163,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         value = this.FindCustomCellValue(item, column, value);
                         if (this.CanExportCellValue(column, value))
                         {
-                            cell.Value = this.FormatCellValueForExport(column, value);
+                            cell.Value = this.FormatCellValueForExport(item, column, value);
                             var link = new Ophelia.Web.UI.Controls.Link() { Text = Convert.ToString(cell.Value) };
                             this.RenderCellProperties(item, column, link);
                             cell.Value = link.Text;
@@ -1133,7 +1230,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             return true;
         }
-        protected virtual object FormatCellValueForExport(Columns.BaseColumn<TModel, T> column, object value)
+        protected virtual object FormatCellValueForExport(T item, Columns.BaseColumn<TModel, T> column, object value)
         {
             return value;
         }

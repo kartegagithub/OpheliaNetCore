@@ -21,7 +21,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         protected override void onBeforeRenderControl(TextWriter writer)
         {
             base.onBeforeRenderControl(writer);
-            this.DataControl.CssClass = "checkbox";
+            this.DataControl.CssClass += " checkbox";
             this.DataControl.AddAttribute("data-on-text", this.Client.TranslateText(this.DataControl.DataOnText));
             this.DataControl.AddAttribute("data-off-text", this.Client.TranslateText(this.DataControl.DataOffText));
             this.DataControl.AddAttribute("data-size", "small");
@@ -38,9 +38,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             }
             this.HasValue = this.DataControl.Checked;
         }
-        public CheckboxField(FieldContainer<T> FieldContainer) :base(FieldContainer)
+        public CheckboxField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {
-            
+
         }
     }
 }
