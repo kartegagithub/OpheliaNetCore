@@ -45,7 +45,7 @@ namespace Ophelia.Mobile.Notification.Expo
             }
             catch (Exception ex)
             {
-                Result.Fail(ex);
+
             }
             return Result;
         }
@@ -79,7 +79,7 @@ namespace Ophelia.Mobile.Notification.Expo
             }
             catch (Exception ex)
             {
-                Result.Fail(ex);
+
             }
             return Result;
         }
@@ -92,7 +92,7 @@ namespace Ophelia.Mobile.Notification.Expo
             }
             catch (Exception ex)
             {
-                Result.Fail(ex);
+
             }
             return Result;
         }

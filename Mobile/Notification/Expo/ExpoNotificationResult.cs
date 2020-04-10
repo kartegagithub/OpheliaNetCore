@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ophelia.Mobile.Notification.Expo
 {
-    public class ExpoNotificationResult : Ophelia.Service.ServiceObjectResult<bool>
+    public class ExpoNotificationResult
     {
         public ExpoNotificationResultData data { get; set; }
     }
