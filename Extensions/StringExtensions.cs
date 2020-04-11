@@ -34,15 +34,39 @@ namespace Ophelia
             }
             return "";
         }
-        public static string RemoveXSS(this string value)
+        public static string Sanitize(this string value)
         {
             if (!string.IsNullOrEmpty(value))
             {
-                if (value.IndexOf("<") > -1)
-                {
-                    value = value.Replace("<", "&lt;").Replace(">", "&gt;");
-                }
-                return value;
+                var sanitizer = new Ganss.XSS.HtmlSanitizer();
+                return sanitizer.Sanitize(value);
+            }
+            else
+                return "";
+        }
+        public static string EncodeURL(this string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                return System.Text.Encodings.Web.UrlEncoder.Default.Encode(value);
+            }
+            else
+                return "";
+        }
+        public static string EncodeJavascript(this string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                return System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(value);
+            }
+            else
+                return "";
+        }
+        public static string EncodeHTML(this string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                return System.Text.Encodings.Web.HtmlEncoder.Default.Encode(value);
             }
             else
                 return "";

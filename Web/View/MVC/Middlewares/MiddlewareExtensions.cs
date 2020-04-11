@@ -10,6 +10,16 @@ namespace Ophelia.Web.View.Mvc.Middlewares
 {
     public static class MiddlewareExtensions
     {
+        public static IApplicationBuilder UseUrlAntiXss(this IApplicationBuilder builder)
+        {
+            builder.UseMiddleware(typeof(UrlAntiXssMiddleware));
+            return builder;
+        }
+        public static IApplicationBuilder UseRequestContentAntiXss(this IApplicationBuilder builder)
+        {
+            builder.UseMiddleware(typeof(RequestContentAntiXssMiddleware));
+            return builder;
+        }
         public static IServiceCollection AddHTTPContextAccessor(this IServiceCollection services)
         {
             if (services == null)

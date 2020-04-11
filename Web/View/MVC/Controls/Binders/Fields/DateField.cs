@@ -61,7 +61,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                         this.DataControl.Value = this.FormatValue(Convert.ToDateTime(this.ExpressionValue));
                         this.Format = tmpFormat;
                     }
-                    this.DataControl.Style["width"] = "100px";
+                    this.DataControl.Style["width"] = "150px";
                     this.DataControl.Style["display"] = "inline-block";
                 }
                 else if (this.Format == DateTimeFormatType.TimeOnly)
