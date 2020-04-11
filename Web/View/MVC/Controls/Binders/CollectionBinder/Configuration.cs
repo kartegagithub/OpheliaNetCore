@@ -28,6 +28,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         public bool ColumnFiltersInHead { get; set; }
         public bool Checkboxes { get; set; }
         public bool ShowCheckAll { get; set; }
+        public bool ShowDefaultFields { get; set; }
         public string CheckboxProperty { get; set; }
         public bool AppendListOfIDOnItemLink { get; set; }
         public string CheckboxIdentifierProperty { get; set; }
@@ -54,6 +55,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.CheckboxProperty = "IsSelected";
             this.CheckboxIdentifierProperty = "ID";
             this.ShowCheckAll = true;
+            this.ShowDefaultFields = true;
             this.SaveButtonIcon = "icon-floppy-disk";
             this.SaveButtonClass = "save-button";
             this.SaveButtonText = "Save";

@@ -17,7 +17,18 @@ namespace Ophelia.Data.Exporter.Controls
             this.Rows = new List<Row>();
             this.Columns = new List<Column>();
         }
-
+        public Row AddRow()
+        {
+            var row = new Row(this);
+            this.Rows.Add(row);
+            return row;
+        }
+        public Column AddColumn()
+        {
+            var column = new Column(this);
+            this.Columns.Add(column);
+            return column;
+        }
         public void Dispose()
         {
             this.Rows.Clear();

@@ -47,7 +47,7 @@ namespace Ophelia
         }
         public static bool ToBoolean(this object value)
         {
-            if(value != null)
+            if (value != null)
             {
                 if (value.ToString().IsNumeric())
                     return value.ToInt64() > 0;
@@ -55,7 +55,7 @@ namespace Ophelia
                     return true;
                 else if (value.ToString().ToLower().Equals("yes"))
                     return true;
-            }            
+            }
             return false;
         }
     }

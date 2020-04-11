@@ -10,7 +10,9 @@ namespace Ophelia.Data.Exporter.Controls
     {
         public object Value { get; set; }
         public Grid Grid { get; private set; }
-        public Column Column{ get; private set; }
+        public Column Column { get; private set; }
+        public int ColumnSpan { get; set; }
+        public int RowSpan { get; set; }
         public Row Row { get; private set; }
         public Cell(Grid grid, Column column, Row row)
         {

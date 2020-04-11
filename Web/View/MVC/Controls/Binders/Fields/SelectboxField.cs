@@ -29,10 +29,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 this.DefaultValue = "-1";
 
             if (!this.DataControl.IsMultiple)
-                this.DataControl.CssClass = "form-control simple-select select-menu-color select2-hidden-accessible";
+                this.DataControl.CssClass += " form-control simple-select select-menu-color select2-hidden-accessible";
             else
             {
-                this.DataControl.CssClass = "form-control simple-select multiple-selection select2-hidden-accessible";
+                this.DataControl.CssClass += " form-control simple-select multiple-selection select2-hidden-accessible";
                 this.DataControl.AddAttribute("multiple", "multiple");
             }
 

@@ -15,7 +15,12 @@ namespace Ophelia.Data.Exporter.Controls
             this.Grid = grid;
             this.Cells = new List<Cell>();
         }
-
+        public Cell AddCell(Column column)
+        {
+            var cell = new Cell(this.Grid, column, this);
+            this.Cells.Add(cell);
+            return cell;
+        }
         public void Dispose()
         {
             this.Cells.Clear();

@@ -369,6 +369,16 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         if (expression.Method.Name == "Skip")
                             this.Skip = Convert.ToInt32(consExpression.Value);
                     }
+
+                    if (expression.Method.Name == "OrderBy" || expression.Method.Name == "OrderByDescending" || expression.Method.Name == "ThenBy" || expression.Method.Name == "ThenByDescending")
+                    {
+                        if (expression.Arguments[1] is UnaryExpression)
+                        {
+                            var unaryExp = expression.Arguments[1] as UnaryExpression;
+                            if (unaryExp.Operand != null)
+                                this.Name = unaryExp.Operand.ParsePath();
+                        }
+                    }
                 }
 
                 var callExpression = expression.Arguments[0] as MethodCallExpression;

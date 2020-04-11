@@ -205,7 +205,7 @@ namespace Ophelia.Drawing
                 return null;
             }
         }
-       
+
         public static void ResizeImage(System.IO.Stream InputStream, int Width, int Height, string PathToSave)
         {
             try
@@ -250,7 +250,8 @@ namespace Ophelia.Drawing
                 {
                     Width = Height * BMP.Width / BMP.Height;
                 }
-                else {
+                else
+                {
                     Width = BMP.Width;
                     Height = BMP.Height;
                 }

@@ -58,14 +58,16 @@ namespace Ophelia.Data
                 {
                     foreach (var item in data.Sorters)
                     {
-                        source = source.OrderBy(item.Name + " " + (item.Ascending ? "asc" : "desc"));
+                        if (!string.IsNullOrEmpty(item.Name))
+                            source = source.OrderBy(item.Name + " " + (item.Ascending ? "asc" : "desc"));
                     }
                 }
                 if (data.Includers != null)
                 {
                     foreach (var item in data.Includers)
                     {
-                        source = source.Include(item.Name);
+                        if (!string.IsNullOrEmpty(item.Name))
+                            source = source.Include(item.Name);
                     }
                 }
                 if (data.Filter != null)
@@ -137,7 +139,19 @@ namespace Ophelia.Data
                     if (applyFilter)
                     {
                         if (data.Value != null)
-                            source = source.Where(data.Name + comparison, data.Value);
+                        {
+                            if (data.Value is DateTime dateData)
+                            {
+                                if (dateData > DateTime.MinValue)
+                                    source = source.Where(data.Name + comparison, data.Value);
+                            }
+                            else if (data.Value is double doubleData)
+                            {
+                                source = source.Where(data.Name + comparison, decimal.Parse(doubleData.ToString()));
+                            }
+                            else
+                                source = source.Where(data.Name + comparison, data.Value);
+                        }
                         else
                             source = source.Where(data.Name + comparison.Replace("@0", "null"));
                     }

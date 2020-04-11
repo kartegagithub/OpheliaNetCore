@@ -21,7 +21,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         protected override void onBeforeRenderControl(TextWriter writer)
         {
             base.onBeforeRenderControl(writer);
-            this.DataControl.CssClass = "form-control file-styled-primary";
+            this.DataControl.CssClass += " form-control file-styled-primary";
             this.DataControl.AddAttribute("data-text", this.Client.TranslateText("Select"));
             this.DataControl.AddAttribute("data-placeholder", this.Client.TranslateText("NoFileSelected"));
             if (this.ExpressionValue != null && !string.IsNullOrEmpty(Convert.ToString(this.ExpressionValue)))
@@ -30,7 +30,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 this.DataControl.AddAttribute("data-file-path", this.Client.GetImagePath(Convert.ToString(this.ExpressionValue)));
             }
         }
-        public FileboxField(FieldContainer<T> FieldContainer) :base(FieldContainer)
+        public FileboxField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {
             this.DataControl.Type = "file";
         }
