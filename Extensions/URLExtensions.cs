@@ -159,21 +159,33 @@ namespace Ophelia
         {
             var request = new WebApiCollectionRequest<T>() { Page = page, PageSize = pageSize };
             SetParameters(request, parameters);
-            return URL.GetCollection(request, headers, PreAuthenticate);
+            return URL.GetCollection<T, ServiceCollectionResult<T>>(request, headers, PreAuthenticate);
+        }
+        public static TResult GetCollection<T, TResult>(this string URL, int page, int pageSize, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var request = new WebApiCollectionRequest<T>() { Page = page, PageSize = pageSize };
+            SetParameters(request, parameters);
+            return URL.GetCollection<T, TResult>(request, headers, PreAuthenticate);
         }
         public static ServiceCollectionResult<T> GetCollection<T>(this string URL, int page, int pageSize, T filterEntity, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
         {
             var request = new WebApiCollectionRequest<T>() { Page = page, PageSize = pageSize, Data = filterEntity };
             SetParameters(request, parameters);
-            return URL.GetCollection(request, headers, PreAuthenticate);
+            return URL.GetCollection<T, ServiceCollectionResult<T>>(request, headers, PreAuthenticate);
         }
-        public static ServiceCollectionResult<T> GetCollection<T>(this string URL, WebApiCollectionRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        public static TResult GetCollection<T, TResult>(this string URL, int page, int pageSize, T filterEntity, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var request = new WebApiCollectionRequest<T>() { Page = page, PageSize = pageSize, Data = filterEntity };
+            SetParameters(request, parameters);
+            return URL.GetCollection<T, TResult>(request, headers, PreAuthenticate);
+        }
+        public static TResult GetCollection<T, TResult>(this string URL, WebApiCollectionRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
         {
             var response = "";
             try
             {
                 response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
-                return JsonConvert.DeserializeObject<ServiceCollectionResult<T>>(response);
+                return JsonConvert.DeserializeObject<TResult>(response);
             }
             catch (Exception)
             {

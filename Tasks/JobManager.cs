@@ -18,31 +18,47 @@ namespace Ophelia.Tasks
         public bool AppStarted { get; set; }
         public virtual void Execute()
         {
-            if (!this.Executing)
+            try
             {
-                this.Executing = true;
-                this.RegisterJobs();
-                for (int i = 0; i < this.Jobs.Count; i++)
+                if (!this.Executing)
                 {
-                    this.Jobs[i].Run();
+                    this.Executing = true;
+                    this.RegisterJobs();
+                    for (int i = 0; i < this.Jobs.Count; i++)
+                    {
+                        this.Jobs[i].Run();
+                    }
+                    this.Executing = false;
                 }
-                this.Executing = false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("JobManager.Execute:");
+                Console.WriteLine(ex.ToString());
             }
         }
         public void StartTimer(int interval)
         {
-            if (this.Timer != null)
+            try
             {
-                this.Timer.Stop();
-                this.Timer = null;
-            }
-            if (!this.AppStarted)
-                this.OnApplicationStart();
-            this.AppStarted = true;
+                if (this.Timer != null)
+                {
+                    this.Timer.Stop();
+                    this.Timer = null;
+                }
+                if (!this.AppStarted)
+                    this.OnApplicationStart();
+                this.AppStarted = true;
 
-            this.Timer = new System.Timers.Timer(interval);
-            this.Timer.Elapsed += new System.Timers.ElapsedEventHandler(this.TimeElapsed);
-            this.Timer.Start();
+                this.Timer = new System.Timers.Timer(interval);
+                this.Timer.Elapsed += new System.Timers.ElapsedEventHandler(this.TimeElapsed);
+                this.Timer.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("StartTimer:");
+                Console.WriteLine(ex.ToString());
+            }
         }
         protected virtual void OnApplicationStart()
         {

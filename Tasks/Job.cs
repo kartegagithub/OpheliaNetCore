@@ -25,27 +25,36 @@ namespace Ophelia.Tasks
         public System.Threading.Thread CurrentThread { get; private set; }
         public void Run()
         {
-            if (this.CurrentThread == null && this.Manager.CanRunJob(this))
+            try
             {
-                try
+                if (this.CurrentThread == null && this.Manager.CanRunJob(this))
                 {
-                    if (this.LastExecutionStatus != JobExecutionStatus.Running)
+                    try
                     {
-                        this.LastExecutionStatus = JobExecutionStatus.Running;
-                        this.Manager.OnBeforeJobExecuted(this);
-                        this.CurrentThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.RunInternal));
-                        this.CurrentThread.Start();
+                        if (this.LastExecutionStatus != JobExecutionStatus.Running)
+                        {
+                            this.LastExecutionStatus = JobExecutionStatus.Running;
+                            this.Manager.OnBeforeJobExecuted(this);
+                            this.CurrentThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.RunInternal));
+                            this.CurrentThread.Start();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Manager.OnJobFailed(this, ex);
+                        this.Manager.OnAfterJobExecuted(this, new JobExecution() { Code = "ERR1", Description = ex.Message + " " + ex.StackTrace, Status = JobExecutionStatus.Aborted });
+                        this.LastExecutionStatus = JobExecutionStatus.Aborted;
+                        this.SetNextExecution();
+                        this.CurrentThread = null;
                     }
                 }
-                catch (Exception ex)
-                {
-                    this.Manager.OnJobFailed(this, ex);
-                    this.Manager.OnAfterJobExecuted(this, new JobExecution() { Code = "ERR1", Description = ex.Message + " " + ex.StackTrace, Status = JobExecutionStatus.Aborted });
-                    this.LastExecutionStatus = JobExecutionStatus.Aborted;
-                    this.SetNextExecution();
-                    this.CurrentThread = null;
-                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Job.Run:");
+                Console.WriteLine(ex.ToString());
+            }
+            
         }
 
         protected virtual void RunInternal()
