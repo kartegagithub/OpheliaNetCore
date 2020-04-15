@@ -13,6 +13,19 @@ namespace Ophelia.Data.EntityFramework
 {
     public class DatabaseContext : Microsoft.EntityFrameworkCore.DbContext
     {
+        private bool _IsDisposed;
+        public override void Dispose()
+        {
+            this._IsDisposed = true;
+            base.Dispose();
+        }
+        public bool IsDisposed
+        {
+            get
+            {
+                return this._IsDisposed;
+            }
+        }
         public IConfiguration Configuration { get; private set; }
         public DbContextOptions Options { get; private set; }
         public bool EnableAuditLog { get; set; }
