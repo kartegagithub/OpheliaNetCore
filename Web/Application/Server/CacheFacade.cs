@@ -17,6 +17,7 @@ namespace Ophelia.Web.Application.Server
         protected abstract string Key { get; }
         protected abstract List<TEntity> GetData();
         public virtual int CacheHealthDuration { get; set; }
+        public virtual int CacheDuration { get; set; }
         public DateTime LastCheckDate
         {
             get
@@ -69,7 +70,7 @@ namespace Ophelia.Web.Application.Server
                         if (this.oEntities == null)
                         {
                             this.oEntities = this.GetData();
-                            CacheManager.Add(this.Key, this.oEntities);
+                            CacheManager.Add(this.Key, this.oEntities, this.CacheDuration);
                         }
                     }
                 }
@@ -170,6 +171,7 @@ namespace Ophelia.Web.Application.Server
         public CacheFacade()
         {
             this.CacheHealthDuration = 10;
+            this.CacheDuration = 1440;
         }
     }
 }

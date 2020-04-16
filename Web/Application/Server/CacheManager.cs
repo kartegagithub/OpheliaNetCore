@@ -13,7 +13,7 @@ namespace Ophelia.Web.Application.Server
     {
         private static MemoryCache _MemoryCacheContext = MemoryCache.Default;
         private static object _FileLocker = new object();
-                public static int CacheDuration
+        public static int CacheDuration
         {
             get { return ConfigurationManager.GetParameter<Int32>("CacheDuration", 1440); }
         }
@@ -103,18 +103,19 @@ namespace Ophelia.Web.Application.Server
 
             return objectValue;
         }
-        public static List<string> GetAllKeys() {
+        public static List<string> GetAllKeys()
+        {
             return _MemoryCacheContext.Select(op => op.Key).ToList();
         }
         private static CacheItemPolicy GetCachePolicy(string key, DateTime absoluteExpiration)
         {
             if (absoluteExpiration <= DateTime.Now) absoluteExpiration = DateTime.Now.AddMinutes(CacheDuration);
             CacheItemPolicy cachingPolicy = new CacheItemPolicy
-              {
-                  Priority = CacheItemPriority.Default,
-                  AbsoluteExpiration = absoluteExpiration,
-                  RemovedCallback = new CacheEntryRemovedCallback(OnCachedItemRemoved)
-              };
+            {
+                Priority = CacheItemPriority.Default,
+                AbsoluteExpiration = absoluteExpiration,
+                RemovedCallback = new CacheEntryRemovedCallback(OnCachedItemRemoved)
+            };
             return cachingPolicy;
         }
         private static void OnCachedItemRemoved(CacheEntryRemovedArguments arguments)
