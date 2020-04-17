@@ -34,6 +34,16 @@ namespace Ophelia
             }
             return "";
         }
+        public static string RemoveExtraWhitespaces(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return value;
+            while (value.IndexOf("  ") > -1)
+            {
+                value = value.Replace("  ", " ");
+            }
+            return value;
+        }
         public static string Sanitize(this string value)
         {
             if (!string.IsNullOrEmpty(value))
