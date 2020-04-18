@@ -1218,7 +1218,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     else
                         this.Response.ContentType = "application/octet-stream";
 
-                    this.Response.AddHeader("Content-Disposition", "attachment; filename=" + this.Client.TranslateText(fileName) + "." + fileExtension);
+                    this.Response.AddHeader("Content-Disposition", "attachment; filename=" + this.Client.TranslateText(fileName).ReplaceSpecialVowelsAndConsonant() + "." + fileExtension);
                     if (fileContent != null)
                         this.Response.Write(fileContent);
                 }
