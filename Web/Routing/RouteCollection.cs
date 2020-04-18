@@ -338,12 +338,12 @@ namespace Ophelia.Web.Routing
 
         public virtual RouteItemURL GetFixedURL(string friendlyUrl, string languageCode = "en")
         {
-            var URL = this.Where(op => op.FixedURLs.Where(op2 => op2.URL.Equals(friendlyUrl) && !op.Patterns.Any()).Any()).FirstOrDefault();
+            var URL = this.Where(op => op.FixedURLs.Where(op2 => op2.URL.Equals(friendlyUrl, StringComparison.InvariantCultureIgnoreCase) && !op.Patterns.Any()).Any()).FirstOrDefault();
             if (URL != null)
             {
                 if (!string.IsNullOrEmpty(URL.Controller))
                 {
-                    var urls = URL.FixedURLs.Where(op => op.URL.Equals(friendlyUrl)).ToList();
+                    var urls = URL.FixedURLs.Where(op => op.URL.Equals(friendlyUrl, StringComparison.InvariantCultureIgnoreCase)).ToList();
                     if (urls.Count > 1 && !string.IsNullOrEmpty(languageCode))
                         return urls.Where(op => op.LanguageCode == languageCode).FirstOrDefault();
                     else
