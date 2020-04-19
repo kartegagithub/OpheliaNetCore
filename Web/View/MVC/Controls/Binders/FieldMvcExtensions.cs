@@ -91,6 +91,24 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return control.Render();
         }
 
+        public static IHtmlContent MoneyFieldFor<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, Expression<Func<T, object>> currencyExpression, IEnumerable dataSource, bool isRequired = false, object htmlAttributes = null, string format = "", string valueMember = "ID", string displayMember = "Icon", bool currencyReadOnly = true) where T : class { return container.MoneyFieldFor("", expression, currencyExpression, dataSource, isRequired, htmlAttributes, format, valueMember, displayMember, true); }
+        public static IHtmlContent MoneyFieldFor<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, Expression<Func<T, object>> currencyExpression, IEnumerable dataSource, bool isRequired = false, object htmlAttributes = null, string format = "", string valueMember = "ID", string displayMember = "Icon", bool currencyReadOnly = true) where T : class
+        {
+            var control = new Fields.MoneyField<T>(container);
+            control.Expression = expression;
+            control.CurrencyExpression = currencyExpression;
+            control.CurrencyReadOnly = currencyReadOnly;
+            control.CurrencyControl.ValueMemberName = valueMember;
+            control.CurrencyControl.DisplayMemberName = displayMember;
+            control.CurrencyControl.DataSource = dataSource;
+            control.Text = Text;
+            control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
+            control.SetFormat(format, container.DecimalFormat, container.IntFormat);
+            container.AddField(control);
+            return control.Render();
+        }
+
         public static IHtmlContent DateFieldFor<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, DateTimeFormatType format = DateTimeFormatType.DateOnly, bool isRequired = false, object htmlAttributes = null, bool IsReadonly = false) where T : class { return container.DateFieldFor("", expression, format, isRequired, htmlAttributes, IsReadonly); }
         public static IHtmlContent DateFieldFor<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, DateTimeFormatType format = DateTimeFormatType.DateOnly, bool isRequired = false, object htmlAttributes = null, bool IsReadonly = false) where T : class
         {
