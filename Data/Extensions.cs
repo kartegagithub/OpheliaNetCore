@@ -123,13 +123,13 @@ namespace Ophelia.Data
                         case Comparison.Between:
                             break;
                         case Comparison.StartsWith:
-                            comparison = ".StartsWith(@0)";
+                            comparison = ".ToLower().StartsWith(@0.ToLower())";
                             break;
                         case Comparison.EndsWith:
-                            comparison = ".EndsWith(@0)";
+                            comparison = ".ToLower().EndsWith(@0.ToLower())";
                             break;
                         case Comparison.Contains:
-                            comparison = ".Contains(@0)";
+                            comparison = ".ToLower().Contains(@0.ToLower())";
                             break;
                         case Comparison.Exists:
                             break;
