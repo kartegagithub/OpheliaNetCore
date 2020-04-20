@@ -14,6 +14,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         public bool AllowExporting { get; set; }
         public bool AllowGrouping { get; set; }
         public bool AllowServerSideOrdering { get; set; }
+        public bool ColumnSortingByLink { get; set; }
         public bool AllowNew { get; set; }
         public bool AllowNewRow { get; set; }
         public bool OpenExportOptions { get; set; }
@@ -59,6 +60,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.SaveButtonIcon = "icon-floppy-disk";
             this.SaveButtonClass = "save-button";
             this.SaveButtonText = "Save";
+            this.ColumnSortingByLink = false;
         }
     }
     public enum ColumnFilteringType

@@ -662,7 +662,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             return info.Name + "ID";
         }
-        
+
         protected virtual object GetReferencedEntity(Type entityType, object value)
         {
             return null;
@@ -790,6 +790,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         if (column.Alignment == HorizontalAlign.Right)
                             className += " text-right";
 
+                        var link = "";
                         if (!this.ParentDrawsLayout && this.Configuration.AllowServerSideOrdering && column.IsSortable && this.GroupedData == null)
                         {
                             if (string.IsNullOrEmpty(column.Name))
@@ -819,14 +820,22 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 className += " sorting";
                             }
                             className += " no-sort";
-                            this.Output.Write(" onclick=\"document.location.href='" + qs.Value + "'\"");
+                            link = qs.Value;
+                            if (!this.Configuration.ColumnSortingByLink)
+                                this.Output.Write(" onclick=\"document.location.href='" + link + "'\"");
                         }
                         if (!string.IsNullOrEmpty(className))
                             this.Output.Write(" class='" + className + "'");
                         this.Output.Write(" data-name='" + column.FormatColumnName() + "'");
                         this.Output.Write(">");
                         if (!column.HideColumnTitle)
+                        {
+                            if (this.Configuration.ColumnSortingByLink)
+                                this.Output.Write("<a class='column-header-link' href='" + link + "'>");
                             this.Output.Write(column.FormatText());
+                            if (this.Configuration.ColumnSortingByLink)
+                                this.Output.Write("</a>");
+                        }
                         this.Output.Write("</th>");
                     }
                 }
