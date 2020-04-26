@@ -36,21 +36,14 @@ namespace Ophelia.Web.Application.Server
                 }
                 catch (Exception)
                 {
-
+                    LastCheckDate = DateTime.Now;
                 }
                 return LastCheckDate;
             }
             set
             {
-                try
-                {
-                    CacheManager.Remove(this.Key + "_LCD");
-                    CacheManager.Add(this.Key + "_LCD", value);
-                }
-                catch (Exception)
-                {
-
-                }
+                CacheManager.Remove(this.Key + "_LCD");
+                CacheManager.Add(this.Key + "_LCD", value);
             }
         }
         public List<TEntity> List

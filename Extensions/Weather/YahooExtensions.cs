@@ -91,13 +91,15 @@ namespace Ophelia
                 {
                     string headerString = _get_auth();
 
-                    WebClient webClient = new WebClient();
-                    webClient.Headers[HttpRequestHeader.ContentType] = "application/json";
-                    webClient.Headers[HttpRequestHeader.Authorization] = headerString;
-                    webClient.Headers.Add("X-Yahoo-App-Id", cAppID);
-                    byte[] reponse = webClient.DownloadData(url);
-                    string lOut = Encoding.ASCII.GetString(reponse);
-                    return lOut;
+                    using (WebClient webClient = new WebClient())
+                    {
+                        webClient.Headers[HttpRequestHeader.ContentType] = "application/json";
+                        webClient.Headers[HttpRequestHeader.Authorization] = headerString;
+                        webClient.Headers.Add("X-Yahoo-App-Id", cAppID);
+                        byte[] reponse = webClient.DownloadData(url);
+                        string lOut = Encoding.ASCII.GetString(reponse);
+                        return lOut;
+                    }
                 }
                 catch (WebException exception)
                 {

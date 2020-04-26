@@ -404,7 +404,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                                         }
                                         catch (Exception)
                                         {
-
+                                            continue;
                                         }
                                     }
                                 }

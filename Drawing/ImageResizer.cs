@@ -34,7 +34,7 @@ namespace Ophelia.Drawing
             }
             catch (Exception)
             {
-
+                return originalImage;
             }
             return originalImage;
         }
@@ -171,8 +171,9 @@ namespace Ophelia.Drawing
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                return "";
             }
             return "";
         }
@@ -232,6 +233,7 @@ namespace Ophelia.Drawing
             }
             catch (Exception)
             {
+                PathToSave = "";
             }
         }
         public static System.Drawing.Bitmap ResizeImage(byte[] data, int Width, int Height)

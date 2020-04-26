@@ -73,7 +73,7 @@ namespace Ophelia
                     stream.Close();
                 }
             }
-            catch { }
+            catch { return clonedObject; }
             return clonedObject;
         }
 

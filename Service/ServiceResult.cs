@@ -77,9 +77,9 @@ namespace Ophelia.Service
                     callingFunction = methodBase.DeclaringType.Name + "." + methodBase.Name + "(" + stackTrace.GetFrame(2).GetFileLineNumber() + ")";
 
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
+                    Console.WriteLine(ex);
                 }
                 foreach (var message in this.Messages)
                 {
@@ -125,9 +125,9 @@ namespace Ophelia.Service
                 if (this.Handler != null)
                     this.Handler.HandleException(ex);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
         }
 

@@ -424,11 +424,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                                         orParams += " || ";
                                                     orParams += entityProp + " = @" + counter;
                                                 }
-#pragma warning disable CS0168 // Variable is declared but never used
-                                                catch (Exception ex)
-#pragma warning restore CS0168 // Variable is declared but never used
+                                                catch (Exception)
                                                 {
-
+                                                    counter++;
+                                                    continue;
                                                 }
                                                 counter++;
                                             }
@@ -517,11 +516,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             }
                         }
                     }
-#pragma warning disable CS0168 // Variable is declared but never used
-                    catch (Exception ex)
-#pragma warning restore CS0168 // Variable is declared but never used
+                    catch (Exception)
                     {
-
+                        continue;
                     }
                 }
                 defaultModel = null;
@@ -686,7 +683,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                     catch (Exception)
                     {
-
+                        continue;
                     }
                 }
                 return entity;

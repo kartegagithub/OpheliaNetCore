@@ -205,6 +205,9 @@ namespace Ophelia.Data
             {
                 try
                 {
+                    if (a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
+                        continue;
+
                     var Types = a.GetTypes();
                     if (Types != null)
                     {
@@ -224,9 +227,9 @@ namespace Ophelia.Data
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
+                    Console.WriteLine(ex);
                 }
             }
             if (parameters != null)

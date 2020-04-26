@@ -44,7 +44,9 @@ namespace Ophelia
                     System.Configuration.ConfigurationManager.RefreshSection("appSettings");
                 }
             }
-            catch { }
+            catch {
+                System.Configuration.ConfigurationManager.RefreshSection("appSettings");
+            }
         }
         public static void AddKey(string key, string value)
         {
@@ -63,7 +65,7 @@ namespace Ophelia
             }
             catch (Exception ex)
             {
-                var s = ex.StackTrace;
+                System.Configuration.ConfigurationManager.RefreshSection("appSettings");
             }
         }
         public static void RemoveKey(string key)
@@ -81,7 +83,9 @@ namespace Ophelia
                     }
                 }
             }
-            catch { }
+            catch {
+                System.Configuration.ConfigurationManager.RefreshSection("appSettings");
+            }
         }
     }
 }

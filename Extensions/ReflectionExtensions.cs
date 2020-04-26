@@ -195,7 +195,7 @@ namespace Ophelia
                 }
                 catch (Exception)
                 {
-
+                    continue;
                 }
             }
             return list;
@@ -223,7 +223,7 @@ namespace Ophelia
                 }
                 catch (Exception)
                 {
-
+                    return list;
                 }
                 a = null;
             }
@@ -413,13 +413,13 @@ namespace Ophelia
                     }
                     catch (Exception)
                     {
-
+                        continue;
                     }
                 }
             }
             catch (Exception)
             {
-
+                return types;
             }
             return types;
         }
@@ -444,15 +444,15 @@ namespace Ophelia
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
+                        Console.WriteLine(ex);
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
 
             return null;
@@ -483,15 +483,15 @@ namespace Ophelia
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
+                        Console.WriteLine(ex);
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
             }
             return returnTypes;
         }
@@ -512,7 +512,7 @@ namespace Ophelia
             }
             catch (Exception)
             {
-
+                return null;
             }
             return null;
         }
@@ -538,15 +538,15 @@ namespace Ophelia
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
+                        Console.WriteLine(ex)
                     }
                 }
             }
             catch (Exception)
             {
-
+                return finalType;
             }
             return finalType;
         }

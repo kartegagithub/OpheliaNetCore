@@ -46,7 +46,8 @@ namespace Ophelia.Data
                             }
                             catch (Exception)
                             {
-
+                                assembly = null;
+                                continue;
                             }
                         }
                         if (assembly != null)

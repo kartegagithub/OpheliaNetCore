@@ -204,7 +204,7 @@ namespace Ophelia
                     result = (T)conv.ConvertFromInvariantString(source);
                 }
             }
-            catch { }
+            catch { return result; }
             return result;
         }
 
@@ -670,9 +670,11 @@ namespace Ophelia
 
         public static string RequestURL(this string strHostAddress, System.Collections.Specialized.NameValueCollection data)
         {
-            var webClient = new WebClient();
-            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-            return Encoding.UTF8.GetString(webClient.UploadValues(strHostAddress, data));
+            using (var webClient = new WebClient())
+            {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+                return Encoding.UTF8.GetString(webClient.UploadValues(strHostAddress, data));
+            }
         }
         public static string Remove(this string val, string[] itemsToRemove)
         {

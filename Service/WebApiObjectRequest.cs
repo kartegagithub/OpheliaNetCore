@@ -56,7 +56,10 @@ namespace Ophelia.Service
                         this.oByteData = Convert.FromBase64String(this.Base64Data);
                         this.Base64Data = "";
                     }
-                    catch { }
+                    catch
+                    {
+                        return this.oByteData;
+                    }
                 }
                 return this.oByteData;
             }

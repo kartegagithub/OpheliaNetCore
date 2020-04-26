@@ -30,7 +30,7 @@ namespace Ophelia.Web.Application.Server
                 _MemoryCacheContext.Set(key, value, GetCachePolicy(key, absoluteExpiration));
                 result = true;
             }
-            catch { }
+            catch { return result; }
             return result;
         }
         public static bool Add(string keyGroup, string keyItem, object value, int duration = 0)
@@ -87,7 +87,7 @@ namespace Ophelia.Web.Application.Server
                     }
                 }
             }
-            catch { }
+            catch { return result; }
             return result;
         }
         public static object Get(string key)
