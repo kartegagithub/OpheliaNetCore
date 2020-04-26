@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.Serialization;
 
 namespace Ophelia.Service
@@ -34,18 +31,20 @@ namespace Ophelia.Service
             if (!this.HasFailed)
                 this.HasFailed = false;
         }
+
+        private bool _HasData = false;
         [DataMember]
         public bool HasData
         {
             get
             {
                 if (this.Data != null && this.Data.Count > 0)
-                    return true;
-                return false;
+                    this._HasData = true;
+                return this._HasData;
             }
             set
             {
-
+                this._HasData = value;
             }
         }
     }

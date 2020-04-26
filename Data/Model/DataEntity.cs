@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using Ophelia.Data.Attributes;
+﻿using Ophelia.Data.Attributes;
+using System;
 namespace Ophelia.Data.Model
 {
     [Serializable]

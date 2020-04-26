@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ophelia.Web.UI.Controls;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-using Ophelia;
 
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
@@ -25,19 +20,19 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             base.onBeforeRenderControl(writer);
             if (this.ExpressionValue != null)
             {
-                if(this.EnumType == null)
+                if (this.EnumType == null)
                     this.DataControl.Text = Convert.ToString(this.ExpressionValue);
                 else
                 {
                     this.DataControl.Text = this.EnumType.GetEnumDisplayName(this.ExpressionValue, this.Client);
                 }
             }
-            else if(!string.IsNullOrEmpty(this.Value))
+            else if (!string.IsNullOrEmpty(this.Value))
             {
                 this.DataControl.Text = this.Value;
             }
         }
-        public LabelField(FieldContainer<T> FieldContainer) :base(FieldContainer)
+        public LabelField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {
             this.DataControlParent.CssClass += " border-bottom-ccc border-bottom";
         }

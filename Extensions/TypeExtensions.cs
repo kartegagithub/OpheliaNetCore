@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia
 {
@@ -27,7 +23,7 @@ namespace Ophelia
         {
             if (type == null)
                 throw new ArgumentNullException("type");
-            
+
             return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
                 && type.IsGenericType && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))

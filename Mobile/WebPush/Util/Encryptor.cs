@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 
 namespace Ophelia.Mobile.WebPush.Util
 {
@@ -36,7 +36,7 @@ namespace Ophelia.Mobile.WebPush.Util
             var userPublicKey = ECKeyHelper.GetPublicKey(userKey);
 
             var key = ecdhAgreement.CalculateAgreement(userPublicKey).ToByteArrayUnsigned();
-            var serverPublicKey = ((ECPublicKeyParameters) serverKeyPair.Public).Q.GetEncoded(false);
+            var serverPublicKey = ((ECPublicKeyParameters)serverKeyPair.Public).Q.GetEncoded(false);
 
             var prk = HKDF(userSecret, key, Encoding.UTF8.GetBytes("Content-Encoding: auth\0"), 32);
             var cek = HKDF(salt, prk, CreateInfoChunk("aesgcm", userKey, serverPublicKey), 16);
@@ -86,7 +86,7 @@ namespace Ophelia.Mobile.WebPush.Util
         public static byte[] HKDFSecondStep(byte[] key, byte[] info, int length)
         {
             var hmac = new HMACSHA256(key);
-            var infoAndOne = info.Concat(new byte[] {0x01}).ToArray();
+            var infoAndOne = info.Concat(new byte[] { 0x01 }).ToArray();
             var result = hmac.ComputeHash(infoAndOne);
 
             if (result.Length > length)

@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Ophelia.Reflection;
 
 namespace Ophelia
 {
@@ -299,7 +298,7 @@ namespace Ophelia
         {
             return source.Where(item => item.GetPropertyValue(property).Equals(value));
         }
-        
+
         #region "Helpers"
         private static IEnumerable<T> CacheHelper<T>(IEnumerator<T> source)
         {

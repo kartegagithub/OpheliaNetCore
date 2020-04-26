@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -99,7 +97,7 @@ namespace Ophelia
                         if (i18nProp == null)
                             i18nProp = item.GetType().GetProperty(item.GetType().Name + "_i18n");
 
-                        if(i18nProp != null)
+                        if (i18nProp != null)
                         {
                             var isExcluded = false;
                             var defaultColumnExcludedProps = i18nProp.PropertyType.UnderlyingSystemType.GenericTypeArguments[0].GetCustomAttributes().Where(op => op.GetType().Name == "ExcludeDefaultColumn").ToList();
@@ -128,7 +126,7 @@ namespace Ophelia
                                     }
                                 }
                             }
-                        }                        
+                        }
                     }
                 }
             }

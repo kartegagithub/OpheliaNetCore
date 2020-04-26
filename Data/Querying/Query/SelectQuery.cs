@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Linq.Expressions;
 using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Ophelia.Data.Querying.Query
 {

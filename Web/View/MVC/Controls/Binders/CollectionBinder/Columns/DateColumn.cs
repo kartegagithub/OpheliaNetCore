@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-
-using System.Linq.Expressions;
-using Ophelia.Web.View.Mvc.Models;
+﻿using Ophelia.Web.UI.Controls;
 using Ophelia.Web.View.Mvc.Controls.Binders.Fields;
+using Ophelia.Web.View.Mvc.Models;
+using System;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
 {
@@ -39,7 +32,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         }
         public override WebControl GetEditableControl(T entity, object value)
         {
-            if(this.Mode == DateFieldMode.DoubleSelection)
+            if (this.Mode == DateFieldMode.DoubleSelection)
             {
                 var panel = new Panel();
                 panel.Style.Add("position", "relative;");

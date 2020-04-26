@@ -1,8 +1,5 @@
 ﻿using Ophelia.Service;
-using System;
-using System.Collections.Generic;
 using System.ServiceModel.Description;
-using System.Text;
 
 namespace Ophelia
 {

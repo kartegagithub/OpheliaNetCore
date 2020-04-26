@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Ophelia
@@ -130,7 +124,8 @@ namespace Ophelia
                 sbOut = sbOut.Replace("*", "-42");
                 sbOut = sbOut.Replace("!", "-33");
             }
-            else {
+            else
+            {
                 sbOut = sbOut.Replace("$", "-");
                 sbOut = sbOut.Replace("&", "-");
                 sbOut = sbOut.Replace("+", "-");

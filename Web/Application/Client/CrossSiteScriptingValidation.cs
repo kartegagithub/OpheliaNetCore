@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Ophelia.Web.Application.Client
+﻿namespace Ophelia.Web.Application.Client
 {
     public static class CrossSiteScriptingValidation
     {

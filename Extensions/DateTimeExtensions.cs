@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Linq.Expressions;
-using System.Web;
 
 namespace Ophelia
 {
@@ -221,7 +215,7 @@ namespace Ophelia
 
         public static DateTime StartOfDay(this DateTime dt)
         {
-            return new DateTime(dt.Year, dt.Month, dt.Day, 0,0,0);
+            return new DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0);
         }
 
         public static DateTime EndOfDay(this DateTime dt)

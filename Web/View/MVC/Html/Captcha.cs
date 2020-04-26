@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Ophelia.Web.View.Mvc.Models;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Web;
 using System.IO;
-using Ophelia.Web.View.Mvc.Models;
 
 namespace Ophelia.Web.View.Mvc.Html
 {
@@ -20,10 +15,12 @@ namespace Ophelia.Web.View.Mvc.Html
 
         public CaptchaModel CaptchaModel
         {
-            get {
+            get
+            {
                 return this.mCaptchaModel;
             }
-            set {
+            set
+            {
                 this.mCaptchaModel = value;
             }
         }
@@ -81,10 +78,10 @@ namespace Ophelia.Web.View.Mvc.Html
 
             Font Font = new Font(this.CaptchaModel.FontFamily, this.CaptchaModel.FontSize, FontStyle.Bold);
             SizeF Size = Graphic.MeasureString(Client.Current.Session.GetString("Captcha_" + this.CaptchaSessionKey), Font);
-            StringFormat Format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center};
+            StringFormat Format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             GraphicsPath Path = new GraphicsPath();
             Path.AddString(Client.Current.Session.GetString("Captcha_" + this.CaptchaSessionKey), Font.FontFamily, (int)Font.Style, this.CaptchaModel.FontSize, CaptchaContainer, Format);
-            
+
             Font.Dispose();
             Font = null;
 
@@ -93,12 +90,12 @@ namespace Ophelia.Web.View.Mvc.Html
             int RandomWidth = Rand.Next(CaptchaContainer.Width);
             int RandomHeight = Rand.Next(CaptchaContainer.Height);
             PointF[] Points =
-			{
-				new PointF(RandomWidth / v, RandomHeight / v),
-				new PointF(CaptchaContainer.Width - RandomWidth / v, RandomHeight / v),
-				new PointF(RandomWidth / v, CaptchaContainer.Height - RandomHeight / v),
-				new PointF(CaptchaContainer.Width - RandomWidth / v, CaptchaContainer.Height - RandomHeight / v)
-			};
+            {
+                new PointF(RandomWidth / v, RandomHeight / v),
+                new PointF(CaptchaContainer.Width - RandomWidth / v, RandomHeight / v),
+                new PointF(RandomWidth / v, CaptchaContainer.Height - RandomHeight / v),
+                new PointF(CaptchaContainer.Width - RandomWidth / v, CaptchaContainer.Height - RandomHeight / v)
+            };
 
             Matrix Matrix = new Matrix();
             Matrix.Translate(0F, 0F);
@@ -120,7 +117,7 @@ namespace Ophelia.Web.View.Mvc.Html
             CaptchaBackground = null;
             Graphic.Dispose();
             Graphic = null;
-            
+
             string CaptchaImageString = string.Empty;
             using (MemoryStream MemoryStream = new MemoryStream())
             {
@@ -153,7 +150,7 @@ namespace Ophelia.Web.View.Mvc.Html
 
         public bool Enabled()
         {
-            return this.CaptchaModel.AlwaysShow || this.IsWrongEntryCountExceed(); 
+            return this.CaptchaModel.AlwaysShow || this.IsWrongEntryCountExceed();
         }
         public void Dispose()
         {
@@ -162,7 +159,7 @@ namespace Ophelia.Web.View.Mvc.Html
 
         public void DeleteSessionKey(string KeyName)
         {
-            if(Client.Current.Session.GetString("Captcha_" + KeyName) != null)
+            if (Client.Current.Session.GetString("Captcha_" + KeyName) != null)
                 Client.Current.Session.Remove("Captcha_" + KeyName);
         }
         public void IncreaseCaptchaErrorCount()

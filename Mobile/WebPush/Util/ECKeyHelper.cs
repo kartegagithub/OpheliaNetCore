@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using Org.BouncyCastle.Asn1;
+﻿using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
+using System;
+using System.IO;
 
 namespace Ophelia.Mobile.WebPush.Util
 {
@@ -26,9 +26,9 @@ namespace Ophelia.Mobile.WebPush.Util
 
             var reader = new StringReader(pemKey);
             var pemReader = new PemReader(reader);
-            var keyPair = (AsymmetricCipherKeyPair) pemReader.ReadObject();
+            var keyPair = (AsymmetricCipherKeyPair)pemReader.ReadObject();
 
-            return (ECPrivateKeyParameters) keyPair.Private;
+            return (ECPrivateKeyParameters)keyPair.Private;
         }
 
         public static ECPublicKeyParameters GetPublicKey(byte[] publicKey)
@@ -47,7 +47,7 @@ namespace Ophelia.Mobile.WebPush.Util
             var reader = new StringReader(pemKey);
             var pemReader = new PemReader(reader);
             var keyPair = pemReader.ReadObject();
-            return (ECPublicKeyParameters) keyPair;
+            return (ECPublicKeyParameters)keyPair;
         }
 
         public static AsymmetricCipherKeyPair GenerateKeys()

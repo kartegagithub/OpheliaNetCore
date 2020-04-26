@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace Ophelia.Data.Model
@@ -19,7 +15,7 @@ namespace Ophelia.Data.Model
             }
             set
             {
-                if(this._Value != value)
+                if (this._Value != value)
                     this.HasChanged = true;
                 this._Value = value;
             }

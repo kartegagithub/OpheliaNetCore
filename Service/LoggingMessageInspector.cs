@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
-using System.Text;
 using System.Xml;
 
 namespace Ophelia.Service
@@ -30,12 +26,12 @@ namespace Ophelia.Service
 
                     reply = buffer.CreateMessage();
                 }
-            }                
+            }
         }
 
         public object BeforeSendRequest(ref Message request, IClientChannel channel)
         {
-            if(this.Logger != null)
+            if (this.Logger != null)
             {
                 this.URL = channel.RemoteAddress.ToString();
                 var headers = request.Headers.ToJson();

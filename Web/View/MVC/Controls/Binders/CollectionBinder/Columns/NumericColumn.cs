@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-
-using System.Linq.Expressions;
+﻿using Ophelia.Web.UI.Controls;
 using Ophelia.Web.View.Mvc.Models;
+using System;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
 {
-    public class NumericColumn<TModel, T> : TextColumn<TModel, T> where T:class where TModel : ListModel<T>
+    public class NumericColumn<TModel, T> : TextColumn<TModel, T> where T : class where TModel : ListModel<T>
     {
         public string Format { get; set; }
         public override object GetValue(T item)
@@ -41,7 +34,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             this.SetAttributes(textbox);
             return textbox;
         }
-        public NumericColumn(CollectionBinder<TModel,T> binder, string Name) : base(binder, Name)
+        public NumericColumn(CollectionBinder<TModel, T> binder, string Name) : base(binder, Name)
         {
             this.Alignment = HorizontalAlign.Right;
         }

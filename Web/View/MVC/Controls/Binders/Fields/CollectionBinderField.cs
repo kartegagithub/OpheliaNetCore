@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Html;
 using Ophelia.Web.UI.Controls;
 using Ophelia.Web.View.Mvc.Models;
-using Ophelia;
-using Microsoft.AspNetCore.Html;
+using System.IO;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
 {
-    public class CollectionBinderField<TModel, TEntity, T> : BaseField<T> where T : class where TEntity : class where TModel: ListModel<TEntity>
+    public class CollectionBinderField<TModel, TEntity, T> : BaseField<T> where T : class where TEntity : class where TModel : ListModel<TEntity>
     {
         public new CollectionBinder.CollectionBinder<TModel, TEntity> DataControl { get { return (CollectionBinder.CollectionBinder<TModel, TEntity>)base.DataControl; } set { base.DataControl = value; } }
 
@@ -32,7 +26,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         {
             base.onBeforeRenderControl(writer);
         }
-        public CollectionBinderField(FieldContainer<T> FieldContainer, CollectionBinder.CollectionBinder<TModel, TEntity> binder, bool hideLabel = false) :base(FieldContainer)
+        public CollectionBinderField(FieldContainer<T> FieldContainer, CollectionBinder.CollectionBinder<TModel, TEntity> binder, bool hideLabel = false) : base(FieldContainer)
         {
             this.DataControl = binder;
             this.DataControlParent.Controls.Add(this.DataControl);

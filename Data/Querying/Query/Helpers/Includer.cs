@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Collections;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace Ophelia.Data.Querying.Query.Helpers
 {

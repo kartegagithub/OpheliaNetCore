@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
-using System.Threading.Tasks;
 
 namespace Ophelia
 {
@@ -55,7 +54,7 @@ namespace Ophelia
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    if(list[i].Key == key)
+                    if (list[i].Key == key)
                     {
                         list.RemoveAt(i);
                         list.Insert(i, new KeyValuePair<string, object>(key, value));

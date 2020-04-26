@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
 
 namespace Ophelia.Data.Expressions
@@ -24,7 +20,7 @@ namespace Ophelia.Data.Expressions
         {
             var specificVisitor = visitor as Querying.Query.SQLPreparationVisitor;
 
-            return specificVisitor != null? specificVisitor.VisitUpdater(this): base.Accept(visitor);
+            return specificVisitor != null ? specificVisitor.VisitUpdater(this) : base.Accept(visitor);
         }
         public void Dispose()
         {

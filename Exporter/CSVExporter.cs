@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Ophelia.Data.Exporter.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Data.Exporter.Controls;
 
 namespace Ophelia.Data.Exporter
 {

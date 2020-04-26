@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-using Ophelia.Web.View.Mvc.Controls.Binders;
-using System.Linq.Expressions;
+﻿using Ophelia.Web.View.Mvc.Controls.Binders.Fields;
 using System.IO;
-using Ophelia.Web.View.Mvc.Controls.Binders.Fields;
+using System.Linq;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
 {
@@ -18,7 +11,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public string Title { get; set; }
         public bool Callback { get; set; }
         public TabControl<T> TabControl { get; private set; }
-        public override TextWriter Output { get { return this.TabControl.Binder.Output; } set { } }
+        public override TextWriter Output { get { return this.TabControl.Binder.Output; } set { base.Output = value; } }
 
         public override T Entity
         {

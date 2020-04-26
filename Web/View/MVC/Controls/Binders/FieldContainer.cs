@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-using Ophelia.Web.View.Mvc.Controls.Binders;
-using System.Linq.Expressions;
-using System.IO;
+﻿using Ophelia.Web.UI.Controls;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders
 {
@@ -35,7 +27,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
         public void MoveFieldToLast(string Name)
         {
             var field = this.GetField(Name);
-            if(field != null)
+            if (field != null)
             {
                 this.Controls.Remove(field);
                 this.Controls.Add(field);

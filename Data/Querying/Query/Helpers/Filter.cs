@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Xml.Serialization;
 using System.Runtime.Serialization;
+using System.Text;
+using System.Xml.Serialization;
 
 namespace Ophelia.Data.Querying.Query.Helpers
 {
@@ -584,7 +583,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 }
                 if (isList)
                 {
-                    if(val is Newtonsoft.Json.Linq.JArray)
+                    if (val is Newtonsoft.Json.Linq.JArray)
                     {
                         var arr = val as Newtonsoft.Json.Linq.JArray;
                         var listType = typeof(List<>).MakeGenericType(dataType);
@@ -607,7 +606,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 catch (Exception)
                 {
                     return val;
-                }                
+                }
             }
             return null;
         }

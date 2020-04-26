@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia.Web.Routing
 {
@@ -42,21 +39,22 @@ namespace Ophelia.Web.Routing
                     int counter = 0;
                     Pattern.SplitPattern();
                     foreach (var p in Pattern.SplittedPattern)
-	                {
-		                if(p.Equals(item.Value)){
+                    {
+                        if (p.Equals(item.Value))
+                        {
                             var splitted = friendlyUrl.Split('/');
                             for (int i = 0; i < splitted.Length; i++)
-			                {
+                            {
                                 if (i == counter)
                                 {
                                     Dictionary[item.Name] = splitted[i];
                                     break;
                                 }
-			                }
+                            }
                             break;
                         }
                         counter++;
-	                }
+                    }
                 }
                 else
                     Dictionary[item.Name] = item.Value;
@@ -88,11 +86,14 @@ namespace Ophelia.Web.Routing
             return Item;
         }
 
-        public RouteItemFixedURL AddURL(string LanguageCode, string URL) {
+        public RouteItemFixedURL AddURL(string LanguageCode, string URL)
+        {
             URL = URL.Trim('/');
             RouteItemFixedURL Item = this.FixedURLs.Where(op => op.LanguageCode.Equals(LanguageCode)).FirstOrDefault();
-            if (Item == null) {
-                Item = new RouteItemFixedURL() { 
+            if (Item == null)
+            {
+                Item = new RouteItemFixedURL()
+                {
                     LanguageCode = LanguageCode
                 };
                 this.FixedURLs.Add(Item);
@@ -101,7 +102,8 @@ namespace Ophelia.Web.Routing
             Item.RouteItem = this;
             return Item;
         }
-        public RouteItem() {
+        public RouteItem()
+        {
             this.FixedURLs = new List<RouteItemFixedURL>();
             this.Patterns = new List<RouteItemURLPattern>();
             this.Parameters = new List<RouteItemURLParameter>();

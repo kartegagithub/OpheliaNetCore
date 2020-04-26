@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.View.Mvc.Controls.Binders.Fields;
+﻿using Ophelia.Web.View.Mvc.Controls.Binders.Fields;
 using Ophelia.Web.View.Mvc.Models;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 {
-    public class FilterPanel<Model, T> : FieldContainer<Model> 
-        where T : class 
-        where Model: ListModel<T>
+    public class FilterPanel<Model, T> : FieldContainer<Model>
+        where T : class
+        where Model : ListModel<T>
     {
         private CollectionBinder<Model, T> Binder { get; set; }
         public bool ShowUserCreatedIDFilter { get; set; }

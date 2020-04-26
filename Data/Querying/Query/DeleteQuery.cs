@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq.Expressions;
 using System.Text;
-using System.Threading.Tasks;
-using System.Linq.Expressions;
 
 namespace Ophelia.Data.Querying.Query
 {
@@ -41,7 +37,8 @@ namespace Ophelia.Data.Querying.Query
                 var strWhere = this.BuildWhereString();
                 if (this.Data.MainTable.Joins.Count > 0)
                 {
-                    if (this.Context.Connection.Type == DatabaseType.PostgreSQL) {
+                    if (this.Context.Connection.Type == DatabaseType.PostgreSQL)
+                    {
                         sb.Append(" USING ");
                         sb.Append(this.Data.MainTable.Name);
                         sb.Append(" AS ");

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia.Data.Exporter.Controls
 {
-    public class Cell: IDisposable
+    public class Cell : IDisposable
     {
         public object Value { get; set; }
         public Grid Grid { get; private set; }

@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using System.Data;
-using System.Reflection;
+﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml;
-using Ophelia;
 using Ophelia.Data.Exporter.Controls;
+using System;
+using System.Collections.Generic;
 
 namespace Ophelia.Data.Exporter
 {
@@ -114,7 +107,7 @@ namespace Ophelia.Data.Exporter
                 AppendCell(excelColumnNames[colInx] + "1", col.Text, headerRow);
                 colInx++;
             }
-            
+
             foreach (var row in grid.Rows)
             {
                 ++rowIndex;

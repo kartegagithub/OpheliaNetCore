@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 using Ophelia;
-using System.Web;
+using System;
 using System.IO;
-using Ophelia.Web.Application.Client;
-using Microsoft.AspNetCore.Http;
+using System.Linq;
 using QueryString = Ophelia.Web.Application.Client.QueryString;
 
 namespace Ophelia.Web.UI.Controls
@@ -33,7 +28,7 @@ namespace Ophelia.Web.UI.Controls
             if (this.LinkedPageCount <= 0)
                 return;
 
-            if(this.ExcludedKeys != null)
+            if (this.ExcludedKeys != null)
             {
                 foreach (var item in this.ExcludedKeys)
                 {
@@ -61,7 +56,7 @@ namespace Ophelia.Web.UI.Controls
                     startPage = 1;
                 endPage = pageCount;
             }
-            if(pageCount > 1 && this.CurrentPage > 1)
+            if (pageCount > 1 && this.CurrentPage > 1)
             {
                 this.QS.Update(this.PageKeyword, "1");
                 this.AddItem("‹‹", this.QS.Value).Controls.FirstOrDefault().AddAttribute("title", this.StartTitle);
@@ -69,7 +64,7 @@ namespace Ophelia.Web.UI.Controls
 
             if (startPage > 1)
             {
-                if(startPage - Convert.ToInt32(this.LinkedPageCount / 2) <= 0)
+                if (startPage - Convert.ToInt32(this.LinkedPageCount / 2) <= 0)
                     this.QS.Update(this.PageKeyword, "1");
                 else
                     this.QS.Update(this.PageKeyword, (startPage - Convert.ToInt32(this.LinkedPageCount / 2)).ToString());

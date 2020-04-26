@@ -1,18 +1,15 @@
 ﻿using Ophelia.Cryptography;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Net.Mail;
-using System.Net;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Ophelia
 {
@@ -696,7 +693,8 @@ namespace Ophelia
             }
             return val;
         }
-        public static List<Type> FindTypeInAssemblies(this string val, List<Assembly> assemblies) {
+        public static List<Type> FindTypeInAssemblies(this string val, List<Assembly> assemblies)
+        {
             var types = new List<Type>();
             foreach (var item in assemblies)
             {

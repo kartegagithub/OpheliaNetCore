@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,7 +29,7 @@ namespace Ophelia.Service
             {
                 requestMessage = request.Content.ReadAsByteArrayAsync().Result;
             }
-            if(request.Headers != null)
+            if (request.Headers != null)
             {
                 headers = request.Headers.ToJson();
             }

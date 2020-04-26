@@ -1,9 +1,7 @@
-﻿using System;
+﻿using Ophelia.Data.Exporter.Controls;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Data.Exporter.Controls;
 
 namespace Ophelia.Data.Exporter
 {
@@ -43,7 +41,7 @@ namespace Ophelia.Data.Exporter
                     var xmlCell = xmlRow.AppendChild(doc.CreateElement(cell.Column.ID));
                     xmlCell.InnerText = Convert.ToString(cell.Value);
                 }
-            }            
+            }
             return doc.OuterXml;
         }
     }

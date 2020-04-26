@@ -1,12 +1,7 @@
-﻿using System;
+﻿using Ophelia.Web.UI.Controls;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-using Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder;
-using Ophelia.Web.View.Mvc.Models;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
 {
@@ -108,7 +103,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
                         if (tab.IsSelected)
                             this.Binder.Output.Write(" class='active'");
                         this.Binder.Output.Write(">");
-                        this.Binder.Output.Write("<a data-toggle=\"tab\" href=\"#" + (this.Binder.IsAjaxEntityBinderRequest? "AjaxBinder": "") + tab.ID + "\">" + tab.Title + "</a>");
+                        this.Binder.Output.Write("<a data-toggle=\"tab\" href=\"#" + (this.Binder.IsAjaxEntityBinderRequest ? "AjaxBinder" : "") + tab.ID + "\">" + tab.Title + "</a>");
                         this.Binder.Output.Write("</li>");
                     }
                     this.Binder.Output.Write("</ul>");

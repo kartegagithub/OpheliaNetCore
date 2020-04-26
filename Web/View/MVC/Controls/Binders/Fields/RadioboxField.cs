@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ophelia.Web.UI.Controls;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-using Ophelia;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
 {
@@ -23,9 +18,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             if (this.ExpressionValue != null)
                 this.DataControl.Checked = Convert.ToBoolean(this.ExpressionValue);
         }
-        public RadioboxField(FieldContainer<T> FieldContainer) :base(FieldContainer)
+        public RadioboxField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {
-            
+
         }
     }
 }

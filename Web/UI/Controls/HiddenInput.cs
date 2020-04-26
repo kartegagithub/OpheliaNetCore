@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace Ophelia.Web.UI.Controls
 {
@@ -20,7 +15,7 @@ namespace Ophelia.Web.UI.Controls
 
         public HiddenInput() : base(TextWriterTag.Input)
         {
-            
+
         }
     }
 }

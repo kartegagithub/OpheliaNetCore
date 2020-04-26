@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
+﻿namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 {
     public class Configuration
     {

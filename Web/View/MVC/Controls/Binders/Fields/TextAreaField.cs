@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ophelia.Web.UI.Controls;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-using Ophelia;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
 {
@@ -24,9 +19,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 this.DataControl.Value = Convert.ToString(this.ExpressionValue);
             this.HasValue = !string.IsNullOrEmpty(this.DataControl.Value);
         }
-        public TextAreaField(FieldContainer<T> FieldContainer) :base(FieldContainer)
+        public TextAreaField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {
-            
+
         }
     }
 }

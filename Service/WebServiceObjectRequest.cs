@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Ophelia.Service
 {
@@ -11,7 +7,8 @@ namespace Ophelia.Service
         public long ID { get; set; }
         public string TypeName { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
-        public WebServiceObjectRequest AddParam(string key, object value) {
+        public WebServiceObjectRequest AddParam(string key, object value)
+        {
             this.Parameters[key] = value;
             return this;
         }

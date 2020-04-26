@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia.Service
 {
@@ -11,6 +8,7 @@ namespace Ophelia.Service
     public class ServicePerformance
     {
         private DateTime endDate = DateTime.MinValue;
+        private double _Duration = 0;
 
         [DataMember]
         public int QueryCount { get; set; }
@@ -41,10 +39,12 @@ namespace Ophelia.Service
         {
             get
             {
-                return this.EndDate.Subtract(this.StartDate).TotalMilliseconds;
+                _Duration = this.EndDate.Subtract(this.StartDate).TotalMilliseconds;
+                return _Duration;
             }
             set
             {
+                this._Duration = value;
             }
         }
         public ServicePerformance()

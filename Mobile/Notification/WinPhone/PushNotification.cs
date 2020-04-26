@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using System.Text;
 namespace Ophelia.Mobile.Notification.WinPhone
 {
     //Info: http://www.yazgelistir.com/makale/windows-phone-7-push-notification-types
-    public class PushNotification: Mobile.Notification.PushNotification
+    public class PushNotification : Mobile.Notification.PushNotification
     {
         public PushNotification()
         {

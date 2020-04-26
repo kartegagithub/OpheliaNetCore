@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ophelia.Service
+﻿namespace Ophelia.Service
 {
     public class WebServiceCollectionRequest : WebServiceObjectRequest
     {
@@ -31,7 +25,7 @@ namespace Ophelia.Service
         //}
         public WebServiceCollectionRequest()
         {
-            
+
         }
     }
 }

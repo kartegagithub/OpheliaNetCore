@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia.Web.Routing
 {
@@ -30,7 +28,8 @@ namespace Ophelia.Web.Routing
                 Item.AddParam(ParameterName, ParameterValue);
                 return Item;
             }
-            else {
+            else
+            {
                 throw new Exception("Name parameter of route can not be null for URL: " + URL);
             }
         }
@@ -83,7 +82,7 @@ namespace Ophelia.Web.Routing
                 throw new Exception("Name parameter of route can not be null for URL: " + URL);
             }
         }
-        
+
         #region "GetRootItem"
         public virtual RouteItemURL GetRootItem(string langCode, string Name, string Controller, string Action, string Parameter1, string Value1, string Parameter2, string Value2, string Parameter3, string Value3, string Parameter4, string Value4, string Parameter5, string Value5, bool AbsolutePath = false)
         {
@@ -359,7 +358,7 @@ namespace Ophelia.Web.Routing
             var area = "";
             var controller = "";
             var action = "";
-            if(items.Length == 3)
+            if (items.Length == 3)
             {
                 area = items[0];
                 controller = items[1];

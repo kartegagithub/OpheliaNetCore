@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
 {
-    public class HelpConfiguration: IDisposable
+    public class HelpConfiguration : IDisposable
     {
         public bool Enable { get; set; }
         public string ClassName { get; set; }

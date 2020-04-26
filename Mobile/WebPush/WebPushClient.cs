@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Ophelia.Mobile.WebPush.Util;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Ophelia.Mobile.WebPush.Util;
 
 namespace Ophelia.Mobile.WebPush
 {
@@ -115,7 +115,7 @@ namespace Ophelia.Mobile.WebPush
 
             if (options != null)
             {
-                var validOptionsKeys = new List<string> {"headers", "gcmAPIKey", "vapidDetails", "TTL"};
+                var validOptionsKeys = new List<string> { "headers", "gcmAPIKey", "vapidDetails", "TTL" };
                 foreach (var key in options.Keys)
                 {
                     if (!validOptionsKeys.Contains(key))
@@ -167,7 +167,7 @@ namespace Ophelia.Mobile.WebPush
                     }
 
                     //at this stage ttl cannot be null.
-                    timeToLive = (int) ttl;
+                    timeToLive = (int)ttl;
                 }
             }
 
@@ -344,7 +344,7 @@ namespace Ophelia.Mobile.WebPush
             }
 
             // Error
-            var message = @"Received unexpected response code: " + (int) response.StatusCode;
+            var message = @"Received unexpected response code: " + (int)response.StatusCode;
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:

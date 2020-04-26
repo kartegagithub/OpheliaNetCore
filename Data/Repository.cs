@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace Ophelia.Data
@@ -19,7 +16,7 @@ namespace Ophelia.Data
             }
         }
 
-        public bool Delete(Model.DataEntity entity) 
+        public bool Delete(Model.DataEntity entity)
         {
             if (entity.ID > 0)
             {
@@ -35,7 +32,7 @@ namespace Ophelia.Data
             if (entity.ID == 0 || entity.Tracker.HasChanged)
             {
                 int effectedRowCount = 0;
-                if(entity.ID > 0)
+                if (entity.ID > 0)
                 {
                     entity.Tracker.OnBeforeUpdateEntity();
                     entity.DateModified = DateTime.Now;
@@ -49,26 +46,26 @@ namespace Ophelia.Data
                     entity.DateCreated = DateTime.Now;
 
                     effectedRowCount = this.Context.CreateInsertQuery(entity).Execute<int>();
-                    if(entity.ID == 0 && (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer))
+                    if (entity.ID == 0 && (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer))
                         entity.ID = effectedRowCount;
                     entity.Tracker.OnAfterCreateEntity();
                 }
 
                 var entityType = entity.GetType();
                 var properties = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => op.PropertyType.IsDataEntity()).ToList();
-                if(properties.Count > 0)
+                if (properties.Count > 0)
                 {
                     foreach (var _prop in properties)
                     {
                         var referenced = (Model.DataEntity)_prop.GetValue(entity);
-                        if(referenced != null)
+                        if (referenced != null)
                         {
-                            if(referenced.ID == 0 || referenced.Tracker.HasChanged)
+                            if (referenced.ID == 0 || referenced.Tracker.HasChanged)
                             {
                                 this.SaveChanges(referenced);
 
                                 var refMethod = entityType.GetProperty(_prop.Name + "ID");
-                                if(refMethod != null && (long)refMethod.GetValue(entity) != referenced.ID)
+                                if (refMethod != null && (long)refMethod.GetValue(entity) != referenced.ID)
                                 {
                                     refMethod.SetValue(entity, referenced.ID);
 
@@ -94,7 +91,7 @@ namespace Ophelia.Data
                             var n2nRelationProperties = attributes.Where(op => op.GetType().IsAssignableFrom(typeof(Attributes.N2NRelationProperty))).ToList();
                             if (n2nRelationProperties != null && n2nRelationProperties.Count > 0)
                             {
-                                
+
                             }
                             else
                             {

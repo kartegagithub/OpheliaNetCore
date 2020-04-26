@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace Ophelia
 {
@@ -44,7 +39,8 @@ namespace Ophelia
                     System.Configuration.ConfigurationManager.RefreshSection("appSettings");
                 }
             }
-            catch {
+            catch
+            {
                 System.Configuration.ConfigurationManager.RefreshSection("appSettings");
             }
         }
@@ -83,7 +79,8 @@ namespace Ophelia
                     }
                 }
             }
-            catch {
+            catch
+            {
                 System.Configuration.ConfigurationManager.RefreshSection("appSettings");
             }
         }

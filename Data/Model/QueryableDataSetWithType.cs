@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using Microsoft.EntityFrameworkCore;
 
 namespace Ophelia.Data.Model
 {
@@ -85,7 +82,7 @@ namespace Ophelia.Data.Model
             this.EnsureLoad();
             return ((List<TEntity>)this._list).GetEnumerator();
         }
-        
+
         public virtual QueryableDataSet<TEntity> Include(string path)
         {
             return QueryableDataSetExtensions.Include(this, path);

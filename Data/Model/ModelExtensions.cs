@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Ophelia.Data.Model;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Reflection;
-using Ophelia.Data.Model;
-using System.Collections;
 
 namespace Ophelia.Data
 {
@@ -121,7 +119,7 @@ namespace Ophelia.Data
                 entity.ID = ID;
                 return entity;
             }
-            throw new InvalidCastException(entityType.GetType().FullName + " can not cast to Ophelia.Data.Model.DataEntity");
+            throw new InvalidCastException(entityType.FullName + " can not cast to Ophelia.Data.Model.DataEntity");
         }
         public static bool SaveChanges<T>(this DataContext ctx, T entity) where T : DataEntity
         {

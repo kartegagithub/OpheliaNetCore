@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 {
-    public class Grouper<T> where T: class
+    public class Grouper<T> where T : class
     {
         public Grouper()
         {
@@ -31,7 +27,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 var path = this.Expression.ParsePath();
                 if (path.IndexOf("(") > -1)
                     path = path.Replace("(", "").Replace(")", "");
-                if(this.Expression.Body.Type.IsClass && !this.Expression.Body.Type.FullName.Contains("System."))
+                if (this.Expression.Body.Type.IsClass && !this.Expression.Body.Type.FullName.Contains("System."))
                     path += "ID";
                 if (path.IndexOf(".") > -1)
                 {

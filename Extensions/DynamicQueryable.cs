@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Ophelia
 {
@@ -1935,7 +1934,7 @@ namespace Ophelia
             TypeCode sc = st.IsEnum ? TypeCode.Object : Type.GetTypeCode(st);
             TypeCode tc = tt.IsEnum ? TypeCode.Object : Type.GetTypeCode(tt);
 
-            if (st.IsEnum & !tt.IsEnum) // If the source is an enum and the target is numeric 
+            if (st.IsEnum && !tt.IsEnum) // If the source is an enum and the target is numeric 
             {
                 switch (tc)
                 {

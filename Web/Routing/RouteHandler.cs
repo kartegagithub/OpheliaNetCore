@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 namespace Ophelia.Web.Routing
 {
     public class RouteHandler : IRouter
@@ -166,7 +163,7 @@ namespace Ophelia.Web.Routing
             {
                 throw ex;
             }
-            
+
             await this.DefaulRouter.RouteAsync(requestContext);
         }
         protected virtual void OnRouteNotFound(RouteContext requestContext, string pageURL)

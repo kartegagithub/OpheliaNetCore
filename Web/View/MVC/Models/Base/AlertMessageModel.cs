@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace Ophelia.Web.View.Mvc.Models
 {
@@ -13,7 +8,7 @@ namespace Ophelia.Web.View.Mvc.Models
         {
         }
 
-        public AlertMessageModel(string message , string type)
+        public AlertMessageModel(string message, string type)
         {
             Type = type;
             Message = message;
@@ -35,7 +30,8 @@ namespace Ophelia.Web.View.Mvc.Models
 
     }
 
-    public class MessageType{
+    public class MessageType
+    {
 
         public static string Block = "block";
 

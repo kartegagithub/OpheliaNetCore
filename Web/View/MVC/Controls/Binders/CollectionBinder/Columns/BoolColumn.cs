@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Ophelia.Web.UI.Controls;
-
-using System.Linq.Expressions;
 using Ophelia.Web.View.Mvc.Models;
-using System.Collections;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
 {
-    public class BoolColumn<TModel, T> : BaseColumn<TModel, T> where T:class where TModel : ListModel<T>
+    public class BoolColumn<TModel, T> : BaseColumn<TModel, T> where T : class where TModel : ListModel<T>
     {
         public bool SingleSelection { get; set; }
         public bool CanSetValue { get; set; }

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-using Ophelia;
+﻿using Ophelia.Web.UI.Controls;
+using System;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
 {
@@ -23,7 +17,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 this.DataControl.Value = Convert.ToString(this.ExpressionValue);
             return this.DataControl.Draw();
         }
-        public HiddenField(FieldContainer<T> FieldContainer) :base(FieldContainer)
+        public HiddenField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {
             this.IsHidden = true;
         }

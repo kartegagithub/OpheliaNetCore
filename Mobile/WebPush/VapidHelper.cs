@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ophelia.Mobile.WebPush.Util;
 using Org.BouncyCastle.Crypto.Parameters;
-using Ophelia.Mobile.WebPush.Util;
+using System;
+using System.Collections.Generic;
 
 namespace Ophelia.Mobile.WebPush
 {
@@ -15,8 +15,8 @@ namespace Ophelia.Mobile.WebPush
             var results = new VapidDetails();
 
             var keys = ECKeyHelper.GenerateKeys();
-            var publicKey = ((ECPublicKeyParameters) keys.Public).Q.GetEncoded(false);
-            var privateKey = ((ECPrivateKeyParameters) keys.Private).D.ToByteArrayUnsigned();
+            var publicKey = ((ECPublicKeyParameters)keys.Public).Q.GetEncoded(false);
+            var privateKey = ((ECPrivateKeyParameters)keys.Private).D.ToByteArrayUnsigned();
 
             results.PublicKey = UrlBase64.Encode(publicKey);
             results.PrivateKey = UrlBase64.Encode(ByteArrayPadLeft(privateKey, 32));
@@ -143,7 +143,7 @@ namespace Ophelia.Mobile.WebPush
         private static long UnixTimeNow()
         {
             var timeSpan = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0);
-            return (long) timeSpan.TotalSeconds;
+            return (long)timeSpan.TotalSeconds;
         }
 
         private static byte[] ByteArrayPadLeft(byte[] src, int size)

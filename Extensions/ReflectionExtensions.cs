@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace Ophelia
@@ -462,7 +460,7 @@ namespace Ophelia
             var returnTypes = new List<Type>();
             try
             {
-                
+
                 foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     try
@@ -540,7 +538,7 @@ namespace Ophelia
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex)
+                        Console.WriteLine(ex);
                     }
                 }
             }

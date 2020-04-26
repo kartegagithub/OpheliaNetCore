@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ophelia.Web.UI.Controls;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ophelia.Web.UI.Controls;
-using Ophelia;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
 {
@@ -19,15 +13,15 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         }
         protected override void onBeforeRenderControl(TextWriter writer)
         {
-            
+
         }
         protected override void onRenderControl(TextWriter writer)
         {
-            
+
         }
-        public BlankField(FieldContainer<T> FieldContainer) :base(FieldContainer)
+        public BlankField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {
-            
+
         }
     }
 }

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia.Data.Exporter.Controls
 {
-    public class Column:IDisposable
+    public class Column : IDisposable
     {
         public bool IsNumeric { get; set; }
         public string ID { get; set; }

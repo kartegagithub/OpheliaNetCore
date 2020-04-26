@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using System.Linq.Expressions;
-using Ophelia.Reflection;
-
-namespace Ophelia.Web.Application.Server
+﻿namespace Ophelia.Web.Application.Server
 {
     public abstract class CacheFacade
     {
@@ -42,7 +33,8 @@ namespace Ophelia.Web.Application.Server
             CacheManager.Remove(this.Key);
         }
 
-        public bool Load() {
+        public bool Load()
+        {
             return this.Data != null;
         }
 

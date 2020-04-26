@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia
 {
@@ -26,7 +22,7 @@ namespace Ophelia
             }
             return rotatedImage;
         }
-        public static  Bitmap AddFrame(this Bitmap source, Color color, int frameWidth)
+        public static Bitmap AddFrame(this Bitmap source, Color color, int frameWidth)
         {
             Bitmap frameImage = new Bitmap(source.Width + frameWidth * 2, source.Height + frameWidth * 2);
             using (Graphics graph = Graphics.FromImage(frameImage))

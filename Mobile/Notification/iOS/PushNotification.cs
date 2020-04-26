@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using System.Net.Sockets;
-using System.Threading;
-using System.IO;
-using Newtonsoft.Json.Linq;
-using Ophelia;
-using PushSharp.Apple;
-using static PushSharp.Apple.ApnsConfiguration;
+﻿using Newtonsoft.Json.Linq;
 using Ophelia.Service;
+using PushSharp.Apple;
+using System;
+using System.Collections.Generic;
+using static PushSharp.Apple.ApnsConfiguration;
 
 namespace Ophelia.Mobile.Notification.iOS
 {

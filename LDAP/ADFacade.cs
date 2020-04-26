@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ophelia.Service;
+using System;
 using System.DirectoryServices;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Ophelia;
 using System.Text.RegularExpressions;
-using Ophelia.Service;
 
 namespace Ophelia.LDAP
 {
@@ -72,7 +68,7 @@ namespace Ophelia.LDAP
             DirectorySearcher search = new DirectorySearcher(entry);
             search.Filter = "(&(objectClass=user)(anr=" + userName + "))";
 
-            if(properties != null)
+            if (properties != null)
             {
                 foreach (var item in properties)
                 {
@@ -116,7 +112,7 @@ namespace Ophelia.LDAP
             }
             return false;
         }
-        
+
         public static ServiceObjectResult<SearchResult> GetAuthenticatedUserInfo(string domain, string username, string pwd, string path, string requestedUserName = "")
         {
             var Result = new ServiceObjectResult<SearchResult>();
@@ -143,7 +139,7 @@ namespace Ophelia.LDAP
                         }
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Result.Fail(ex);
                 }

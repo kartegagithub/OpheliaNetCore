@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.Common;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Ophelia.Data
 {
@@ -380,7 +379,7 @@ namespace Ophelia.Data
         }
         public object FormatParameterValue(object value, bool isString = false)
         {
-            if (value != null & !isString && (value.ToString() == "True" || value.ToString() == "False"))
+            if (value != null && !isString && (value.ToString() == "True" || value.ToString() == "False"))
             {
                 return (value.ToString() == "True" ? 1 : 0);
             }

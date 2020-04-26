@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 
 namespace Ophelia.Web.View.Mvc.Models
 {
@@ -25,7 +22,7 @@ namespace Ophelia.Web.View.Mvc.Models
 
         public virtual void Dispose()
         {
-            
+
         }
     }
 }

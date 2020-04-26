@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
 
 namespace Ophelia.Data.Expressions
 {
-    public class IncludeExpression: Expression, IDisposable
+    public class IncludeExpression : Expression, IDisposable
     {
         public Expression Expression { get; set; }
         public string Path { get; set; }
@@ -41,7 +37,7 @@ namespace Ophelia.Data.Expressions
         {
             var specificVisitor = visitor as Querying.Query.SQLPreparationVisitor;
 
-            return specificVisitor != null? specificVisitor.VisitInclude(this): base.Accept(visitor);
+            return specificVisitor != null ? specificVisitor.VisitInclude(this) : base.Accept(visitor);
         }
         public void Dispose()
         {

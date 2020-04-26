@@ -1,9 +1,6 @@
-﻿using Microsoft.VisualBasic;
-using System.Collections;
-using System.Web;
+﻿using Microsoft.AspNetCore.Http;
 using System;
-using Ophelia;
-using Microsoft.AspNetCore.Http;
+using System.Collections;
 
 namespace Ophelia.Web.Application.Client
 {
@@ -137,7 +134,7 @@ namespace Ophelia.Web.Application.Client
                     }
                     n++;
                 }
-                if(this.Request.Method == "POST")
+                if (this.Request.Method == "POST")
                 {
                     foreach (var key in this.Request.Form.Keys)
                     {

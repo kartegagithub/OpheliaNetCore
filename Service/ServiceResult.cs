@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.Serialization;
-using Ophelia.Reflection;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Ophelia.Service
 {
@@ -125,9 +121,9 @@ namespace Ophelia.Service
                 if (this.Handler != null)
                     this.Handler.HandleException(ex);
             }
-            catch (Exception ex)
+            catch (Exception ex2)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex2);
             }
         }
 
