@@ -482,7 +482,13 @@ namespace Ophelia.Data.Querying.Query
             this.Parameters = new List<object>();
             this.Tables = new List<Type>();
         }
-        public void Dispose()
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.StringBuilder = null;
             this.Parameters = null;

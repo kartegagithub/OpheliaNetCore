@@ -314,9 +314,15 @@ namespace Ophelia.Data.Querying.Query
                 this.AddWhereClause(binaryExpression);
             }
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            //Cleanup
         }
     }
 }

@@ -161,6 +161,12 @@ namespace Ophelia.Web.UI.Controls
         }
         public virtual void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
 
         }
 

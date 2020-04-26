@@ -38,7 +38,6 @@ namespace Ophelia
 
             string _get_auth()
             {
-                string retVal;
                 string lNonce = _get_nonce();
                 string lTimes = _get_timestamp();
                 string lCKey = string.Concat(cConsumerSecret, "&");

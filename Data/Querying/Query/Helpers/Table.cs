@@ -128,9 +128,15 @@ namespace Ophelia.Data.Querying.Query.Helpers
             return sb.ToString();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+
         }
         internal Table AddJoin(Table table, params List<Table>[] rootJoins)
         {

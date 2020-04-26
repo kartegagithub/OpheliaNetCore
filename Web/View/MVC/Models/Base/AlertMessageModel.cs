@@ -33,18 +33,18 @@ namespace Ophelia.Web.View.Mvc.Models
     public class MessageType
     {
 
-        public static string Block = "block";
+        public static readonly string Block = "block";
 
-        public static string Success = "success";
+        public static readonly string Success = "success";
 
-        public static string Info = "info";
+        public static readonly string Info = "info";
 
-        public static string Error = "error";
+        public static readonly string Error = "error";
 
-        public static string ErrorLoginPopup = "error_loginpopup";
+        public static readonly string ErrorLoginPopup = "error_loginpopup";
 
-        public static string InfoLoginPopup = "info_loginpopup";
+        public static readonly string InfoLoginPopup = "info_loginpopup";
 
-        public static string SuccessLoginPopup = "success_loginpopup";
+        public static readonly string SuccessLoginPopup = "success_loginpopup";
     }
 }

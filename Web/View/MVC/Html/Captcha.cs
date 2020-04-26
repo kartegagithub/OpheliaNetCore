@@ -152,9 +152,15 @@ namespace Ophelia.Web.View.Mvc.Html
         {
             return this.CaptchaModel.AlwaysShow || this.IsWrongEntryCountExceed();
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+
         }
 
         public void DeleteSessionKey(string KeyName)

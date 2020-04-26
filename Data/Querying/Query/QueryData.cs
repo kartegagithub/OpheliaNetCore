@@ -41,7 +41,13 @@ namespace Ophelia.Data.Querying.Query
 
         [DataMember]
         public Helpers.Table MainTable { get; set; }
-        public void Dispose()
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.Sorters = null;
             this.Groupers = null;

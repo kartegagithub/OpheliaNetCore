@@ -58,11 +58,6 @@ namespace Ophelia.Data.Querying.Query.Helpers
             return ExpressionParser.Create(expression).ToIncluder(joinType).DecideType();
         }
 
-        public override void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
-
         public override string Build(Query.BaseQuery query, Table subqueryTable = null)
         {
             var sb = new StringBuilder();

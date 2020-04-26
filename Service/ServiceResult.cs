@@ -134,6 +134,12 @@ namespace Ophelia.Service
 
         public virtual void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             this.ExtraData = null;
             this.Handler = null;
             this.Performance = null;

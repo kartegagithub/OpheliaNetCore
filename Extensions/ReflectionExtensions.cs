@@ -63,7 +63,7 @@ namespace Ophelia
                 {
                     convertedValue = isNull ? default(double) : Convert.ToDouble(value);
                 }
-                else
+                else if(value != null)
                 {
                     var valueType = value.GetType();
                     var c1 = System.ComponentModel.TypeDescriptor.GetConverter(valueType);

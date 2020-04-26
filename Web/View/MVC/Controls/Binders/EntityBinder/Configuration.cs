@@ -36,12 +36,17 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
 
         }
 
-        public void Dispose()
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.Help.Dispose();
             this.Help = null;
         }
-
         public Configuration()
         {
             this.EditButtonText = "Edit";

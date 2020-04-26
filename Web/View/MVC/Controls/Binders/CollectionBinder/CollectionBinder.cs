@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Ophelia;
 using Ophelia.Data;
 using Ophelia.Data.Querying.Query;
 using Ophelia.Reflection;
@@ -1308,24 +1307,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             }
             this.Response.Flush();
         }
-        public override void Dispose()
-        {
-            //if (this.IsAjaxRequest && this.Response != null && !this.CanExport)
-            //    this.FinishRequest();
 
-            this.FilterPanel = null;
-            this.DataSource = null;
-            this.Output = null;
-            this.Configuration = null;
-            this.Breadcrumb = null;
-            this.ActionButtons = null;
-            this.Title = "";
-            this.Columns.Clear();
-            this.Columns = null;
-            this.Groupers.Clear();
-            this.Groupers = null;
-            this.GroupedData = null;
-            base.Dispose();
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
         }
     }
     public enum ContentRenderMode

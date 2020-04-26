@@ -80,9 +80,15 @@ namespace Ophelia.Data.Querying.Query
         }
         protected abstract string GetCommand(CommandType cmdType);
 
-        public void Dispose()
+        public virtual void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+        
         }
 
         public BaseQuery(DataContext Context, Type EntityType)

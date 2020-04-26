@@ -21,11 +21,17 @@ namespace Ophelia.Data.Model
             }
         }
         public bool HasChanged { get; set; }
+
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.PropertyInfo = null;
             this.Value = null;
-            GC.SuppressFinalize(this);
         }
     }
 }

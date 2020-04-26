@@ -84,8 +84,13 @@ namespace Ophelia.Data.Querying.Query.Helpers
         {
             return ExpressionParser.Create(expression).ToFilter();
         }
-
         public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.Tables.Clear();
             this.Tables = null;
@@ -109,7 +114,6 @@ namespace Ophelia.Data.Querying.Query.Helpers
             this.EntityType = null;
             this.Value = null;
             this.Value2 = null;
-            GC.SuppressFinalize(this);
         }
 
         public virtual string Build(Query.BaseQuery query, Table subqueryTable = null)

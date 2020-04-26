@@ -46,7 +46,7 @@ namespace Ophelia.Data.Model
             bool canCreate = !this.Properties.Keys.Contains(key);
             if (canCreate)
             {
-                var list = (System.Collections.IEnumerable)property.PropertyType.GenericTypeArguments[0].CreateList();
+                var list = property.PropertyType.GenericTypeArguments[0].CreateList();
                 this.Properties[key] = new DataValue { PropertyInfo = property, Value = list };
                 this.Properties[key].HasChanged = false;
             }
@@ -238,13 +238,17 @@ namespace Ophelia.Data.Model
             this.Entity = entity;
             this.Properties = new Dictionary<string, DataValue>();
         }
-
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.Entity = null;
             this.Properties.Clear();
             this.Properties = null;
-            GC.SuppressFinalize(this);
         }
     }
 }

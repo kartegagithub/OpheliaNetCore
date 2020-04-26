@@ -8,7 +8,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
     public class NumberboxField<T> : TextboxField<T> where T : class
     {
         public NumberboxFieldMode Mode { get; set; }
-        public new Textbox DataControl { get { return (Textbox)base.DataControl; } set { base.DataControl = value; } }
+        public new Textbox DataControl { get { return base.DataControl; } set { base.DataControl = value; } }
         public Expression<Func<T, object>> LowExpression { get; set; }
         public string LowPropertyName { get; set; }
         public string Format { get; set; }

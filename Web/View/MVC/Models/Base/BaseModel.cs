@@ -20,9 +20,18 @@ namespace Ophelia.Web.View.Mvc.Models
         public bool IsNew { get { return this.ID == 0; } }
         public AlertMessageModel AlertMessage { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public virtual void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            //Cleanup
         }
     }
 }

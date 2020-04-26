@@ -54,7 +54,7 @@ namespace Ophelia.Web.View.Mvc.Middlewares
     }
 
     [Serializable]
-    internal class CrossSiteScriptingException : Exception
+    public class CrossSiteScriptingException : Exception
     {
         public CrossSiteScriptingException()
         {

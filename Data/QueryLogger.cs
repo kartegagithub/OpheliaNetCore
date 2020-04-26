@@ -18,10 +18,15 @@ namespace Ophelia.Data
         }
         public virtual void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             this.SQLLogs = null;
             this.EntityLoadLogs = null;
         }
-
         public QueryLogger()
         {
             this.SQLLogs = new List<Model.SQLLog>();

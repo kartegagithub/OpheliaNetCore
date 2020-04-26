@@ -13,7 +13,13 @@ namespace Ophelia.Data.Exporter.Controls
             this.Grid = grid;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.Grid = null;
             this.Text = "";

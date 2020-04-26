@@ -105,10 +105,15 @@ namespace Ophelia.Data.Querying
             }
             return (TResult)Convert.ChangeType(null, typeof(TResult));
         }
-
-        public void Dispose()
+        public virtual void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+
         }
     }
 }

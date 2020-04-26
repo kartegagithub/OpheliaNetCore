@@ -59,7 +59,7 @@ namespace Ophelia
                     System.Configuration.ConfigurationManager.RefreshSection("appSettings");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 System.Configuration.ConfigurationManager.RefreshSection("appSettings");
             }

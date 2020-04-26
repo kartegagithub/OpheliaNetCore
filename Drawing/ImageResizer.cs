@@ -168,7 +168,7 @@ namespace Ophelia.Drawing
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "";
             }

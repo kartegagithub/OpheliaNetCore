@@ -16,8 +16,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.DiscardedDocumentation = new List<string>();
             this.SearchHelps = new List<SearchHelp>();
         }
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-        public void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
             this.SearchHelps.Clear();
             this.SearchHelps = null;

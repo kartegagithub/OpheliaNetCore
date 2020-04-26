@@ -19,9 +19,18 @@ namespace Ophelia.Data
         public string OracleStringColumnCollation { get; set; }
         public string DatabaseVersion { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            //Cleanup
         }
         public DataConfiguration()
         {

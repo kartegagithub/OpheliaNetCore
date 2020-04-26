@@ -7,7 +7,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
 {
     public class MoneyField<T> : TextboxField<T> where T : class
     {
-        public new Textbox DataControl { get { return (Textbox)base.DataControl; } set { base.DataControl = value; } }
+        public new Textbox DataControl { get { return base.DataControl; } set { base.DataControl = value; } }
         public Select CurrencyControl { get; private set; }
         public Expression<Func<T, object>> CurrencyExpression { get; set; }
         public string Format { get; set; }

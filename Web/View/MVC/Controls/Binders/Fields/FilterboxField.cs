@@ -20,7 +20,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         public string ValueMember { get; set; }
         public string AjaxURL { get; set; }
 
-        public new Select DataControl { get { return (Select)base.DataControl; } set { base.DataControl = value; } }
+        public new Select DataControl { get { return base.DataControl; } set { base.DataControl = value; } }
 
         protected override void onBeforeRenderControl(TextWriter writer)
         {
@@ -118,7 +118,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             {
                 return new SelectListItem() { Selected = true, Text = Convert.ToString(item), Value = Convert.ToString(item) };
             }
-            else
+            else if (item != null)
             {
                 var accessor = new Accessor();
                 accessor.Item = item;
@@ -148,6 +148,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 }
                 return new SelectListItem() { Selected = true, Text = name, Value = id };
             }
+            else
+                return new SelectListItem();
         }
         public FilterboxField(FieldContainer<T> FieldContainer) : base(FieldContainer)
         {

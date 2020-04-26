@@ -74,7 +74,7 @@ namespace Ophelia.Data.Exporter
                 spreadsheet.WorkbookPart.Workbook.GetFirstChild<DocumentFormat.OpenXml.Spreadsheet.Sheets>().AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Sheet()
                 {
                     Id = spreadsheet.WorkbookPart.GetIdOfPart(newWorksheetPart),
-                    SheetId = (uint)worksheetNumber,
+                    SheetId = worksheetNumber,
                     Name = grid.Text
                 });
 

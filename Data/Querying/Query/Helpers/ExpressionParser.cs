@@ -641,7 +641,13 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 grouper.SubGrouper = this.SubExpression.ToGrouper();
             return grouper;
         }
-        public void Dispose()
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.ParentPropertyInfo = null;
             this.PropertyInfo = null;

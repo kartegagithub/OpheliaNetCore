@@ -93,8 +93,13 @@ namespace Ophelia.Web
             _Current = null;
             this.SharedData = null;
         }
-
         public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.Disconnect();
             Debug.WriteLine("Client.Dispose ManagedThreadId: " + Thread.CurrentThread.ManagedThreadId);

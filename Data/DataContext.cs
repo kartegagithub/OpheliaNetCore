@@ -164,14 +164,22 @@ namespace Ophelia.Data
             }
             return this.ContextEntities.Count == 0;
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.TableMap = null;
             this.NamespaceMap = null;
             this.ContextEntities = null;
             this.Connection.Close();
             this.Connection.Dispose();
-            GC.SuppressFinalize(this);
         }
         protected virtual DataContext MapTable<T>(string toType)
         {

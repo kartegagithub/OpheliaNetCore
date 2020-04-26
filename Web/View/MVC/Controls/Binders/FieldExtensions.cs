@@ -37,7 +37,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
         public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string name, bool isRequired) where T : class { return container.AddTextboxField(name, "", isRequired); }
         public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string name, string value, bool isRequired) where T : class { return container.AddTextboxField(name, value, isRequired, null); }
         public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string name, string value, bool isRequired, object htmlAttributes) where T : class { return container.AddTextboxField(name, name, value, isRequired, null); }
-        public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return (Fields.TextboxField<T>)container.AddTextboxField("", expression, isRequired, htmlAttributes); }
+        public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return container.AddTextboxField("", expression, isRequired, htmlAttributes); }
         public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string Text, string name, string value, bool isRequired, object htmlAttributes) where T : class
         {
             var control = new Fields.TextboxField<T>(container);
@@ -60,7 +60,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return (Fields.TextboxField<T>)container.AddField(control);
         }
 
-        public static Fields.NumberboxField<T> AddNumberboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return (Fields.NumberboxField<T>)container.AddNumberboxField("", expression, isRequired, htmlAttributes); }
+        public static Fields.NumberboxField<T> AddNumberboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return container.AddNumberboxField("", expression, isRequired, htmlAttributes); }
         public static Fields.NumberboxField<T> AddNumberboxField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class
         {
             var control = new Fields.NumberboxField<T>(container);
@@ -84,7 +84,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return (Fields.NumberboxField<T>)container.AddField(control);
         }
 
-        public static Fields.NumberboxField<T> AddNumberboxRangeField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expressionLow, Expression<Func<T, object>> expressionHigh, bool isRequired = false, object htmlAttributes = null) where T : class { return (Fields.NumberboxField<T>)container.AddNumberboxRangeField("", expressionLow, expressionHigh, isRequired, htmlAttributes); }
+        public static Fields.NumberboxField<T> AddNumberboxRangeField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expressionLow, Expression<Func<T, object>> expressionHigh, bool isRequired = false, object htmlAttributes = null) where T : class { return container.AddNumberboxRangeField("", expressionLow, expressionHigh, isRequired, htmlAttributes); }
         public static Fields.NumberboxField<T> AddNumberboxRangeField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expressionLow, Expression<Func<T, object>> expressionHigh, bool isRequired = false, object htmlAttributes = null, string HighPlaceHolder = "End", string LowPlaceHolder = "Start") where T : class
         {
             var control = new Fields.NumberboxField<T>(container);
@@ -115,7 +115,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return (Fields.NumberboxField<T>)container.AddField(control);
         }
 
-        public static Fields.PasswordField<T> AddPasswordField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return (Fields.PasswordField<T>)container.AddPasswordField("", expression, isRequired, htmlAttributes); }
+        public static Fields.PasswordField<T> AddPasswordField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return container.AddPasswordField("", expression, isRequired, htmlAttributes); }
         public static Fields.PasswordField<T> AddPasswordField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class
         {
             var control = new Fields.PasswordField<T>(container);
@@ -126,7 +126,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return (Fields.PasswordField<T>)container.AddField(control);
         }
 
-        public static Fields.DateField<T> AddDateRangeField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expressionLow, Expression<Func<T, object>> expressionHigh, bool isRequired = false, object htmlAttributes = null) where T : class { return (Fields.DateField<T>)container.AddDateRangeField("", expressionLow, expressionHigh, isRequired, htmlAttributes); }
+        public static Fields.DateField<T> AddDateRangeField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expressionLow, Expression<Func<T, object>> expressionHigh, bool isRequired = false, object htmlAttributes = null) where T : class { return container.AddDateRangeField("", expressionLow, expressionHigh, isRequired, htmlAttributes); }
         public static Fields.DateField<T> AddDateRangeField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expressionLow, Expression<Func<T, object>> expressionHigh, bool isRequired = false, object htmlAttributes = null) where T : class
         {
             var control = new Fields.DateField<T>(container);
@@ -169,7 +169,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             container.AddField(control);
             return (Fields.DateField<T>)container.AddField(control);
         }
-        public static Fields.FilterboxField<T> AddFilterboxField<T>(this FieldContainer<T> container, string ajaxURL, Expression<Func<T, object>> expression, Expression<Func<T, object>> selectedValueExpression, string valueMember = "ID", string DisplayMember = "Name", bool isRequired = false, object htmlAttributes = null, bool IsMultiple = false) where T : class { return (Fields.FilterboxField<T>)container.AddFilterboxField("", ajaxURL, expression, selectedValueExpression, valueMember, DisplayMember, isRequired, htmlAttributes, IsMultiple); }
+        public static Fields.FilterboxField<T> AddFilterboxField<T>(this FieldContainer<T> container, string ajaxURL, Expression<Func<T, object>> expression, Expression<Func<T, object>> selectedValueExpression, string valueMember = "ID", string DisplayMember = "Name", bool isRequired = false, object htmlAttributes = null, bool IsMultiple = false) where T : class { return container.AddFilterboxField("", ajaxURL, expression, selectedValueExpression, valueMember, DisplayMember, isRequired, htmlAttributes, IsMultiple); }
         public static Fields.FilterboxField<T> AddFilterboxField<T>(this FieldContainer<T> container, string Text, string ajaxURL, Expression<Func<T, object>> expression, Expression<Func<T, object>> selectedValueExpression, string valueMember = "ID", string DisplayMember = "Name", bool isRequired = false, object htmlAttributes = null, bool IsMultiple = false) where T : class
         {
             var control = new Fields.FilterboxField<T>(container);
@@ -185,7 +185,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.ID = Text;
             container.AddField(control);
             container.SetFieldProperties(control);
-            return (Fields.FilterboxField<T>)control;
+            return control;
         }
 
         public static Fields.FilterboxField<T> AddFilterboxField<T>(this FieldContainer<T> container, string Text, string ajaxURL, string name, Microsoft.AspNetCore.Mvc.Rendering.SelectListItem value, bool isRequired = false, object htmlAttributes = null) where T : class
@@ -201,10 +201,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.ID = Text;
             container.AddField(control);
             container.SetFieldProperties(control);
-            return (Fields.FilterboxField<T>)control;
+            return control;
         }
 
-        public static Fields.RichTextField<T> AddRichTextField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return (Fields.RichTextField<T>)container.AddRichTextField("", expression, isRequired, htmlAttributes); }
+        public static Fields.RichTextField<T> AddRichTextField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return container.AddRichTextField("", expression, isRequired, htmlAttributes); }
         public static Fields.RichTextField<T> AddRichTextField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class
         {
             var control = new Fields.RichTextField<T>(container);
@@ -215,7 +215,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return (Fields.RichTextField<T>)container.AddField(control);
         }
 
-        public static Fields.CheckboxField<T> AddCheckboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null, string DataOnText = "Yes", string DataOffText = "No") where T : class { return (Fields.CheckboxField<T>)container.AddCheckboxField("", expression, isRequired, htmlAttributes, DataOnText, DataOffText); }
+        public static Fields.CheckboxField<T> AddCheckboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null, string DataOnText = "Yes", string DataOffText = "No") where T : class { return container.AddCheckboxField("", expression, isRequired, htmlAttributes, DataOnText, DataOffText); }
         public static Fields.CheckboxField<T> AddCheckboxField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null, string DataOnText = "Yes", string DataOffText = "No") where T : class
         {
             var control = new Fields.CheckboxField<T>(container);
@@ -242,7 +242,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return (Fields.CheckboxField<T>)container.AddField(control);
         }
 
-        public static Fields.RadioboxField<T> AddRadioboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return (Fields.RadioboxField<T>)container.AddRadioboxField("", expression, isRequired, htmlAttributes); }
+        public static Fields.RadioboxField<T> AddRadioboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return container.AddRadioboxField("", expression, isRequired, htmlAttributes); }
         public static Fields.RadioboxField<T> AddRadioboxField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class
         {
             var control = new Fields.RadioboxField<T>(container);
@@ -260,10 +260,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
 
             list.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem() { Text = container.Client.TranslateText("True"), Value = "1" });
             list.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem() { Text = container.Client.TranslateText("False"), Value = "0" });
-            return (Fields.SelectboxField<T>)container.AddSelectboxField("", expression, list, isRequired, htmlAttributes, DefaultText, DefaultValue);
+            return container.AddSelectboxField("", expression, list, isRequired, htmlAttributes, DefaultText, DefaultValue);
         }
 
-        public static Fields.SelectboxField<T> AddSelectboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, IEnumerable dataSource, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class { return (Fields.SelectboxField<T>)container.AddSelectboxField("", expression, dataSource, isRequired, htmlAttributes, DefaultText, DefaultValue); }
+        public static Fields.SelectboxField<T> AddSelectboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, IEnumerable dataSource, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class { return container.AddSelectboxField("", expression, dataSource, isRequired, htmlAttributes, DefaultText, DefaultValue); }
         public static Fields.SelectboxField<T> AddSelectboxField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, IEnumerable dataSource, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class
         {
             var control = new Fields.SelectboxField<T>(container);
@@ -276,7 +276,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.ID = Text;
             container.AddField(control);
             container.SetFieldProperties(control);
-            return (Fields.SelectboxField<T>)control;
+            return control;
         }
         public static Fields.SelectboxField<T> AddSelectboxField<T>(this FieldContainer<T> container, string Text, string Name, string defaultValue, IEnumerable dataSource, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "", string DisplayMemberName = "Name", string ValueMemberName = "ID") where T : class
         {
@@ -294,10 +294,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.IsRequired = isRequired;
             container.AddField(control);
             container.SetFieldProperties(control);
-            return (Fields.SelectboxField<T>)control;
+            return control;
         }
 
-        public static Fields.SelectboxField<T> AddEnumSelectboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class { return (Fields.SelectboxField<T>)container.AddEnumSelectboxField("", expression, enumType, isRequired, htmlAttributes, DefaultText, DefaultValue); }
+        public static Fields.SelectboxField<T> AddEnumSelectboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class { return container.AddEnumSelectboxField("", expression, enumType, isRequired, htmlAttributes, DefaultText, DefaultValue); }
         public static Fields.SelectboxField<T> AddEnumSelectboxField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class
         {
             var control = new Fields.SelectboxField<T>(container);

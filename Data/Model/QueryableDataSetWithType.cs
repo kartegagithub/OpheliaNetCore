@@ -64,10 +64,6 @@ namespace Ophelia.Data.Model
             }
         }
 
-        public override void Dispose()
-        {
-
-        }
         public new List<TEntity> ToList()
         {
             this.EnsureLoad();

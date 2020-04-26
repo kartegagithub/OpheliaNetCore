@@ -45,7 +45,7 @@ namespace Ophelia.Web.Routing
                     this.SetLanguageCode(URL.LanguageCode);
                     context.RouteData.Values["controller"] = URL.RouteItem.Controller;
                     context.RouteData.Values["action"] = URL.RouteItem.Action;
-                    URL.RouteItem.AddParamsToDictionary(friendlyUrl, context.RouteData.Values, (RouteItemURLPattern)URL);
+                    URL.RouteItem.AddParamsToDictionary(friendlyUrl, context.RouteData.Values, URL);
                     if (URL.Pattern.IndexOf("{") > -1)
                     {
                         var splitted = URL.Pattern.Split('/');

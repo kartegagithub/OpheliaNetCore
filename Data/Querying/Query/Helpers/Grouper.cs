@@ -42,9 +42,15 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 return this.SubGrouper.Build(query);
             return "";
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+
         }
         public Grouper Serialize()
         {

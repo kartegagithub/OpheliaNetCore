@@ -18,7 +18,14 @@ namespace Ophelia.Data.Exporter.Controls
             this.Cells.Add(cell);
             return cell;
         }
-        public void Dispose()
+
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.Cells.Clear();
             this.Grid = null;

@@ -29,7 +29,13 @@ namespace Ophelia.Service
             this.TypeName = typeof(T).FullName;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             this.Parameters = null;
             this.Files = null;

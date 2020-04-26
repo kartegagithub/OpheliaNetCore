@@ -60,12 +60,12 @@ namespace Ophelia.Data
             where TEntity : Model.DataEntity
             where TResult : class
         {
-            return (Model.QueryableDataSet<TResult>)entity.Tracker.GetDataSetValue((property.Body as MemberExpression).Member as PropertyInfo, predicate);
+            return entity.Tracker.GetDataSetValue((property.Body as MemberExpression).Member as PropertyInfo, predicate);
         }
 
         public static TResult GetEntityValue<TEntity, TResult>(this TEntity entity, Expression<Func<TEntity, TResult>> property) where TEntity : Model.DataEntity
         {
-            return (TResult)entity.Tracker.GetEntityValue<TResult>((property.Body as MemberExpression).Member as PropertyInfo);
+            return entity.Tracker.GetEntityValue<TResult>((property.Body as MemberExpression).Member as PropertyInfo);
         }
         public static TResult GetCollectionValue<TEntity, TResult>(this TEntity entity, Expression<Func<TEntity, TResult>> property) where TEntity : Model.DataEntity
         {

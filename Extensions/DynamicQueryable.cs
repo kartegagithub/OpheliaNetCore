@@ -1203,9 +1203,9 @@ namespace Ophelia
                 if (!UInt64.TryParse(text, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out value))
                     throw ParseError(Res.InvalidIntegerLiteral, text);
                 NextToken();
-                if (value <= (ulong)Int32.MaxValue) return CreateLiteral((int)value, text);
-                if (value <= (ulong)UInt32.MaxValue) return CreateLiteral((uint)value, text);
-                if (value <= (ulong)Int64.MaxValue) return CreateLiteral((long)value, text);
+                if (value <= int.MaxValue) return CreateLiteral((int)value, text);
+                if (value <= uint.MaxValue) return CreateLiteral((uint)value, text);
+                if (value <= long.MaxValue) return CreateLiteral((long)value, text);
                 return CreateLiteral(value, text);
             }
             else

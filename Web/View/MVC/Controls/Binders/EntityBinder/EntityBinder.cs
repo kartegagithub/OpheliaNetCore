@@ -285,14 +285,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.Output.Write("</div>");
             this.Output.Write("</div>");
         }
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            this.Dispose(true);
-
             this.TabControl.Dispose();
             this.TabControl = null;
-
-            GC.SuppressFinalize(this);
         }
         protected long GetPreviousEntityID()
         {
@@ -340,14 +336,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public virtual bool CanDrawTab(Tab<T> tab)
         {
             return true;
-        }
-
-        public virtual void Dispose(Boolean disposing)
-        {
-            if (!this.isDisposed)
-            {
-                this.isDisposed = true;
-            }
         }
     }
 }

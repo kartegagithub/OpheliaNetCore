@@ -22,9 +22,15 @@ namespace Ophelia.Data.Querying.Query.Helpers
         {
             return ExpressionParser.Create(expression).ToSelector();
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+
         }
 
         public string Build(BaseQuery query)

@@ -85,7 +85,7 @@ namespace Ophelia.Data.EntityFramework
                     foreach (var item in entry.CurrentValues.Properties)
                     {
                         //We find the name of the entity.
-                        string key = (string)item.Name;
+                        string key = item.Name;
 
                         //We find the value of entity
                         var value = "";
@@ -107,7 +107,7 @@ namespace Ophelia.Data.EntityFramework
                         foreach (var item in entry.OriginalValues.Properties)
                         {
                             //We find the name of the entity.
-                            string key = (string)item.Name;
+                            string key = item.Name;
 
                             //We find the value of entity
                             var value = "";

@@ -129,12 +129,16 @@ namespace Ophelia.Data.Model
                 return (Querying.QueryProvider)this.Provider;
             }
         }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-        public virtual void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
             this._list.Clear();
             this._list = null;
-            GC.SuppressFinalize(this);
         }
 
         public virtual IList GetList()
