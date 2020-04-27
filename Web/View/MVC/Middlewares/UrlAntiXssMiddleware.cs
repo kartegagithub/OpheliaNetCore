@@ -44,7 +44,14 @@ namespace Ophelia.Web.View.Mvc.Middlewares
                     return;
                 }
             }
-            await _next(context);
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception)
+            {
+                //Do nothing
+            }
         }
 
         protected void OnException(HttpContext context)
