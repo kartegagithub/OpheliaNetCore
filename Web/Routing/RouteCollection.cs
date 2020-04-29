@@ -354,6 +354,8 @@ namespace Ophelia.Web.Routing
 
         public virtual RouteItemURL GetFixedURLFromAction(string nonFriendlyUrl, string languageCode = "en")
         {
+            if (string.IsNullOrEmpty(nonFriendlyUrl))
+                return null;
             var items = nonFriendlyUrl.Trim('/').Split('/');
             var area = "";
             var controller = "";
