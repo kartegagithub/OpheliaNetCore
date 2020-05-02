@@ -135,8 +135,6 @@ namespace Ophelia.Tasks
             if (!string.IsNullOrEmpty(job.Routine.StartTime))
             {
                 NextExecution = NextExecution.SetTime(job.Routine.StartTime, "HH:mm");
-                if (NextExecution < DateTime.Now)
-                    NextExecution = NextExecution.AddDays(1);
             }
 
             if (!job.Routine.CanRunAtWorkingHours)
@@ -168,49 +166,27 @@ namespace Ophelia.Tasks
                 return true;
 
             if (!job.Routine.CanRunAtWeekends && DateTime.Now.IsWeekend())
-            {
                 return false;
-            }
             if (!job.Routine.CanRunAtWorkingHours && !DateTime.Now.IsWeekend() && DateTime.Now.IsWithinWorkingHours())
-            {
                 return false;
-            }
             if (job.Routine.OnlyRunAfterMidnight && !DateTime.Now.IsAfterMidnight())
-            {
                 return false;
-            }
             if (!string.IsNullOrEmpty(job.Routine.IncludedDays) && !job.Routine.IncludedDays.Contains(((int)DateTime.Now.DayOfWeek).ToString()))
-            {
                 return false;
-            }
             if (!string.IsNullOrEmpty(job.Routine.ExcludedDays) && job.Routine.ExcludedDays.Contains(((int)DateTime.Now.DayOfWeek).ToString()))
-            {
                 return false;
-            }
             if (!string.IsNullOrEmpty(job.Routine.IncludedMonths) && !job.Routine.IncludedMonths.Contains(DateTime.Now.Month.ToString()))
-            {
                 return false;
-            }
             if (!string.IsNullOrEmpty(job.Routine.ExcludedMonths) && job.Routine.ExcludedMonths.Contains(DateTime.Now.Month.ToString()))
-            {
                 return false;
-            }
             if (job.Routine.OccurenceLimit > 0 && job.OccurenceIndex >= job.Routine.OccurenceLimit)
-            {
                 return false;
-            }
             if (job.Routine.EndDate.GetValueOrDefault(DateTime.MinValue) > DateTime.MinValue && DateTime.Now > job.Routine.EndDate.Value)
-            {
                 return false;
-            }
             if (job.NextExecutionTime.GetValueOrDefault(DateTime.MinValue) > DateTime.MinValue && job.NextExecutionTime.Value > DateTime.Now)
-            {
                 return false;
-            }
             if (!string.IsNullOrEmpty(job.Routine.EndTime) && DateTime.Now > Convert.ToDateTime(DateTime.Now.ToShortDateString() + " " + job.Routine.EndTime))
-            {
                 return false;
-            }
             return true;
         }
         internal Assembly GetAssembly(String assemblyName)

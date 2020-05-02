@@ -34,6 +34,7 @@ namespace Ophelia.Tasks
                             this.LastExecutionStatus = JobExecutionStatus.Running;
                             this.Manager.OnBeforeJobExecuted(this);
                             this.CurrentThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.RunInternal));
+                            this.CurrentThread.Priority = System.Threading.ThreadPriority.Lowest;
                             this.CurrentThread.Start();
                         }
                     }
