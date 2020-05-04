@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -9,6 +10,7 @@ namespace Ophelia.Web.UI.Controls
     {
         public IEnumerable DataSource { get; set; }
         public string SelectedValue { get; set; }
+        public List<string> SelectedValues { get; set; }
         public string IndentationMemberName { get; set; }
         public string DisplayMemberName { get; set; }
         public string ValueMemberName { get; set; }
@@ -63,7 +65,11 @@ namespace Ophelia.Web.UI.Controls
                     accessor.MemberName = this.ValueMemberName;
                     option.Value = Convert.ToString(accessor.Value);
 
-                    if (!string.IsNullOrEmpty(this.SelectedValue) && this.SelectedValue.IndexOf(",") > -1)
+                    if (this.SelectedValues != null && this.SelectedValues.Count > 0)
+                    {
+                        option.IsSelected = this.SelectedValues.Where(op => op.Equals(option.Value)).Any();
+                    }
+                    else if (!string.IsNullOrEmpty(this.SelectedValue) && this.SelectedValue.IndexOf(",") > -1)
                     {
                         option.IsSelected = this.SelectedValue.Split(',').Where(op => op.Equals(option.Value)).Any();
                     }
