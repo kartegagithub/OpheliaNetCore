@@ -22,6 +22,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         public string AjaxURL { get; set; }
         public override object GetValue(T item)
         {
+            if (this.IsMultiple)
+                return "";
+
             if (item != null)
                 return this.GetItem(item, item).Text;
             return base.GetValue(item);

@@ -165,7 +165,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                             result = this.OnCellValueChanged(item, column, this.Request.GetValue("Value"));
                                         }
                                         else
-                                            result = new { success = 0, message = this.Client.TranslateText("ValueIsNotChanged") };
+                                            result = this.OnCellValueNotChanged(item, column, this.Request.GetValue("Value"));
                                     }
                                     else
                                         result = new { success = 0, message = this.Client.TranslateText("InvalidIdentifier") };
@@ -215,6 +215,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         protected virtual object OnColumnOrderChanged(List<string> Columns)
         {
             return new { success = 0, message = "" };
+        }
+
+        protected virtual object OnCellValueNotChanged(T item, Columns.BaseColumn<TModel, T> Column, string Value)
+        {
+            return new { success = 0, message = this.Client.TranslateText("ValueIsNotChanged") };
         }
         protected virtual object OnCellValueChanged(T item, Columns.BaseColumn<TModel, T> Column, string Value)
         {
