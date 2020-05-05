@@ -917,14 +917,20 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             this.OnBeforeGetCellValue(item, column);
                             var value = column.GetValue(item);
                             link.Text = Convert.ToString(value).RemoveHTML();
+                            link.Title = link.Text;
                             if (column.MaxTextLength > 0)
                             {
                                 if (!string.IsNullOrEmpty(link.Text) && link.Text.Length > column.MaxTextLength)
                                 {
-                                    link.Title = link.Text;
                                     link.Text = link.Text.Left(column.MaxTextLength) + "...";
                                 }
                             }
+                            try
+                            {
+                                link.ID = column.FormatName() + "_" + item.GetPropertyValue("ID");
+                                link.Name = column.FormatName() + "_" + item.GetPropertyValue("ID");
+                            }
+                            catch { }
                             this.Output.Write("<td ");
                             if (!string.IsNullOrEmpty(column.Width))
                                 this.Output.Write("style='width:" + (column.Width.IndexOf("%") == -1 ? column.Width + "px" : column.Width) + "'");
