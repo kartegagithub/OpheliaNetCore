@@ -342,9 +342,16 @@ namespace Ophelia
         /// </summary>
         public static decimal ToDecimal(this string value)
         {
-            var numberFormat = new NumberFormatInfo();
-            numberFormat.NumberDecimalSeparator = ",";
-            return Convert.ToDecimal(value.Replace(".", ","), numberFormat);
+            try
+            {
+                var numberFormat = new NumberFormatInfo();
+                numberFormat.NumberDecimalSeparator = ",";
+                return Convert.ToDecimal(value.Replace(".", ","), numberFormat);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
         }
 
         public static T ToEnum<T>(this string name) where T : struct

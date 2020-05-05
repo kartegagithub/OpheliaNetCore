@@ -734,24 +734,24 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         public virtual void RenderContent()
         {
-            if (!this.ParentDrawsLayout)
-            {
-                if (this.Messages != null && this.Messages.Count > 0)
-                {
-                    var messageType = !this.Messages.Where(op => op.IsSuccess == true).Any() ? "warning" : "success";
-                    this.Output.Write("<div class=\"alert alert-" + messageType + " alert-styled-left\">");
-                    this.Output.Write("<button type=\"button\" class=\"close\" data-dismiss=\"alert\"><span>×</span><span class=\"sr-only\">" + this.Client.TranslateText("Close") + "</span></button>");
-                    this.Output.Write("<ul>");
-                    foreach (var message in this.Messages)
-                    {
-                        this.Output.Write("<li>");
-                        this.Output.Write(this.Client.TranslateText(message.Description));
-                        this.Output.Write("</li>");
-                    }
-                    this.Output.Write("</ul>");
-                    this.Output.Write("</div>"); /* alert */
-                }
-            }
+            //if (!this.ParentDrawsLayout)
+            //{
+            //    if (this.Messages != null && this.Messages.Count > 0)
+            //    {
+            //        var messageType = !this.Messages.Where(op => op.IsSuccess == true).Any() ? "warning" : "success";
+            //        this.Output.Write("<div class=\"alert alert-" + messageType + " alert-styled-left\">");
+            //        this.Output.Write("<button type=\"button\" class=\"close\" data-dismiss=\"alert\"><span>×</span><span class=\"sr-only\">" + this.Client.TranslateText("Close") + "</span></button>");
+            //        this.Output.Write("<ul>");
+            //        foreach (var message in this.Messages)
+            //        {
+            //            this.Output.Write("<li>");
+            //            this.Output.Write(this.Client.TranslateText(message.Description));
+            //            this.Output.Write("</li>");
+            //        }
+            //        this.Output.Write("</ul>");
+            //        this.Output.Write("</div>"); /* alert */
+            //    }
+            //}
             if (this.DataSource != null && this.DataSource.Items != null && this.DataSource.Items.Count > 0 && this.ContentRenderMode == ContentRenderMode.Normal)
             {
                 this.ReorderColumns();

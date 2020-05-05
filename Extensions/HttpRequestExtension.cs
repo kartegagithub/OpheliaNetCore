@@ -7,11 +7,11 @@ namespace Ophelia
         public static string GetValue(this HttpRequest request, string key)
         {
             var val = "";
-            if (request.Query.ContainsKey(key))
-                val = request.Query[key].ToString();
-            else if (request.Method == "POST" && request.Form.ContainsKey(key))
+            if (request.Method == "POST" && request.Form.ContainsKey(key))
                 val = request.Form[key];
 
+            if (string.IsNullOrEmpty(val) && request.Query.ContainsKey(key))
+                val = request.Query[key].ToString();
             return val;
         }
 
