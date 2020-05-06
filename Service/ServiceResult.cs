@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NJsonSchema.Annotations;
+using NSwag.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -10,14 +12,22 @@ namespace Ophelia.Service
     public class ServiceResult : IDisposable
     {
         [DataMember]
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public ServicePerformance Performance { get; set; }
 
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public ServiceExceptionHandler Handler { get; set; }
 
         [DataMember]
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public string EncryptedData { get; set; }
 
         [DataMember]
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public Dictionary<string, object> ExtraData { get; set; }
 
         [DataMember]
@@ -27,12 +37,16 @@ namespace Ophelia.Service
         public string Token { get; set; }
 
         [DataMember]
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public string AppID { get; set; }
 
         [DataMember]
         public bool HasFailed { get; set; }
 
         [DataMember]
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public bool IsRetrievedFromCache { get; set; }
 
         public void Fail()

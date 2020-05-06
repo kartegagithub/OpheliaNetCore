@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using NSwag.Annotations;
+using System.Runtime.Serialization;
 
 namespace Ophelia.Service
 {

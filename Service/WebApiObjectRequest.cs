@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NJsonSchema.Annotations;
+using NSwag.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,8 +13,15 @@ namespace Ophelia.Service
         public string Name { get; set; }
         public T Data { get; set; }
         public string TypeName { get; set; }
+
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public Dictionary<string, object> Parameters { get; set; }
+
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public List<FileData> Files { get; set; }
+
         public WebApiObjectRequest<T> AddParam(string key, object value)
         {
             this.Parameters[key] = value;

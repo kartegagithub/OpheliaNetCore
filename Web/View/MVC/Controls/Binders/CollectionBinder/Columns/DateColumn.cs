@@ -9,6 +9,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
     {
         public DateTimeFormatType Format { get; set; }
         public DateFieldMode Mode { get; set; }
+        public string DateType { get; set; }
+        public string TimeType { get; set; }
         public override object GetValue(T item)
         {
             var value = base.GetValue(item);
@@ -43,14 +45,12 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                 DataControl.AddAttribute("data-column", this.FormatColumnName());
                 DataControl.CssClass = "form-control date-field pickadate-selectors";
                 if (this.Format == DateTimeFormatType.TimeOnly)
-                    DataControl.Type = "time";
+                    DataControl.Type = this.TimeType;
                 else
                 {
                     if (BinderConfiguration.UseHtml5DataTypes)
-                    {
                         DataControl.CssClass = "form-control";
-                        DataControl.Type = "date";
-                    }
+                    DataControl.Type = this.DateType;
                 }
                 panel.Controls.Add(DataControl);
 
@@ -60,14 +60,12 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                 SecondDataControl.AddAttribute("data-column", this.FormatColumnName());
                 SecondDataControl.CssClass = "form-control date-field pickadate-selectors";
                 if (this.Format == DateTimeFormatType.TimeOnly)
-                    SecondDataControl.Type = "time";
+                    SecondDataControl.Type = this.TimeType;
                 else
                 {
-                    if (BinderConfiguration.UseHtml5DataTypes)
-                    {
+                    if (this.DateType == "date")
                         SecondDataControl.CssClass = "form-control";
-                        SecondDataControl.Type = "date";
-                    }
+                    SecondDataControl.Type = this.DateType;
                 }
                 panel.Controls.Add(SecondDataControl);
 
@@ -89,6 +87,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         public DateColumn(CollectionBinder<TModel, T> binder, string Name) : base(binder, Name)
         {
             this.Format = DateTimeFormatType.DateTimeWithHour;
+            this.DateType = "text";
+            this.TimeType = "time";
+            if (BinderConfiguration.UseHtml5DataTypes)
+                this.DateType = "date";
         }
     }
 }

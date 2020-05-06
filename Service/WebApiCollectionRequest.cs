@@ -1,12 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using NJsonSchema.Annotations;
+using NSwag.Annotations;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Ophelia.Service
 {
     public class WebApiCollectionRequest<T> : WebApiObjectRequest<T>
     {
         public int Page { get; set; }
+
         public int PageSize { get; set; }
+
+        [OpenApiIgnore]
+        [JsonSchemaIgnore]
         public Data.Querying.Query.QueryData QueryData { get; set; }
+
+
         public new WebApiCollectionRequest<T> AddParam(string key, object value)
         {
             return (WebApiCollectionRequest<T>)base.AddParam(key, value);

@@ -21,9 +21,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+    <PackageReference Include="Microsoft.OpenApi" Version="1.1.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.1.6" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.50" />
     <PackageReference Include="Pluralize.NET" Version="1.0.2" />
     <PackageReference Include="PushSharp.Core" Version="1.0.1" />
