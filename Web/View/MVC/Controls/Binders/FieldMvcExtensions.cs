@@ -57,12 +57,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return control.Render();
         }
 
-        public static IHtmlContent NumberboxFieldFor<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null, string format = "") where T : class { return container.NumberboxFieldFor("", expression, isRequired, htmlAttributes, format); }
-        public static IHtmlContent NumberboxFieldFor<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null, string format = "") where T : class
+        public static IHtmlContent NumberboxFieldFor<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null, string format = "", bool nonZero = false) where T : class { return container.NumberboxFieldFor("", expression, isRequired, htmlAttributes, format, nonZero); }
+        public static IHtmlContent NumberboxFieldFor<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null, string format = "", bool nonZero = false) where T : class
         {
             var control = new Fields.NumberboxField<T>(container);
             control.Expression = expression;
             control.Text = Text;
+            control.NonZero = nonZero;
             control.IsRequired = isRequired;
             control.HtmlAttributes = htmlAttributes;
             control.SetFormat(format, container.DecimalFormat, container.IntFormat);

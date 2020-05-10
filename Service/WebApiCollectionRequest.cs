@@ -24,6 +24,8 @@ namespace Ophelia.Service
         public WebApiCollectionRequest()
         {
             this.Parameters = new Dictionary<string, object>();
+            this.Page = 1;
+            this.PageSize = 25;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         public Expression<Func<T, object>> HighExpression { get; set; }
         public string HighPropertyName { get; set; }
         public object HighExpressionValue { get; set; }
-
+        public bool NonZero { get; set; }
         public string LowPlaceHolder { get; set; }
         public string HighPlaceHolder { get; set; }
 
@@ -118,6 +118,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
         protected string FormatValue(object value)
         {
             if (value == null)
+                return "";
+            if (this.NonZero && Convert.ToString(value).ToDecimal() == 0)
                 return "";
             if (value is string)
             {
