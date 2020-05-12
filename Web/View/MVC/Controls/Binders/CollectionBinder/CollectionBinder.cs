@@ -825,14 +825,12 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         if (!string.IsNullOrEmpty(className))
                             this.Output.Write(" class='" + className + "'");
                         this.Output.Write(" data-name='" + column.FormatColumnName() + "'");
+                        this.OnDrawingColumnHeader(column, true);
                         this.Output.Write(">");
                         if (!column.HideColumnTitle)
                         {
-                            if (this.Configuration.ColumnSortingByLink)
-                                this.Output.Write("<a class='column-header-link' href='" + link + "'>");
-                            this.Output.Write(column.FormatText());
-                            if (this.Configuration.ColumnSortingByLink)
-                                this.Output.Write("</a>");
+                            this.DrawColumnHeader(column, column.FormatText(), link);
+                            this.OnDrawingColumnHeader(column);
                         }
                         this.Output.Write("</th>");
                     }
@@ -1024,6 +1022,19 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 this.Output.Write("<div class=\"alert alert-info alert-styled-left alert-bordered empty-table-warning\">" + this.Client.TranslateText("ThereIsNoRecordToDisplay") + "</div>");
             }
         }
+        protected virtual void DrawColumnHeader(Columns.BaseColumn<TModel, T> column, string text, string sortingLink)
+        {
+            if (this.Configuration.ColumnSortingByLink)
+            {
+                this.Output.Write("<a class='column-header-link' href='" + sortingLink + "'>");
+                this.Output.Write(text);
+                this.Output.Write("</a>");
+            }
+            else
+            {
+                this.Output.Write(text);
+            }
+        }
         protected virtual string GetItemLink(T item)
         {
             if (this.Configuration.DrawViewLinkInsteadOfEdit)
@@ -1081,47 +1092,19 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             continue;
 
                         this.Output.Write("<" + tag + ">");
-                        if (column.EnableColumnFiltering)
+                        if (this.CanDrawColumnFilter(column))
                         {
-                            var includedToFilters = false;
-                            foreach (Binders.Fields.BaseField<TModel> item in this.FilterPanel.Controls)
+                            if (column is Columns.BoolColumn<TModel, T>)
                             {
-                                var path = "";
-                                if (item.Expression != null)
-                                {
-                                    path = item.Expression.ParsePath();
-                                }
-                                else if (!string.IsNullOrEmpty(item.DataControl.ID))
-                                {
-                                    path = item.DataControl.ID.Replace("_", ".");
-                                    if (item.DataControl.ID.IndexOf("Filters") == -1)
-                                        path = "Filters." + path;
-                                }
-                                else if (!string.IsNullOrEmpty(item.Text))
-                                {
-                                    path = item.Text.Replace("_", ".");
-                                    if (item.Text.IndexOf("Filters") == -1)
-                                        path = "Filters." + path;
-                                }
-
-                                includedToFilters = path.Replace("Filters.", "").Replace("Low", "") == columnName;
-                                if (includedToFilters)
-                                    break;
+                                this.Output.Write((this.OnBeforeDrawColumnFilter(column) as Columns.BoolColumn<TModel, T>).GetEditableControlAsSelect(null, null).Draw());
                             }
-                            if (includedToFilters)
+                            else
                             {
-                                if (column is Columns.BoolColumn<TModel, T>)
+                                if (column is Columns.DateColumn<TModel, T>)
                                 {
-                                    this.Output.Write((this.OnBeforeDrawColumnFilter(column) as Columns.BoolColumn<TModel, T>).GetEditableControlAsSelect(null, null).Draw());
+                                    (column as Columns.DateColumn<TModel, T>).Mode = Fields.DateFieldMode.DoubleSelection;
                                 }
-                                else
-                                {
-                                    if (column is Columns.DateColumn<TModel, T>)
-                                    {
-                                        (column as Columns.DateColumn<TModel, T>).Mode = Fields.DateFieldMode.DoubleSelection;
-                                    }
-                                    this.Output.Write(this.OnBeforeDrawColumnFilter(column).GetEditableControl(null, null).Draw());
-                                }
+                                this.Output.Write(this.OnBeforeDrawColumnFilter(column).GetEditableControl(null, null).Draw());
                             }
                         }
                         this.Output.Write("</" + tag + ">");
@@ -1129,6 +1112,47 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
                 this.Output.Write("</tr>");
             }
+        }
+        protected virtual void OnDrawingColumnHeader(Columns.BaseColumn<TModel, T> column, bool drawingTag = false)
+        {
+
+        }
+        protected virtual bool CanDrawColumnFilter(Columns.BaseColumn<TModel, T> column)
+        {
+            if (!column.Visible)
+                return false;
+
+            if (!column.EnableColumnFiltering)
+                return false;
+
+            var includedToFilters = false;
+            var columnName = column.FormatColumnName();
+            foreach (Binders.Fields.BaseField<TModel> item in this.FilterPanel.Controls)
+            {
+                var path = "";
+                if (item.Expression != null)
+                {
+                    path = item.Expression.ParsePath();
+                }
+                else if (!string.IsNullOrEmpty(item.DataControl.ID))
+                {
+                    path = item.DataControl.ID.Replace("_", ".");
+                    if (item.DataControl.ID.IndexOf("Filters") == -1)
+                        path = "Filters." + path;
+                }
+                else if (!string.IsNullOrEmpty(item.Text))
+                {
+                    path = item.Text.Replace("_", ".");
+                    if (item.Text.IndexOf("Filters") == -1)
+                        path = "Filters." + path;
+                }
+
+                includedToFilters = path.Replace("Filters.", "").Replace("Low", "") == columnName;
+                if (includedToFilters)
+                    break;
+            }
+
+            return includedToFilters;
         }
         protected Columns.BaseColumn<TModel, T> OnBeforeDrawColumnFilter(Columns.BaseColumn<TModel, T> column)
         {
