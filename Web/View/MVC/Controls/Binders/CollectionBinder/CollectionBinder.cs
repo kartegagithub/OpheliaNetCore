@@ -530,25 +530,42 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     {
                         if (column.IsSortable && column.Expression?.ParsePath() == this.Request.GetValue("OrderBy"))
                         {
-                            var propInfo = typeof(T).GetProperty(this.Request.GetValue("OrderBy"));
+                            var propInfo = typeof(T).GetPropertyInfoTree(this.Request.GetValue("OrderBy"));
                             var ordering = "";
-                            if (propInfo != null)
+                            if (propInfo != null && propInfo.Length > 0)
                             {
                                 if (this.Request.GetValue("OrderBy").EndsWith("ID"))
                                 {
-                                    var entityPropInfo = typeof(T).GetProperty(this.Request.GetValue("OrderBy").Remove(this.Request.GetValue("OrderBy").IndexOf("ID"), 2));
-                                    if (entityPropInfo != null)
+                                    try
                                     {
-                                        ordering = entityPropInfo.Name;
-                                        if (entityPropInfo.PropertyType.GetProperty("Name") != null)
+                                        PropertyInfo entityPropInfo = null;
+                                        if (propInfo.Length > 1)
+                                        {
+                                            for (int i = 0; i < propInfo.Length - 1; i++)
+                                            {
+                                                entityPropInfo = propInfo[i];
+                                                if (!string.IsNullOrEmpty(ordering))
+                                                    ordering = entityPropInfo.Name;
+                                                else
+                                                    ordering += "." + entityPropInfo.Name;
+                                            }
+                                        }
+                                        entityPropInfo = propInfo.LastOrDefault();
+                                        if (entityPropInfo.PropertyType.IsNullable() || entityPropInfo.PropertyType.IsPrimitiveType())
+                                            ordering += "." + entityPropInfo.Name;
+                                        else if (entityPropInfo.PropertyType.GetProperty("Name") != null)
                                             ordering += ".Name";
                                         else if (entityPropInfo.PropertyType.GetProperty("Title") != null)
                                             ordering += ".Title";
                                         else
-                                            ordering = this.GetSortingFieldName(entityPropInfo);
+                                            ordering += "." + entityPropInfo.Name;
+
+                                        ordering = ordering.Trim('.');
                                     }
-                                    else
+                                    catch (Exception)
+                                    {
                                         ordering = this.Request.GetValue("OrderBy");
+                                    }
                                 }
                                 else
                                 {
@@ -567,6 +584,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         }
                     }
                 }
+                this.DataSource.Query = this.OnAfterProcessQuery();
 
                 foreach (var grouper in this.Groupers)
                 {
@@ -644,6 +662,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                 }
             }
+        }
+        protected virtual IQueryable<T> OnAfterProcessQuery()
+        {
+            return this.DataSource.Query;
         }
         protected virtual void OnAfterQueryExecuted()
         {
@@ -942,7 +964,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 using (var editControl = column.GetEditableControl(item, value))
                                 {
                                     editControl.AddAttribute("data-filters", this.Request.QueryString.ToString().Replace("IsAjaxRequest=1", "").Replace("ajaxentitybinder=1", "").Trim('&'));
-                                    this.Output.Write(editControl.Draw());
+                                    this.Output.Write(this.DrawCellEditableControl(column, editControl));
                                 }
                             }
                             else
@@ -1021,6 +1043,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 this.Output.Write("<div class=\"alert alert-info alert-styled-left alert-bordered empty-table-warning\">" + this.Client.TranslateText("ThereIsNoRecordToDisplay") + "</div>");
             }
+        }
+        protected virtual string DrawCellEditableControl(Columns.BaseColumn<TModel, T> column, WebControl control)
+        {
+            return control.Draw();
         }
         protected virtual void DrawColumnHeader(Columns.BaseColumn<TModel, T> column, string text, string sortingLink)
         {
