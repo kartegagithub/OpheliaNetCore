@@ -120,12 +120,18 @@ namespace Ophelia.Data
                         case Comparison.Between:
                             break;
                         case Comparison.StartsWith:
+                            if (data.Value != null)
+                                data.Value = Convert.ToString(data.Value).Trim();
                             comparison = ".ToLower().StartsWith(@0.ToLower())";
                             break;
                         case Comparison.EndsWith:
+                            if (data.Value != null)
+                                data.Value = Convert.ToString(data.Value).Trim();
                             comparison = ".ToLower().EndsWith(@0.ToLower())";
                             break;
                         case Comparison.Contains:
+                            if (data.Value != null)
+                                data.Value = Convert.ToString(data.Value).Trim();
                             comparison = ".ToLower().Contains(@0.ToLower())";
                             break;
                         case Comparison.Exists:
