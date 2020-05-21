@@ -513,13 +513,24 @@ namespace Ophelia.Data
         public string GetTableName(Type type, bool format = true)
         {
             var dbName = "";
-            if (this.Context.Configuration.AllowLinkedDatabases && !this.Context.ContainsEntityType(type))
+            if (this.Context.Configuration.AllowLinkedDatabases)
             {
-                var ctx = this.Context.GetContext(type);
-                if (ctx != null && ctx.Connection.Database != this.Context.Connection.Database)
-                    dbName = ctx.Connection.Database;
+                if (!this.Context.ContainsEntityType(type))
+                {
+                    var ctx = this.Context.GetContext(type);
+                    if (ctx != null && ctx.Connection.Database != this.Context.Connection.Database)
+                        dbName = ctx.Connection.Database;
+                }
+                else if (this.Context.Configuration.LinkedDatabases != null && this.Context.Configuration.LinkedDatabases.Count > 0)
+                {
+                    foreach (var ctxType in this.Context.Configuration.LinkedDatabases.Keys)
+                    {
+                        var entityType = ctxType.Assembly.GetTypes().Where(op => op.FullName == type.FullName).FirstOrDefault();
+                        if (entityType != null)
+                            dbName = this.Context.Configuration.LinkedDatabases[ctxType];
+                    }
+                }
             }
-
             return GetTableName(this.GetSchema(type), type.Name, format, dbName);
         }
         public string GetSchema(Type type)

@@ -17,6 +17,7 @@ namespace Ophelia.Data
         public bool LogSQL { get; set; }
         public bool LogEntityLoads { get; set; }
         public string OracleStringColumnCollation { get; set; }
+        public Dictionary<Type, string> LinkedDatabases { get; set; }
         public string DatabaseVersion { get; set; }
 
         /// <summary>
@@ -42,6 +43,7 @@ namespace Ophelia.Data
             this.DefaultDecimalColumnScale = 5;
             this.DefaultDecimalColumnPrecision = 38;
             this.EnableLazyLoading = false;
+            this.LinkedDatabases = new Dictionary<Type, string>();
         }
     }
 }
