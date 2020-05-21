@@ -36,7 +36,14 @@ namespace Ophelia
         }
         public static void End(this HttpResponse response)
         {
-            response.StatusCode = StatusCodes.Status200OK;
+            try
+            {
+                response.StatusCode = StatusCodes.Status200OK;
+            }
+            catch (System.Exception)
+            {
+                //Do nothing
+            }
         }
         public static void AddHeader(this HttpResponse response, string key, string value)
         {

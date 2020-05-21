@@ -54,6 +54,14 @@ namespace Ophelia.Web.Application.Client
             get
             {
                 this.Create();
+                if ((this.sValue.IndexOf("%20on", StringComparison.InvariantCultureIgnoreCase) > -1 || this.sValue.IndexOf(" on", StringComparison.InvariantCultureIgnoreCase) > -1)
+                                   && (this.sValue.IndexOf("%22", StringComparison.InvariantCultureIgnoreCase) > -1 || this.sValue.IndexOf("%27", StringComparison.InvariantCultureIgnoreCase) > -1 || this.sValue.IndexOf("\"", StringComparison.InvariantCultureIgnoreCase) > -1 || this.sValue.IndexOf("'", StringComparison.InvariantCultureIgnoreCase) > -1))
+                {
+                    if (this.Request != null)
+                        this.sValue = "/";
+                    else
+                        this.sValue = this.Request.Path;
+                }
                 return this.sValue;
             }
         }

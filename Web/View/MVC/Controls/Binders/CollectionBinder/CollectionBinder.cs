@@ -348,6 +348,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 else if (propType.Name.Contains("String"))
                                 {
                                     formattedValue = Convert.ChangeType(value, propType);
+                                    formattedValue = Convert.ToString(formattedValue).Trim();
                                     if (isQueryableDataSet)
                                         this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, Comparison.Contains);
                                     else
@@ -389,7 +390,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                             }
                                             if (!string.IsNullOrEmpty(highValue))
                                             {
-                                                formattedValue = Convert.ChangeType(highValue, propType);
                                                 if (isQueryableDataSet)
                                                     this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, Comparison.LessAndEqual);
                                                 else
@@ -474,6 +474,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                         if (!string.IsNullOrEmpty(lowValue))
                                         {
                                             formattedValue = Convert.ChangeType(lowValue, propType);
+                                            if (formattedValue is DateTime dateData)
+                                            {
+                                                if (dateData > DateTime.MinValue)
+                                                    formattedValue = dateData.StartOfDay();
+                                            }
                                             if (isQueryableDataSet)
                                                 this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, Comparison.GreaterAndEqual);
                                             else
@@ -482,6 +487,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                         if (!string.IsNullOrEmpty(highValue))
                                         {
                                             formattedValue = Convert.ChangeType(highValue, propType);
+                                            if (formattedValue is DateTime dateData)
+                                            {
+                                                if (dateData > DateTime.MinValue)
+                                                    formattedValue = dateData.EndOfDay();
+                                            }
                                             if (isQueryableDataSet)
                                                 this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, Comparison.LessAndEqual);
                                             else
@@ -964,7 +974,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 using (var editControl = column.GetEditableControl(item, value))
                                 {
                                     editControl.AddAttribute("data-filters", this.Request.QueryString.ToString().Replace("IsAjaxRequest=1", "").Replace("ajaxentitybinder=1", "").Trim('&'));
-                                    this.Output.Write(this.DrawCellEditableControl(column, editControl));
+                                    this.Output.Write(this.DrawCellEditableControl(column, editControl, item));
                                 }
                             }
                             else
@@ -1044,7 +1054,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 this.Output.Write("<div class=\"alert alert-info alert-styled-left alert-bordered empty-table-warning\">" + this.Client.TranslateText("ThereIsNoRecordToDisplay") + "</div>");
             }
         }
-        protected virtual string DrawCellEditableControl(Columns.BaseColumn<TModel, T> column, WebControl control)
+        protected virtual string DrawCellEditableControl(Columns.BaseColumn<TModel, T> column, WebControl control, T item)
         {
             return control.Draw();
         }
@@ -1172,7 +1182,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     if (item.Text.IndexOf("Filters") == -1)
                         path = "Filters." + path;
                 }
-
+                else if (item is Binders.Fields.DateField<TModel>)
+                {
+                    var dateField = item as Binders.Fields.DateField<TModel>;
+                    if(dateField != null)
+                    {
+                        path = dateField.LowPropertyName;
+                    }
+                }
                 includedToFilters = path.Replace("Filters.", "").Replace("Low", "") == columnName;
                 if (includedToFilters)
                     break;
@@ -1180,7 +1197,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
             return includedToFilters;
         }
-        protected Columns.BaseColumn<TModel, T> OnBeforeDrawColumnFilter(Columns.BaseColumn<TModel, T> column)
+        protected virtual Columns.BaseColumn<TModel, T> OnBeforeDrawColumnFilter(Columns.BaseColumn<TModel, T> column)
         {
             return column;
         }

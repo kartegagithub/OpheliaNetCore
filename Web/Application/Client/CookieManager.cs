@@ -47,7 +47,7 @@ namespace Ophelia.Web.Application.Client
             {
                 var option = new CookieOptions();
                 option.Expires = DateTime.Now.AddDays(-1);
-                Ophelia.Web.Client.Current.Response.Cookies.Delete(cookieName);
+                Ophelia.Web.Client.Current.Response.Cookies.Delete(cookieName, option);
             }
         }
     }

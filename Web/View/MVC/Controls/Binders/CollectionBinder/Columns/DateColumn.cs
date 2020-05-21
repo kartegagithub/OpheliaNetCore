@@ -38,6 +38,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             {
                 var panel = new Panel();
                 panel.Style.Add("position", "relative;");
+                panel.CssClass = "date-field-container";
 
                 var DataControl = new Textbox();
                 DataControl.Name = this.FormatName() + "Low";
@@ -48,8 +49,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                     DataControl.Type = this.TimeType;
                 else
                 {
-                    if (BinderConfiguration.UseHtml5DataTypes)
-                        DataControl.CssClass = "form-control";
+                    if (this.DateType == "date")
+                        DataControl.CssClass = "form-control date-field";
                     DataControl.Type = this.DateType;
                 }
                 panel.Controls.Add(DataControl);
@@ -64,7 +65,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                 else
                 {
                     if (this.DateType == "date")
-                        SecondDataControl.CssClass = "form-control";
+                        SecondDataControl.CssClass = "form-control date-field";
                     SecondDataControl.Type = this.DateType;
                 }
                 panel.Controls.Add(SecondDataControl);
