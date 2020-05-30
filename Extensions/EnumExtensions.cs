@@ -74,12 +74,20 @@ namespace Ophelia
 
         public static string GetEnumDisplayName(this Type typeToDrawEnum, object selectedValue, Client client)
         {
-            var list = GetEnumSelectList(typeToDrawEnum, client);
-            foreach (var item in list)
+            var source = Enum.GetValues(typeToDrawEnum);
+
+            var displayAttributeType = typeof(DisplayAttribute);
+
+            var items = new List<SelectListItem>();
+            foreach (var value in source)
             {
-                if (item.Value == Convert.ToString(selectedValue))
+                FieldInfo field = value.GetType().GetField(value.ToString());
+
+                var attrs = (DisplayAttribute)field.GetCustomAttributes(displayAttributeType, false).FirstOrDefault();
+                object underlyingValue = Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType()));
+                if (Convert.ToString(underlyingValue) == Convert.ToString(selectedValue))
                 {
-                    return item.Text;
+                    return (attrs != null ? client.TranslateText(attrs.GetName()) : client.TranslateText(value.ToString()));
                 }
             }
             return "";

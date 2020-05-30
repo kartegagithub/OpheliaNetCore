@@ -138,6 +138,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
         {
 
         }
+        internal Table AddJoinWithoutCheck(Table table)
+        {
+            this.Joins.Add(table);
+            return table;
+        }
         internal Table AddJoin(Table table, params List<Table>[] rootJoins)
         {
             var existing = this.Joins.Where(op => op.JoinedTable != null && op.JoinedTable.Name == table.JoinedTable.Name && op.JoinOn == table.JoinOn && op.Name == table.Name).FirstOrDefault();

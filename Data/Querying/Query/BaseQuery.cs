@@ -9,7 +9,7 @@ namespace Ophelia.Data.Querying.Query
         private DataContext _Context;
         public QueryData Data { get; set; }
         internal bool DesignMode { get; set; }
-
+        private int TableJoinIndex = 0;
         protected MethodCallExpression Expression = null;
         private QueryData dataToExtend { get; set; }
         public DataContext Context
@@ -84,6 +84,14 @@ namespace Ophelia.Data.Querying.Query
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+        public string GetTableJoinIndex()
+        {
+            if (this.TableJoinIndex == 0)
+                this.TableJoinIndex = new Random().Next(20, 50);
+
+            this.TableJoinIndex++;
+            return this.TableJoinIndex.ToString();
         }
 
         protected virtual void Dispose(bool disposing)

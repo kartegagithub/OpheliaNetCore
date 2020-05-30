@@ -475,7 +475,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     if (this.Value != null)
                     {
                         if (isStringFilter && query.Context.Connection.Type == DatabaseType.Oracle)
-                            query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(Convert.ToString(this.Value).ToUpper().Replace("İ", "I")));
+                            query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(Convert.ToString(this.Value).ToUpper()));
                         else
                             query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(this.Value, isStringFilter));
                     }

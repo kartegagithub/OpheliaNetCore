@@ -241,13 +241,17 @@ namespace Ophelia.Data.Querying.Query.Helpers
             {
                 var table = query.Data.MainTable;
                 var joinType = this.JoinType;
+                var hasParentQuery = false;
                 if (subqueryTable != null)
                 {
                     table = subqueryTable;
                     joinType = JoinType.Left;
+                    hasParentQuery = true;
                 }
-
-                this.Table = table.AddJoin(new Table(query, this.EntityType, joinType, "IN" + table.Joins.Count + Ophelia.Utility.GenerateRandomPassword(5)) { JoinOn = query.Context.Connection.GetMappedFieldName(this.PropertyInfo.Name + "ID"), JoinedTable = table }, table.Joins, query.Data.MainTable.Joins);
+                if (hasParentQuery)
+                    this.Table = table.AddJoin(new Table(query, this.EntityType, joinType, table.Joins.Count + query.GetTableJoinIndex()) { JoinOn = query.Context.Connection.GetMappedFieldName(this.PropertyInfo.Name + "ID"), JoinedTable = table }, table.Joins);
+                else
+                    this.Table = table.AddJoin(new Table(query, this.EntityType, joinType, table.Joins.Count + query.GetTableJoinIndex()) { JoinOn = query.Context.Connection.GetMappedFieldName(this.PropertyInfo.Name + "ID"), JoinedTable = table }, table.Joins, query.Data.MainTable.Joins);
                 this.Tables.Add(this.Table);
                 sb.Append(query.Context.Connection.GetAllSelectFields(this.Table, true, this.BuildAsXML));
                 if (this.SubIncluders.Count > 0)
@@ -261,7 +265,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 }
                 foreach (var join in this.Table.Joins)
                 {
-                    table.AddJoin(join);
+                    if (this.SubIncluders.Count == 0)
+                        table.AddJoin(join);
+                    else
+                        table.AddJoinWithoutCheck(join);
                 }
             }
             else

@@ -128,7 +128,18 @@ namespace Ophelia
             }
             return false;
         }
-
+        public static bool IsValidEmail(this string value)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(value);
+                return addr.Address == value;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public static bool IsEmailAddress(this string value)
         {
             if (!string.IsNullOrEmpty(value))
