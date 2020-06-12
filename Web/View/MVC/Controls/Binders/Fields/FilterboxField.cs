@@ -36,6 +36,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             if (!string.IsNullOrEmpty(this.ValueMember) && (!string.IsNullOrEmpty(this.DisplayMember) || this.DisplayMemberExpression != null) && this.SelectedValueExpression != null)
             {
                 this.SelectedValue = this.SelectedValueExpression.GetValue(this.FieldContainer.Entity);
+                this.FieldContainer.ValidateSelectedValue(this);
                 if (this.SelectedValue != null)
                 {
                     var list = new List<SelectListItem>();

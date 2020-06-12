@@ -55,7 +55,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.Controls.Add(field);
             return field;
         }
-
+        public override void ValidateSelectedValue(BaseField<Model> Field)
+        {
+            this.Binder.ValidateSelectedValue(Field);
+        }
         public override bool CanDrawField(BaseField<Model> field)
         {
             return true;

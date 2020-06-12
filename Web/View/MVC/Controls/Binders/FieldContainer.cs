@@ -33,6 +33,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
                 this.Controls.Add(field);
             }
         }
+        public virtual void ValidateSelectedValue(Fields.BaseField<T> Field)
+        {
+
+        }
         public virtual void SetFieldProperties(Fields.BaseField<T> Field)
         {
 

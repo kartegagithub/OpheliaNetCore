@@ -6,6 +6,7 @@ using Ophelia.Data.Querying.Query;
 using Ophelia.Reflection;
 using Ophelia.Service;
 using Ophelia.Web.UI.Controls;
+using Ophelia.Web.View.Mvc.Controls.Binders.Fields;
 using Ophelia.Web.View.Mvc.Models;
 using System;
 using System.Collections.Generic;
@@ -321,6 +322,42 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                         object formattedValue = null;
                         var defaultValue = Convert.ToString(defaultModel.GetPropertyValue(path));
+                        if (string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(defaultValue) && defaultValue.IsDate())
+                        {
+                            try
+                            {
+                                if (DateTime.Parse(defaultValue) == DateTime.MinValue)
+                                    defaultValue = "";
+                            }
+                            catch (Exception)
+                            {
+                                defaultValue = "";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(lowValue) && lowValue.IsDate())
+                        {
+                            try
+                            {
+                                if (DateTime.Parse(lowValue) == DateTime.MinValue)
+                                    lowValue = "";
+                            }
+                            catch (Exception)
+                            {
+                                lowValue = "";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(highValue) && highValue.IsDate())
+                        {
+                            try
+                            {
+                                if (DateTime.Parse(highValue) == DateTime.MinValue)
+                                    highValue = "";
+                            }
+                            catch (Exception)
+                            {
+                                highValue = "";
+                            }
+                        }
                         if ((doubleSelection && (!string.IsNullOrEmpty(lowValue) || !string.IsNullOrEmpty(highValue))) || (!string.IsNullOrEmpty(this.Request.GetValue(path)) && defaultValue != value && value != null))
                         {
                             var propTree = typeof(T).GetPropertyInfoTree(entityProp);
@@ -1185,7 +1222,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 else if (item is Binders.Fields.DateField<TModel>)
                 {
                     var dateField = item as Binders.Fields.DateField<TModel>;
-                    if(dateField != null)
+                    if (dateField != null)
                     {
                         path = dateField.LowPropertyName;
                     }
@@ -1389,7 +1426,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             }
             this.Response.Flush();
         }
-
+        public virtual void ValidateSelectedValue(BaseField<TModel> Field)
+        {
+            
+        }
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
