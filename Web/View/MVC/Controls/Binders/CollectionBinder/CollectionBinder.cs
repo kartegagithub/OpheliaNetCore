@@ -697,7 +697,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         this.OnBeforeQueryExecuted();
                         if (this.DataSource.Query.GetType().IsQueryableDataSet())
                         {
-                            this.DataSource.Items = Ophelia.Data.QueryableDataSetExtensions.Paginate(this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>, this.CanExport ? 1 : this.DataSource.Pagination.PageNumber, this.CanExport ? int.MaxValue : this.DataSource.Pagination.PageSize).ToList();
+                            this.DataSource.Items = Ophelia.Data.QueryableDataSetExtensions.Paginate(this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>, this.CanExport ? 1 : this.DataSource.Pagination.PageNumber, this.CanExport ? this.GetMaxExportSize() : this.DataSource.Pagination.PageSize).ToList();
                         }
                         else
                         {
@@ -709,6 +709,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                 }
             }
+        }
+        protected virtual int GetMaxExportSize()
+        {
+            return int.MaxValue;
         }
         protected virtual IQueryable<T> OnAfterProcessQuery()
         {
