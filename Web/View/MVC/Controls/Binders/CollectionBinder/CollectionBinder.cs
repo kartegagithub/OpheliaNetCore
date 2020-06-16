@@ -257,18 +257,18 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 if (item.DataControl.ID.IndexOf("Filters") == -1)
                                     path = "Filters." + path;
                             }
-                            else if (!string.IsNullOrEmpty(item.Text))
-                            {
-                                path = item.Text.Replace("_", ".");
-                                if (item.Text.IndexOf("Filters") == -1)
-                                    path = "Filters." + path;
-                            }
                             else if (item is Fields.DateField<TModel> dateFieldItem)
                             {
                                 if (dateFieldItem.LowExpression != null)
                                     path = dateFieldItem.LowExpression.ParsePath().Replace("Low", "");
                                 else if (dateFieldItem.HighExpression != null)
                                     path = dateFieldItem.HighExpression.ParsePath().Replace("High", "");
+                            }
+                            else if (!string.IsNullOrEmpty(item.Text))
+                            {
+                                path = item.Text.Replace("_", ".");
+                                if (item.Text.IndexOf("Filters") == -1)
+                                    path = "Filters." + path;
                             }
                         }
                         if (string.IsNullOrEmpty(path))
