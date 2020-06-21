@@ -1181,7 +1181,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 {
                                     (column as Columns.DateColumn<TModel, T>).Mode = Fields.DateFieldMode.DoubleSelection;
                                 }
-                                this.Output.Write(this.OnBeforeDrawColumnFilter(column).GetEditableControl(null, null).Draw());
+                                this.Output.Write(this.RenderColumnFilter(column, this.OnBeforeDrawColumnFilter(column).GetEditableControl(null, null)));
                             }
                         }
                         this.Output.Write("</" + tag + ">");
@@ -1189,6 +1189,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
                 this.Output.Write("</tr>");
             }
+        }
+        protected virtual string RenderColumnFilter(Columns.BaseColumn<TModel, T> column, WebControl control)
+        {
+            return control.Draw();
         }
         protected virtual void OnDrawingColumnHeader(Columns.BaseColumn<TModel, T> column, bool drawingTag = false)
         {
