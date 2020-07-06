@@ -22,10 +22,10 @@ namespace Ophelia.Service
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             HttpResponseMessage response;
+
+            var requestInfo = string.Format("{0} {1}", request.Method, request.RequestUri);
             try
             {
-                var requestInfo = string.Format("{0} {1}", request.Method, request.RequestUri);
-
                 var requestMessage = new byte[0];
                 var headers = "";
                 if (request.Content != null)
@@ -37,8 +37,16 @@ namespace Ophelia.Service
                     headers = request.Headers.ToJson();
                 }
                 this.LogRequest(0, requestInfo, Encoding.UTF8.GetString(requestMessage), headers);
+            }
+            catch (System.Exception ex)
+            {
+                new ServiceObjectResult<bool>().Fail(ex);
+            }
 
-                response = base.SendAsync(request, cancellationToken).Result;
+            response = base.SendAsync(request, cancellationToken).Result;
+
+            try
+            {
                 var httpStatus = (int)response.StatusCode;
 
                 byte[] responseMessage;
@@ -57,8 +65,8 @@ namespace Ophelia.Service
             catch (System.Exception ex)
             {
                 new ServiceObjectResult<bool>().Fail(ex);
-                response = new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError) { Content = new StringContent(new { error = true, message = ex.ToString() }.ToJson()) };
             }
+            
             return Task<HttpResponseMessage>.Factory.StartNew(() => response);
         }
 
