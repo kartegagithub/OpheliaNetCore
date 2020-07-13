@@ -300,15 +300,20 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         {
                             doubleSelection = true;
 
-                            var tmpPath = (item as Fields.DateField<TModel>).LowPropertyName.Replace("_", ".");
-                            if ((item as Fields.DateField<TModel>).LowExpression == null || !string.IsNullOrEmpty(this.Request.GetValue(tmpPath)))
-                                lowValue = this.Request.GetValue(tmpPath);
+                            var propertyName = (item as Fields.DateField<TModel>).LowPropertyName;
+                            if (!string.IsNullOrEmpty(propertyName))
+                                propertyName = propertyName.Replace("_", ".");
+                            if ((item as Fields.DateField<TModel>).LowExpression == null || !string.IsNullOrEmpty(this.Request.GetValue(propertyName)))
+                                lowValue = this.Request.GetValue(propertyName);
                             else
                                 lowValue = Convert.ToString(item.GetExpressionValue((item as Fields.DateField<TModel>).LowExpression));
 
-                            tmpPath = (item as Fields.DateField<TModel>).HighPropertyName.Replace("_", ".");
-                            if ((item as Fields.DateField<TModel>).HighExpression == null || !string.IsNullOrEmpty(this.Request.GetValue(tmpPath)))
-                                highValue = this.Request.GetValue(tmpPath);
+                            propertyName = (item as Fields.DateField<TModel>).HighPropertyName;
+                            if (!string.IsNullOrEmpty(propertyName))
+                                propertyName = propertyName.Replace("_", ".");
+
+                            if ((item as Fields.DateField<TModel>).HighExpression == null || !string.IsNullOrEmpty(this.Request.GetValue(propertyName)))
+                                highValue = this.Request.GetValue(propertyName);
                             else
                                 highValue = Convert.ToString(item.GetExpressionValue((item as Fields.DateField<TModel>).HighExpression));
                         }
