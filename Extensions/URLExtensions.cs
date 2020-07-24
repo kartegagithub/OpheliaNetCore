@@ -13,6 +13,7 @@ namespace Ophelia
 {
     public static class URLExtensions
     {
+        public static int Timeout { get; set; }
         public static Dictionary<string, IFormFile> FilesToUpload { get; set; }
 
         public static T PostURL<T>(this string URL, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false, string contentType = "application/x-www-form-urlencoded", NetworkCredential credential = null)
@@ -77,7 +78,11 @@ namespace Ophelia
             }
 
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(URL);
-            request.Timeout = Timeout;
+            if (URLExtensions.Timeout > 0)
+                request.Timeout = Timeout;
+            else
+                request.Timeout = Timeout;
+
             request.PreAuthenticate = PreAuthenticate;
             if (credential != null)
                 request.Credentials = credential;
