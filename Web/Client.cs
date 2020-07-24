@@ -11,6 +11,8 @@ namespace Ophelia.Web
         [ThreadStatic]
         protected static Client _Current;
 
+        protected int nCurrentLanguageID = 0;
+
         public static Client Current
         {
             get
@@ -79,7 +81,63 @@ namespace Ophelia.Web
                 return this.sSessionID;
             }
         }
-        public virtual int CurrentLanguageID { get; set; }
+        public virtual int CurrentLanguageID
+        {
+            get
+            {
+                if (this.nCurrentLanguageID == 0)
+                {
+                    if (this.Session != null)
+                    {
+                        if (this.Session.GetString("CurrentLanguageID") != null)
+                            this.nCurrentLanguageID = this.Session.GetInt32("CurrentLanguageID").GetValueOrDefault(0);
+                        else if (this.nCurrentLanguageID > 0)
+                            this.Session.SetInt32("CurrentLanguageID", this.nCurrentLanguageID);
+                    }
+                    if (this.nCurrentLanguageID == 0)
+                        this.nCurrentLanguageID = this.GetCurrentLanguageCookie();
+                }
+                else
+                {
+                    if (this.Session != null && this.Session.GetString("CurrentLanguageID") == null)
+                        this.Session.SetInt32("CurrentLanguageID", this.nCurrentLanguageID);
+                }
+                return this.nCurrentLanguageID;
+            }
+            set
+            {
+                this.nCurrentLanguageID = value;
+                this.SetCurrentLanguageCookie();
+                if (this.Session != null)
+                    this.Session.SetInt32("CurrentLanguageID", value);
+            }
+        }
+        protected virtual void SetCurrentLanguageCookie(string cookieName = "Language", CookieOptions options = null)
+        {
+            if(options == null)
+            {
+                options = new CookieOptions()
+                {
+                    Expires = DateTime.Now.AddDays(365),
+                    Path = "/",
+                    HttpOnly = true,
+                    Secure = this.Request.IsHttps
+                };
+            }
+            Ophelia.Web.Application.Client.CookieManager.Set(cookieName, this.CurrentLanguageID.ToString(), options);
+        }
+
+        protected virtual int GetCurrentLanguageCookie(string cookieName = "Language")
+        {
+            var languageCookies = Ophelia.Web.Application.Client.CookieManager.Get(cookieName);
+            int ID = 0;
+            if (!string.IsNullOrEmpty(languageCookies))
+            {
+                if (int.TryParse(languageCookies, out ID))
+                    return ID;
+            }
+            return 0;
+        }
         public virtual string TranslateText(string Text)
         {
             return Text;
