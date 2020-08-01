@@ -281,6 +281,33 @@ namespace Ophelia.Data
             }
         }
 
+        /// <summary>
+        /// Dynamic/Anonuymous typed parameters
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public object ExecuteCommand(string sql, object parameters)
+        {
+            using (var cmd = this.CreateCommand())
+            {
+                var param = new List<DbParameter>();
+                if (parameters != null)
+                {
+                    var type = parameters.GetType();
+                    var props = type.GetProperties().ToDictionary(op => op.Name, op => op.GetValue(parameters, null));
+                    foreach (var item in props)
+                    {
+                        if (item.Value == null)
+                            param.Add(this.CreateParameter(cmd, "@" + item.Key, DBNull.Value));
+                        else
+                            param.Add(this.CreateParameter(cmd, "@" + item.Key, item.Value));
+                    }
+                }
+                return ExecuteScalar(cmd, sql, param.ToArray());
+            }
+        }
+
         public DataTable GetData(string sqlSelect)
         {
             return this.GetData(sqlSelect, null);
