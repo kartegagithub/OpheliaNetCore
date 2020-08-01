@@ -79,7 +79,7 @@ namespace Ophelia
 
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(URL);
             if (URLExtensions.Timeout > 0)
-                request.Timeout = Timeout;
+                request.Timeout = URLExtensions.Timeout;
             else
                 request.Timeout = Timeout;
 
