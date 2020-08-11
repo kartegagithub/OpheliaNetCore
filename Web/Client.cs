@@ -44,15 +44,45 @@ namespace Ophelia.Web
 
         public ISession Session
         {
-            get { return this.Context.Session; }
+            get
+            {
+                try
+                {
+                    return this.Context.Session;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
         }
         public HttpResponse Response
         {
-            get { return this.Context.Response; }
+            get
+            {
+                try
+                {
+                    return this.Context.Response;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
         }
         public HttpRequest Request
         {
-            get { return this.Context.Request; }
+            get
+            {
+                try
+                {
+                    return this.Context.Request;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
         }
         public string ComputerName
         {
@@ -77,7 +107,13 @@ namespace Ophelia.Web
         {
             get
             {
-                if (string.IsNullOrEmpty(this.sSessionID)) this.sSessionID = this.Session.Id;
+                if (string.IsNullOrEmpty(this.sSessionID))
+                {
+                    if (this.Session != null)
+                        this.sSessionID = this.Session.Id;
+                    else
+                        this.sSessionID = Guid.NewGuid().ToString();
+                }
                 return this.sSessionID;
             }
         }
@@ -114,7 +150,7 @@ namespace Ophelia.Web
         }
         protected virtual void SetCurrentLanguageCookie(string cookieName = "Language", CookieOptions options = null)
         {
-            if(options == null)
+            if (options == null)
             {
                 options = new CookieOptions()
                 {
