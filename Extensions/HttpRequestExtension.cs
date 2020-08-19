@@ -23,6 +23,10 @@ namespace Ophelia
         {
             return string.Format("{0}://{1}{2}{3}", request.Scheme, request.Host, request.Path, request.QueryString);
         }
+        public static string BasePath(this HttpRequest request)
+        {
+            return string.Format("{0}://{1}/", request.Scheme, request.Host);
+        }
         public static bool IsLocalhost(this HttpRequest request)
         {
             if (request == null)
