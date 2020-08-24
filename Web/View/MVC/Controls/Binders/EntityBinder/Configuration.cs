@@ -57,7 +57,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.NewButtonText = "AddNew";
             this.BackButtonText = "Back";
             this.SettingsButtonText = "Settings";
-            this.RollbackButtonText = "Revert";
+            this.RollbackButtonText = "Rollback";
             this.SaveButtonIcon = "icon-floppy-disk";
             this.SaveButtonClass = "save-button";
 
@@ -66,7 +66,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.AllowNew = true;
             this.AllowSave = true;
             this.AllowSettings = true;
-            this.AllowRollback = true;
+            this.AllowRollback = false;
             this.HideTabHeader = false;
             this.AllowEdit = false;
             this.ShowDefaultFields = true;
