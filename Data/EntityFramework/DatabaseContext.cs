@@ -6,6 +6,7 @@ using Ophelia.Data.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Ophelia.Data.EntityFramework
 {
@@ -15,6 +16,7 @@ namespace Ophelia.Data.EntityFramework
         public override void Dispose()
         {
             this._IsDisposed = true;
+            this.PostActionAudits = null;
             base.Dispose();
         }
         public bool IsDisposed
@@ -26,6 +28,7 @@ namespace Ophelia.Data.EntityFramework
         }
         public IConfiguration Configuration { get; private set; }
         public DbContextOptions Options { get; private set; }
+        public Dictionary<string, long> PostActionAudits { get; private set; }
         public bool EnableAuditLog { get; set; }
         public TEntity Create<TEntity>() { return (TEntity)Activator.CreateInstance(typeof(TEntity)); }
         protected override void OnModelCreating(ModelBuilder builder)
@@ -57,8 +60,6 @@ namespace Ophelia.Data.EntityFramework
 
             //changeSet method that examines changes
             var changeSet = this.ChangeTracker.Entries();
-            var logs = new List<AuditLog>();
-
             //where the value is considered to be null. So even if there is no change in the context, it can be null.
             if (changeSet != null)
             {
@@ -67,6 +68,7 @@ namespace Ophelia.Data.EntityFramework
                 //multiple classes may have changed. We will consider the unchanged and undeleted ones.
                 foreach (var entry in changeSet.Where(c => c.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged))
                 {
+                    var logs = new List<AuditLog>();
                     var attributes = entry.Entity.GetType().GetCustomAttributes(typeof(AuditLoggingAttribute));
                     if (attributes == null || attributes.Count == 0 || !(attributes.FirstOrDefault() as AuditLoggingAttribute).Enable)
                         continue;
@@ -131,9 +133,35 @@ namespace Ophelia.Data.EntityFramework
                         auditLogModel.OldValue = originalValue;
                         auditLogModel.OldObject = entry.OriginalValues;
                     }
+                    if (!string.IsNullOrEmpty((attributes.FirstOrDefault() as AuditLoggingAttribute).ParentPropertyName))
+                    {
+                        var parentName = (attributes.FirstOrDefault() as AuditLoggingAttribute).ParentPropertyName;
+                        var parentProperty = entry.Entity.GetType().GetProperty(parentName);
+                        if (parentProperty != null)
+                        {
+                            var id = entry.Entity.GetPropertyValue(parentName + "ID");
+                            if (id != null)
+                            {
+                                long longID = 0;
+                                if (long.TryParse(id.ToString(), out longID))
+                                {
+                                    if (this.PostActionAudits.ContainsKey($"{parentProperty.PropertyType.Name}_{longID}"))
+                                    {
+                                        auditLogModel.ParentAuditLogID = this.PostActionAudits[$"{parentProperty.PropertyType.Name}_{longID}"];
+                                    }
+                                }
+                            }
+
+                        }
+
+                    }
+                    this.WriteAuditLogs(logs);
+                    if (attributes != null && (attributes.FirstOrDefault() as AuditLoggingAttribute).ParentOfPostActions)
+                    {
+                        this.PostActionAudits[$"{auditLogModel.EntityName}_{auditLogModel.EntityID}"] = auditLogModel.ID;
+                    }
                 }
             }
-            this.WriteAuditLogs(logs);
         }
         protected virtual void WriteAuditLogs(List<AuditLog> logs)
         {
@@ -149,6 +177,7 @@ namespace Ophelia.Data.EntityFramework
         {
             this.Configuration = config;
             this.Options = options;
+            this.PostActionAudits = new Dictionary<string, long>();
         }
     }
 }
