@@ -69,7 +69,8 @@ namespace Ophelia
                     var row = new Dictionary<string, object>();
                     for (int i = 0; i < headers.Length; i++)
                     {
-                        row[headers[i].Replace("\"", "")] = rows[i].Replace("\"", "");
+                        if (rows.Length > i)
+                            row[headers[i].Replace("\"", "")] = rows[i].Replace("\"", "");
                     }
                     data.Add(row);
                 }
