@@ -195,6 +195,19 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     {
                         sb.Append(query.Data.MainTable.FormatFieldName(foreignKeyRelationAttribute.PropertyName));
                     }
+
+                    var filterProperties = this.PropertyInfo.GetCustomAttributes(typeof(Attributes.RelationFilterProperty)).ToList();
+                    if (filterProperties != null && filterProperties.Count > 0)
+                    {
+                        foreach (Attributes.RelationFilterProperty item in filterProperties)
+                        {
+                            sb.Append("AND ");
+                            sb.Append(subTable.Alias);
+                            sb.Append(".");
+                            sb.Append(query.Data.MainTable.FormatFieldName(item.PropertyName));
+                            this.AddParameter(sb, query, item.Value, null, item.Comparison, false, false);
+                        }
+                    }
                 }
                 else
                 {
