@@ -201,7 +201,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     {
                         foreach (Attributes.RelationFilterProperty item in filterProperties)
                         {
-                            sb.Append("AND ");
+                            sb.Append(" AND ");
                             sb.Append(subTable.Alias);
                             sb.Append(".");
                             sb.Append(query.Data.MainTable.FormatFieldName(item.PropertyName));

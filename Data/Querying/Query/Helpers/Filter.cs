@@ -171,13 +171,25 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     var subTable = new Table(query, entityType, "SQ" + index, index);
                     this.Tables.Add(subTable);
 
+                    var subFilterBuild = "";
+                    if (this.SubFilter != null)
+                        subFilterBuild = this.SubFilter.Build(query, subTable);
+                    
                     sb.Append("EXISTS (");
                     sb.Append("SELECT NULL FROM " + subTable.FullName);
+                    if (subTable.Joins.Count > 0)
+                    {
+                        sb.Append(" ");
+                        foreach (var t in subTable.Joins)
+                        {
+                            sb.Append(t.BuildJoinString());
+                        }
+                    }
+
                     sb.Append(" WHERE ");
                     if (subqueryTable == null && !string.IsNullOrEmpty(this.Name) && this.Name.IndexOf(".") > -1)
-                    {
                         subqueryTable = this.FindTable(query, this.ParentFilter.PropertyInfo);
-                    }
+                    
                     if (subqueryTable == null)
                     {
                         sb.Append(query.Data.MainTable.Alias);
@@ -193,10 +205,32 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     sb.Append(" = ");
                     sb.Append(subTable.Alias);
                     sb.Append(".");
-                    if (subqueryTable == null)
-                        sb.Append(query.Data.MainTable.GetForeignKeyName());
+                    var relationKeyName = "";
+
+                    var foreignKeyRelationAttribute = this.PropertyInfo.GetCustomAttributes(typeof(Attributes.RelationFKProperty)).FirstOrDefault() as Attributes.RelationFKProperty;
+                    if (foreignKeyRelationAttribute != null)
+                        relationKeyName = foreignKeyRelationAttribute.PropertyName;
                     else
-                        sb.Append(subqueryTable.GetForeignKeyName());
+                    {
+                        if (subqueryTable == null)
+                            relationKeyName = query.Data.MainTable.GetForeignKeyName();
+                        else
+                            relationKeyName = subqueryTable.GetForeignKeyName();
+                    }
+                    sb.Append(relationKeyName);
+
+                    var filterProperties = this.PropertyInfo.GetCustomAttributes(typeof(Attributes.RelationFilterProperty)).ToList();
+                    if (filterProperties != null && filterProperties.Count > 0)
+                    {
+                        foreach (Attributes.RelationFilterProperty item in filterProperties)
+                        {
+                            sb.Append(" AND ");
+                            sb.Append(subTable.Alias);
+                            sb.Append(".");
+                            sb.Append(query.Data.MainTable.FormatFieldName(item.PropertyName));
+                            this.AddParameter(sb, query, item.Value, null, item.Comparison, false, false);
+                        }
+                    }
 
                     if (this.Value2 is Attributes.N2NRelationProperty)
                     {
@@ -209,14 +243,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
                         query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(relation.FilterValue));
                     }
-                    if (this.SubFilter != null)
+                    if (!string.IsNullOrEmpty(subFilterBuild))
                     {
                         sb.Append(" AND ");
-                        sb.Append(this.SubFilter.Build(query, subTable));
-                    }
-                    else
-                    {
-
+                        sb.Append(subFilterBuild);
+                        subFilterBuild = "";
                     }
                     sb.Append(")");
                 }
@@ -242,6 +273,16 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     //var props = this.Name.Split('.');
                     Type lastType = query.Data.EntityType;
                     var props = query.Data.EntityType.GetPropertyInfoTree(this.Name);
+                    var baseTableToJoin = query.Data.MainTable;
+                    if(this.ParentFilter != null && subqueryTable != null)
+                    {
+                        var tmpProps = subqueryTable.EntityType.GetPropertyInfoTree(this.Name);
+                        if (tmpProps != null)
+                        {
+                            props = tmpProps;
+                            baseTableToJoin = subqueryTable;
+                        }
+                    }
                     isStringFilter = false;
                     foreach (var _prop in props)
                     {
@@ -261,9 +302,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                                 {
                                     var toJoinTable = table.Joins.LastOrDefault();
                                     if (toJoinTable == null)
-                                        toJoinTable = query.Data.MainTable;
+                                        toJoinTable = baseTableToJoin;
                                     else if (toJoinTable.EntityType.GetProperty(propInfo.Name) == null)
-                                        toJoinTable = query.Data.MainTable;
+                                        toJoinTable = baseTableToJoin;
 
                                     joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(propInfo.Name), JoinedTable = toJoinTable });
                                 }
@@ -275,9 +316,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                                 {
                                     var toJoinTable = table.Joins.LastOrDefault();
                                     if (toJoinTable == null)
-                                        toJoinTable = query.Data.MainTable;
+                                        toJoinTable = baseTableToJoin;
                                     else if (toJoinTable.EntityType.GetProperty(_prop.Name + "ID") == null)
-                                        toJoinTable = query.Data.MainTable;
+                                        toJoinTable = baseTableToJoin;
 
                                     joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(_prop.Name + "ID"), JoinedTable = toJoinTable });
                                 }
