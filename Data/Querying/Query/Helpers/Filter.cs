@@ -174,7 +174,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     var subFilterBuild = "";
                     if (this.SubFilter != null)
                         subFilterBuild = this.SubFilter.Build(query, subTable);
-                    
+
                     sb.Append("EXISTS (");
                     sb.Append("SELECT NULL FROM " + subTable.FullName);
                     if (subTable.Joins.Count > 0)
@@ -189,7 +189,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     sb.Append(" WHERE ");
                     if (subqueryTable == null && !string.IsNullOrEmpty(this.Name) && this.Name.IndexOf(".") > -1)
                         subqueryTable = this.FindTable(query, this.ParentFilter.PropertyInfo);
-                    
+
                     if (subqueryTable == null)
                     {
                         sb.Append(query.Data.MainTable.Alias);
@@ -274,7 +274,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     Type lastType = query.Data.EntityType;
                     var props = query.Data.EntityType.GetPropertyInfoTree(this.Name);
                     var baseTableToJoin = query.Data.MainTable;
-                    if(this.ParentFilter != null && subqueryTable != null)
+                    if (this.ParentFilter != null && subqueryTable != null)
                     {
                         var tmpProps = subqueryTable.EntityType.GetPropertyInfoTree(this.Name);
                         if (tmpProps != null)
@@ -453,7 +453,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             if (!string.IsNullOrEmpty(itemsSQL))
                                 itemsSQL += ",";
 
-                            itemsSQL += item.ToString();
+                            if (isStringFilter)
+                                itemsSQL += "'" + item.ToString() + "'";
+                            else
+                                itemsSQL += item.ToString();
                         }
                         if (string.IsNullOrEmpty(itemsSQL))
                             itemsSQL = "'0'";
@@ -528,7 +531,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 }
             }
         }
-        private bool IsStringProperty(PropertyInfo info, object value)
+        protected bool IsStringProperty(PropertyInfo info, object value)
         {
             if (info != null && info.PropertyType.Name == "String")
                 return true;

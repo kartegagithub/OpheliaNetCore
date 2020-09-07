@@ -205,7 +205,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             sb.Append(subTable.Alias);
                             sb.Append(".");
                             sb.Append(query.Data.MainTable.FormatFieldName(item.PropertyName));
-                            this.AddParameter(sb, query, item.Value, null, item.Comparison, false, false);
+                            this.AddParameter(sb, query, item.Value, null, item.Comparison, false, this.IsStringProperty(subTable.EntityType.GetProperty(item.PropertyName), null));
                         }
                     }
                 }
