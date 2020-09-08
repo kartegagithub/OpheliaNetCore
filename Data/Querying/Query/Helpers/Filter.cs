@@ -75,6 +75,12 @@ namespace Ophelia.Data.Querying.Query.Helpers
         [DataMember]
         public List<Query.Helpers.Table> Tables { get; set; }
 
+        [DataMember]
+        public List<MemberInfo> Members { get; set; }
+
+        [DataMember]
+        public List<Expression> MemberExpressions { get; set; }
+
         public Filter()
         {
             this.Tables = new List<Table>();
@@ -118,17 +124,72 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
         public virtual string Build(Query.BaseQuery query, Table subqueryTable = null)
         {
+            var isStringFilter = false;
+            var sb = new StringBuilder();
             if (string.IsNullOrEmpty(this.Name) && this.SubFilter != null)
             {
                 this.SubFilter.Exclude = this.Exclude;
                 return this.SubFilter.Build(query, subqueryTable);
             }
+            else if (this.Comparison == Comparison.ContainsFTS && this.Value != null && this.MemberExpressions != null && this.MemberExpressions.Count > 0)
+            {
+                var keyword = Convert.ToString(this.Value);
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    var baseTable = query.Data.MainTable;
+                    if (subqueryTable != null)
+                        baseTable = subqueryTable;
+
+                    var wordCount = keyword.Replace("\"", "").Split(' ');
+                    var keywordResult = "";
+                    foreach (var item in wordCount)
+                    {
+                        if (item.Equals("for", StringComparison.InvariantCultureIgnoreCase))
+                            continue;
+
+                        if (!string.IsNullOrEmpty(keywordResult))
+                            keywordResult += " AND ";
+                        if (item.Contains("-"))
+                        {
+                            keywordResult += "\"" + item.Replace("-", "*") + "\"";
+                        }
+                        else
+                        {
+                            keywordResult += "\"*" + item + "*\"";
+                        }
+                    }
+                    keyword = keywordResult;
+
+                    sb.Append("CONTAINS((");
+                    var counter = 0;
+                    foreach (var item in this.MemberExpressions)
+                    {
+                        var memExp = (item as MemberExpression);
+                        if (counter > 0)
+                            sb.Append(",");
+                        if (memExp.Expression != null)
+                        {
+                            var memberName = (memExp.Expression as MemberExpression).Member.Name + "ID";
+                            var joinedTable = baseTable.Joins.Where(op => op.JoinOn == memberName).FirstOrDefault();
+                            if (joinedTable == null)
+                                joinedTable = baseTable.AddJoin(new Table(query, memExp.Expression.Type, JoinType.Left, baseTable.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(memberName), JoinedTable = baseTable });
+                            sb.Append(joinedTable.Alias + "." + joinedTable.FormatFieldName(memExp.Member.Name));
+                        }
+                        else
+                            sb.Append(baseTable.Alias + "." + baseTable.FormatFieldName(memExp.Member.Name));
+                        counter++;
+                    }
+                    sb.Append("), ");
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    sb.Append(")");
+                    query.Data.Parameters.Add(this.Value);
+                }
+                return sb.ToString();
+            }
             else if (string.IsNullOrEmpty(this.Name) && this.Left == null && this.Right == null && !this.IsQueryableDataSet)
             {
                 return "";
             }
-            var isStringFilter = false;
-            var sb = new StringBuilder();
             if (this.Left != null && this.Right != null)
             {
                 var leftStr = this.Left.Build(query, subqueryTable);

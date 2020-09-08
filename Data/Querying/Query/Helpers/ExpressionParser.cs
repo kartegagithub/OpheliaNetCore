@@ -26,6 +26,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public bool IsIncluder { get; set; }
         public bool IsSubInclude { get; set; }
         public List<MemberInfo> Members { get; set; }
+        public List<Expression> MemberExpressions { get; set; }
         public static ExpressionParser Create(System.Linq.Expressions.Expression expression)
         {
             ExpressionParser exp = null;
@@ -265,6 +266,8 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 this.Comparison = Comparison.StartsWith;
             else if (expression.Method.Name == "Contains")
                 this.Comparison = Comparison.Contains;
+            else if (expression.Method.Name == "ContainsFTS")
+                this.Comparison = Comparison.ContainsFTS;
             else if (expression.Method.Name == "EndsWith")
                 this.Comparison = Comparison.EndsWith;
             else if (expression.Method.Name == "Between")
@@ -278,7 +281,17 @@ namespace Ophelia.Data.Querying.Query.Helpers
             else if (expression.Method.Name == "Include")
                 this.IsIncluder = true;
 
-            if (expression.Object != null)
+            if (this.Comparison == Comparison.ContainsFTS)
+            {
+                this.Value = (expression.Arguments[0] as ConstantExpression).Value;
+                this.MemberExpressions = new List<Expression>();
+                var expressions = (expression.Arguments[1] as NewArrayExpression).Expressions;
+                foreach (var item in expressions)
+                {
+                    this.MemberExpressions.Add((item as MemberExpression));
+                }
+            }
+            else if (expression.Object != null)
             {
                 if (expression.Object is MemberExpression && expression.Object.GetType().Name.IndexOf("Field") > -1)
                 {
@@ -513,6 +526,8 @@ namespace Ophelia.Data.Querying.Query.Helpers
             filter.IsDataEntity = this.IsDataEntity;
             filter.IsQueryableDataSet = this.IsQueryableDataSet;
             filter.EntityType = this.EntityType;
+            filter.Members = this.Members;
+            filter.MemberExpressions = this.MemberExpressions;
             if (this.EntityType != null)
                 filter.EntityTypeName = this.EntityType.FullName;
 

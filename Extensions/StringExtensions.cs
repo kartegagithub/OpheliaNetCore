@@ -726,5 +726,16 @@ namespace Ophelia
             }
             return types;
         }
+
+        /// <summary>
+        /// QueryableDataSet Full Text Search Support
+        /// </summary>
+        /// <param name="val"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public static bool ContainsFTS(this string val, params string[] parameters)
+        {
+            return true;
+        }
     }
 }

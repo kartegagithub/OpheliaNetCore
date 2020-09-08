@@ -35,7 +35,8 @@
         StartsWith = 8,
         EndsWith = 9,
         Contains = 10,
-        Exists = 11
+        Exists = 11,
+        ContainsFTS = 12
     }
 
     public enum DatabaseType
