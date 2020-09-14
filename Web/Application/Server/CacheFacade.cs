@@ -49,12 +49,12 @@ namespace Ophelia.Web.Application.Server
                 {
                     this.DropCache();
                 }
-                this.oEntities = (List<TEntity>)CacheManager.Get(this.Key);
+                this.oEntities = CacheManager.Get<List<TEntity>>(this.Key);
                 if (this.oEntities == null)
                 {
                     lock (oEntity_Locker)
                     {
-                        this.oEntities = (List<TEntity>)CacheManager.Get(this.Key);
+                        this.oEntities = CacheManager.Get<List<TEntity>>(this.Key);
                         if (this.oEntities == null)
                         {
                             this.oEntities = this.GetData();

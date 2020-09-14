@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace Ophelia.Data.Model
 {
+    [Serializable]
     internal class DataValue : IDisposable
     {
         private object _Value;

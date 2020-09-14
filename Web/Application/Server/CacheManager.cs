@@ -7,27 +7,54 @@ namespace Ophelia.Web.Application.Server
 {
     public static class CacheManager
     {
-        private static MemoryCache _MemoryCacheContext = MemoryCache.Default;
-        private static object _FileLocker = new object();
+        private static CacheContexts.ICacheContext DefaultContext = new CacheContexts.MemoryCacheContext();
+        private static Dictionary<string, CacheContexts.ICacheContext> Contexts = new Dictionary<string, CacheContexts.ICacheContext>();
+
+        public static CacheContexts.ICacheContext GetContext(string name)
+        {
+            return Contexts[name];
+        }
+        public static CacheContexts.ICacheContext Register(string key, CacheContexts.ICacheContext context, bool useAsDefault = false)
+        {
+            if (Contexts.ContainsKey(key))
+                return Contexts[key];
+
+            Contexts.Add(key, context);
+            if (useAsDefault)
+                DefaultContext = context;
+            return context;
+        }
+
         public static int CacheDuration
         {
             get { return ConfigurationManager.GetParameter<Int32>("CacheDuration", 1440); }
         }
-        public static long CacheCount { get { return _MemoryCacheContext.GetCount(); } }
+        public static long CacheCount { get { return DefaultContext.CacheCount; } }
+
+        public static bool AddByContext(string contextName, string key, object value, int duration = 0)
+        {
+            return AddByContext(contextName, key, value, DateTime.Now.AddMinutes(duration));
+        }
+        public static bool AddByContext(string contextName, string key, object value, DateTime absoluteExpiration)
+        {
+            return Contexts[contextName].Add(key, value, absoluteExpiration);
+        }
+        public static bool AddByContext(string contextName, string keyGroup, string keyItem, object value, int duration = 0)
+        {
+            return AddByContext(contextName, keyGroup, keyItem, value, DateTime.Now.AddMinutes(duration));
+        }
+        public static bool AddByContext(string contextName, string keyGroup, string keyItem, object value, DateTime absoluteExpiration)
+        {
+            return Contexts[contextName].Add(keyGroup, keyItem, value, absoluteExpiration);
+        }
+
         public static bool Add(string key, object value, int duration = 0)
         {
             return Add(key, value, DateTime.Now.AddMinutes(duration));
         }
         public static bool Add(string key, object value, DateTime absoluteExpiration)
         {
-            bool result = false;
-            try
-            {
-                _MemoryCacheContext.Set(key, value, GetCachePolicy(key, absoluteExpiration));
-                result = true;
-            }
-            catch { return result; }
-            return result;
+            return DefaultContext.Add(key, value, absoluteExpiration);
         }
         public static bool Add(string keyGroup, string keyItem, object value, int duration = 0)
         {
@@ -35,86 +62,54 @@ namespace Ophelia.Web.Application.Server
         }
         public static bool Add(string keyGroup, string keyItem, object value, DateTime absoluteExpiration)
         {
-            bool result = true;
-            Dictionary<string, object> list = (Dictionary<string, object>)Get(keyGroup);
-            if (list == null)
-            {
-                list = new Dictionary<string, object>();
-                Add(keyGroup, list, absoluteExpiration);
-            }
-            object objectValue = null;
-            if (list.TryGetValue(keyItem, out objectValue) && objectValue != null)
-                list[keyItem] = value;
-            else
-                list.Add(keyItem, value);
-
-            return result;
+            return DefaultContext.Add(keyGroup, keyItem, value, absoluteExpiration);
         }
         public static bool ClearAll()
         {
-            bool result = false;
-            if (_MemoryCacheContext.GetCount() > 0)
-            {
-                result = true;
-                foreach (var cache in _MemoryCacheContext)
-                {
-                    if (!Remove(cache.Key))
-                        result = false;
-                }
-            }
-            return result;
+            return DefaultContext.ClearAll();
         }
+        public static bool ClearAllByContext(string contextName)
+        {
+            return Contexts[contextName].ClearAll();
+        }
+        public static bool RemoveByContext(string contextName, string key)
+        {
+            return Contexts[contextName].Remove(key);
+        }
+
         public static bool Remove(string key)
         {
-            bool result = false;
-            try
-            {
-                string[] keys = key.Split(',');
-
-                if (keys != null && keys.Length > 0)
-                {
-                    foreach (string sKey in keys)
-                    {
-                        if (_MemoryCacheContext.Contains(sKey))
-                        {
-                            _MemoryCacheContext.Remove(sKey);
-                            result = true;
-                        }
-                    }
-                }
-            }
-            catch { return result; }
-            return result;
+            return DefaultContext.Remove(key);
+        }
+        public static object GetByContext(string contextName, string key)
+        {
+            return Contexts[contextName].Get(key);
+        }
+        public static object GetByContext(string contextName, string keyGroup, string keyItem)
+        {
+            return Contexts[contextName].Get(keyGroup, keyItem);
         }
         public static object Get(string key)
         {
-            return _MemoryCacheContext[key] as Object;
+            return DefaultContext.Get(key);
+        }
+        public static T Get<T>(string key)
+        {
+            return DefaultContext.Get<T>(key);
         }
         public static object Get(string keyGroup, string keyItem)
         {
-            object objectValue = null;
-            Dictionary<string, object> list = (Dictionary<string, object>)Get(keyGroup);
-            if (list != null)
-                list.TryGetValue(keyItem, out objectValue);
-
-            return objectValue;
+            return DefaultContext.Get(keyGroup, keyItem);
         }
         public static List<string> GetAllKeys()
         {
-            return _MemoryCacheContext.Select(op => op.Key).ToList();
+            return DefaultContext.GetAllKeys();
         }
-        private static CacheItemPolicy GetCachePolicy(string key, DateTime absoluteExpiration)
+        public static List<string> GetAllKeysByContext(string contextName)
         {
-            if (absoluteExpiration <= DateTime.Now) absoluteExpiration = DateTime.Now.AddMinutes(CacheDuration);
-            CacheItemPolicy cachingPolicy = new CacheItemPolicy
-            {
-                Priority = CacheItemPriority.Default,
-                AbsoluteExpiration = absoluteExpiration,
-                RemovedCallback = new CacheEntryRemovedCallback(OnCachedItemRemoved)
-            };
-            return cachingPolicy;
+            return Contexts[contextName].GetAllKeys();
         }
-        private static void OnCachedItemRemoved(CacheEntryRemovedArguments arguments)
+        public static void OnCachedItemRemoved(CacheEntryRemovedArguments arguments)
         {
             string strLog = String.Concat("Reason: ", arguments.RemovedReason.ToString(), " | Key-Name: ", arguments.CacheItem.Key, " | Value-Object: ", arguments.CacheItem.Value.ToString());
         }
