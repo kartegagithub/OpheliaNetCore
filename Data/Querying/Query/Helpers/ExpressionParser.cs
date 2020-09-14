@@ -283,7 +283,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
             if (this.Comparison == Comparison.ContainsFTS)
             {
-                this.Value = (expression.Arguments[0] as ConstantExpression).Value;
+                if (expression.Arguments[0] is MemberExpression)
+                    this.Value = (expression.Arguments[0] as MemberExpression).GetExpressionValue(null);
+                else if (expression.Arguments[0] is ConstantExpression)
+                    this.Value = (expression.Arguments[0] as ConstantExpression).Value;
                 this.MemberExpressions = new List<Expression>();
                 var expressions = (expression.Arguments[1] as NewArrayExpression).Expressions;
                 foreach (var item in expressions)
