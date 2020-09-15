@@ -8,6 +8,7 @@
     <AssemblyName>Ophelia</AssemblyName>
     <RootNamespace>Ophelia</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BouncyCastle.NetCore" Version="1.8.5" />
