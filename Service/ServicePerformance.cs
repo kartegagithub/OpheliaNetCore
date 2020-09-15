@@ -14,7 +14,10 @@ namespace Ophelia.Service
         public int QueryCount { get; set; }
 
         [DataMember]
-        public List<string> Queries { get; set; }
+        public List<Data.Model.SQLLog> SQLLogs { get; set; }
+
+        [DataMember]
+        public List<Data.Model.EntityLoadLog> EntityLoadLogs { get; set; }
 
         [DataMember]
         public DateTime StartDate { get; set; }
@@ -50,6 +53,8 @@ namespace Ophelia.Service
         public ServicePerformance()
         {
             this.StartDate = DateTime.Now;
+            this.SQLLogs = new List<Data.Model.SQLLog>();
+            this.EntityLoadLogs = new List<Data.Model.EntityLoadLog>();
         }
     }
 }
