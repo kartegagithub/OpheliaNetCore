@@ -11,6 +11,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public bool AllowEdit { get; set; }
         public bool AllowSettings { get; set; }
         public bool AllowRollback { get; set; }
+        public bool AllowHistory { get; set; }
         public bool AllowNextItemNavigation { get; set; }
         public bool AllowPrevItemNavigation { get; set; }
         public bool ShowDefaultFields { get; set; }
@@ -33,6 +34,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public string NewButtonText { get; set; }
         public string SettingsButtonText { get; set; }
         public string RollbackButtonText { get; set; }
+        public string HistoryButtonText { get; set; }
+        public string HistoryButtonIcon { get; set; }
         public void AddModeField(string Mode)
         {
 
@@ -58,6 +61,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.BackButtonText = "Back";
             this.SettingsButtonText = "Settings";
             this.RollbackButtonText = "Rollback";
+            this.HistoryButtonText = "History";
+            this.HistoryButtonIcon = "icon-history";
             this.SaveButtonIcon = "icon-floppy-disk";
             this.SaveButtonClass = "save-button";
 
@@ -72,6 +77,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.ShowDefaultFields = true;
             this.AllowNextItemNavigation = true;
             this.AllowPrevItemNavigation = true;
+            this.AllowHistory = true;
             this.TabPaneCssClass = "tab-pane fade content-group col-sm-12 no-padding";
         }
     }
