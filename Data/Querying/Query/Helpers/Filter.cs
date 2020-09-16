@@ -75,6 +75,12 @@ namespace Ophelia.Data.Querying.Query.Helpers
         [DataMember]
         public List<Query.Helpers.Table> Tables { get; set; }
 
+        [DataMember]
+        public List<MemberInfo> Members { get; set; }
+
+        [DataMember]
+        public List<Expression> MemberExpressions { get; set; }
+
         public Filter()
         {
             this.Tables = new List<Table>();
@@ -118,17 +124,72 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
         public virtual string Build(Query.BaseQuery query, Table subqueryTable = null)
         {
+            var isStringFilter = false;
+            var sb = new StringBuilder();
             if (string.IsNullOrEmpty(this.Name) && this.SubFilter != null)
             {
                 this.SubFilter.Exclude = this.Exclude;
                 return this.SubFilter.Build(query, subqueryTable);
             }
+            else if (this.Comparison == Comparison.ContainsFTS && this.Value != null && this.MemberExpressions != null && this.MemberExpressions.Count > 0)
+            {
+                var keyword = Convert.ToString(this.Value);
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    var baseTable = query.Data.MainTable;
+                    if (subqueryTable != null)
+                        baseTable = subqueryTable;
+
+                    var wordCount = keyword.Replace("\"", "").Split(' ');
+                    var keywordResult = "";
+                    foreach (var item in wordCount)
+                    {
+                        if (item.Equals("for", StringComparison.InvariantCultureIgnoreCase))
+                            continue;
+
+                        if (!string.IsNullOrEmpty(keywordResult))
+                            keywordResult += " AND ";
+                        if (item.Contains("-"))
+                        {
+                            keywordResult += "\"" + item.Replace("-", "*") + "\"";
+                        }
+                        else
+                        {
+                            keywordResult += "\"*" + item + "*\"";
+                        }
+                    }
+                    keyword = keywordResult;
+
+                    sb.Append("CONTAINS((");
+                    var counter = 0;
+                    foreach (var item in this.MemberExpressions)
+                    {
+                        var memExp = (item as MemberExpression);
+                        if (counter > 0)
+                            sb.Append(",");
+                        if (memExp.Expression != null)
+                        {
+                            var memberName = (memExp.Expression as MemberExpression).Member.Name + "ID";
+                            var joinedTable = baseTable.Joins.Where(op => op.JoinOn == memberName).FirstOrDefault();
+                            if (joinedTable == null)
+                                joinedTable = baseTable.AddJoin(new Table(query, memExp.Expression.Type, JoinType.Left, baseTable.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(memberName), JoinedTable = baseTable });
+                            sb.Append(joinedTable.Alias + "." + joinedTable.FormatFieldName(memExp.Member.Name));
+                        }
+                        else
+                            sb.Append(baseTable.Alias + "." + baseTable.FormatFieldName(memExp.Member.Name));
+                        counter++;
+                    }
+                    sb.Append("), ");
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    sb.Append(")");
+                    query.Data.Parameters.Add(this.Value);
+                }
+                return sb.ToString();
+            }
             else if (string.IsNullOrEmpty(this.Name) && this.Left == null && this.Right == null && !this.IsQueryableDataSet)
             {
                 return "";
             }
-            var isStringFilter = false;
-            var sb = new StringBuilder();
             if (this.Left != null && this.Right != null)
             {
                 var leftStr = this.Left.Build(query, subqueryTable);
@@ -171,13 +232,25 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     var subTable = new Table(query, entityType, "SQ" + index, index);
                     this.Tables.Add(subTable);
 
+                    var subFilterBuild = "";
+                    if (this.SubFilter != null)
+                        subFilterBuild = this.SubFilter.Build(query, subTable);
+
                     sb.Append("EXISTS (");
                     sb.Append("SELECT NULL FROM " + subTable.FullName);
+                    if (subTable.Joins.Count > 0)
+                    {
+                        sb.Append(" ");
+                        foreach (var t in subTable.Joins)
+                        {
+                            sb.Append(t.BuildJoinString());
+                        }
+                    }
+
                     sb.Append(" WHERE ");
                     if (subqueryTable == null && !string.IsNullOrEmpty(this.Name) && this.Name.IndexOf(".") > -1)
-                    {
                         subqueryTable = this.FindTable(query, this.ParentFilter.PropertyInfo);
-                    }
+
                     if (subqueryTable == null)
                     {
                         sb.Append(query.Data.MainTable.Alias);
@@ -193,10 +266,32 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     sb.Append(" = ");
                     sb.Append(subTable.Alias);
                     sb.Append(".");
-                    if (subqueryTable == null)
-                        sb.Append(query.Data.MainTable.GetForeignKeyName());
+                    var relationKeyName = "";
+
+                    var foreignKeyRelationAttribute = this.PropertyInfo.GetCustomAttributes(typeof(Attributes.RelationFKProperty)).FirstOrDefault() as Attributes.RelationFKProperty;
+                    if (foreignKeyRelationAttribute != null)
+                        relationKeyName = foreignKeyRelationAttribute.PropertyName;
                     else
-                        sb.Append(subqueryTable.GetForeignKeyName());
+                    {
+                        if (subqueryTable == null)
+                            relationKeyName = query.Data.MainTable.GetForeignKeyName();
+                        else
+                            relationKeyName = subqueryTable.GetForeignKeyName();
+                    }
+                    sb.Append(relationKeyName);
+
+                    var filterProperties = this.PropertyInfo.GetCustomAttributes(typeof(Attributes.RelationFilterProperty)).ToList();
+                    if (filterProperties != null && filterProperties.Count > 0)
+                    {
+                        foreach (Attributes.RelationFilterProperty item in filterProperties)
+                        {
+                            sb.Append(" AND ");
+                            sb.Append(subTable.Alias);
+                            sb.Append(".");
+                            sb.Append(query.Data.MainTable.FormatFieldName(item.PropertyName));
+                            this.AddParameter(sb, query, item.Value, null, item.Comparison, false, false);
+                        }
+                    }
 
                     if (this.Value2 is Attributes.N2NRelationProperty)
                     {
@@ -209,14 +304,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
                         query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(relation.FilterValue));
                     }
-                    if (this.SubFilter != null)
+                    if (!string.IsNullOrEmpty(subFilterBuild))
                     {
                         sb.Append(" AND ");
-                        sb.Append(this.SubFilter.Build(query, subTable));
-                    }
-                    else
-                    {
-
+                        sb.Append(subFilterBuild);
+                        subFilterBuild = "";
                     }
                     sb.Append(")");
                 }
@@ -242,6 +334,16 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     //var props = this.Name.Split('.');
                     Type lastType = query.Data.EntityType;
                     var props = query.Data.EntityType.GetPropertyInfoTree(this.Name);
+                    var baseTableToJoin = query.Data.MainTable;
+                    if (this.ParentFilter != null && subqueryTable != null)
+                    {
+                        var tmpProps = subqueryTable.EntityType.GetPropertyInfoTree(this.Name);
+                        if (tmpProps != null)
+                        {
+                            props = tmpProps;
+                            baseTableToJoin = subqueryTable;
+                        }
+                    }
                     isStringFilter = false;
                     foreach (var _prop in props)
                     {
@@ -261,9 +363,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                                 {
                                     var toJoinTable = table.Joins.LastOrDefault();
                                     if (toJoinTable == null)
-                                        toJoinTable = query.Data.MainTable;
+                                        toJoinTable = baseTableToJoin;
                                     else if (toJoinTable.EntityType.GetProperty(propInfo.Name) == null)
-                                        toJoinTable = query.Data.MainTable;
+                                        toJoinTable = baseTableToJoin;
 
                                     joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(propInfo.Name), JoinedTable = toJoinTable });
                                 }
@@ -275,9 +377,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                                 {
                                     var toJoinTable = table.Joins.LastOrDefault();
                                     if (toJoinTable == null)
-                                        toJoinTable = query.Data.MainTable;
+                                        toJoinTable = baseTableToJoin;
                                     else if (toJoinTable.EntityType.GetProperty(_prop.Name + "ID") == null)
-                                        toJoinTable = query.Data.MainTable;
+                                        toJoinTable = baseTableToJoin;
 
                                     joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(_prop.Name + "ID"), JoinedTable = toJoinTable });
                                 }
@@ -313,177 +415,184 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     sb.Append(name);
                 }
 
-                var oracleNull = false;
-                if (query.Context.Connection.Type == DatabaseType.Oracle)
-                {
-                    if (this.Comparison != Comparison.Exists && this.Comparison != Comparison.In && this.Comparison != Comparison.Between)
-                    {
-                        if (this.Value != null && this.Value.GetType().Name == "String" && String.IsNullOrEmpty(Convert.ToString(this.Value)))
-                        {
-                            oracleNull = true;
-                        }
-                    }
-                }
-                switch (this.Comparison)
-                {
-                    case Comparison.Equal:
-                        if (this.Value == null)
-                        {
-                            if (this.Exclude)
-                                sb.Append(" IS NOT NULL ");
-                            else
-                                sb.Append(" IS NULL ");
-                        }
-                        else
-                        {
-                            if (this.Exclude)
-                            {
-                                if (query.Context.Connection.Type == DatabaseType.Oracle)
-                                    sb.Append(" != ");
-                                else
-                                    sb.Append(" <> ");
-                            }
-                            else
-                                sb.Append(" = ");
-
-                            if (!oracleNull)
-                                sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                            else
-                                sb.Append("''");
-                        }
-                        break;
-                    case Comparison.Different:
-                        if (this.Value == null)
-                        {
-                            if (this.Exclude)
-                                sb.Append(" IS NULL ");
-                            else
-                            {
-                                sb.Append(" IS NOT NULL ");
-                            }
-                        }
-                        else
-                        {
-                            if (this.Exclude)
-                                sb.Append(" = ");
-                            else
-                            {
-                                if (query.Context.Connection.Type == DatabaseType.Oracle)
-                                    sb.Append(" != ");
-                                else
-                                    sb.Append(" <> ");
-                            }
-                            if (!oracleNull)
-                                sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                            else
-                                sb.Append("''");
-                        }
-                        break;
-                    case Comparison.Greater:
-                        sb.Append(" > ");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        break;
-                    case Comparison.Less:
-                        sb.Append(" < ");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        break;
-                    case Comparison.GreaterAndEqual:
-                        sb.Append(" >= ");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        break;
-                    case Comparison.LessAndEqual:
-                        sb.Append(" <= ");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        break;
-                    case Comparison.In:
-                        sb.Append(" IN (");
-                        if (this.Value.GetType().IsEnumarable())
-                        {
-                            var enumarable = this.Value as System.Collections.IEnumerable;
-                            var itemsSQL = "";
-                            foreach (object item in enumarable)
-                            {
-                                if (!string.IsNullOrEmpty(itemsSQL))
-                                    itemsSQL += ",";
-
-                                itemsSQL += item.ToString();
-                            }
-                            if (string.IsNullOrEmpty(itemsSQL))
-                                itemsSQL = "'0'";
-                            sb.Append(itemsSQL);
-                        }
-                        else
-                            sb.Append(this.Value.ToString());
-                        sb.Append(")");
-                        break;
-                    case Comparison.Between:
-                        sb.Append(" BETWEEN ");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(this.Value));
-                        sb.Append(" AND ");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(this.Value2));
-                        break;
-                    case Comparison.StartsWith:
-                        if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
-                            sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE "));
-                        else
-                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
-                        if (!oracleNull)
-                        {
-                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                            sb.Append(query.Context.Connection.FormatStringConcat("+ '%'"));
-                        }
-                        else
-                            sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
-                        break;
-                    case Comparison.EndsWith:
-                        if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
-                            sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE "));
-                        else
-                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
-                        if (!oracleNull)
-                        {
-                            sb.Append(query.Context.Connection.FormatStringConcat("'%' + "));
-                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        }
-                        else
-                            sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
-                        break;
-                    case Comparison.Contains:
-                        if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
-                            sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE '%' + "));
-                        else if (query.Context.Connection.Type == DatabaseType.Oracle)
-                        {
-                            if (!oracleNull)
-                                sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%' + "));
-                            else
-                                sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%'"));
-                        }
-                        else
-                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%' + "));
-
-                        if (!oracleNull)
-                        {
-                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                            sb.Append(query.Context.Connection.FormatStringConcat(" + '%'"));
-                        }
-                        break;
-                }
-                if (!oracleNull && this.Comparison != Comparison.Exists && this.Comparison != Comparison.In && this.Comparison != Comparison.Between)
-                {
-                    if (this.Value != null)
-                    {
-                        if (isStringFilter && query.Context.Connection.Type == DatabaseType.Oracle)
-                            query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(Convert.ToString(this.Value).ToUpper()));
-                        else
-                            query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(this.Value, isStringFilter));
-                    }
-                }
+                this.AddParameter(sb, query, this.Value, this.Value2, this.Comparison, this.Exclude, isStringFilter);
             }
             return sb.ToString();
         }
-        private bool IsStringProperty(PropertyInfo info, object value)
+        protected void AddParameter(StringBuilder sb, Query.BaseQuery query, object value, object value2, Comparison comparison, bool exclude, bool isStringFilter)
+        {
+            var oracleNull = false;
+            if (query.Context.Connection.Type == DatabaseType.Oracle)
+            {
+                if (comparison != Comparison.Exists && comparison != Comparison.In && comparison != Comparison.Between)
+                {
+                    if (value != null && value.GetType().Name == "String" && String.IsNullOrEmpty(Convert.ToString(value)))
+                    {
+                        oracleNull = true;
+                    }
+                }
+            }
+            switch (comparison)
+            {
+                case Comparison.Equal:
+                    if (value == null)
+                    {
+                        if (exclude)
+                            sb.Append(" IS NOT NULL ");
+                        else
+                            sb.Append(" IS NULL ");
+                    }
+                    else
+                    {
+                        if (exclude)
+                        {
+                            if (query.Context.Connection.Type == DatabaseType.Oracle)
+                                sb.Append(" != ");
+                            else
+                                sb.Append(" <> ");
+                        }
+                        else
+                            sb.Append(" = ");
+
+                        if (!oracleNull)
+                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        else
+                            sb.Append("''");
+                    }
+                    break;
+                case Comparison.Different:
+                    if (value == null)
+                    {
+                        if (exclude)
+                            sb.Append(" IS NULL ");
+                        else
+                        {
+                            sb.Append(" IS NOT NULL ");
+                        }
+                    }
+                    else
+                    {
+                        if (exclude)
+                            sb.Append(" = ");
+                        else
+                        {
+                            if (query.Context.Connection.Type == DatabaseType.Oracle)
+                                sb.Append(" != ");
+                            else
+                                sb.Append(" <> ");
+                        }
+                        if (!oracleNull)
+                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        else
+                            sb.Append("''");
+                    }
+                    break;
+                case Comparison.Greater:
+                    sb.Append(" > ");
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    break;
+                case Comparison.Less:
+                    sb.Append(" < ");
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    break;
+                case Comparison.GreaterAndEqual:
+                    sb.Append(" >= ");
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    break;
+                case Comparison.LessAndEqual:
+                    sb.Append(" <= ");
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    break;
+                case Comparison.In:
+                    sb.Append(" IN (");
+                    if (value.GetType().IsEnumarable())
+                    {
+                        var enumarable = value as System.Collections.IEnumerable;
+                        var itemsSQL = "";
+                        foreach (object item in enumarable)
+                        {
+                            if (!string.IsNullOrEmpty(itemsSQL))
+                                itemsSQL += ",";
+
+                            if (isStringFilter)
+                                itemsSQL += "'" + item.ToString() + "'";
+                            else
+                                itemsSQL += item.ToString();
+                        }
+                        if (string.IsNullOrEmpty(itemsSQL))
+                            itemsSQL = "'0'";
+                        sb.Append(itemsSQL);
+                    }
+                    else
+                        sb.Append(value.ToString());
+                    sb.Append(")");
+                    break;
+                case Comparison.Between:
+                    sb.Append(" BETWEEN ");
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(value));
+                    sb.Append(" AND ");
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(value2));
+                    break;
+                case Comparison.StartsWith:
+                    if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
+                        sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE "));
+                    else
+                        sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
+                    if (!oracleNull)
+                    {
+                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        sb.Append(query.Context.Connection.FormatStringConcat("+ '%'"));
+                    }
+                    else
+                        sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
+                    break;
+                case Comparison.EndsWith:
+                    if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
+                        sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE "));
+                    else
+                        sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
+                    if (!oracleNull)
+                    {
+                        sb.Append(query.Context.Connection.FormatStringConcat("'%' + "));
+                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    }
+                    else
+                        sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
+                    break;
+                case Comparison.Contains:
+                    if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
+                        sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE '%' + "));
+                    else if (query.Context.Connection.Type == DatabaseType.Oracle)
+                    {
+                        if (!oracleNull)
+                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%' + "));
+                        else
+                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%'"));
+                    }
+                    else
+                        sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%' + "));
+
+                    if (!oracleNull)
+                    {
+                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        sb.Append(query.Context.Connection.FormatStringConcat(" + '%'"));
+                    }
+                    break;
+            }
+            if (!oracleNull && comparison != Comparison.Exists && comparison != Comparison.In && comparison != Comparison.Between)
+            {
+                if (value != null)
+                {
+                    if (isStringFilter && query.Context.Connection.Type == DatabaseType.Oracle)
+                        query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(Convert.ToString(value).ToUpper()));
+                    else
+                        query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(value, isStringFilter));
+                }
+            }
+        }
+        protected bool IsStringProperty(PropertyInfo info, object value)
         {
             if (info != null && info.PropertyType.Name == "String")
                 return true;

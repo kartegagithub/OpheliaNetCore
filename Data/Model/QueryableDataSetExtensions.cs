@@ -129,6 +129,9 @@ namespace Ophelia.Data
                 case Comparison.Contains:
                     subExpression = Expression.Call(member, typeof(string).GetMethod("Contains", new[] { typeof(string) }), constantExp);
                     break;
+                case Comparison.ContainsFTS:
+                    subExpression = Expression.Call(member, typeof(string).GetMethod("ContainsFTS", new[] { typeof(string) }), constantExp);
+                    break;
                 case Comparison.In:
                     //Comparison.In eksik
                     break;
@@ -190,6 +193,9 @@ namespace Ophelia.Data
                     break;
                 case Comparison.Contains:
                     subExpression = Expression.Call(member, typeof(string).GetMethod("Contains", new[] { typeof(string) }), constantExp);
+                    break;
+                case Comparison.ContainsFTS:
+                    subExpression = Expression.Call(member, typeof(string).GetMethod("ContainsFTS", new[] { typeof(string) }), constantExp);
                     break;
                 case Comparison.In:
                     //Comparison.In eksik
@@ -828,7 +834,6 @@ namespace Ophelia.Data
                     new Expression[] { source.Expression, Expression.Constant(index) }
                     ));
         }
-
 
         public static bool Contains<TSource>(this QueryableDataSet<TSource> source, TSource item)
         {

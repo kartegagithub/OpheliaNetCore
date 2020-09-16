@@ -8,6 +8,7 @@
     <AssemblyName>Ophelia</AssemblyName>
     <RootNamespace>Ophelia</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BouncyCastle.NetCore" Version="1.8.5" />
@@ -22,13 +23,16 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.1.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.1.6" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.50" />
     <PackageReference Include="Pluralize.NET" Version="1.0.2" />
     <PackageReference Include="PushSharp.Core" Version="1.0.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="5.5.0" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="5.5.0" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />

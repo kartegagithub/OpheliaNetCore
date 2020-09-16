@@ -12,6 +12,9 @@ namespace Ophelia
 
         public static T GetObject<T>(this ISession session, string key)
         {
+            if (session == null)
+                return default(T);
+
             var value = session.GetString(key);
             return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
         }

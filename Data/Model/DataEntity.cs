@@ -1,4 +1,5 @@
-﻿using Ophelia.Data.Attributes;
+﻿using Newtonsoft.Json;
+using Ophelia.Data.Attributes;
 using System;
 namespace Ophelia.Data.Model
 {
@@ -6,6 +7,9 @@ namespace Ophelia.Data.Model
     public abstract class DataEntity : IDisposable
     {
         private DataEntityTracker _Tracker;
+
+        [System.Xml.Serialization.XmlIgnoreAttribute]
+        [JsonIgnore]
         internal DataEntityTracker Tracker
         {
             get

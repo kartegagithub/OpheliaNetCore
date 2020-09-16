@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 namespace Ophelia.Data.Model
 {
+    [Serializable]
     internal class DataEntityTracker : IDisposable
     {
         private DataEntity Entity;

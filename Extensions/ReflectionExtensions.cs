@@ -302,8 +302,16 @@ namespace Ophelia
             {
                 foreach (var p in property.Split('.'))
                 {
-                    props.Add(type.GetProperties().Where(op => op.Name == p).FirstOrDefault());
-                    type = props.LastOrDefault().PropertyType;
+                    var prop = type.GetProperties().Where(op => op.Name == p).FirstOrDefault();
+                    if(prop != null)
+                    {
+                        props.Add(prop);
+                        type = props.LastOrDefault().PropertyType;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
             }
             else
