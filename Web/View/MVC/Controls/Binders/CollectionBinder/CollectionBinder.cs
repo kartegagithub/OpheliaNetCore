@@ -138,7 +138,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 this.Response.Clear();
                 this.Response.ClearContent();
                 this.Response.ClearHeaders();
-                this.Response.ContentType = "application/json";
+                this.Response.ContentType = "text/html";
                 object result = new { success = 0, message = "" };
                 switch (this.Request.GetValue("CollectionBinderTriggerFunction"))
                 {
