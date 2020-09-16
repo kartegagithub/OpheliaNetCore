@@ -180,6 +180,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         break;
                 }
                 this.Response.Write(result.ToJson());
+                this.Response.Flush();
                 this.Response.End();
             }
         }
