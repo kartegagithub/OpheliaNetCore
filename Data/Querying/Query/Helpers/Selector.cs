@@ -53,6 +53,8 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 }
                 return sb.ToString();
             }
+            else if (this.SubSelector != null)
+                return this.SubSelector.Build(query);
             return "";
         }
         public Selector()
