@@ -233,9 +233,9 @@ namespace Ophelia.Data
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine(ex);
+                    continue;
                 }
             }
             if (parameters != null)

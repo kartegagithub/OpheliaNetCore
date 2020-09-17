@@ -437,7 +437,7 @@ namespace Ophelia
                 {
                     try
                     {
-                        if (a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
+                        if (a.FullName.Contains(".Redis") ||  a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
                             continue;
 
                         var Types = a.GetTypes();
@@ -450,9 +450,9 @@ namespace Ophelia
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        Console.WriteLine(ex);
+                        continue;
                     }
                 }
             }
@@ -473,7 +473,7 @@ namespace Ophelia
                 {
                     try
                     {
-                        if (a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
+                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
                             continue;
 
                         var Types = a.GetTypes();
@@ -489,9 +489,9 @@ namespace Ophelia
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        Console.WriteLine(ex);
+                        continue;
                     }
                 }
             }
@@ -531,7 +531,7 @@ namespace Ophelia
                 {
                     try
                     {
-                        if (a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
+                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
                             continue;
 
                         var Types = a.GetTypes();
@@ -544,9 +544,9 @@ namespace Ophelia
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        Console.WriteLine(ex);
+                        continue;
                     }
                 }
             }
