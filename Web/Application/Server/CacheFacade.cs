@@ -49,16 +49,19 @@ namespace Ophelia.Web.Application.Server
                 {
                     this.DropCache();
                 }
-                this.oEntities = CacheManager.Get<List<TEntity>>(this.Key);
                 if (this.oEntities == null)
                 {
-                    lock (oEntity_Locker)
+                    this.oEntities = CacheManager.Get<List<TEntity>>(this.Key);
+                    if (this.oEntities == null)
                     {
-                        this.oEntities = CacheManager.Get<List<TEntity>>(this.Key);
-                        if (this.oEntities == null)
+                        lock (oEntity_Locker)
                         {
-                            this.oEntities = this.GetData();
-                            CacheManager.Add(this.Key, this.oEntities, this.CacheDuration);
+                            this.oEntities = CacheManager.Get<List<TEntity>>(this.Key);
+                            if (this.oEntities == null)
+                            {
+                                this.oEntities = this.GetData();
+                                CacheManager.Add(this.Key, this.oEntities, this.CacheDuration);
+                            }
                         }
                     }
                 }
