@@ -166,7 +166,7 @@ namespace Ophelia.Web
         protected virtual int GetCurrentLanguageCookie(string cookieName = "Language")
         {
             var languageCookies = Ophelia.Web.Application.Client.CookieManager.Get(cookieName);
-            int ID = 0;
+            int ID = 1;
             if (!string.IsNullOrEmpty(languageCookies))
             {
                 if (int.TryParse(languageCookies, out ID))

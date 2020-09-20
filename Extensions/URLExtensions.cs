@@ -141,7 +141,7 @@ namespace Ophelia
             }
             catch (Exception ex)
             {
-                throw new Exception("Can not convert data: " + response, ex);
+                throw new Exception($"Can not convert data from url {URL}: " + response, ex);
             }
         }
         public static ServiceObjectResult<T> GetObject<T>(this string URL, WebApiObjectRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
