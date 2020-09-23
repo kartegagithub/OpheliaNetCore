@@ -121,31 +121,37 @@ namespace Ophelia.Web
         {
             get
             {
-                if (this.nCurrentLanguageID == 0)
+                if (this.Context != null)
                 {
-                    if (this.Session != null)
+                    if (this.nCurrentLanguageID == 0)
                     {
-                        if (this.Session.GetString("CurrentLanguageID") != null)
-                            this.nCurrentLanguageID = this.Session.GetInt32("CurrentLanguageID").GetValueOrDefault(0);
-                        else if (this.nCurrentLanguageID > 0)
+                        if (this.Session != null)
+                        {
+                            if (this.Session.GetString("CurrentLanguageID") != null)
+                                this.nCurrentLanguageID = this.Session.GetInt32("CurrentLanguageID").GetValueOrDefault(0);
+                            else if (this.nCurrentLanguageID > 0)
+                                this.Session.SetInt32("CurrentLanguageID", this.nCurrentLanguageID);
+                        }
+                        if (this.nCurrentLanguageID == 0)
+                            this.nCurrentLanguageID = this.GetCurrentLanguageCookie();
+                    }
+                    else
+                    {
+                        if (this.Session != null && this.Session.GetString("CurrentLanguageID") == null)
                             this.Session.SetInt32("CurrentLanguageID", this.nCurrentLanguageID);
                     }
-                    if (this.nCurrentLanguageID == 0)
-                        this.nCurrentLanguageID = this.GetCurrentLanguageCookie();
-                }
-                else
-                {
-                    if (this.Session != null && this.Session.GetString("CurrentLanguageID") == null)
-                        this.Session.SetInt32("CurrentLanguageID", this.nCurrentLanguageID);
                 }
                 return this.nCurrentLanguageID;
             }
             set
             {
                 this.nCurrentLanguageID = value;
-                this.SetCurrentLanguageCookie();
-                if (this.Session != null)
-                    this.Session.SetInt32("CurrentLanguageID", value);
+                if (this.Context != null)
+                {
+                    this.SetCurrentLanguageCookie();
+                    if (this.Session != null)
+                        this.Session.SetInt32("CurrentLanguageID", value);
+                }
             }
         }
         protected virtual void SetCurrentLanguageCookie(string cookieName = "Language", CookieOptions options = null)
