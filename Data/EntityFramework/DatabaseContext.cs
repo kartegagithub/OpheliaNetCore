@@ -50,8 +50,20 @@ namespace Ophelia.Data.EntityFramework
         }
         public override int SaveChanges()
         {
+            this.OnBeforeSaveChanges();
             this.CheckAuditState();
             return base.SaveChanges();
+        }
+        protected virtual void OnBeforeSaveChanges()
+        {
+            var changeSet = this.ChangeTracker.Entries();
+            if (changeSet != null)
+            {
+                foreach (var entry in changeSet.Where(c => c.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged))
+                {
+                    this.OnEntityChange(entry);
+                }
+            }
         }
         protected virtual void CheckAuditState()
         {
@@ -162,6 +174,10 @@ namespace Ophelia.Data.EntityFramework
                     }
                 }
             }
+        }
+        protected virtual void OnEntityChange(EntityEntry entity)
+        {
+
         }
         protected virtual void WriteAuditLogs(List<AuditLog> logs)
         {

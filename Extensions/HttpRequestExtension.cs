@@ -31,7 +31,7 @@ namespace Ophelia
         {
             if (request == null)
                 return false;
-            return request.Host.Host.IndexOf("localhost") > -1;
+            return request.Host.Host.IndexOf("localhost") > -1 || request.Host.Host == "127.0.0.1" || request.Host.Host == "::1";
         }
     }
 }

@@ -10,7 +10,10 @@ namespace Ophelia.Web.Application.Client
         /// </summary>
         public static string Get(string cookieName)
         {
-            return Ophelia.Web.Client.Current.Request.Cookies[cookieName];
+            if (Ophelia.Web.Client.Current.Context != null)
+                return Ophelia.Web.Client.Current.Request.Cookies[cookieName];
+            else
+                return "";
         }
 
         /// <summary>
@@ -22,9 +25,12 @@ namespace Ophelia.Web.Application.Client
         /// <returns></returns>
         public static void Set(string cookieName, string value, int expireMinute = 10)
         {
-            CookieOptions options = new CookieOptions();
-            options.Expires = DateTime.Now.AddMilliseconds(expireMinute);
-            Ophelia.Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
+            if (Ophelia.Web.Client.Current.Context != null)
+            {
+                CookieOptions options = new CookieOptions();
+                options.Expires = DateTime.Now.AddMilliseconds(expireMinute);
+                Ophelia.Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
+            }
         }
 
         /// <summary>
@@ -35,7 +41,8 @@ namespace Ophelia.Web.Application.Client
         /// <param name="options"></param>
         public static void Set(string cookieName, string value, CookieOptions options)
         {
-            Ophelia.Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
+            if (Ophelia.Web.Client.Current.Context != null)
+                Ophelia.Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
         }
 
         /// <summary>
@@ -43,7 +50,7 @@ namespace Ophelia.Web.Application.Client
         /// </summary>
         public static void ClearByName(string cookieName)
         {
-            if (Ophelia.Web.Client.Current != null && Ophelia.Web.Client.Current.Response != null)
+            if (Ophelia.Web.Client.Current != null && Ophelia.Web.Client.Current.Context != null)
             {
                 var option = new CookieOptions();
                 option.Expires = DateTime.Now.AddDays(-1);
