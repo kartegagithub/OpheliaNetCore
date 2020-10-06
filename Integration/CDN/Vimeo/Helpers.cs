@@ -104,8 +104,7 @@ namespace Ophelia.Integration.CDN.Vimeo
                 ServicePointManager.Expect100Continue = true;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls
                        | SecurityProtocolType.Tls11
-                       | SecurityProtocolType.Tls12
-                       | SecurityProtocolType.Ssl3;
+                       | SecurityProtocolType.Tls12;
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.CreateHttp(url);
                 if (Proxy != null) request.Proxy = Proxy;
@@ -130,7 +129,7 @@ namespace Ophelia.Integration.CDN.Vimeo
 
                 return request.GetResponseWithoutException();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 throw;
