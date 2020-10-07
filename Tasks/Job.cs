@@ -21,6 +21,7 @@ namespace Ophelia.Tasks
         public Routine Routine { get; set; }
         public long OccurenceIndex { get; set; }
         public System.Threading.Thread CurrentThread { get; private set; }
+        public System.Threading.ThreadPriority Priority { get; set; }
         public void Run()
         {
             try
@@ -34,7 +35,7 @@ namespace Ophelia.Tasks
                             this.LastExecutionStatus = JobExecutionStatus.Running;
                             this.Manager.OnBeforeJobExecuted(this);
                             this.CurrentThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.RunInternal));
-                            this.CurrentThread.Priority = System.Threading.ThreadPriority.Lowest;
+                            this.CurrentThread.Priority = this.Priority;
                             this.CurrentThread.Start();
                         }
                     }
@@ -53,7 +54,6 @@ namespace Ophelia.Tasks
                 Console.WriteLine("Job.Run:");
                 Console.WriteLine(ex.ToString());
             }
-
         }
 
         protected virtual void RunInternal()
@@ -127,6 +127,7 @@ namespace Ophelia.Tasks
         public Job(JobManager Manager)
         {
             this.Manager = Manager;
+            this.Priority = System.Threading.ThreadPriority.Lowest;
         }
     }
 }
