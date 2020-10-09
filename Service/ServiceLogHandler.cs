@@ -19,7 +19,7 @@ namespace Ophelia.Service
         {
             return ((ServiceLogHandler)typeof(ServiceLogHandler).GetRealTypeInstance(false, innerHandler));
         }
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             HttpResponseMessage response;
 
@@ -42,34 +42,36 @@ namespace Ophelia.Service
             {
                 new ServiceObjectResult<bool>().Fail(ex);
             }
-
-            response = base.SendAsync(request, cancellationToken).Result;
-
             try
             {
-                var httpStatus = (int)response.StatusCode;
-
-                byte[] responseMessage;
-
-                if (response.Content != null)
+                response = await base.SendAsync(request, cancellationToken);
+                try
                 {
-                    responseMessage = response.Content.ReadAsByteArrayAsync().Result;
-                }
-                else
-                {
-                    responseMessage = Encoding.UTF8.GetBytes(response.ReasonPhrase);
-                }
+                    var httpStatus = (int)response.StatusCode;
 
-                this.LogResponse(httpStatus, requestInfo, responseMessage);
+                    byte[] responseMessage;
+
+                    if (response.Content != null)
+                    {
+                        responseMessage = response.Content.ReadAsByteArrayAsync().Result;
+                    }
+                    else
+                    {
+                        responseMessage = Encoding.UTF8.GetBytes(response.ReasonPhrase);
+                    }
+                    this.LogResponse(httpStatus, requestInfo, responseMessage);
+                }
+                catch (System.Exception ex)
+                {
+                    this.LogResponse(0, requestInfo, ex.ToString());
+                }
             }
             catch (System.Exception ex)
             {
-                new ServiceObjectResult<bool>().Fail(ex);
+                this.LogResponse(0, requestInfo, ex.ToString());
             }
-            
-            return Task<HttpResponseMessage>.Factory.StartNew(() => response);
         }
-
+        
         public virtual void LogRequest(int status, string requestInfo, string message, string headers)
         {
 
