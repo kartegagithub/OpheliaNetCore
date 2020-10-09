@@ -21,7 +21,7 @@ namespace Ophelia.Service
         }
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            HttpResponseMessage response;
+            HttpResponseMessage response = null;
 
             var requestInfo = string.Format("{0} {1}", request.Method, request.RequestUri);
             try
@@ -70,8 +70,9 @@ namespace Ophelia.Service
             {
                 this.LogResponse(0, requestInfo, ex.ToString());
             }
+            return response;
         }
-        
+
         public virtual void LogRequest(int status, string requestInfo, string message, string headers)
         {
 
