@@ -105,6 +105,10 @@ namespace Ophelia.Tasks
 
             var NextExecution = DateTime.Now;
             var IntervalType = (IntervalType)job.Routine.IntervalType;
+            if (IntervalType == IntervalType.Hour && job.Routine.Interval == 24)
+                IntervalType = IntervalType.Day;
+            if (IntervalType == IntervalType.Day && job.Routine.Interval == 7)
+                IntervalType = IntervalType.Week;
             switch (IntervalType)
             {
                 case IntervalType.Second:
