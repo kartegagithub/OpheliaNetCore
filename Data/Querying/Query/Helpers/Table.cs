@@ -57,7 +57,14 @@ namespace Ophelia.Data.Querying.Query.Helpers
         {
             return this._query.Context.Connection.GetPrimaryKeyName(this.EntityType);
         }
-
+        public string GetForeignKeyName(Type type)
+        {
+            var properties = type.GetProperties().Where(op => op.PropertyType.FullName == this.EntityType.FullName).ToList();
+            if (properties.Count == 1)
+                return this._query.Context.Connection.FormatDataElement(this._query.Context.Connection.GetMappedFieldName(properties.FirstOrDefault().Name + "ID"));
+            else
+                return this.GetForeignKeyName();
+        }
         public string GetForeignKeyName()
         {
             return this._query.Context.Connection.FormatDataElement(this._query.Context.Connection.GetMappedFieldName(this.EntityType.Name + "ID"));

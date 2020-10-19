@@ -187,7 +187,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     if (foreignKeyRelationAttribute == null)
                     {
                         if (subqueryTable == null)
-                            sb.Append(query.Data.MainTable.GetForeignKeyName());
+                            sb.Append(query.Data.MainTable.GetForeignKeyName(subTable.EntityType));
                         else
                             sb.Append(subqueryTable.GetForeignKeyName());
                     }

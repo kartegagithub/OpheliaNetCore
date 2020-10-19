@@ -122,7 +122,7 @@ namespace Ophelia.Web.Application.Server.CacheContexts
             if (obj == null)
                 return null;
 
-            return System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj));
+            return System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, MissingMemberHandling = MissingMemberHandling.Ignore }));
             //var bf = new BinaryFormatter();
             //using (MemoryStream ms = new MemoryStream())
             //{
