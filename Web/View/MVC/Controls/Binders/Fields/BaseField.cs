@@ -128,7 +128,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             if (!string.IsNullOrEmpty(this.LabelControl.Text) && this.IsRequired)
                 this.LabelControl.Text += " (*)";
 
-            if (this.IsRequired && !string.IsNullOrEmpty(this.DataControl.CssClass) && this.DataControl.CssClass.IndexOf(" required") == -1)
+            if (this.IsRequired && ((!string.IsNullOrEmpty(this.DataControl.CssClass) && this.DataControl.CssClass.IndexOf(" required") == -1) || string.IsNullOrEmpty(this.DataControl.CssClass)))
             {
                 this.DataControl.CssClass += " required";
                 this.DataControl.AddAttribute("aria-required", "true");
