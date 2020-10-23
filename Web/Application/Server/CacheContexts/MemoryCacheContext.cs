@@ -15,6 +15,15 @@ namespace Ophelia.Web.Application.Server.CacheContexts
             bool result = false;
             try
             {
+                if (_MemoryCacheContext.Contains(key))
+                    _MemoryCacheContext.Remove(key);
+
+                _MemoryCacheContext.Set(key, value, GetCachePolicy(key, absoluteExpiration));
+
+                //Im-memory cache incnsistency. Added twice
+                if (_MemoryCacheContext.Contains(key))
+                    _MemoryCacheContext.Remove(key);
+
                 _MemoryCacheContext.Set(key, value, GetCachePolicy(key, absoluteExpiration));
                 result = true;
             }

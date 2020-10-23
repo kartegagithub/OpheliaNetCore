@@ -17,28 +17,34 @@ namespace Ophelia.Web.Application.Server
         {
             get
             {
-                DateTime LastCheckDate = DateTime.Now;
+                DateTime _LastCheckDate = DateTime.Now;
                 try
                 {
                     if (CacheManager.Get(this.Key + "_LCD") != null)
                     {
-                        LastCheckDate = (DateTime)CacheManager.Get(this.Key + "_LCD");
+                        _LastCheckDate = (DateTime)CacheManager.Get(this.Key + "_LCD");
                     }
                     else
                     {
-                        CacheManager.Add(this.Key + "_LCD", LastCheckDate);
+                        lock (oEntity_Locker)
+                        {
+                            CacheManager.Add(this.Key + "_LCD", _LastCheckDate);
+                        }
                     }
                 }
                 catch (Exception)
                 {
-                    LastCheckDate = DateTime.Now;
+                    _LastCheckDate = DateTime.Now;
                 }
-                return LastCheckDate;
+                return _LastCheckDate;
             }
             set
             {
-                CacheManager.Remove(this.Key + "_LCD");
-                CacheManager.Add(this.Key + "_LCD", value);
+                lock (oEntity_Locker)
+                {
+                    CacheManager.Remove(this.Key + "_LCD");
+                    CacheManager.Add(this.Key + "_LCD", value);
+                }
             }
         }
         public List<TEntity> List
@@ -99,7 +105,11 @@ namespace Ophelia.Web.Application.Server
 
         public void DropCache()
         {
-            CacheManager.Remove(this.Key);
+            lock (oEntity_Locker)
+            {
+                this.oEntities = null;
+                CacheManager.Remove(this.Key);
+            }
         }
 
         public bool Reload(bool CanSetCacheDirty = true)
@@ -117,24 +127,29 @@ namespace Ophelia.Web.Application.Server
 
         public void Remove(object id)
         {
-            TEntity entity = this.List.Where(this.IDColumn, id).FirstOrDefault();
-            if (entity != null)
+            lock (oEntity_Locker)
             {
-                this.List.Remove(entity);
+                TEntity entity = this.List.Where(this.IDColumn, id).FirstOrDefault();
+                if (entity != null)
+                {
+                    this.List.Remove(entity);
+                }
             }
         }
 
         public void Update(TEntity entity)
         {
             this.Remove(entity.GetPropertyValue(this.IDColumn));
-            if (this.CanAdd(entity))
-                this.List.Add(entity);
-            this.SetCacheDirty();
+            lock (oEntity_Locker)
+            {
+                if (this.CanAdd(entity))
+                    this.List.Add(entity);
+                this.SetCacheDirty();
+            }
         }
 
         protected bool CheckCacheHealth()
         {
-
             if (DateTime.Now.Subtract(this.LastCheckDate).TotalMinutes > this.CacheHealthDuration)
             {
                 var Result = this.CheckPersistentCacheHealth();
