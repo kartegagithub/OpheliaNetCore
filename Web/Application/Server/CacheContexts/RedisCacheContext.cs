@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 using StackExchange.Redis.Extensions.Core.Configuration;
+using StackExchange.Redis.Extensions.Core.Models;
 using StackExchange.Redis.Extensions.Newtonsoft;
 
 namespace Ophelia.Web.Application.Server.CacheContexts
@@ -176,6 +177,11 @@ namespace Ophelia.Web.Application.Server.CacheContexts
         public StackExchange.Redis.IConnectionMultiplexer GetConnection()
         {
             return this._redis;
+        }
+
+        public ConnectionPoolInformation GetConnectionInformations()
+        {
+            throw new NotImplementedException();
         }
     }
 }
