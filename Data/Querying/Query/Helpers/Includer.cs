@@ -60,6 +60,14 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
         public override string Build(Query.BaseQuery query, Table subqueryTable = null)
         {
+            if (this.EntityType == null && !string.IsNullOrEmpty(this.EntityTypeName))
+            {
+                this.EntityType = this.EntityTypeName.ResolveType();
+            }
+            if(this.PropertyInfo == null && !string.IsNullOrEmpty(this.Name))
+            {
+                this.PropertyInfo = query.Data.MainTable.EntityType.GetPropertyInfo(this.Name);
+            }
             var sb = new StringBuilder();
             if (this.EntityType == null && this.SubIncluders.Count > 0)
             {

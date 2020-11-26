@@ -5,7 +5,9 @@ namespace Ophelia.Service
     [DataContract(IsReference = true)]
     public class ServiceCollectionResult : ServiceResult
     {
+        [DataMember]
         public object RawData { get; set; }
+
         [DataMember]
         public long TotalDataCount { get; set; }
 

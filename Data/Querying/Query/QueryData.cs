@@ -10,6 +10,12 @@ namespace Ophelia.Data.Querying.Query
         internal Type EntityType { get; set; }
 
         [DataMember]
+        public int GroupPageSize { get; set; }
+
+        [DataMember]
+        public Dictionary<int, int> GroupPagination { get; set; }
+
+        [DataMember]
         public int PageSize { get; set; }
 
         [DataMember]
@@ -56,6 +62,7 @@ namespace Ophelia.Data.Querying.Query
             this.Parameters = null;
             this.Functions = null;
             this.Excluders = null;
+            this.GroupPagination = null;
         }
 
         public QueryData()
@@ -67,6 +74,7 @@ namespace Ophelia.Data.Querying.Query
             this.Parameters = new List<object>();
             this.Functions = new List<Helpers.DBFunction>();
             this.Excluders = new List<Helpers.Excluder>();
+            this.GroupPagination = new Dictionary<int, int>();
         }
         public QueryData Serialize()
         {
@@ -77,7 +85,7 @@ namespace Ophelia.Data.Querying.Query
             }
             foreach (var item in this.Groupers)
             {
-                qd.Groupers.Add(item.Serialize());
+                qd.Groupers.AddRange(item.Serialize());
             }
             foreach (var item in this.Includers)
             {
@@ -100,6 +108,8 @@ namespace Ophelia.Data.Querying.Query
 
             qd.PageSize = this.PageSize;
             qd.SkippedCount = this.SkippedCount;
+            qd.GroupPageSize = this.GroupPageSize;
+            qd.GroupPagination = this.GroupPagination;
             return qd;
         }
     }

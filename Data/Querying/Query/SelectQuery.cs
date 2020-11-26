@@ -135,6 +135,10 @@ namespace Ophelia.Data.Querying.Query
                 if (!this.Data.Functions.Where(op => op.IsAggregiate).Any())
                     sb.Append(strOrder);
             }
+            if (this.Data.Groupers.Count > 0 && string.IsNullOrEmpty(strOrder))
+            {
+                sb.Append(" ORDER BY Counted DESC");
+            }
             return sb.ToString();
         }
     }

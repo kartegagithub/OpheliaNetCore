@@ -593,5 +593,18 @@ namespace Ophelia
             var list = info.GetCustomAttributes(true).Where(op => op.GetType().IsAssignableFrom(attributeType));
             return new List<object>(list);
         }
+        public static Type GetMemberInfoType(this MemberInfo member)
+        {
+            switch (member.MemberType)
+            {
+                case MemberTypes.Field:
+                    return ((FieldInfo)member).FieldType;
+                case MemberTypes.Property:
+                    return ((PropertyInfo)member).PropertyType;
+                case MemberTypes.Event:
+                    return ((EventInfo)member).EventHandlerType;
+            }
+            return null;
+        }
     }
 }

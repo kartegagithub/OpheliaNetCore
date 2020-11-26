@@ -34,6 +34,7 @@ namespace Ophelia.Web.UI.Controls
         public string CssClass { get; set; }
         public virtual TextWriter Output { get; set; }
         public bool Visible { get; set; }
+        public bool CanRender { get; set; }
         public virtual Dictionary<string, string> EventHandlers { get; private set; }
         public virtual void AddEvent(string eventName, string functionName)
         {
@@ -44,6 +45,8 @@ namespace Ophelia.Web.UI.Controls
 
         public virtual string Draw()
         {
+            if (!this.CanRender)
+                return "";
             StringBuilder sb = new StringBuilder();
             this.Output = new System.IO.StringWriter(sb, System.Globalization.CultureInfo.InvariantCulture);
             this.RenderControl();
@@ -51,6 +54,8 @@ namespace Ophelia.Web.UI.Controls
         }
         public virtual void RenderControl()
         {
+            if (!this.CanRender)
+                return;
             this.RenderControlAsText(this.Output);
         }
 
@@ -76,6 +81,8 @@ namespace Ophelia.Web.UI.Controls
         }
         public virtual void RenderControl(TextWriter writer)
         {
+            if (!this.CanRender)
+                return;
             if (!this.Visible)
                 return;
 
@@ -173,6 +180,7 @@ namespace Ophelia.Web.UI.Controls
         public WebControl()
         {
             this.Visible = true;
+            this.CanRender = true;
         }
         public WebControl(TextWriterTag tag) : this(tag.ToString().ToLower().Replace("ı", "i"))
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Drawing;
+using Microsoft.EntityFrameworkCore;
 using Ophelia.Data.Querying.Query;
 using System;
 using System.Collections;
@@ -23,6 +24,8 @@ namespace Ophelia.Data.Model
         protected IList _list;
         internal QueryData ExtendedData { get; set; }
         internal bool HasChanged { get; set; }
+
+        public IList GroupedData { get; set; }
 
         internal int Count
         {
@@ -95,7 +98,7 @@ namespace Ophelia.Data.Model
                 catch (Exception)
                 {
                     this._Context = new DataContext(type, "");
-                }                
+                }
             }
             var tmp = baseQuery.ElementType.FullName.Split('.');
             this._Context.Configuration.NamespacesToIgnore.Add(string.Join(".", tmp.Take(tmp.Length - 2)));
@@ -251,23 +254,33 @@ namespace Ophelia.Data.Model
                 }
                 else
                 {
+                    var dynamicObjectFields = (from grouper in query.Data.Groupers where !string.IsNullOrEmpty(grouper.Name) && !string.IsNullOrEmpty(grouper.TypeName) select new Ophelia.Reflection.ObjectField() { FieldName = grouper.Name, FieldType = Type.GetType(grouper.TypeName) }).ToList();
+                    var dynamicObject = Ophelia.Reflection.ObjectBuilder.CreateNewObject(dynamicObjectFields);
+                    var useDynamic = !this.ElementType.GenericTypeArguments.Any();
                     var types = new List<Type>();
-                    var queryableType = typeof(QueryableDataSet<>).MakeGenericType(this.ElementType.GenericTypeArguments.LastOrDefault());
-                    var entityType = this.ElementType.GenericTypeArguments[1];
-                    var groupingType = typeof(OGrouping<,>).MakeGenericType(this.ElementType.GenericTypeArguments[0], entityType);
+                    var entityType = !useDynamic ? this.ElementType.GenericTypeArguments.LastOrDefault() : query.Data.EntityType;
+                    var queryableType = typeof(QueryableDataSet<>).MakeGenericType(entityType);
+                    var groupingType = typeof(OGrouping<,>).MakeGenericType(!useDynamic ? this.ElementType.GenericTypeArguments[0] : dynamicObject.GetType(), entityType);
                     var clonedData = query.Data.Serialize();
                     clonedData.Groupers.Clear();
+                    clonedData.Sorters.RemoveAll(op => op.Name == "Key");
+                    if (useDynamic)
+                        this.GroupedData = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(groupingType));
+
+                    var counter = -1;
                     foreach (DataRow row in data.Rows)
                     {
                         var queryable = (QueryableDataSet)Activator.CreateInstance(queryableType, query.Context);
                         queryable.ExtendData(clonedData);
-                        foreach (var item in query.Data.Groupers)
+                        counter++;
+                        if (useDynamic)
                         {
+                            dynamicObject = Activator.CreateInstance(dynamicObject.GetType());
                             var count = Convert.ToInt64(row[query.Context.Connection.GetMappedFieldName("Counted")]);
-                            if (!string.IsNullOrEmpty(item.Name))
+                            foreach (var item in dynamicObjectFields)
                             {
-                                var p = entityType.GetProperty(item.Name);
-                                var fieldName = query.Context.Connection.GetMappedFieldName(item.Name);
+                                var p = entityType.GetProperty(item.FieldName);
+                                var fieldName = query.Context.Connection.GetMappedFieldName(p.Name);
                                 var value = p.PropertyType.ConvertData(row[fieldName]);
                                 if (value == DBNull.Value)
                                 {
@@ -276,36 +289,56 @@ namespace Ophelia.Data.Model
                                 }
 
                                 queryable = queryable.Where(p, value);
-                                var ctor = groupingType.GetConstructors().FirstOrDefault();
-                                var oGrouping = ctor.Invoke(new object[] { value, queryable, count });
-                                //var oGrouping = Activator.CreateInstance(groupingType, );
-                                this._list.Add(oGrouping);
+                                dynamicObject.SetPropertyValue(item.FieldName, value);
                             }
-                            else if (item.Members != null && item.Members.Count > 0)
+                            queryable.ExtendData(clonedData);
+                            if (query.Data.GroupPageSize == 0)
+                                query.Data.GroupPageSize = 25;
+
+                            var page = 1;
+                            if (clonedData.GroupPagination.ContainsKey(counter))
+                                page = clonedData.GroupPagination[counter];
+                            var ctor = groupingType.GetConstructors().FirstOrDefault();
+                            var oGrouping = ctor.Invoke(new object[] { dynamicObject, queryable.Paginate(page, query.Data.GroupPageSize).ToList(), count });
+                            //var oGrouping = Activator.CreateInstance(groupingType, );
+                            this.GroupedData.Add(oGrouping);
+                        }
+                        else
+                        {
+                            foreach (var item in query.Data.Groupers)
                             {
-                                var parameters = new List<object>();
-                                foreach (var member in item.Members)
+                                var count = Convert.ToInt64(row[query.Context.Connection.GetMappedFieldName("Counted")]);
+                                if (!string.IsNullOrEmpty(item.Name))
                                 {
-                                    var fieldName = query.Context.Connection.GetMappedFieldName(member.Name);
-                                    Type memberType = null;
-                                    switch (member.MemberType)
+                                    var p = entityType.GetProperty(item.Name);
+                                    var fieldName = query.Context.Connection.GetMappedFieldName(item.Name);
+                                    var value = p.PropertyType.ConvertData(row[fieldName]);
+                                    if (value == DBNull.Value)
                                     {
-                                        case MemberTypes.Field:
-                                            memberType = ((FieldInfo)member).FieldType;
-                                            break;
-                                        case MemberTypes.Property:
-                                            memberType = ((PropertyInfo)member).PropertyType;
-                                            break;
-                                        case MemberTypes.Event:
-                                            memberType = ((EventInfo)member).EventHandlerType;
-                                            break;
+                                        if (p.PropertyType.Name.StartsWith("String"))
+                                            value = "";
                                     }
-                                    object value = memberType.ConvertData(row[fieldName]);
-                                    queryable = queryable.Where(member, value);
-                                    parameters.Add(value);
+
+                                    queryable = queryable.Where(p, value);
+                                    var ctor = groupingType.GetConstructors().FirstOrDefault();
+                                    var oGrouping = ctor.Invoke(new object[] { value, queryable, count });
+                                    //var oGrouping = Activator.CreateInstance(groupingType, );
+                                    this._list.Add(oGrouping);
                                 }
-                                var oGrouping = Activator.CreateInstance(groupingType, Activator.CreateInstance(this.ElementType.GenericTypeArguments[0], parameters.ToArray()), queryable, count);
-                                this._list.Add(oGrouping);
+                                else if (item.Members != null && item.Members.Count > 0)
+                                {
+                                    var parameters = new List<object>();
+                                    foreach (var member in item.Members)
+                                    {
+                                        var fieldName = query.Context.Connection.GetMappedFieldName(member.Name);
+                                        Type memberType = member.GetMemberInfoType();
+                                        object value = memberType.ConvertData(row[fieldName]);
+                                        queryable = queryable.Where(member, value);
+                                        parameters.Add(value);
+                                    }
+                                    var oGrouping = Activator.CreateInstance(groupingType, Activator.CreateInstance(this.ElementType.GenericTypeArguments[0], parameters.ToArray()), queryable, count);
+                                    this._list.Add(oGrouping);
+                                }
                             }
                         }
                     }
@@ -391,6 +424,8 @@ namespace Ophelia.Data.Model
         public virtual IList ToList()
         {
             this.EnsureLoad();
+            if (this.GroupedData != null)
+                return this.GroupedData;
             return this.GetList();
         }
         public IEnumerator GetEnumerator()

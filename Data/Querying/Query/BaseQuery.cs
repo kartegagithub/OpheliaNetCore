@@ -124,6 +124,8 @@ namespace Ophelia.Data.Querying.Query
         {
             if (this.dataToExtend != null)
             {
+                this.Data.GroupPageSize = this.dataToExtend.GroupPageSize;
+                this.Data.GroupPagination = this.dataToExtend.GroupPagination;
                 this.Data.Groupers.AddRange(this.dataToExtend.Groupers);
                 this.Data.Includers.AddRange(this.dataToExtend.Includers);
                 this.Data.Sorters.AddRange(this.dataToExtend.Sorters);

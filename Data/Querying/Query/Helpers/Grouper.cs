@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,6 +13,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
     {
         [DataMember]
         public string Name { get; set; }
+
+        [DataMember]
+        public string TypeName { get; set; }
 
         [DataMember]
         public Grouper SubGrouper { get; set; }
@@ -52,13 +56,23 @@ namespace Ophelia.Data.Querying.Query.Helpers
         {
 
         }
-        public Grouper Serialize()
+        public List<Grouper> Serialize()
         {
-            var entity = new Grouper();
-            entity.Name = this.Name;
+            var groupers = new List<Grouper>();
+            if (!string.IsNullOrEmpty(this.Name))
+            {
+                groupers.Add(new Grouper() { Name = this.Name, TypeName = this.TypeName });
+            }
+            if(this.Members != null && this.Members.Any())
+            {
+                foreach (var item in this.Members)
+                {
+                    groupers.Add(new Grouper() { Name = item.Name, TypeName = item.GetMemberInfoType().FullName });
+                }
+            }
             if (this.SubGrouper != null)
-                entity.SubGrouper = this.SubGrouper.Serialize();
-            return entity;
+                groupers.AddRange(this.SubGrouper.Serialize());
+            return groupers;
         }
     }
 }
