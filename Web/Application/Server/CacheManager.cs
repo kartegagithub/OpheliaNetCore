@@ -48,7 +48,7 @@ namespace Ophelia.Web.Application.Server
             return Contexts[contextName].Add(keyGroup, keyItem, value, absoluteExpiration);
         }
 
-        public static bool Add(string key, object value, int duration = 0)
+        public static bool Add(string key, object value, int duration = 1440)
         {
             return Add(key, value, DateTime.Now.AddMinutes(duration));
         }
