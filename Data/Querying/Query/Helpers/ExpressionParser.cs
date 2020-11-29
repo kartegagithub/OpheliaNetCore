@@ -670,7 +670,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
             var grouper = new Grouper();
             grouper.Name = this.Name;
             if (this.EntityType != null)
+            {
                 grouper.TypeName = this.EntityType.FullName;
+                if (this.PropertyInfo != null && (this.PropertyInfo.PropertyType.IsPOCOEntity() || this.PropertyInfo.PropertyType.IsDataEntity()))
+                    grouper.Name += "ID";
+            }
             grouper.Members = this.Members;
             if (this.SubExpression != null)
                 grouper.SubGrouper = this.SubExpression.ToGrouper();

@@ -29,7 +29,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 return this.Client.Controller.Url;
             }
         }
-        public bool IsAjaxRequest
+        public virtual bool IsAjaxRequest
         {
             get
             {
@@ -667,7 +667,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     this.ContentRenderMode = ContentRenderMode.Group;
 
                     //TODO: https://stackoverflow.com/a/12829015/1766100
-                    var groupedData = (IQueryable<IGrouping<object, T>>)this.DataSource.Query.GroupBy(selectedGroupers.ToArray());
+                    IQueryable<IGrouping<object, T>> groupedData = null;
+                    if (this.DataSource.Query is Ophelia.Data.Model.QueryableDataSet<T>)
+                        groupedData = (IQueryable<IGrouping<object, T>>)(QueryableDataSetExtensions.GroupBy(this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>, selectedGroupers.ToArray()));
+                    else
+                        groupedData = (IQueryable<IGrouping<object, T>>)this.DataSource.Query.GroupBy(selectedGroupers.ToArray());
                     if (this.DataSource.RemoteDataSource != null)
                     {
                         using (var queryData = new QueryData())
@@ -719,7 +723,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     else
                     {
                         this.DataSource.GroupPagination.ItemCount = groupedData.Count();
-                        this.GroupedData = groupedData.Paginate(this.CanExport ? 1 : this.DataSource.GroupPagination.PageNumber, this.CanExport ? int.MaxValue : this.DataSource.GroupPagination.PageSize);
+                        if (this.DataSource.Query is Ophelia.Data.Model.QueryableDataSet<T>)
+                            this.GroupedData = Ophelia.Data.QueryableDataSetExtensions.Paginate((Data.Model.QueryableDataSet<Data.Model.OGrouping<object, T>>)groupedData, this.CanExport ? 1 : this.DataSource.GroupPagination.PageNumber, this.CanExport ? int.MaxValue : this.DataSource.GroupPagination.PageSize);
+                        else
+                            this.GroupedData = groupedData.Paginate(this.CanExport ? 1 : this.DataSource.GroupPagination.PageNumber, this.CanExport ? int.MaxValue : this.DataSource.GroupPagination.PageSize);
                     }
                     groupedData = null;
                     this.DataSource.Query = null;
@@ -1007,7 +1014,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         if (name.IndexOf(".") > -1)
                             name = name.Replace(".", "");
 
-                        var text = Convert.ToString(group.Key.GetPropertyValue(name));
+                        var text = "";
+                        if (group.Key.GetType().IsPrimitiveType())
+                            text = group.Key.ToString();
+                        else
+                            text = Convert.ToString(group.Key.GetPropertyValue(name));
 
                         if (grouper.Type != null && grouper.Type.IsEnum)
                             text = grouper.Type.GetEnumDisplayName(text, this.Client);
@@ -1289,7 +1300,21 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                     this.Output.Write(" data-align='" + column.Alignment.ToString() + "'");
 
-                    this.Output.Write(" data-name='" + column.FormatColumnName() + "'");
+                    var columnName = column.FormatColumnName();
+                    if (column.Expression.Body is MethodCallExpression)
+                    {
+                        var values = columnName.Split('.');
+                        columnName = "";
+                        for (int i = 0; i < values.Length - 1; i++)
+                        {
+                            columnName += values[i] + ".";
+                        }
+                        columnName = columnName.Trim('.');
+                        var prop = typeof(T).GetProperty(columnName);
+                        if (prop != null && (prop.PropertyType.IsPOCOEntity() || prop.PropertyType.IsDataEntity()))
+                            columnName += "ID";
+                    }
+                    this.Output.Write(" data-name='" + columnName + "'");
                     this.OnDrawingColumnHeader(column, true);
                     this.Output.Write(">");
                     if (!column.HideColumnTitle)
