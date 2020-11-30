@@ -290,7 +290,15 @@ namespace Ophelia.Data.Querying.Query
 
         public virtual Expression VisitGroup(Expressions.GroupExpression expression)
         {
-            this.Data.Groupers.Add(Helpers.Grouper.Create(expression.Expression));
+            if (expression.Expressions != null)
+            {
+                foreach (var item in expression.Expressions)
+                {
+                    this.Data.Groupers.Add(Helpers.Grouper.Create(item));
+                }
+            }
+            else
+                this.Data.Groupers.Add(Helpers.Grouper.Create(expression.Expression));
             return expression;
         }
 

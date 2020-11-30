@@ -612,19 +612,13 @@ namespace Ophelia.Data
         }
         public static QueryableDataSet<OGrouping<object, TSource>> GroupBy<TSource>(this QueryableDataSet<TSource> source, params Expression<Func<TSource, object>>[] groupSelectors)
         {
-            var expressions = new List<Expression>();
-            expressions.Add(source.Expression);
-            foreach (var item in groupSelectors)
-            {
-                expressions.Add(item);
-            }
             return (QueryableDataSet<OGrouping<object, TSource>>)((QueryableDataSet<OGrouping<object, TSource>>)source.InternalProvider.CreateQuery<OGrouping<object, TSource>>(
                 Expression.Call(
                     null,
                     GetMethodInfoOf(() => QueryableDataSetExtensions.GroupBy(
                         default(QueryableDataSet<TSource>),
                         default(Expression<Func<TSource, object>>))),
-                    expressions.ToArray()
+                    new Expression[] { source.Expression, new Expressions.GroupExpression(groupSelectors) }
                     ))).ExtendData(source.ExtendedData);
         }
         public static QueryableDataSet<TSource> Extend<TSource>(this QueryableDataSet<TSource> newSource, QueryableDataSet<TSource> oldSource)
