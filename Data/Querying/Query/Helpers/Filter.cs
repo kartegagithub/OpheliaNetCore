@@ -124,11 +124,20 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
         public virtual string Build(Query.BaseQuery query, Table subqueryTable = null)
         {
+            if (this.EntityType == null && !string.IsNullOrEmpty(this.EntityTypeName))
+            {
+                this.EntityType = this.EntityTypeName.ResolveType();
+            }
+            if (this.PropertyInfo == null && !string.IsNullOrEmpty(this.Name))
+            {
+                this.PropertyInfo = query.Data.MainTable.EntityType.GetPropertyInfo(this.Name);
+            }
             var isStringFilter = false;
             var sb = new StringBuilder();
             if (string.IsNullOrEmpty(this.Name) && this.SubFilter != null)
             {
-                this.SubFilter.Exclude = this.Exclude;
+                if (this.Exclude)
+                    this.SubFilter.Exclude = this.Exclude;
                 return this.SubFilter.Build(query, subqueryTable);
             }
             else if (this.Comparison == Comparison.ContainsFTS && this.Value != null && this.MemberExpressions != null && this.MemberExpressions.Count > 0)
@@ -633,7 +642,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
             includer.IsDataEntity = this.IsDataEntity;
             includer.IsQueryableDataSet = this.IsQueryableDataSet;
             includer.EntityType = this.EntityType;
-            includer.EntityTypeName = this.EntityTypeName;
+            if (this.EntityType != null)
+                includer.EntityTypeName = this.EntityType.FullName;
+            else
+                includer.EntityTypeName = this.EntityTypeName;
             includer.Table = this.Table;
             return includer;
         }
@@ -656,7 +668,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
             entity.Take = this.Take;
             entity.Skip = this.Skip;
             entity.IsDataEntity = this.IsDataEntity;
-            entity.EntityTypeName = this.EntityTypeName;
+            entity.EntityType = this.EntityType;
+            if (this.EntityType != null)
+                entity.EntityTypeName = this.EntityType.FullName;
+            else
+                entity.EntityTypeName = this.EntityTypeName;
             entity.IsQueryableDataSet = this.IsQueryableDataSet;
             if (this.SubFilter != null)
                 entity.SubFilter = this.SubFilter.Serialize();

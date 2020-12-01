@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AngleSharp.Dom;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -13,6 +15,19 @@ namespace Ophelia.Service
         public void SetData(int totalCount, List<TEntity> list)
         {
             this.SetData(Convert.ToInt64(totalCount), list);
+        }
+
+        public void SetData(long totalCount, IList list)
+        {
+            if (list is List<TEntity>)
+                this.SetData(totalCount, list as List<TEntity>);
+            else
+            {
+                this.TotalDataCount = totalCount;
+                this.RawData = list;
+                if (!this.HasFailed)
+                    this.HasFailed = false;
+            }
         }
 
         public void SetData(long totalCount, List<TEntity> list)

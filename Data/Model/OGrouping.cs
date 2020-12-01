@@ -1,14 +1,26 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Ophelia.Data.Model
 {
+    [DataContract(IsReference = true)]
+    [Serializable]
+    [JsonObject(MemberSerialization.OptOut)]
     public class OGrouping<TKey, TElement> : IGrouping<TKey, TElement>
     {
-        readonly IEnumerable<TElement> elements;
+        [DataMember]
+        public IEnumerable<TElement> Value { get; set; }
+
+        [DataMember]
         public int Count { get; internal set; }
+        
+        [DataMember]
+        public TKey Key { get; private set; }
+
         public OGrouping(TKey key, IEnumerable<TElement> values, long count = 0) : this(key, values, Convert.ToInt32(count))
         {
 
@@ -18,24 +30,27 @@ namespace Ophelia.Data.Model
             if (values == null)
                 throw new ArgumentNullException("values");
             this.Key = key;
-            this.elements = values;
+            this.Value = values;
             this.Count = count;
             if (count == 0)
-                this.Count = this.elements.Count();
+                this.Count = this.Value.Count();
         }
         public OGrouping(IGrouping<TKey, TElement> grouping)
         {
             if (grouping == null)
                 throw new ArgumentNullException("grouping");
             Key = grouping.Key;
-            elements = grouping.ToList();
+            Value = grouping.ToList();
         }
 
-        public TKey Key { get; private set; }
+        public OGrouping()
+        {
+            
+        }
 
         public IEnumerator<TElement> GetEnumerator()
         {
-            return this.elements.GetEnumerator();
+            return this.Value.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }

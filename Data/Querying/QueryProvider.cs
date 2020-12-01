@@ -25,11 +25,20 @@ namespace Ophelia.Data.Querying
         public IQueryable CreateQuery(Expression expression)
         {
             var listType = typeof(Model.QueryableDataSet<>);
-            var constructedListType = listType.MakeGenericType(expression.Type.GenericTypeArguments[0]);
+            var underlyingType = this.GetUnderlyingType(expression);
+            var constructedListType = listType.MakeGenericType(underlyingType);
 
             return (IQueryable)Activator.CreateInstance(constructedListType, this._Context, expression);
         }
-
+        private Type GetUnderlyingType(Expression expression)
+        {
+            if (expression.Type.GenericTypeArguments.Any())
+                return expression.Type.GenericTypeArguments[0];
+            else if (expression is MethodCallExpression)
+                return GetUnderlyingType((expression as MethodCallExpression).Arguments[0]);
+            else
+                return null;
+        }
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
             var listType = typeof(Model.QueryableDataSet<>);

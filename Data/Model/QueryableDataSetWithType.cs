@@ -69,6 +69,10 @@ namespace Ophelia.Data.Model
             this.EnsureLoad();
             return this.GetList();
         }
+        public IList DecideToList()
+        {
+            return base.ToList();
+        }
         public new List<TEntity> GetList()
         {
             return base.GetList() as List<TEntity>;

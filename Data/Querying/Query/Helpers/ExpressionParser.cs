@@ -60,6 +60,12 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 {
                     exp = new ExpressionParser(newExpression);
                 }
+
+                var memberInitExpression = (expression as LambdaExpression).Body as MemberInitExpression;
+                if (memberInitExpression != null)
+                {
+                    exp = new ExpressionParser(memberInitExpression);
+                }
             }
             else if (expression is BinaryExpression)
             {
@@ -82,6 +88,14 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 exp = new ExpressionParser(expression as Expressions.InExpression);
             }
             return exp;
+        }
+        public ExpressionParser(MemberInitExpression expression)
+        {
+            this.Members = new List<MemberInfo>();
+            foreach (var item in expression.Bindings)
+            {
+                this.Members.Add(item.Member);
+            }
         }
         public ExpressionParser(NewExpression expression)
         {
@@ -607,6 +621,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 includer.EntityTypeName = this.EntityType.FullName;
             includer.Constraint = this.Constraint;
             includer.Comparison = this.Comparison;
+            includer.PropertyInfo = this.PropertyInfo;
             if (this.SubExpression != null)
             {
                 if (this.IsSubInclude)
@@ -654,6 +669,12 @@ namespace Ophelia.Data.Querying.Query.Helpers
         {
             var grouper = new Grouper();
             grouper.Name = this.Name;
+            if (this.EntityType != null)
+            {
+                grouper.TypeName = this.EntityType.FullName;
+                if (this.PropertyInfo != null && (this.PropertyInfo.PropertyType.IsPOCOEntity() || this.PropertyInfo.PropertyType.IsDataEntity()))
+                    grouper.Name += "ID";
+            }
             grouper.Members = this.Members;
             if (this.SubExpression != null)
                 grouper.SubGrouper = this.SubExpression.ToGrouper();

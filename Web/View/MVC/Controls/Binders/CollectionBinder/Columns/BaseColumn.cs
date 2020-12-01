@@ -27,6 +27,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         public string Name { get; set; }
         public int SortOrder { get; set; }
         public bool EnableColumnFiltering { get; set; }
+        public bool EnableGrouping { get; set; }
         private string formattedName = "";
         private string formattedColumnName = "";
         public bool Visible
@@ -155,6 +156,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             this.Alignment = HorizontalAlign.Left;
             this.CanTranslateText = true;
             this.EnableColumnFiltering = true;
+            this.EnableGrouping = true;
             this.IsSortable = true;
         }
     }
