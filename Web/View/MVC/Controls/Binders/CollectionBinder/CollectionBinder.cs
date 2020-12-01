@@ -1070,7 +1070,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         protected virtual void DrawItems(string className = "", string tbodyId = "")
         {
-            if (this.DataSource == null || this.DataSource.Items == null && this.DataSource.Items.Count == 0)
+            if (this.DataSource == null || this.DataSource.Items == null || this.DataSource.Items.Count == 0)
                 return;
 
             if (string.IsNullOrEmpty(className))
