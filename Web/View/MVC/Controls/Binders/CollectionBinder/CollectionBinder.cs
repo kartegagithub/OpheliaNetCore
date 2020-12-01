@@ -1301,7 +1301,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     this.Output.Write(" data-align='" + column.Alignment.ToString() + "'");
 
                     var columnName = column.FormatColumnName();
-                    if (column.Expression.Body is MethodCallExpression)
+                    if (column.Expression != null && column.Expression.Body is MethodCallExpression)
                     {
                         var values = columnName.Split('.');
                         columnName = "";
