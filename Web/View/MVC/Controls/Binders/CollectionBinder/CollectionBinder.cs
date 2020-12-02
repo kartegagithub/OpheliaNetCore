@@ -255,6 +255,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     {
                         this.Groupers.Add(column.Expression);
                         this.Groupers.LastOrDefault().IsSelected = this.IsDefaultSelected(this.Groupers.LastOrDefault());
+                        if (column is EnumColumn<TModel, T>)
+                            this.Groupers.LastOrDefault().Type = (column as EnumColumn<TModel, T>).EnumType;
                     }
                     else
                         column.EnableGrouping = false;
@@ -658,7 +660,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             this.SaveGrouping(grouper);
                     }
                 }
-                var selectedGroupers = this.Groupers.Where(op => op.IsSelected).Select(op => op.Expression).ToList();
+                var selectedGroupers = this.Groupers.Where(op => op.IsSelected).Select(op => op.Expression).Distinct(op => op.ParsePath()).ToList();
                 if (selectedGroupers.Count > 0)
                 {
                     if (!string.IsNullOrEmpty(this.Request.GetValue(this.DataSource.GroupPagination.PageKey)) && this.Request.GetValue(this.DataSource.GroupPagination.PageKey).IsNumeric())
@@ -788,12 +790,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         private void ApplyFilter(string entityProp, string value, Type propType, bool isQueryableDataSet, PropertyInfo[] propTree)
         {
             var comparison = Comparison.Contains;
+            if (propType?.Name == "Byte" || propType?.Name == "Int32" || propType?.Name == "Int64" || propType?.Name == "Decimal")
+                comparison = Comparison.Equal;
             if (!string.IsNullOrEmpty(this.Request.GetValue(entityProp + "-Comparison")))
                 comparison = (Comparison)this.Request.GetValue(entityProp + "-Comparison").ToInt32();
 
             value = Convert.ToString(value).Trim();
             var formattedValue = Convert.ChangeType(value, propType);
-            
+
             if (isQueryableDataSet)
                 this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, comparison);
             else
@@ -1003,7 +1007,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     this.Output.Write("<tr>");
                     this.Output.Write("<td colspan='" + this.Columns.Count + "'>");
 
-                    var selectedGroupers = this.Groupers.Where(op => op.IsSelected).ToList();
+                    var selectedGroupers = this.Groupers.Where(op => op.IsSelected).Distinct(op => op.Expression.ParsePath()).ToList();
                     var counter = 0;
                     foreach (var grouper in selectedGroupers)
                     {
@@ -1210,14 +1214,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.Output.Write("<thead>");
             this.Output.Write("<tr>");
             if (this.Configuration.AddBlankColumnToStart)
-                this.Output.Write("<th class='no-sort'></th>");
+                this.Output.Write("<th class='no-sort' data-name='BlankColumn'></th>");
             if (this.Configuration.Checkboxes && this.Configuration.ShowCheckAll)
             {
-                this.Output.Write("<th class='no-sort'><input type='checkbox' id='CheckAll' class='binder-check-all' name='CheckAll'> " + this.Client.TranslateText("All") + "</th>");
+                this.Output.Write("<th class='no-sort' data-name='CheckboxAll'><input type='checkbox' id='CheckAll' class='binder-check-all' name='CheckAll'> " + this.Client.TranslateText("All") + "</th>");
             }
             else if (this.Configuration.Checkboxes)
             {
-                this.Output.Write("<th class='no-sort'></th>");
+                this.Output.Write("<th class='no-sort' data-name='CheckboxAll'></th>");
             }
 
             this.RenderOnBeforeDrawLine(null);
@@ -1226,8 +1230,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 if (column.Visible)
                 {
+                    var style = "";
                     if (this.Groupers.Where(op => op.IsSelected && (op.FormatName() == column.FormatName())).Any())
-                        continue;
+                        style = "style='display:none'";
 
                     this.Output.Write("<th");
                     var className = "";
@@ -1316,6 +1321,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                     this.Output.Write(" data-name='" + columnName + "'");
                     this.OnDrawingColumnHeader(column, true);
+                    this.Output.Write($" {style} >");
                     this.Output.Write(">");
                     if (!column.HideColumnTitle)
                     {
@@ -1350,10 +1356,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     counter++;
                 }
             }
-            if (counter == 0)
-            {
-                this.Output.Write("<span>" + this.Client.TranslateText("DragColumnsToGroup") + "</span>");
-            }
+            this.Output.Write("<span style='" + (counter == 0 ? "display:inline;" : "display:none;") + "'>" + this.Client.TranslateText("DragColumnsToGroup") + "</span>");
             this.Output.Write("</div>");
         }
         protected virtual string DrawCellEditableControl(Columns.BaseColumn<TModel, T> column, WebControl control, T item)
@@ -1564,9 +1567,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     if (dateField != null)
                     {
                         path = dateField.LowPropertyName;
+                        if (string.IsNullOrEmpty(path))
+                        {
+                            if (dateField.LowExpression != null)
+                                path = dateField.LowExpression.ParsePath();
+                        }
                     }
                 }
-                includedToFilters = path.Replace("Filters.", "").Replace("Low", "") == columnName;
+                includedToFilters = !string.IsNullOrEmpty(path) && path.Replace("Filters.", "").Replace("Low", "") == columnName;
                 if (includedToFilters)
                     break;
             }
