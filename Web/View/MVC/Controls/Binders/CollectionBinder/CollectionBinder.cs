@@ -255,6 +255,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     {
                         this.Groupers.Add(column.Expression);
                         this.Groupers.LastOrDefault().IsSelected = this.IsDefaultSelected(this.Groupers.LastOrDefault());
+                        if (column is EnumColumn<TModel, T>)
+                            this.Groupers.LastOrDefault().Type = (column as EnumColumn<TModel, T>).EnumType;
                     }
                     else
                         column.EnableGrouping = false;
