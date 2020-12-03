@@ -8,6 +8,7 @@
         public bool AllowExporting { get; set; }
         public bool AllowGrouping { get; set; }
         public bool AllowServerSideOrdering { get; set; }
+        public bool RefreshDataBeforeGroups { get; set; }
         public bool ColumnSortingByLink { get; set; }
         public bool ColumnSortingByClick { get; set; }
         public bool SaveChangesOnUIInteraction { get; set; }

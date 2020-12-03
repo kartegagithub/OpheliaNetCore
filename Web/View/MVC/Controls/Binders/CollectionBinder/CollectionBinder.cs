@@ -245,6 +245,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             return new { success = 0, message = "" };
         }
+        private IQueryable<T> QueryBeforeGrouping = null;
         protected virtual void ProcessQuery()
         {
             if (this.Configuration.AllowGrouping && this.Configuration.EnableGroupingByDragDrop)
@@ -648,7 +649,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                 }
                 this.DataSource.Query = this.OnAfterProcessQuery();
-
+                this.QueryBeforeGrouping = this.DataSource.Query;
                 if (this.Request.Query.Count > 0 || this.Request.Form.Count > 0)
                 {
                     foreach (var grouper in this.Groupers)
@@ -987,6 +988,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
                 foreach (var group in list)
                 {
+                    var selectedGroupers = this.Groupers.Where(op => op.IsSelected).Distinct(op => op.Expression.ParsePath()).ToList();
+
                     this.DataSource.Pagination.PageKey = "grouppage" + index;
                     this.DataSource.Pagination.PageNumber = this.Request.GetValue(this.DataSource.Pagination.PageKey).ToInt32() > 0 ? this.Request.GetValue(this.DataSource.Pagination.PageKey).ToInt32() : 1;
 
@@ -999,7 +1002,32 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     this.DataSource.Pagination.ItemCount = count;
 
                     if (this.DataSource.RemoteDataSource == null)
-                        this.DataSource.Items = group.Paginate(this.DataSource.Pagination.PageNumber, this.DataSource.Pagination.PageSize).ToList();
+                    {
+                        if (!this.Configuration.RefreshDataBeforeGroups)
+                            this.DataSource.Items = group.Paginate(this.DataSource.Pagination.PageNumber, this.DataSource.Pagination.PageSize).ToList();
+                        else
+                        {
+                            var query = this.QueryBeforeGrouping;
+                            foreach (var grouper in selectedGroupers)
+                            {
+                                var name = grouper.Expression.ParsePath();
+                                if (grouper.Expression.Body.Type.IsClass && !grouper.Expression.Body.Type.FullName.Contains("System."))
+                                    name += "ID";
+
+                                var propInfo = typeof(T).GetPropertyInfoTree(name).LastOrDefault();
+
+                                var text = "";
+                                if (group.Key.GetType().IsPrimitiveType())
+                                    text = group.Key.ToString();
+                                else
+                                    text = Convert.ToString(group.Key.GetPropertyValue(name));
+
+                                var formattedValue = propInfo.PropertyType.ConvertData(text);
+                                query = query.Where(name + " = @0", formattedValue);
+                            }
+                            this.DataSource.Items = query.Paginate(this.DataSource.Pagination.PageNumber, this.DataSource.Pagination.PageSize).ToList();
+                        }
+                    }
                     else
                         this.DataSource.Items = group.ToList();
 
@@ -1007,7 +1035,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     this.Output.Write("<tr>");
                     this.Output.Write("<td colspan='" + this.Columns.Count + "'>");
 
-                    var selectedGroupers = this.Groupers.Where(op => op.IsSelected).Distinct(op => op.Expression.ParsePath()).ToList();
                     var counter = 0;
                     foreach (var grouper in selectedGroupers)
                     {
