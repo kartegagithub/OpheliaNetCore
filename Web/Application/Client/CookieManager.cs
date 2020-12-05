@@ -48,13 +48,14 @@ namespace Ophelia.Web.Application.Client
         /// <summary>
         /// Verilen isimdeki cookie bilgisini temizler.
         /// </summary>
-        public static void ClearByName(string cookieName)
+        public static void ClearByName(string cookieName, CookieOptions options = null)
         {
             if (Ophelia.Web.Client.Current != null && Ophelia.Web.Client.Current.Context != null)
             {
-                var option = new CookieOptions();
-                option.Expires = DateTime.Now.AddDays(-1);
-                Ophelia.Web.Client.Current.Response.Cookies.Delete(cookieName, option);
+                if (options == null)
+                    options = new CookieOptions();
+                options.Expires = DateTime.Now.AddDays(-1);
+                Ophelia.Web.Client.Current.Response.Cookies.Delete(cookieName, options);
             }
         }
     }
