@@ -16,9 +16,16 @@ namespace Ophelia
                 if (!string.IsNullOrEmpty(columns))
                     columns += ",";
                 var name = item.ParsePath();
-                if (item.Body.Type.IsClass && !item.Body.Type.FullName.Contains("System."))
-                    name += "ID";
-
+                if (item.Body is MethodCallExpression)
+                {
+                    name = (item.Body as MethodCallExpression).Arguments.FirstOrDefault().ParsePath() + "ID";
+                }
+                else
+                {
+                    if (item.Body.Type.IsClass && !item.Body.Type.FullName.Contains("System."))
+                        name += "ID";
+                }
+                
                 if (name.IndexOf(".") > -1)
                     name = name + " as " + name.Replace(".", "");
                 columns += name;

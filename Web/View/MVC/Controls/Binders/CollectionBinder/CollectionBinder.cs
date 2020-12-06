@@ -1039,7 +1039,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     foreach (var grouper in selectedGroupers)
                     {
                         var name = grouper.Expression.ParsePath();
-                        if (grouper.Expression.Body.Type.IsClass && !grouper.Expression.Body.Type.FullName.Contains("System."))
+                        if (grouper.Expression.Body is MethodCallExpression)
+                            name = (grouper.Expression.Body as MethodCallExpression).Arguments.FirstOrDefault().ParsePath() + "ID";
+                        else if (grouper.Expression.Body.Type.IsClass && !grouper.Expression.Body.Type.FullName.Contains("System."))
                             name += "ID";
 
                         if (name.IndexOf(".") > -1)
@@ -1061,6 +1063,18 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 this.DataSource.Items.ForEach(op => op.SetPropertyValue(grouper.Expression.ParsePath(), refEntity));
                                 if (grouper.DisplayMemberExpression != null)
                                     text = Convert.ToString(grouper.DisplayMemberExpression.Execute(this.DataSource.Items[0]));
+                            }
+                        }
+                        else if (grouper.Expression.Body is MethodCallExpression)
+                        {
+                            var refEntity = this.GetReferencedEntity((grouper.Expression.Body as MethodCallExpression).Arguments.FirstOrDefault().Type, Convert.ToInt64(text));
+                            if (refEntity != null)
+                            {
+                                this.DataSource.Items.ForEach(op => op.SetPropertyValue(grouper.Expression.ParsePath(), refEntity));
+                                if (grouper.DisplayMemberExpression != null)
+                                    text = Convert.ToString(grouper.DisplayMemberExpression.Execute(this.DataSource.Items[0]));
+                                else
+                                    text = this.GetDisplayName(refEntity);
                             }
                         }
                         else if (text.IsNumeric() && grouper.FormatName().EndsWith("ID"))
@@ -1349,7 +1363,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     this.Output.Write(" data-name='" + columnName + "'");
                     this.OnDrawingColumnHeader(column, true);
                     this.Output.Write($" {style} >");
-                    this.Output.Write(">");
                     if (!column.HideColumnTitle)
                     {
                         this.DrawColumnText(column, column.FormatText(), link);
