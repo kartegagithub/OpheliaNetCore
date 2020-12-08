@@ -75,35 +75,42 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
 
         public void Set(string key, byte[] value, DistributedCacheEntryOptions options)
         {
-            if (key == null)
+            try
             {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            Connect();
-
-            var creationTime = DateTimeOffset.UtcNow;
-
-            var absoluteExpiration = GetAbsoluteExpiration(creationTime, options);
-
-            var result = this.Database.ScriptEvaluate(SetScript, new RedisKey[] { _instance + key },
-                new RedisValue[]
+                if (key == null)
                 {
+                    throw new ArgumentNullException(nameof(key));
+                }
+
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (options == null)
+                {
+                    throw new ArgumentNullException(nameof(options));
+                }
+
+                Connect();
+
+                var creationTime = DateTimeOffset.UtcNow;
+
+                var absoluteExpiration = GetAbsoluteExpiration(creationTime, options);
+
+                var result = this.Database.ScriptEvaluate(SetScript, new RedisKey[] { _instance + key },
+                    new RedisValue[]
+                    {
                         absoluteExpiration?.Ticks ?? NotPresent,
                         options.SlidingExpiration?.Ticks ?? NotPresent,
                         GetExpirationInSeconds(creationTime, absoluteExpiration, options) ?? NotPresent,
                         value
-                });
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while setting key {key}", ex);
+            }            
         }
 
         public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default(CancellationToken))
@@ -226,37 +233,43 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
 
         private byte[] GetAndRefresh(string key, bool getData)
         {
-            if (key == null)
+            try
             {
-                throw new ArgumentNullException(nameof(key));
-            }
-            _CacheKey = key;
-            Connect();
+                if (key == null)
+                {
+                    throw new ArgumentNullException(nameof(key));
+                }
+                _CacheKey = key;
+                Connect();
 
-            // This also resets the LRU status as desired.
-            // TODO: Can this be done in one operation on the server side? Probably, the trick would just be the DateTimeOffset math.
-            RedisValue[] results;
-            if (getData)
-            {
-                results = this.Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey, DataKey);
-            }
-            else
-            {
-                results = this.Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey);
-            }
+                // This also resets the LRU status as desired.
+                // TODO: Can this be done in one operation on the server side? Probably, the trick would just be the DateTimeOffset math.
+                RedisValue[] results;
+                if (getData)
+                {
+                    results = this.Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey, DataKey);
+                }
+                else
+                {
+                    results = this.Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey);
+                }
 
-            // TODO: Error handling
-            if (results.Length >= 2)
-            {
-                MapMetadata(results, out DateTimeOffset? absExpr, out TimeSpan? sldExpr);
-                Refresh(key, absExpr, sldExpr);
-            }
+                // TODO: Error handling
+                if (results.Length >= 2)
+                {
+                    MapMetadata(results, out DateTimeOffset? absExpr, out TimeSpan? sldExpr);
+                    Refresh(key, absExpr, sldExpr);
+                }
 
-            if (results.Length >= 3 && results[2].HasValue)
-            {
-                return results[2];
+                if (results.Length >= 3 && results[2].HasValue)
+                {
+                    return results[2];
+                }
             }
-
+            catch (Exception ex)
+            {
+                throw new Exception($"Exception while getting key {key}", ex);
+            }
             return null;
         }
 
