@@ -21,6 +21,7 @@ namespace Ophelia.Web.Application.Server.CacheContexts
         public int ConnectRetry { get; set; }
         private bool IsConnected { get; set; }
         public int CurrentDBIndex { get; set; }
+        public string Password { get; set; }
 
         public RedisCacheContext()
         {
@@ -39,8 +40,10 @@ namespace Ophelia.Web.Application.Server.CacheContexts
                     {
                         Database = 0
                     };
-
-                this.CacheClient = new RedisCacheClient(new RedisCacheConnectionPoolManager($"{this.HostName}:{this.Port},defaultDatabase=0,abortConnect=false,connectRetry={this.ConnectRetry}"), serializer, this.Configuration);
+                if(!string.IsNullOrEmpty(this.Password))
+                    this.CacheClient = new RedisCacheClient(new RedisCacheConnectionPoolManager($"{this.HostName}:{this.Port},password={this.Password},defaultDatabase=0,abortConnect=false,connectRetry={this.ConnectRetry}"), serializer, this.Configuration);
+                else
+                    this.CacheClient = new RedisCacheClient(new RedisCacheConnectionPoolManager($"{this.HostName}:{this.Port},defaultDatabase=0,abortConnect=false,connectRetry={this.ConnectRetry}"), serializer, this.Configuration);
 
                 this.IsConnected = true;
             }
