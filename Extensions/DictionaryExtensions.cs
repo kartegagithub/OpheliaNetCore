@@ -62,15 +62,15 @@ namespace Ophelia
         {
             using (var sr = new StreamReader(strFilePath))
             {
-                string[] headers = sr.ReadLine().Split(',');
+                string[] headers = sr.ReadLine().Replace("\"", string.Empty).Split(',');
                 while (!sr.EndOfStream)
                 {
-                    string[] rows = Regex.Split(sr.ReadLine(), ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                    string[] rows = Regex.Split(sr.ReadLine().Replace("\"", string.Empty), ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
                     var row = new Dictionary<string, object>();
                     for (int i = 0; i < headers.Length; i++)
                     {
                         if (rows.Length > i)
-                            row[headers[i].Replace("\"", "")] = rows[i].Replace("\"", "");
+                            row[headers[i].Replace("\"", string.Empty)] = rows[i].Replace("\"", string.Empty);
                     }
                     data.Add(row);
                 }
