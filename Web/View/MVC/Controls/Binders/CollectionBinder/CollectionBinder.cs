@@ -650,7 +650,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
                 this.DataSource.Query = this.OnAfterProcessQuery();
                 this.QueryBeforeGrouping = this.DataSource.Query;
-                if (this.Request.Query.Count > 0 || this.Request.Form.Count > 0)
+                if (this.Request.Query.Count > 0 || (this.Request.Method == "POST" && this.Request.Form.Count > 0))
                 {
                     foreach (var grouper in this.Groupers)
                     {
