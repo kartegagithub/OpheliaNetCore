@@ -166,6 +166,8 @@ namespace Ophelia.Tasks
         {
             if (job.LastExecutionStatus == JobExecutionStatus.Running)
                 return false;
+            if (job.OneTimeJob && job.LastExecutionTime.GetValueOrDefault(DateTime.MinValue) > DateTime.MinValue)
+                return false;
             if (job.Routine == null)
                 return true;
 
