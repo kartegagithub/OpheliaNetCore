@@ -166,9 +166,10 @@ namespace Ophelia.Tasks
         {
             if (job.LastExecutionStatus == JobExecutionStatus.Running)
                 return false;
+            if (job.OneTimeJob && job.LastExecutionTime.GetValueOrDefault(DateTime.MinValue) > DateTime.MinValue)
+                return false;
             if (job.Routine == null)
                 return true;
-
             if (!job.Routine.CanRunAtWeekends && DateTime.Now.IsWeekend())
                 return false;
             if (!job.Routine.CanRunAtWorkingHours && !DateTime.Now.IsWeekend() && DateTime.Now.IsWithinWorkingHours())
