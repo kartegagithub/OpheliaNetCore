@@ -30,31 +30,57 @@ namespace Ophelia
                     sParams += item + "=" + JsonConvert.SerializeObject(jsonParams[item]);
                 }
             }
-            var result = URL.PostURL(sParams, contentType, headers, PreAuthenticate, credential);
-            if (!string.IsNullOrEmpty(result))
+            var response = URL.PostURL(sParams, contentType, headers, PreAuthenticate, credential);
+            if (!string.IsNullOrEmpty(response))
             {
-                if (result.StartsWith("<"))
+                if (response.StartsWith("<"))
                 {
                     XmlDocument doc = new XmlDocument();
-                    doc.LoadXml(result);
-                    result = JsonConvert.SerializeXmlNode(doc);
+                    doc.LoadXml(response);
+                    response = JsonConvert.SerializeXmlNode(doc);
                 }
             }
-            return JsonConvert.DeserializeObject<T>(result);
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(response);
+            }
+            catch (Exception ex)
+            {
+                var result = (T)Activator.CreateInstance(typeof(T));
+                if (result is ServiceResult)
+                {
+                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                }
+                return result;
+            }            
         }
         public static T PostURL<T>(this string URL, string parameters, string contentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool PreAuthenticate = false, NetworkCredential credential = null)
         {
-            var result = URL.DownloadURL("POST", parameters, contentType, headers, PreAuthenticate, 120000, credential);
-            if (!string.IsNullOrEmpty(result))
+            var response = URL.DownloadURL("POST", parameters, contentType, headers, PreAuthenticate, 120000, credential);
+            if (!string.IsNullOrEmpty(response))
             {
-                if (result.StartsWith("<"))
+                if (response.StartsWith("<"))
                 {
                     XmlDocument doc = new XmlDocument();
-                    doc.LoadXml(result);
-                    result = JsonConvert.SerializeXmlNode(doc);
+                    doc.LoadXml(response);
+                    response = JsonConvert.SerializeXmlNode(doc);
                 }
             }
-            return JsonConvert.DeserializeObject<T>(result);
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(response);
+            }
+            catch (Exception ex)
+            {
+                var result = (T)Activator.CreateInstance(typeof(T));
+                if (result is ServiceResult)
+                {
+                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                }
+                return result;
+            }            
         }
         public static string PostURL(this string URL, string parameters, string contentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool PreAuthenticate = false, NetworkCredential credential = null)
         {
@@ -141,7 +167,13 @@ namespace Ophelia
             }
             catch (Exception ex)
             {
-                throw new Exception($"Can not convert data from url {URL}: " + response, ex);
+                var result = (TResult)Activator.CreateInstance(typeof(TResult));
+                if (result is ServiceResult)
+                {
+                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                }
+                return result;
             }
         }
         public static ServiceObjectResult<T> GetObject<T>(this string URL, WebApiObjectRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
@@ -154,7 +186,13 @@ namespace Ophelia
             }
             catch (Exception ex)
             {
-                throw new Exception("Can not convert data: " + response, ex);
+                var result = (ServiceObjectResult<T>)Activator.CreateInstance(typeof(ServiceObjectResult<T>));
+                if (result is ServiceResult)
+                {
+                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                }
+                return result;
             }
         }
         public static ServiceCollectionResult<T> GetCollection<T>(this string URL, int page, int pageSize, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
