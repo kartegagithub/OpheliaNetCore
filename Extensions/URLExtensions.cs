@@ -189,9 +189,15 @@ namespace Ophelia
                 response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
                 return JsonConvert.DeserializeObject<TResult>(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                var result = (TResult)Activator.CreateInstance(typeof(TResult));
+                if (result is ServiceResult)
+                {
+                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() {Code = "ERRAPI", Description = response });
+                }
+                return result;
             }
         }
         public static T PostURL<T, TEntity>(this string URL, WebApiObjectRequest<TEntity> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
@@ -202,10 +208,15 @@ namespace Ophelia
                 response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
                 return JsonConvert.DeserializeObject<T>(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                var result = (T)Activator.CreateInstance(typeof(T));
+                if (result is ServiceResult)
+                {
+                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                }
+                return result;
             }
         }
         private static void SetParameters<T>(WebApiObjectRequest<T> request, dynamic parameters)
