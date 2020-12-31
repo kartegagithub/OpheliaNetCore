@@ -53,6 +53,8 @@ namespace Ophelia.Service
 
     public class FileData
     {
+        public long ID { get; set; }
+        public long StatusID { get; set; }
         private byte[] oByteData = null;
         public string KeyName { get; set; }
         public string FileName { get; set; }
