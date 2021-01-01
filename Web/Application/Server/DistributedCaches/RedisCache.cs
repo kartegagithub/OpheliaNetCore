@@ -49,6 +49,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
 
             // This allows partitioning a single backend cache for use with multiple apps/services.
             _instance = _options.InstanceName ?? string.Empty;
+            Console.WriteLine("RedisCache created " + Guid.NewGuid().ToString());
         }
 
         public byte[] Get(string key)

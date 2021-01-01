@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Ophelia.Web.Application.Server.CacheContexts
 {
-    public class MemoryCacheContext: ICacheContext
+    public class MemoryCacheContext : ICacheContext
     {
         private MemoryCache _MemoryCacheContext = MemoryCache.Default;
         public long CacheCount { get { return _MemoryCacheContext.GetCount(); } }
@@ -121,6 +121,18 @@ namespace Ophelia.Web.Application.Server.CacheContexts
         public List<string> GetAllKeys()
         {
             return _MemoryCacheContext.Select(op => op.Key).ToList();
+        }
+
+        public bool Refresh(string key, DateTime absoluteExpiration)
+        {
+            var val = this.Get(key);
+            this.Remove(key);
+            if (val != null)
+            {
+                this.Add(key, val, absoluteExpiration);
+                return true;
+            }
+            return false;
         }
     }
 }

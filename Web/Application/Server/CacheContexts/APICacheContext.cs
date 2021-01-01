@@ -1,23 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Runtime.Caching;
 using System.Linq;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Ophelia.Web.Application.Server.DistributedCaches;
-using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core.Implementations;
+using Newtonsoft.Json;
 
 namespace Ophelia.Web.Application.Server.CacheContexts
 {
-    public class RedisCacheContext : ICacheContext
+    public class APICacheContext: ICacheContext
     {
-        internal RedisCache _RedisCache { get; set; }
-        public RedisCacheContext(IOptions<RedisCacheOptions> optionsAccessor)
+        private APICache APICache { get; set; }
+
+        public APICacheContext(APICache apiCache)
         {
-            this._RedisCache = new RedisCache(optionsAccessor);
+            this.APICache = apiCache;
+        }
+        private CacheItemPolicy GetCachePolicy(string key, DateTime absoluteExpiration)
+        {
+            if (absoluteExpiration <= DateTime.Now) absoluteExpiration = DateTime.Now.AddMinutes(CacheManager.CacheDuration);
+            CacheItemPolicy cachingPolicy = new CacheItemPolicy
+            {
+                Priority = CacheItemPriority.Default,
+                AbsoluteExpiration = absoluteExpiration,
+                RemovedCallback = new CacheEntryRemovedCallback(CacheManager.OnCachedItemRemoved)
+            };
+            return cachingPolicy;
         }
 
-        public long CacheCount { get { return ((RedisDatabase)this._RedisCache.Database).SearchKeysAsync("*").Result.Count(); } }
+        public long CacheCount { get { return 0; } }
 
         public bool Add(string key, object value, DateTime absoluteExpiration)
         {
@@ -32,7 +43,6 @@ namespace Ophelia.Web.Application.Server.CacheContexts
 
         public bool ClearAll()
         {
-            ((RedisDatabase)this._RedisCache.Database).FlushDbAsync();
             return true;
         }
 
@@ -53,40 +63,42 @@ namespace Ophelia.Web.Application.Server.CacheContexts
 
         public List<string> GetAllKeys()
         {
-            return ((RedisDatabase)this._RedisCache.Database).SearchKeysAsync("*").Result.ToList();
+            return new List<string>();
         }
 
         public bool Remove(string key)
         {
-            this._RedisCache.Remove(key);
+            this.APICache.Remove(key);
             return true;
         }
         public bool Refresh(string key, DateTime absoluteExpiration)
         {
-            this._RedisCache.Refresh(key);
+            this.APICache.Refresh(key);
             return true;
         }
 
         public void SetItem(string key, object value, Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions options = null)
         {
-            this._RedisCache.Set(key, ToByteArray(value), options);
+            this.APICache.Set(key, ToByteArray(value), options);
         }
         public void SetItem(string key, object value, DateTime expiration)
         {
-            this._RedisCache.Set(key, ToByteArray(value), new Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions()
+            this.APICache.Set(key, ToByteArray(value), new Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions()
             {
                 AbsoluteExpiration = expiration
             });
         }
+
+
         public object GetItem(string key)
         {
-            var objResult = FromByteArray(this._RedisCache.Get(key));
+            var objResult = FromByteArray(this.APICache.Get(key));
             return objResult;
         }
 
         public T GetItem<T>(string key)
         {
-            var objResult = FromByteArray<T>(this._RedisCache.Get(key));
+            var objResult = FromByteArray<T>(this.APICache.Get(key));
             return objResult;
         }
 

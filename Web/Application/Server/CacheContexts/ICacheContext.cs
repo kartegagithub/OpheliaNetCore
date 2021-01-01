@@ -16,6 +16,8 @@ namespace Ophelia.Web.Application.Server.CacheContexts
 
         bool Remove(string key);
 
+        bool Refresh(string key, DateTime absoluteExpiration);
+
         object Get(string key);
         T Get<T>(string key);
 
