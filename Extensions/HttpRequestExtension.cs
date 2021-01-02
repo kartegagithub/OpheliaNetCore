@@ -6,6 +6,9 @@ namespace Ophelia
     {
         public static string GetValue(this HttpRequest request, string key)
         {
+            if (request == null)
+                return "";
+
             var val = "";
             if (request.Method == "POST" && request.Form.ContainsKey(key))
                 val = request.Form[key];

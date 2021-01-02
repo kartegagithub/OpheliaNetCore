@@ -726,7 +726,17 @@ namespace Ophelia
             }
             return types;
         }
-
+        public static bool IsBase64String(this string base64)
+        {
+            //https://stackoverflow.com/questions/6309379/how-to-check-for-a-valid-base64-encoded-string
+            Span<byte> buffer = new Span<byte>(new byte[base64.Length]);
+            return Convert.TryFromBase64String(base64, buffer, out int _);
+        }
+        public static bool IsGuid(this string inputString)
+        {
+            Guid guidOutput;
+            return Guid.TryParse(inputString, out guidOutput);
+        }
         /// <summary>
         /// QueryableDataSet Full Text Search Support
         /// </summary>

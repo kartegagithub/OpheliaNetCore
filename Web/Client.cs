@@ -48,12 +48,14 @@ namespace Ophelia.Web
             {
                 try
                 {
-                    return this.Context.Session;
+                    if (this.Context != null)
+                        return this.Context.Session;
                 }
                 catch (Exception)
                 {
-                    return null;
+                    
                 }
+                return null;
             }
         }
         public HttpResponse Response
@@ -62,12 +64,14 @@ namespace Ophelia.Web
             {
                 try
                 {
-                    return this.Context.Response;
+                    if (this.Context != null)
+                        return this.Context.Response;
                 }
                 catch (Exception)
                 {
-                    return null;
+
                 }
+                return null;
             }
         }
         public HttpRequest Request
@@ -76,12 +80,14 @@ namespace Ophelia.Web
             {
                 try
                 {
-                    return this.Context.Request;
+                    if (this.Context != null)
+                        return this.Context.Request;
                 }
                 catch (Exception)
                 {
-                    return null;
+
                 }
+                return null;
             }
         }
         public string ComputerName
