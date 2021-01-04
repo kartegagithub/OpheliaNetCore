@@ -6,18 +6,22 @@ namespace Ophelia.Cryptography
 {
     public static class CryptoManager
     {
+        public static Encoding Encoding { get; set; }
         public static string Encrypt(string chipperText, string encryptionKey = "")
         {
             try
             {
+                if (CryptoManager.Encoding == null)
+                    CryptoManager.Encoding = System.Text.Encoding.ASCII;
+
                 if (string.IsNullOrEmpty(chipperText))
                     return chipperText;
                 TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
                 MD5CryptoServiceProvider hashMD5 = new MD5CryptoServiceProvider();
-                DES.Key = hashMD5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(encryptionKey));
+                DES.Key = hashMD5.ComputeHash(CryptoManager.Encoding.GetBytes(encryptionKey));
                 DES.Mode = CipherMode.ECB;
                 ICryptoTransform Encryptor = DES.CreateEncryptor();
-                byte[] Buffer = System.Text.Encoding.ASCII.GetBytes(chipperText);
+                byte[] Buffer = CryptoManager.Encoding.GetBytes(chipperText);
                 return Convert.ToBase64String(Encryptor.TransformFinalBlock(Buffer, 0, Buffer.Length));
             }
             catch
@@ -29,15 +33,18 @@ namespace Ophelia.Cryptography
         {
             try
             {
+                if (CryptoManager.Encoding == null)
+                    CryptoManager.Encoding = System.Text.Encoding.ASCII;
+
                 if (string.IsNullOrEmpty(richText))
                     return richText;
                 TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
                 MD5CryptoServiceProvider hashMD5 = new MD5CryptoServiceProvider();
-                DES.Key = hashMD5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(decryptionKey));
+                DES.Key = hashMD5.ComputeHash(CryptoManager.Encoding.GetBytes(decryptionKey));
                 DES.Mode = CipherMode.ECB;
                 ICryptoTransform Decryptor = DES.CreateDecryptor();
                 byte[] Buffer = Convert.FromBase64String(richText);
-                return System.Text.Encoding.ASCII.GetString(Decryptor.TransformFinalBlock(Buffer, 0, Buffer.Length));
+                return CryptoManager.Encoding.GetString(Decryptor.TransformFinalBlock(Buffer, 0, Buffer.Length));
             }
             catch
             {
