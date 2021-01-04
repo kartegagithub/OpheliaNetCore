@@ -158,7 +158,7 @@ namespace Ophelia.Data
                     break;
             }
 
-            this.CloseAfterExecution = false;
+            this.CloseAfterExecution = true;
         }
         private string PreventOracleSemiColonError(string sql)
         {
