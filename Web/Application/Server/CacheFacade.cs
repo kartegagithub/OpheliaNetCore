@@ -148,7 +148,7 @@ namespace Ophelia.Web.Application.Server
             }
         }
 
-        protected bool CheckCacheHealth()
+        protected virtual bool CheckCacheHealth()
         {
             if (DateTime.Now.Subtract(this.LastCheckDate).TotalMinutes > this.CacheHealthDuration)
             {
