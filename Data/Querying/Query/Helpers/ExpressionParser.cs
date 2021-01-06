@@ -26,6 +26,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public bool IsIncluder { get; set; }
         public bool IsSubInclude { get; set; }
         public List<MemberInfo> Members { get; set; }
+        public Dictionary<MemberInfo, Expression> BindingMembers { get; set; }
         public List<Expression> MemberExpressions { get; set; }
         public static ExpressionParser Create(System.Linq.Expressions.Expression expression)
         {
@@ -92,9 +93,33 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public ExpressionParser(MemberInitExpression expression)
         {
             this.Members = new List<MemberInfo>();
-            foreach (var item in expression.Bindings)
+            if (expression.NewExpression == null)
             {
-                this.Members.Add(item.Member);
+                foreach (var item in expression.Bindings)
+                {
+                    this.Members.Add(item.Member);
+                }
+            }
+            else
+            {
+                this.BindingMembers = new Dictionary<MemberInfo, Expression>();
+                this.EntityType = expression.Type;
+                foreach (var item in expression.Bindings)
+                {
+                    if (item.BindingType == MemberBindingType.Assignment)
+                    {
+                        if ((item as MemberAssignment).Expression is MemberExpression)
+                        {
+                            this.Members.Add(((item as MemberAssignment).Expression as MemberExpression).Member);
+                            this.BindingMembers.Add(item.Member, (item as MemberAssignment).Expression);
+                        }
+                        else if ((item as MemberAssignment).Expression is MemberInitExpression)
+                        {
+                            this.Members.Add(item.Member);
+                            this.BindingMembers.Add(item.Member, (item as MemberAssignment).Expression);
+                        }
+                    }
+                }
             }
         }
         public ExpressionParser(NewExpression expression)
@@ -593,6 +618,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             selector.Name = this.Name;
             selector.PropertyInfo = this.PropertyInfo;
             selector.Members = this.Members;
+            selector.BindingMembers = this.BindingMembers;
             if (this.SubExpression != null)
                 selector.SubSelector = this.SubExpression.ToSelector();
             return selector;

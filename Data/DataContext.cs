@@ -64,9 +64,27 @@ namespace Ophelia.Data
 
         internal SelectQuery CreateSelectQuery(MethodCallExpression expression, Model.QueryableDataSet data)
         {
-            if (data.ElementType.IsPrimitiveType())
-                data.InnerType = (data.Expression as MethodCallExpression).Arguments[0].Type.GenericTypeArguments[0];
+            var tmpType = this.GetInnerType(expression, data);
+            if (tmpType != data.ElementType)
+                data.InnerType = tmpType;
             return new SelectQuery(this, data, expression);
+        }
+        private Type GetInnerType(MethodCallExpression expression, Model.QueryableDataSet data)
+        {
+            if (expression == null)
+                return null;
+
+            var type = expression.Arguments[0].Type.GenericTypeArguments.FirstOrDefault();
+            if (type != null)
+            {
+                var tmpType = GetInnerType(expression.Arguments[0] as MethodCallExpression, data);
+                if (tmpType == null)
+                    return type;
+                else
+                    return tmpType;
+            }
+            else
+                return type;
         }
         public virtual QueryLogger CreateLogger()
         {

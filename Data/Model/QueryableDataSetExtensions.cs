@@ -745,6 +745,7 @@ namespace Ophelia.Data
 
         public static TSource FirstOrDefault<TSource>(this QueryableDataSet<TSource> source)
         {
+            source = source.Paginate(1, 1);
             MethodInfo method = null;
             if (source.Expression.Type == typeof(TSource))
                 method = method = GetMethodInfoOf(() => QueryableDataSetExtensions.FirstOrDefault(

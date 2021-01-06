@@ -220,25 +220,35 @@ namespace Ophelia.Data.Model
                             {
                                 (entity as Model.DataEntity).Tracker.State = EntityState.Loading;
                             }
-                            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
-                            foreach (var p in properties)
+                            if (query.Data.Selectors == null || !query.Data.Selectors.Any())
                             {
-                                var fieldName = query.Context.Connection.GetMappedFieldName(p.Name);
-                                if (p.PropertyType.IsPrimitiveType() && data.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
+                                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
+                                foreach (var p in properties)
                                 {
-                                    try
+                                    var fieldName = query.Context.Connection.GetMappedFieldName(p.Name);
+                                    if (p.PropertyType.IsPrimitiveType() && data.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
                                     {
-                                        p.SetValue(entity, p.PropertyType.ConvertData(row[fieldName]));
-                                    }
-                                    catch (Exception)
-                                    {
-                                        Console.WriteLine($"{fieldName} property could not be set for {entity.GetType().FullName}");
+                                        try
+                                        {
+                                            p.SetValue(entity, p.PropertyType.ConvertData(row[fieldName]));
+                                        }
+                                        catch (Exception)
+                                        {
+                                            Console.WriteLine($"{fieldName} property could not be set for {entity.GetType().FullName}");
+                                        }
                                     }
                                 }
+                                foreach (var includer in query.Data.Includers)
+                                {
+                                    includer.SetReferencedEntities(query, row, entity);
+                                }
                             }
-                            foreach (var includer in query.Data.Includers)
+                            else
                             {
-                                includer.SetReferencedEntities(query, row, entity);
+                                foreach (var selector in query.Data.Selectors)
+                                {
+                                    selector.SetData(query, entity, type, row);
+                                }
                             }
                             if (entity.GetType().IsDataEntity())
                             {

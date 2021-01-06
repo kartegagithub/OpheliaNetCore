@@ -64,7 +64,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             {
                 this.EntityType = this.EntityTypeName.ResolveType();
             }
-            if(this.PropertyInfo == null && !string.IsNullOrEmpty(this.Name))
+            if (this.PropertyInfo == null && !string.IsNullOrEmpty(this.Name))
             {
                 this.PropertyInfo = query.Data.MainTable.EntityType.GetPropertyInfo(this.Name);
             }
@@ -313,11 +313,24 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 if (this.Table == null)
                     return;
 
+                var baseName = query.Context.Connection.GetMappedFieldName(this.Table.Alias + "_");
+                var found = false;
+                foreach (System.Data.DataColumn item in row.Table.Columns)
+                {
+                    if (item.ColumnName.StartsWith(baseName, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    return;
+
                 object referencedEntity = null;
                 var properties = this.PropertyInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
                 foreach (var p in properties)
                 {
-                    var fieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(this.Table.Alias + "_" + p.Name));
+                    var fieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(baseName + p.Name));
                     if (row.Table.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
                     {
                         if (referencedEntity == null)
@@ -362,6 +375,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 if (this.Table == null)
                     return;
 
+                var refFieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(this.Name));
+                if (!row.Table.Columns.Contains(refFieldName) || row[refFieldName] == DBNull.Value)
+                    return;
+
                 var types = new Type[] { this.EntityType };
 
                 if (entity.GetType().IsSubclassOf(typeof(Model.DataEntity)))
@@ -383,63 +400,59 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     (entity as Model.DataEntity).Tracker.LoadAnyway = false;
                 }
 
-                var refFieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(this.Name));
-                if (row.Table.Columns.Contains(refFieldName) && row[refFieldName] != DBNull.Value)
+                var doc = new System.Xml.XmlDocument();
+                doc.LoadXml("<rows>" + row[refFieldName].ToString() + "</rows>");
+                var xmlReader = new System.Xml.XmlNodeReader(doc);
+                var dataSet = new System.Data.DataSet();
+                dataSet.ReadXml(xmlReader);
+
+                if (dataSet.Tables.Count > 0)
                 {
-                    var doc = new System.Xml.XmlDocument();
-                    doc.LoadXml("<rows>" + row[refFieldName].ToString() + "</rows>");
-                    var xmlReader = new System.Xml.XmlNodeReader(doc);
-                    var dataSet = new System.Data.DataSet();
-                    dataSet.ReadXml(xmlReader);
+                    object referencedEntity = null;
 
-                    if (dataSet.Tables.Count > 0)
+                    if (referencedCollection is Model.QueryableDataSet)
+                        (referencedCollection as Model.QueryableDataSet).TotalCount = dataSet.Tables[0].Rows.Count;
+
+                    foreach (System.Data.DataRow item in dataSet.Tables[0].Rows)
                     {
-                        object referencedEntity = null;
-
+                        referencedEntity = Activator.CreateInstance(this.EntityType);
                         if (referencedCollection is Model.QueryableDataSet)
-                            (referencedCollection as Model.QueryableDataSet).TotalCount = dataSet.Tables[0].Rows.Count;
-
-                        foreach (System.Data.DataRow item in dataSet.Tables[0].Rows)
+                            (referencedCollection as Model.QueryableDataSet).AddItem(referencedEntity);
+                        else
                         {
-                            referencedEntity = Activator.CreateInstance(this.EntityType);
-                            if (referencedCollection is Model.QueryableDataSet)
-                                (referencedCollection as Model.QueryableDataSet).AddItem(referencedEntity);
-                            else
-                            {
-                                referencedCollection.ExecuteMethod("Add", referencedEntity);
-                            }
+                            referencedCollection.ExecuteMethod("Add", referencedEntity);
+                        }
 
-                            if (referencedEntity is Model.DataEntity)
-                                (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loading;
+                        if (referencedEntity is Model.DataEntity)
+                            (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loading;
 
-                            var properties = this.EntityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
-                            foreach (var p in properties)
+                        var properties = this.EntityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
+                        foreach (var p in properties)
+                        {
+                            var fieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(this.Table.Alias + "_" + p.Name));
+                            if (item.Table.Columns.Contains(fieldName) && item[fieldName] != DBNull.Value)
                             {
-                                var fieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(this.Table.Alias + "_" + p.Name));
-                                if (item.Table.Columns.Contains(fieldName) && item[fieldName] != DBNull.Value)
+                                if (item[fieldName] != DBNull.Value)
                                 {
-                                    if (item[fieldName] != DBNull.Value)
+                                    try
                                     {
-                                        try
-                                        {
-                                            p.SetValue(referencedEntity, p.PropertyType.ConvertData(item[fieldName]));
-                                        }
-                                        catch (Exception)
-                                        {
-                                            continue;
-                                        }
+                                        p.SetValue(referencedEntity, p.PropertyType.ConvertData(item[fieldName]));
+                                    }
+                                    catch (Exception)
+                                    {
+                                        continue;
                                     }
                                 }
                             }
-
-                            foreach (var subInc in this.SubIncluders)
-                            {
-                                subInc.SetReferencedEntities(query, item, referencedEntity);
-                            }
-
-                            if (referencedEntity is Model.DataEntity)
-                                (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loaded;
                         }
+
+                        foreach (var subInc in this.SubIncluders)
+                        {
+                            subInc.SetReferencedEntities(query, item, referencedEntity);
+                        }
+
+                        if (referencedEntity is Model.DataEntity)
+                            (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loaded;
                     }
                 }
             }
