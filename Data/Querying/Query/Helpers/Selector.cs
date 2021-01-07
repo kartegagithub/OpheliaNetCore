@@ -66,7 +66,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         sb.Append(this.Build(query, item.Name, item as PropertyInfo));
                     counter++;
                 }
-                return sb.ToString();
+                return sb.ToString().Replace(",,", ",");
             }
             else if (this.SubSelector != null)
                 return this.SubSelector.Build(query);
@@ -167,7 +167,20 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     bindingMember = this.BindingMembers.ElementAt(counter);
 
                 if (this.Tables == null || !this.Tables.Any())
-                    fieldName = query.Context.Connection.GetMappedFieldName(member.Name);
+                {
+                    if (member.GetMemberInfoType().IsQueryable())
+                    {
+                        foreach (var includer in query.Data.Includers)
+                        {
+                            if (query.IncluderIsSelected(includer))
+                                includer.SetReferencedEntities(query, row, entity);
+                        }
+                        counter++;
+                        continue;
+                    }
+                    else
+                        fieldName = query.Context.Connection.GetMappedFieldName(member.Name);
+                }
                 else
                 {
                     if (bindingMember.Value != null)
@@ -175,6 +188,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         if (bindingMember.Value is MemberInitExpression)
                         {
                             this.SetData(query, entity, member, bindingMember.Value as MemberInitExpression, type, row);
+                            counter++;
                             continue;
                         }
                         else if (member.GetMemberInfoType().IsDataEntity() || member.GetMemberInfoType().IsPOCOEntity())
@@ -200,6 +214,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                                     }
                                 }
                             }
+                            counter++;
                             continue;
                         }
                         else

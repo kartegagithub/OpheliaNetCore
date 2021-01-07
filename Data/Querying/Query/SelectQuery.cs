@@ -74,6 +74,11 @@ namespace Ophelia.Data.Querying.Query
             var strOrder = this.BuildOrderByString();
             var strFunctions = this.BuildFunctionsSelectString();
             var strSelectedFields = this.BuildSelectedFieldsString();
+            if (!string.IsNullOrEmpty(strInclude) && this.Data.Selectors.Any())
+            {
+                strSelectedFields += ("," + strInclude);
+                strSelectedFields = strSelectedFields.Trim(',');
+            }
 
             var sb = new System.Text.StringBuilder();
             sb.Append("SELECT ");

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace Ophelia.Data.Querying.Query
@@ -96,7 +98,7 @@ namespace Ophelia.Data.Querying.Query
 
         protected virtual void Dispose(bool disposing)
         {
-        
+
         }
 
         public BaseQuery(DataContext Context, Type EntityType)
@@ -236,12 +238,45 @@ namespace Ophelia.Data.Querying.Query
                 var sb = new StringBuilder();
                 foreach (var includer in this.Data.Includers)
                 {
-                    sb.Append(includer.Build(this));
-                    sb.Append(",");
+                    if (this.IncluderIsSelected(includer))
+                    {
+                        sb.Append(includer.Build(this));
+                        sb.Append(",");
+                    }
                 }
                 return sb.ToString().Trim(',');
             }
             return "";
+        }
+        internal bool IncluderIsSelected(Helpers.Includer includer)
+        {
+            if (!this.Data.Selectors.Any())
+                return true;
+            else
+            {
+                foreach (var item in this.Data.Selectors)
+                {
+                    if (this.IncluderIsSelected(includer, item))
+                        return true;
+                }
+                return false;
+            }
+        }
+        internal bool IncluderIsSelected(Helpers.Includer includer, Helpers.Selector selector)
+        {
+            if (!string.IsNullOrEmpty(includer.Name) && includer.Name == selector.Name)
+                return true;
+            else if (includer.PropertyInfo != null && selector.PropertyInfo != null && includer.PropertyInfo == selector.PropertyInfo)
+                return true;
+            else if(selector.Members != null && selector.Members.Any())
+            {
+                foreach (var item in selector.Members)
+                {
+                    if (item as PropertyInfo == includer.PropertyInfo)
+                        return true;
+                }
+            }
+            return false;
         }
         protected string BuildSelectedFieldsString()
         {
