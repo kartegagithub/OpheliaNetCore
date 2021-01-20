@@ -107,7 +107,9 @@ namespace Ophelia.Tasks
             var IntervalType = (IntervalType)job.Routine.IntervalType;
             if (IntervalType == IntervalType.Hour && job.Routine.Interval == 24)
                 IntervalType = IntervalType.Day;
-            if (IntervalType == IntervalType.Day && job.Routine.Interval == 7)
+            if (IntervalType == IntervalType.Week)
+                job.Routine.Interval *= 7;
+            if (IntervalType == IntervalType.Day && job.Routine.Interval % 7 == 0)
                 IntervalType = IntervalType.Week;
             switch (IntervalType)
             {
@@ -124,7 +126,7 @@ namespace Ophelia.Tasks
                     NextExecution = DateTime.Now.AddDays(job.Routine.Interval);
                     break;
                 case IntervalType.Week:
-                    NextExecution = DateTime.Now.AddDays(job.Routine.Interval * 7);
+                    NextExecution = DateTime.Now.AddDays(job.Routine.Interval);
                     break;
                 case IntervalType.Month:
                     NextExecution = DateTime.Now.AddMonths(job.Routine.Interval);
