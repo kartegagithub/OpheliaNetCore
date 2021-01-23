@@ -65,6 +65,7 @@ namespace Ophelia.Data.Querying
             if (ex.Message.IndexOf("No value given for one or more required parameters", StringComparison.InvariantCultureIgnoreCase) > -1
                 || ex.Message.IndexOf("does not belong to table", StringComparison.InvariantCultureIgnoreCase) > -1
                 || ex.Message.IndexOf("Invalid object name", StringComparison.InvariantCultureIgnoreCase) > -1
+                || ex.Message.IndexOf("Geçersiz nesne adı", StringComparison.InvariantCultureIgnoreCase) > -1
                 || ex.Message.IndexOf("Could not find output table", StringComparison.InvariantCultureIgnoreCase) > -1
                 || ex.Message.IndexOf("unknown field name", StringComparison.InvariantCultureIgnoreCase) > -1
                 || ex.Message.IndexOf("ORA-02289", StringComparison.InvariantCultureIgnoreCase) > -1
