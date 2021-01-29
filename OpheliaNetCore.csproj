@@ -59,5 +59,8 @@
     <PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.8.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Globalization\" />
+  </ItemGroup>
 
 </Project>
