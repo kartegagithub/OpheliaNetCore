@@ -7,12 +7,35 @@ namespace Ophelia.Web.Application.Server
 {
     public static class CacheManager
     {
-        private static CacheContexts.ICacheContext DefaultContext = new CacheContexts.MemoryCacheContext();
-        private static Dictionary<string, CacheContexts.ICacheContext> Contexts = new Dictionary<string, CacheContexts.ICacheContext>();
-
+        private static CacheContexts.ICacheContext _DefaultContext;
+        private static Dictionary<string, CacheContexts.ICacheContext> _Contexts;
+        private static Dictionary<string, CacheContexts.ICacheContext> Contexts
+        {
+            get
+            {
+                if (_Contexts == null)
+                    _Contexts = new Dictionary<string, CacheContexts.ICacheContext>();
+                return _Contexts;
+            }
+        }
+        private static CacheContexts.ICacheContext DefaultContext
+        {
+            get
+            {
+                if (_DefaultContext == null)
+                {
+                    _DefaultContext = GetContext("DefaultMemoryCache");
+                    if (_DefaultContext == null)
+                        Register("DefaultMemoryCache", new CacheContexts.MemoryCacheContext(), true);
+                }
+                return _DefaultContext;
+            }
+        }
         public static CacheContexts.ICacheContext GetContext(string name)
         {
-            return Contexts[name];
+            if (Contexts.ContainsKey(name))
+                return Contexts[name];
+            return null;
         }
         public static CacheContexts.ICacheContext Register(string key, CacheContexts.ICacheContext context, bool useAsDefault = false)
         {
@@ -21,7 +44,7 @@ namespace Ophelia.Web.Application.Server
 
             Contexts.Add(key, context);
             if (useAsDefault)
-                DefaultContext = context;
+                _DefaultContext = context;
             return context;
         }
 
@@ -48,7 +71,7 @@ namespace Ophelia.Web.Application.Server
             return Contexts[contextName].Add(keyGroup, keyItem, value, absoluteExpiration);
         }
 
-        public static bool Add(string key, object value, int duration = 1440)
+        public static bool Add(string key, object value, int duration = 0)
         {
             return Add(key, value, DateTime.Now.AddMinutes(duration));
         }
@@ -76,14 +99,7 @@ namespace Ophelia.Web.Application.Server
         {
             return Contexts[contextName].Remove(key);
         }
-        public static bool Refresh(string key, DateTime expiration)
-        {
-            return DefaultContext.Refresh(key, expiration);
-        }
-        public static bool RefreshByContext(string contextName, string key, DateTime expiration)
-        {
-            return Contexts[contextName].Refresh(key, expiration);
-        }
+
         public static bool Remove(string key)
         {
             return DefaultContext.Remove(key);
