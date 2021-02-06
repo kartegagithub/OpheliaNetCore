@@ -17,15 +17,16 @@ namespace Ophelia.Web
         {
             get
             {
-                if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current == null)
+                if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current != null)
                 {
+                    _Current = (Client)Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"];
                     if (_Current == null)
                     {
                         _Current = (Client)typeof(Client).GetRealTypeInstance(true);
+                        Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"] = _Current;
                     }
-                    return _Current;
                 }
-                return (Client)Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"];
+                return _Current;
             }
         }
         private string sSessionID;
