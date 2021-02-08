@@ -18,14 +18,15 @@ namespace Ophelia.Web
             get
             {
                 if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current != null)
-                {
                     _Current = (Client)Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"];
-                    if (_Current == null)
-                    {
-                        _Current = (Client)typeof(Client).GetRealTypeInstance(true);
+
+                if (_Current == null)
+                {
+                    _Current = (Client)typeof(Client).GetRealTypeInstance(true);
+                    if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current != null)
                         Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"] = _Current;
-                    }
                 }
+
                 return _Current;
             }
         }
