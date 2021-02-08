@@ -117,6 +117,7 @@ namespace Ophelia.Web.Application.Server
             this.DropCache();
             if (CanSetCacheDirty)
                 this.SetCacheDirty();
+            this.oEntities = null;
             return this.Load();
         }
 

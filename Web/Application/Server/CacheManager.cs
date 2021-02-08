@@ -7,22 +7,49 @@ namespace Ophelia.Web.Application.Server
 {
     public static class CacheManager
     {
-        private static CacheContexts.ICacheContext DefaultContext = new CacheContexts.MemoryCacheContext();
-        private static Dictionary<string, CacheContexts.ICacheContext> Contexts = new Dictionary<string, CacheContexts.ICacheContext>();
-
+        private static CacheContexts.ICacheContext _DefaultContext;
+        private static Dictionary<string, CacheContexts.ICacheContext> _Contexts;
+        private static object lockObj = new object();
+        private static Dictionary<string, CacheContexts.ICacheContext> Contexts
+        {
+            get
+            {
+                if (_Contexts == null)
+                    _Contexts = new Dictionary<string, CacheContexts.ICacheContext>();
+                return _Contexts;
+            }
+        }
+        private static CacheContexts.ICacheContext DefaultContext
+        {
+            get
+            {
+                if (_DefaultContext == null)
+                {
+                    _DefaultContext = GetContext("DefaultMemoryCache");
+                    if (_DefaultContext == null)
+                        Register("DefaultMemoryCache", new CacheContexts.MemoryCacheContext(), true);
+                }
+                return _DefaultContext;
+            }
+        }
         public static CacheContexts.ICacheContext GetContext(string name)
         {
-            return Contexts[name];
+            if (Contexts.ContainsKey(name))
+                return Contexts[name];
+            return null;
         }
         public static CacheContexts.ICacheContext Register(string key, CacheContexts.ICacheContext context, bool useAsDefault = false)
         {
-            if (Contexts.ContainsKey(key))
-                return Contexts[key];
+            lock (lockObj)
+            {
+                if (Contexts.ContainsKey(key))
+                    return Contexts[key];
 
-            Contexts.Add(key, context);
-            if (useAsDefault)
-                DefaultContext = context;
-            return context;
+                Contexts.Add(key, context);
+                if (useAsDefault)
+                    _DefaultContext = context;
+                return context;
+            }
         }
 
         public static int CacheDuration

@@ -30,7 +30,6 @@ namespace Ophelia.Web.View.Mvc.Middlewares
 
                 if (value != null)
                 {
-                    value.Items["Client"] = (Client)typeof(Client).GetRealTypeInstance(true);
                     _httpContextCurrent.Value = new HttpContextHolder { Context = value };
                 }
             }
