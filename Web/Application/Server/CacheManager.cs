@@ -9,6 +9,7 @@ namespace Ophelia.Web.Application.Server
     {
         private static CacheContexts.ICacheContext _DefaultContext;
         private static Dictionary<string, CacheContexts.ICacheContext> _Contexts;
+        private static object lockObj = new object();
         private static Dictionary<string, CacheContexts.ICacheContext> Contexts
         {
             get
@@ -39,13 +40,16 @@ namespace Ophelia.Web.Application.Server
         }
         public static CacheContexts.ICacheContext Register(string key, CacheContexts.ICacheContext context, bool useAsDefault = false)
         {
-            if (Contexts.ContainsKey(key))
-                return Contexts[key];
+            lock (lockObj)
+            {
+                if (Contexts.ContainsKey(key))
+                    return Contexts[key];
 
-            Contexts.Add(key, context);
-            if (useAsDefault)
-                _DefaultContext = context;
-            return context;
+                Contexts.Add(key, context);
+                if (useAsDefault)
+                    _DefaultContext = context;
+                return context;
+            }
         }
 
         public static int CacheDuration
