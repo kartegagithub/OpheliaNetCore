@@ -103,7 +103,14 @@ namespace Ophelia.Web.Application.Server
         {
             return Contexts[contextName].Remove(key);
         }
-
+        public static bool Refresh(string key, DateTime expiration)
+        {
+            return DefaultContext.Refresh(key, expiration);
+        }
+        public static bool RefreshByContext(string contextName, string key, DateTime expiration)
+        {
+            return Contexts[contextName].Refresh(key, expiration);
+        }
         public static bool Remove(string key)
         {
             return DefaultContext.Remove(key);
