@@ -74,7 +74,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
                     }
                     listItem.Controls.Add(link);
                     if (tab.IsSelected)
-                        listItem.CssClass += " active";
+                        listItem.CssClass += " in active show";
                     this.TabsHeader.Controls.Add(listItem);
 
                     this.Controls.Add(tab);
@@ -101,7 +101,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
 
                         this.Binder.Output.Write("<li");
                         if (tab.IsSelected)
-                            this.Binder.Output.Write(" class='active'");
+                            this.Binder.Output.Write(" class='active show'");
                         this.Binder.Output.Write(">");
                         this.Binder.Output.Write("<a data-toggle=\"tab\" href=\"#" + (this.Binder.IsAjaxEntityBinderRequest ? "AjaxBinder" : "") + tab.ID + "\">" + tab.Title + "</a>");
                         this.Binder.Output.Write("</li>");
