@@ -101,7 +101,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
 
                         this.Binder.Output.Write("<li");
                         if (tab.IsSelected)
-                            this.Binder.Output.Write(" class='active show'");
+                            this.Binder.Output.Write(" class='active show in'");
                         this.Binder.Output.Write(">");
                         this.Binder.Output.Write("<a data-toggle=\"tab\" href=\"#" + (this.Binder.IsAjaxEntityBinderRequest ? "AjaxBinder" : "") + tab.ID + "\">" + tab.Title + "</a>");
                         this.Binder.Output.Write("</li>");

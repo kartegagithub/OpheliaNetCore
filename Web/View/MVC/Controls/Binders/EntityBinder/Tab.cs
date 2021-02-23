@@ -50,14 +50,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             base.onBeforeRenderControl(writer);
             this.CssClass += " " + this.TabControl.Binder.Configuration.TabPaneCssClass;
             if (this.IsSelected)
-                this.CssClass += " in active";
+                this.CssClass += " in active show";
         }
 
         public virtual void RenderHeader()
         {
             this.Output.Write("<div class='" + this.TabControl.Binder.Configuration.TabPaneCssClass);
             if (this.IsSelected)
-                this.Output.Write(" in active");
+                this.Output.Write(" in active show");
             this.Output.Write("' id=\"" + (this.TabControl.Binder.IsAjaxEntityBinderRequest ? "AjaxBinder" : "") + this.ID + "\">");
         }
 
