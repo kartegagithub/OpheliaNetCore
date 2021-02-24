@@ -74,7 +74,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
                     }
                     listItem.Controls.Add(link);
                     if (tab.IsSelected)
-                        listItem.CssClass += " in active show";
+                        listItem.CssClass += " in active";
                     this.TabsHeader.Controls.Add(listItem);
 
                     this.Controls.Add(tab);
