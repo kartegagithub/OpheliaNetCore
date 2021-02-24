@@ -296,7 +296,7 @@ namespace Ophelia
 
         public static IEnumerable<TResult> Where<TResult>(this IEnumerable<TResult> source, string property, object value) where TResult : class
         {
-            return source.Where(item => item.GetPropertyValue(property).Equals(value));
+            return source.Where(item => item != null && item.GetPropertyValue(property).Equals(value));
         }
 
         #region "Helpers"
