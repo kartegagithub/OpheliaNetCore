@@ -100,10 +100,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
                             continue;
 
                         this.Binder.Output.Write("<li");
+                        this.Binder.Output.Write(" class='nav-item'");
+
+                        var aClass = "nav-link";
                         if (tab.IsSelected)
-                            this.Binder.Output.Write(" class='active show in'");
+                            aClass += " active";
+
                         this.Binder.Output.Write(">");
-                        this.Binder.Output.Write("<a data-toggle=\"tab\" href=\"#" + (this.Binder.IsAjaxEntityBinderRequest ? "AjaxBinder" : "") + tab.ID + "\">" + tab.Title + "</a>");
+                        this.Binder.Output.Write("<a data-toggle=\"tab\" href=\"#" + (this.Binder.IsAjaxEntityBinderRequest ? "AjaxBinder" : "") + tab.ID + "\" class='" + aClass + "'>" + tab.Title + "</a>");
                         this.Binder.Output.Write("</li>");
                     }
                     this.Binder.Output.Write("</ul>");
