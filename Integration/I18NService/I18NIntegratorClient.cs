@@ -110,7 +110,7 @@ namespace Ophelia.Integration.I18NService
         {
             if (!string.IsNullOrEmpty(this.ServiceURL))
             {
-                if (this.ServiceURL.IndexOf("api") == -1)
+                if (this.ServiceURL.IndexOf("/api") == -1)
                     this.ServiceURL = this.ServiceURL.TrimEnd('/') + "/api";
             }
         }
