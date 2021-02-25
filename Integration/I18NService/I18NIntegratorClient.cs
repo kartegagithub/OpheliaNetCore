@@ -42,6 +42,10 @@ namespace Ophelia.Integration.I18NService
         }
         public void Flush()
         {
+            if (string.IsNullOrEmpty(this.ServiceURL))
+                return;
+            if (string.IsNullOrEmpty(this.AppKey))
+                return;
             if (this.Accesses != null && this.Accesses.Any() && this.Service != null && !string.IsNullOrEmpty(this.ServiceURL))
                 this.Service.ProcessAccesses(this.Accesses);
         }
@@ -53,6 +57,11 @@ namespace Ophelia.Integration.I18NService
                 if (string.IsNullOrEmpty(this.ServiceURL))
                 {
                     result.Fail("Invalid service url");
+                    return result;
+                }
+                if (string.IsNullOrEmpty(this.AppKey))
+                {
+                    result.Fail("Invalid app key");
                     return result;
                 }
                 result = this.Service.GetTranslation(name);
@@ -71,6 +80,11 @@ namespace Ophelia.Integration.I18NService
                 if (string.IsNullOrEmpty(this.ServiceURL))
                 {
                     result.Fail("Invalid service url");
+                    return result;
+                }
+                if (string.IsNullOrEmpty(this.AppKey))
+                {
+                    result.Fail("Invalid app key");
                     return result;
                 }
                 result = this.Service.GetUpdates();
