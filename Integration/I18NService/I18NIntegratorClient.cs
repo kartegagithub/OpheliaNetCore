@@ -49,6 +49,29 @@ namespace Ophelia.Integration.I18NService
             if (this.Accesses != null && this.Accesses.Any() && this.Service != null && !string.IsNullOrEmpty(this.ServiceURL))
                 this.Service.ProcessAccesses(this.Accesses);
         }
+        public ServiceObjectResult<bool> UpdateTranslation(Models.TranslationPool pool)
+        {
+            var result = new ServiceObjectResult<bool>();
+            try
+            {
+                if (string.IsNullOrEmpty(this.ServiceURL))
+                {
+                    result.Fail("Invalid service url");
+                    return result;
+                }
+                if (string.IsNullOrEmpty(this.AppKey))
+                {
+                    result.Fail("Invalid app key");
+                    return result;
+                }
+                result = this.Service.UpdateTranslation(pool);
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
         public ServiceObjectResult<Models.TranslationPool> GetTranslation(string name)
         {
             var result = new ServiceObjectResult<Models.TranslationPool>();
