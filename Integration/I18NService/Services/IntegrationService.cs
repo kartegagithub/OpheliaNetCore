@@ -21,6 +21,10 @@ namespace Ophelia.Integration.I18NService.Services
         {
             return this.GetObject<TranslationPool>("GetTranslation", new TranslationPool() { Name = name });
         }
+        public ServiceObjectResult<bool> UpdateTranslation(TranslationPool pool)
+        {
+            return this.PostObject<TranslationPool, ServiceObjectResult<bool>>("UpdateTranslation", pool, null);
+        }
 
         public IntegrationService(I18NIntegratorClient API) : base(API)
         {
