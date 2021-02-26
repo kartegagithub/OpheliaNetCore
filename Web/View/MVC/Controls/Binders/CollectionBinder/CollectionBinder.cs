@@ -369,7 +369,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             var propTree = typeof(T).GetPropertyInfoTree(entityProp);
                             var propInfo = propTree.LastOrDefault();
                             var propType = propInfo?.PropertyType;
-                            if (propType != null)
+                            if (propType != null && propInfo.GetCustomAttribute(typeof(Data.Attributes.ManualFiltering)) == null)
                             {
                                 if (propType.IsGenericType && propType.Name.StartsWith("Null"))
                                     propType = propType.GenericTypeArguments[0];
