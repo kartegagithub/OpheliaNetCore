@@ -13,6 +13,7 @@ namespace Ophelia.Integration.I18NService.Models
         public bool IsDeleted { get; set; }
 
         public virtual ICollection<TranslationPool_i18n> TranslationPool_i18n { get; set; }
+        public virtual ICollection<TranslationPoolOverride> Overrides { get; set; }
 
         public void Dispose()
         {
