@@ -40,11 +40,15 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                 panel.Style.Add("position", "relative;");
                 panel.CssClass = "date-field-container";
 
+                if (BinderConfiguration.UseHtml5DataTypes)
+                    this.DateType = "date";
+
                 var DataControl = new Textbox();
                 DataControl.Name = this.FormatName() + "Low";
                 DataControl.ID = DataControl.Name;
                 DataControl.AddAttribute("data-column", this.FormatColumnName());
                 DataControl.CssClass = "form-control date-field pickadate-selectors";
+
                 if (this.Format == DateTimeFormatType.TimeOnly)
                     DataControl.Type = this.TimeType;
                 else
