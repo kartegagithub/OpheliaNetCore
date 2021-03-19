@@ -1629,6 +1629,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             if (this.CanExport)
             {
+                this.CanRender = false;
                 this.ReorderColumns();
                 this.ContentRenderMode = ContentRenderMode.Export;
                 var fileName = "";
