@@ -26,6 +26,7 @@
         public bool EnableColumnFiltering { get; set; }
         public bool ColumnFiltersInHead { get; set; }
         public bool Checkboxes { get; set; }
+        public bool KeepSelectedCheckboxes { get; set; }
         public bool ShowCheckAll { get; set; }
         public bool ShowDefaultFields { get; set; }
         public string CheckboxProperty { get; set; }
@@ -59,6 +60,7 @@
             this.SaveButtonClass = "save-button";
             this.SaveButtonText = "Save";
             this.ColumnSortingByLink = false;
+            this.KeepSelectedCheckboxes = true;
         }
     }
     public enum ColumnFilteringType

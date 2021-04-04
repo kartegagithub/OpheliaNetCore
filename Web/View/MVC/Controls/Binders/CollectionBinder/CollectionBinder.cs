@@ -1183,7 +1183,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             id += "_" + identifier;
                         }
                         var val = Convert.ToBoolean(item.GetPropertyValue(this.Configuration.CheckboxProperty));
-
+                        var selectedItems = this.Request.GetValue("SelectedItems");
+                        if (!string.IsNullOrEmpty(identifier) && !string.IsNullOrEmpty(selectedItems) && selectedItems.Split(',').Contains(identifier))
+                            val = true;
                         this.Output.Write("<input type='checkbox' class='binder-checkbox' name='" + this.Configuration.CheckboxProperty + "' id='" + id + "'" + (val ? " checked" : "") + " value='" + identifier + "' " + this.GetBinderCheckboxProperties(item) + ">");
                     }
                     this.Output.Write("</td>");
