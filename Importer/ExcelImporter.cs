@@ -69,6 +69,9 @@ namespace Ophelia.Data.Importer
         private System.Data.DataSet ReadInternal(Stream stream)
         {
             //https://github.com/ExcelDataReader/ExcelDataReader
+
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
             var reader = ExcelReaderFactory.CreateReader(stream, new ExcelReaderConfiguration()
             {
                 // Gets or sets the encoding to use when the input XLS lacks a CodePage
