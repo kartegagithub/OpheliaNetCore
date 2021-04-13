@@ -31,34 +31,43 @@ namespace Ophelia
 
             //Ramazan Bayramı eklemesi
             var gregorianCalendarRamadanEve = DateTime.ParseExact($"30/09/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarRamadanEve, "Ramazan Bayramı Arifesi", "Ramadan Feast Eve", halfDay: true));
+            if (gregorianCalendarRamadanEve.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarRamadanEve, "Ramazan Bayramı Arifesi", "Ramadan Feast Eve", halfDay: true));
 
             var gregorianCalendarRamadan1 = DateTime.ParseExact($"01/10/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarRamadan1, "Ramazan Bayramı 1. Günü", "Ramadan Feast First Day"));
+            if (gregorianCalendarRamadan1.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarRamadan1, "Ramazan Bayramı 1. Günü", "Ramadan Feast First Day"));
 
             var gregorianCalendarRamadan2 = DateTime.ParseExact($"02/10/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarRamadan2, "Ramazan Bayramı 2. Günü", "Ramadan Feast Second Day"));
+            if (gregorianCalendarRamadan2.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarRamadan2, "Ramazan Bayramı 2. Günü", "Ramadan Feast Second Day"));
 
             var gregorianCalendarRamadan3 = DateTime.ParseExact($"03/10/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarRamadan3, "Ramazan Bayramı 3. Günü", "Ramadan Feast Third Day"));
+            if (gregorianCalendarRamadan3.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarRamadan3, "Ramazan Bayramı 3. Günü", "Ramadan Feast Third Day"));
 
             //Kurban Bayramı eklemesi
             var gregorianCalendarSacrificeArife = DateTime.ParseExact($"09/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarSacrificeArife, "Kurban Bayramı Arifesi", "Sacrifice Feast Eve", halfDay: true));
+            if (gregorianCalendarSacrificeArife.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarSacrificeArife, "Kurban Bayramı Arifesi", "Sacrifice Feast Eve", halfDay: true));
 
             var gregorianCalendarSacrifice1 = DateTime.ParseExact($"10/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarSacrifice1, "Kurban Bayramı 1. Günü", "Sacrifice Feast First Day"));
+            if (gregorianCalendarSacrifice1.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarSacrifice1, "Kurban Bayramı 1. Günü", "Sacrifice Feast First Day"));
 
             var gregorianCalendarSacrifice2 = DateTime.ParseExact($"11/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarSacrifice2, "Kurban Bayramı 2. Günü", "Sacrifice Feast Second Day"));
+            if (gregorianCalendarSacrifice2.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarSacrifice2, "Kurban Bayramı 2. Günü", "Sacrifice Feast Second Day"));
 
             var gregorianCalendarSacrifice3 = DateTime.ParseExact($"12/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarSacrifice3, "Kurban Bayramı 3. Günü", "Sacrifice Feast Third Day"));
+            if (gregorianCalendarSacrifice3.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarSacrifice3, "Kurban Bayramı 3. Günü", "Sacrifice Feast Third Day"));
 
             var gregorianCalendarSacrifice4 = DateTime.ParseExact($"13/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            items.Add(new PublicHoliday(gregorianCalendarSacrifice4, "Kurban Bayramı 4. Günü", "Sacrifice Feast Fourth Day"));
+            if (gregorianCalendarSacrifice4.Year == year)
+                items.Add(new PublicHoliday(gregorianCalendarSacrifice4, "Kurban Bayramı 4. Günü", "Sacrifice Feast Fourth Day"));
 
-            return items.OrderBy(op => op.Date).ToList();
+            return items.Where(op => op.LaunchYear == null || op.LaunchYear <= year).OrderBy(op => op.Date).ToList();
         }
     }
 
