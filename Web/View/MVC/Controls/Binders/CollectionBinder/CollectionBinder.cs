@@ -1651,7 +1651,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         if (string.IsNullOrEmpty(column.Name))
                             column.Name = column.FormatName();
 
-                        grid.Columns.Add(new Data.Exporter.Controls.Column(grid) { Text = column.FormatText(), ID = column.Name, IsNumeric = column.Alignment == HorizontalAlign.Right });
+                        grid.Columns.Add(new Data.Exporter.Controls.Column(grid) { Text = column.FormatText(), ID = column.Name, IsNumeric = false });
                     }
                 }
                 foreach (T item in this.DataSource.Items)

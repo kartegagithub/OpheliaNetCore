@@ -117,10 +117,7 @@ namespace Ophelia.Data.Exporter
                 foreach (var cell in row.Cells)
                 {
                     var cellValue = Convert.ToString(cell.Value);
-                    if (cell.Column.IsNumeric)
-                        AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cellValue, newExcelRow, CellValues.Number);
-                    else
-                        AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cellValue, newExcelRow);
+                    AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cellValue, newExcelRow);
                     cellValue = null;
 
                     colInx++;
