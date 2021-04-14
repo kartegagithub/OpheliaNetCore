@@ -23,5 +23,16 @@ namespace Ophelia
             foreach (var item in source)
                 destination.Add(item);
         }
+
+        public static ICollection<T> RemoveRange<T>(this ICollection<T> collection, IEnumerable<T> list)
+        {
+            if (list == null || !list.Any())
+                return collection;
+            foreach (var item in list)
+            {
+                collection.Remove(item);
+            }
+            return collection;
+        }
     }
 }
