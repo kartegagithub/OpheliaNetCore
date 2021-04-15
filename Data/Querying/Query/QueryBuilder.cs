@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Ophelia.Data.Querying.Query
@@ -193,11 +194,13 @@ namespace Ophelia.Data.Querying.Query
             }
             return this;
         }
-        public QueryBuilder FilterByValue(string tableAlias, string fieldName, Comparison comparison, string value)
+        public QueryBuilder FilterByValue(string tableAlias, string fieldName, Comparison comparison, params string[] values)
         {
             var likeCmd = "LIKE";
             if (this.Context.Connection.Type == DatabaseType.PostgreSQL)
                 likeCmd = "ILIKE";
+
+            var value = values.FirstOrDefault();
             if (!string.IsNullOrEmpty(value) && !value.IsNumeric())
             {
                 value = value.Replace("'", "''");
@@ -230,6 +233,9 @@ namespace Ophelia.Data.Querying.Query
                 case Comparison.LessAndEqual:
                     this.AddStatement(" <= " + value);
                     break;
+                case Comparison.Between:
+                    this.AddStatement(" BETWEEN " + value + " AND " + values.LastOrDefault());
+                    break;
                 case Comparison.In:
                     this.AddStatement(" IN (" + value + ")");
                     break;
@@ -245,44 +251,49 @@ namespace Ophelia.Data.Querying.Query
             }
             return this;
         }
-        public QueryBuilder FilterByParam(string tableAlias, string fieldName, Comparison comparison, string paramName)
+        public QueryBuilder FilterByParam(string tableAlias, string fieldName, Comparison comparison, params string[] paramName)
         {
             var likeCmd = "LIKE";
             if (this.Context.Connection.Type == DatabaseType.PostgreSQL)
                 likeCmd = "ILIKE";
+            var param = paramName.FirstOrDefault();
             this.StringBuilder.Append(this.FormatAndMapTable(tableAlias)).Append(".").Append(FormatAndMapField(fieldName));
             switch (comparison)
             {
                 case Comparison.Equal:
                     this.AddEqualSign();
-                    this.AddStatement(this.Context.Connection.FormatParameterName(paramName));
+                    this.AddStatement(this.Context.Connection.FormatParameterName(param));
                     break;
                 case Comparison.Different:
                     this.AddNotEqualSign();
-                    this.AddStatement(this.Context.Connection.FormatParameterName(paramName));
+                    this.AddStatement(this.Context.Connection.FormatParameterName(param));
                     break;
                 case Comparison.Greater:
-                    this.AddStatement(" > " + this.Context.Connection.FormatParameterName(paramName));
+                    this.AddStatement(" > " + this.Context.Connection.FormatParameterName(param));
                     break;
                 case Comparison.Less:
-                    this.AddStatement(" < " + this.Context.Connection.FormatParameterName(paramName));
+                    this.AddStatement(" < " + this.Context.Connection.FormatParameterName(param));
                     break;
                 case Comparison.GreaterAndEqual:
-                    this.AddStatement(" >= " + this.Context.Connection.FormatParameterName(paramName));
+                    this.AddStatement(" >= " + this.Context.Connection.FormatParameterName(param));
                     break;
                 case Comparison.LessAndEqual:
-                    this.AddStatement(" <= " + this.Context.Connection.FormatParameterName(paramName));
+                    this.AddStatement(" <= " + this.Context.Connection.FormatParameterName(param));
+                    break;
+                case Comparison.Between:
+                    this.AddStatement(" BETWEEN " + this.Context.Connection.FormatParameterName(param) + " AND " + this.Context.Connection.FormatParameterName(paramName.LastOrDefault()));
                     break;
                 case Comparison.In:
-                    throw new NotImplementedException();
+                    this.AddStatement(" IN (" + this.Context.Connection.FormatParameterName(param) + ")");
+                    break;
                 case Comparison.StartsWith:
-                    this.AddStatement(this.Context.Connection.FormatStringConcat(likeCmd + " '%' + " + this.Context.Connection.FormatParameterName(paramName)));
+                    this.AddStatement(this.Context.Connection.FormatStringConcat(likeCmd + " '%' + " + this.Context.Connection.FormatParameterName(param)));
                     break;
                 case Comparison.EndsWith:
-                    this.AddStatement(this.Context.Connection.FormatStringConcat(likeCmd + " " + this.Context.Connection.FormatParameterName(paramName) + " + '%'"));
+                    this.AddStatement(this.Context.Connection.FormatStringConcat(likeCmd + " " + this.Context.Connection.FormatParameterName(param) + " + '%'"));
                     break;
                 case Comparison.Contains:
-                    this.AddStatement(this.Context.Connection.FormatStringConcat(likeCmd + " '%' + " + this.Context.Connection.FormatParameterName(paramName) + " + '%'"));
+                    this.AddStatement(this.Context.Connection.FormatStringConcat(likeCmd + " '%' + " + this.Context.Connection.FormatParameterName(param) + " + '%'"));
                     break;
             }
             return this;

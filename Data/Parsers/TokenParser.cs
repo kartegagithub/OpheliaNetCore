@@ -136,6 +136,8 @@ namespace Ophelia.Data.Parsers
                 {
                     if ((filter is TokenFilter) && filter.Name.Equals(filterName, StringComparison.InvariantCultureIgnoreCase))
                         (filter as TokenFilter).SQL = SQL;
+                    else if (filter is TokenFilterGroup)
+                        filter.SetSQL(filterName, SQL);
                 }
             }
             public TokenFilterEntity()
