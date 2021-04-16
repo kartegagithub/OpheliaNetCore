@@ -13,7 +13,7 @@ namespace Ophelia.Data.Parsers
             expression = expression
                 .Replace(" ", "")
                 .Replace("AND", "&")
-                .Replace("OR", "&")
+                .Replace("OR", "|")
                 .Replace("&&", "&")
                 .Replace("||", "|")
                 .Replace("{", "(")
