@@ -504,7 +504,10 @@ namespace Ophelia
         public static Type GetRealType(this Type baseType, bool baseTypeIsDefault = true)
         {
             var types = baseType.GetRealTypes(baseTypeIsDefault);
-            return types.FirstOrDefault();
+            var type = types.Where(op => op != baseType).FirstOrDefault();
+            if (type == null && baseTypeIsDefault && !type.IsInterface)
+                type = baseType;
+            return type;
         }
         public static object GetRealTypeInstance(this Type baseType, bool baseTypeIsDefault = true, params object[] parameters)
         {
