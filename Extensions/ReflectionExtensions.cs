@@ -63,7 +63,7 @@ namespace Ophelia
                 {
                     convertedValue = isNull ? default(double) : Convert.ToDouble(value);
                 }
-                else if(value != null)
+                else if (value != null)
                 {
                     var valueType = value.GetType();
                     var c1 = System.ComponentModel.TypeDescriptor.GetConverter(valueType);
@@ -303,7 +303,7 @@ namespace Ophelia
                 foreach (var p in property.Split('.'))
                 {
                     var prop = type.GetProperties().Where(op => op.Name == p).FirstOrDefault();
-                    if(prop != null)
+                    if (prop != null)
                     {
                         props.Add(prop);
                         type = props.LastOrDefault().PropertyType;
@@ -437,7 +437,7 @@ namespace Ophelia
                 {
                     try
                     {
-                        if (a.FullName.Contains(".Redis") ||  a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
+                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
                             continue;
 
                         var Types = a.GetTypes();
@@ -504,7 +504,10 @@ namespace Ophelia
         public static Type GetRealType(this Type baseType, bool baseTypeIsDefault = true)
         {
             var types = baseType.GetRealTypes(baseTypeIsDefault);
-            return types.FirstOrDefault();
+            var type = types.Where(op => op != baseType).FirstOrDefault();
+            if (type == null && baseTypeIsDefault && !type.IsInterface)
+                type = baseType;
+            return type;
         }
         public static object GetRealTypeInstance(this Type baseType, bool baseTypeIsDefault = true, params object[] parameters)
         {
