@@ -50,7 +50,9 @@ namespace Ophelia.Web
             {
                 try
                 {
-                    return this.Context.Session;
+                    if (this.Context != null)
+                        return this.Context.Session;
+                    return null;
                 }
                 catch (Exception)
                 {
@@ -64,7 +66,9 @@ namespace Ophelia.Web
             {
                 try
                 {
-                    return this.Context.Response;
+                    if (this.Context != null)
+                        return this.Context.Response;
+                    return null;
                 }
                 catch (Exception)
                 {
@@ -78,7 +82,9 @@ namespace Ophelia.Web
             {
                 try
                 {
-                    return this.Context.Request;
+                    if (this.Context != null)
+                        return this.Context.Request;
+                    return null;
                 }
                 catch (Exception)
                 {
