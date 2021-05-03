@@ -505,7 +505,7 @@ namespace Ophelia
         {
             var types = baseType.GetRealTypes(baseTypeIsDefault);
             var type = types.Where(op => op != baseType).FirstOrDefault();
-            if (type == null && baseTypeIsDefault && !type.IsInterface)
+            if (type == null && baseTypeIsDefault && !baseType.IsInterface)
                 type = baseType;
             return type;
         }
