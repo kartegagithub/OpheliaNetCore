@@ -130,7 +130,8 @@ namespace Ophelia.Data.Querying.Query
                 this.Data.GroupPagination = this.dataToExtend.GroupPagination;
                 this.Data.Groupers.AddRange(this.dataToExtend.Groupers);
                 this.Data.Includers.AddRange(this.dataToExtend.Includers);
-                this.Data.Sorters.AddRange(this.dataToExtend.Sorters);
+                if (this.dataToExtend.Sorters.Count > 0)
+                    this.Data.Sorters = this.dataToExtend.Sorters;
                 this.Data.Functions.AddRange(this.dataToExtend.Functions);
                 if (this.dataToExtend.Filter != null)
                 {
@@ -268,7 +269,7 @@ namespace Ophelia.Data.Querying.Query
                 return true;
             else if (includer.PropertyInfo != null && selector.PropertyInfo != null && includer.PropertyInfo == selector.PropertyInfo)
                 return true;
-            else if(selector.Members != null && selector.Members.Any())
+            else if (selector.Members != null && selector.Members.Any())
             {
                 foreach (var item in selector.Members)
                 {
