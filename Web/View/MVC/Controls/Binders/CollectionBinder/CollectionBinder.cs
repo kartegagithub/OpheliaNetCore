@@ -592,49 +592,16 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                     foreach (var column in this.Columns)
                     {
-                        if (column.IsSortable && column.Expression?.ParsePath() == this.Request.GetValue("OrderBy"))
+                        if (!column.IsSortable)
+                            continue;
+                        var sortingFieldName = this.GetSortingFieldName(column);
+                        if (sortingFieldName == this.Request.GetValue("OrderBy"))
                         {
-                            var propInfo = typeof(T).GetPropertyInfoTree(this.Request.GetValue("OrderBy"));
+                            var propInfo = typeof(T).GetPropertyInfoTree(sortingFieldName);
                             var ordering = "";
                             if (propInfo != null && propInfo.Length > 0)
                             {
-                                if (this.Request.GetValue("OrderBy").EndsWith("ID"))
-                                {
-                                    try
-                                    {
-                                        PropertyInfo entityPropInfo = null;
-                                        if (propInfo.Length > 1)
-                                        {
-                                            for (int i = 0; i < propInfo.Length - 1; i++)
-                                            {
-                                                entityPropInfo = propInfo[i];
-                                                if (!string.IsNullOrEmpty(ordering))
-                                                    ordering = entityPropInfo.Name;
-                                                else
-                                                    ordering += "." + entityPropInfo.Name;
-                                            }
-                                        }
-                                        entityPropInfo = propInfo.LastOrDefault();
-                                        if (entityPropInfo.PropertyType.IsNullable() || entityPropInfo.PropertyType.IsPrimitiveType())
-                                            ordering += "." + entityPropInfo.Name;
-                                        else if (entityPropInfo.PropertyType.GetProperty("Name") != null)
-                                            ordering += ".Name";
-                                        else if (entityPropInfo.PropertyType.GetProperty("Title") != null)
-                                            ordering += ".Title";
-                                        else
-                                            ordering += "." + entityPropInfo.Name;
-
-                                        ordering = ordering.Trim('.');
-                                    }
-                                    catch (Exception)
-                                    {
-                                        ordering = this.Request.GetValue("OrderBy");
-                                    }
-                                }
-                                else
-                                {
-                                    ordering = this.Request.GetValue("OrderBy");
-                                }
+                                ordering = sortingFieldName;
                                 if (ordering.Contains("()"))
                                 {
                                     ordering = string.Join(".", ordering.Split('.').Take(ordering.Split('.').Length - 1));
@@ -784,6 +751,34 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
             }
         }
+        protected virtual string GetSortingFieldName(Columns.BaseColumn<TModel, T> column)
+        {
+            if (column is FilterboxColumn<TModel, T>)
+            {
+                var filterColumn = column as FilterboxColumn<TModel, T>;
+                if (filterColumn.SelectedValueExpression != null)
+                {
+                    var memberExp = (filterColumn.SelectedValueExpression.Body as MemberExpression);
+                    if (memberExp != null)
+                    {
+                        var prop = (memberExp.Member as PropertyInfo);
+                        return prop.Name + "." + this.GetSortingFieldName(memberExp.Member as PropertyInfo);
+                    }
+                }
+            }
+            return column.Expression.ParsePath();
+        }
+        protected virtual string GetSortingFieldName(PropertyInfo entityPropInfo)
+        {
+            if (entityPropInfo.PropertyType.IsNullable() || entityPropInfo.PropertyType.IsPrimitiveType())
+                return entityPropInfo.Name;
+            else if (entityPropInfo.PropertyType.GetProperty("Name") != null)
+                return "Name";
+            else if (entityPropInfo.PropertyType.GetProperty("Title") != null)
+                return "Title";
+            else
+                return entityPropInfo.Name;
+        }
         protected virtual bool EnableGrouping(Columns.BaseColumn<TModel, T> column)
         {
             return true;
@@ -859,11 +854,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
 
         }
-        protected virtual string GetSortingFieldName(PropertyInfo info)
-        {
-            return info.Name + "ID";
-        }
-
         protected virtual object GetReferencedEntity(Type entityType, object value)
         {
             return null;
@@ -1291,8 +1281,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         if (string.IsNullOrEmpty(column.Name))
                             column.Name = column.FormatName();
 
-                        qs.Update("OrderBy", column.Expression.ParsePath());
-                        if (this.Request.GetValue("OrderBy") == column.Expression.ParsePath())
+                        var sortingFieldName = this.GetSortingFieldName(column);
+                        qs.Update("OrderBy", sortingFieldName);
+                        if (this.Request.GetValue("OrderBy") == sortingFieldName)
                         {
                             if (this.Request.GetValue("OrderByDirection") != null && this.Request.GetValue("OrderByDirection").Equals("ASC", StringComparison.InvariantCultureIgnoreCase))
                             {
