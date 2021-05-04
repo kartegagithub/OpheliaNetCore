@@ -134,6 +134,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 if (!string.IsNullOrEmpty(this.Request.GetValue(this.DataSource.Pagination.PageKey)))
                     this.DataSource.Pagination.PageNumber = this.Request.GetValue(this.DataSource.Pagination.PageKey).ToInt32();
+                if (this.Request.GetValue("pagesize").ToInt32() > 0)
+                    this.DataSource.Pagination.PageSize = this.Request.GetValue("pagesize").ToInt32();
             }
         }
         protected virtual void CheckAjaxFunctions()
