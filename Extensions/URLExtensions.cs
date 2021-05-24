@@ -15,7 +15,7 @@ namespace Ophelia
     {
         public static int Timeout { get; set; }
         public static Dictionary<string, IFormFile> FilesToUpload { get; set; }
-        public static Dictionary<string, string> FilesToUploadBase64 { get; set; }
+        public static List<FileData> FilesToUploadBase64 { get; set; }
 
         public static T PostURL<T>(this string URL, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false, string contentType = "application/x-www-form-urlencoded", NetworkCredential credential = null)
         {
@@ -273,26 +273,14 @@ namespace Ophelia
                 }
             }
             FilesToUpload = null;
-            if (FilesToUploadBase64 != null)
+            if (FilesToUploadBase64?.Count > 0)
             {
-                foreach (var file in FilesToUploadBase64.Where(op => op.Value != null && op.Value.Length > 0))
+                foreach (var file in FilesToUploadBase64)
                 {
-                    var base64value = file.Value;
-                    string mimeType = base64value.Substring(0, base64value.IndexOf(';'));
-                    var split = mimeType.Split('/');
-                    var extension = "";
-                    if (split.Count() > 1)
-                        extension = split[1];
-
-                    request.Files.Add(new FileData()
-                    {
-                        KeyName = file.Key,
-                        FileName = $".{extension}",
-                        Base64Data = file.Value
-                    }); ;
+                    request.Files.Add(file);
                 }
             }
-            FilesToUpload = null;
+            FilesToUploadBase64 = null;
             if (parameters != null)
             {
                 var jsonParams = Newtonsoft.Json.JsonConvert.DeserializeObject<IDictionary<string, string>>(Newtonsoft.Json.JsonConvert.SerializeObject(parameters));
