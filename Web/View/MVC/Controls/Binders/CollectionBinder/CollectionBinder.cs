@@ -790,11 +790,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             var comparison = Comparison.Contains;
             if (propType?.Name == "Byte" || propType?.Name == "Int32" || propType?.Name == "Int64" || propType?.Name == "Decimal")
                 comparison = Comparison.Equal;
-            if (!string.IsNullOrEmpty(this.Request.GetValue(entityProp + "-Comparison")))
-                comparison = (Comparison)this.Request.GetValue(entityProp + "-Comparison").ToInt32();
-
+            
             value = Convert.ToString(value).Trim();
             var formattedValue = Convert.ChangeType(value, propType);
+            if (Convert.ToInt64(formattedValue.ToString()) < 0 && propType?.Name == "Int64")
+                comparison = Comparison.GreaterAndEqual;
+            if (!string.IsNullOrEmpty(this.Request.GetValue(entityProp + "-Comparison")))
+                comparison = (Comparison)this.Request.GetValue(entityProp + "-Comparison").ToInt32();
 
             if (isQueryableDataSet)
                 this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, comparison);
