@@ -1216,7 +1216,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             tdClassName += " text-right";
                         if (!string.IsNullOrEmpty(column.Width))
                             tdClassName += " has-width";
-                        this.Output.Write("class='" + tdClassName + "'");
+                        if (!string.IsNullOrEmpty(tdClassName))
+                            this.Output.Write("class='" + tdClassName + "'");
                         this.RenderCellProperties(item, column, link);
                         this.Output.Write(">");
                         this.OnBeforeRenderCell(item, column);

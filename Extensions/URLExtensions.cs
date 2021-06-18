@@ -15,6 +15,7 @@ namespace Ophelia
     {
         public static int Timeout { get; set; }
         public static Dictionary<string, IFormFile> FilesToUpload { get; set; }
+        public static List<FileData> FilesToUploadBase64 { get; set; }
 
         public static T PostURL<T>(this string URL, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false, string contentType = "application/x-www-form-urlencoded", NetworkCredential credential = null)
         {
@@ -53,7 +54,7 @@ namespace Ophelia
                     (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
-            }            
+            }
         }
         public static T PostURL<T>(this string URL, string parameters, string contentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool PreAuthenticate = false, NetworkCredential credential = null)
         {
@@ -80,7 +81,7 @@ namespace Ophelia
                     (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
-            }            
+            }
         }
         public static string PostURL(this string URL, string parameters, string contentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool PreAuthenticate = false, NetworkCredential credential = null)
         {
@@ -233,7 +234,7 @@ namespace Ophelia
                 if (result is ServiceResult)
                 {
                     (result as ServiceResult).Fail("ERRAPI", ex.ToString());
-                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() {Code = "ERRAPI", Description = response });
+                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
             }
@@ -272,6 +273,14 @@ namespace Ophelia
                 }
             }
             FilesToUpload = null;
+            if (FilesToUploadBase64?.Count > 0)
+            {
+                foreach (var file in FilesToUploadBase64)
+                {
+                    request.Files.Add(file);
+                }
+            }
+            FilesToUploadBase64 = null;
             if (parameters != null)
             {
                 var jsonParams = Newtonsoft.Json.JsonConvert.DeserializeObject<IDictionary<string, string>>(Newtonsoft.Json.JsonConvert.SerializeObject(parameters));
