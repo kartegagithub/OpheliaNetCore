@@ -788,17 +788,20 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         private void ApplyFilter(string entityProp, string value, Type propType, bool isQueryableDataSet, PropertyInfo[] propTree)
         {
             var comparison = Comparison.Contains;
-            if (propType?.Name == "Byte")
-                comparison = Comparison.Equal;
-
+            var isNumeric = propType.IsNumeric();
             value = Convert.ToString(value).Trim();
             var formattedValue = Convert.ChangeType(value, propType);
-
-            if ((propType?.Name == "Int32" || propType?.Name == "Int64" || propType?.Name == "Decimal") && Convert.ToInt64(formattedValue.ToString()) < 0)
+            if (isNumeric && Convert.ToInt64(formattedValue.ToString()) < 0)
                 comparison = Comparison.GreaterAndEqual;
 
             if (!string.IsNullOrEmpty(this.Request.GetValue(entityProp + "-Comparison")))
                 comparison = (Comparison)this.Request.GetValue(entityProp + "-Comparison").ToInt32();
+            if (isNumeric && comparison == Comparison.StartsWith)
+                comparison = Comparison.GreaterAndEqual;
+            if (isNumeric && comparison == Comparison.EndsWith)
+                comparison = Comparison.LessAndEqual;
+            if (isNumeric && comparison == Comparison.Contains)
+                comparison = Comparison.Equal;
 
             if (isQueryableDataSet)
                 this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, formattedValue, comparison);
