@@ -1678,7 +1678,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             cell.Value = this.FormatCellValueForExport(item, column, value);
                             var link = new Ophelia.Web.UI.Controls.Link() { Text = Convert.ToString(cell.Value) };
                             this.RenderCellProperties(item, column, link);
-                            cell.Value = link.Text;
+                            if (!string.IsNullOrEmpty(link.Text))
+                                cell.Value = link.Text;
                         }
 
                         value = null;
