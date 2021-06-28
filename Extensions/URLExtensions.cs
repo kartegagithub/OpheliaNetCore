@@ -131,6 +131,7 @@ namespace Ophelia
                     request.ContentLength = 0;
             }
             FilesToUpload = null;
+            FilesToUploadBase64 = null;
             return request.GetResponseWithoutException().Read();
         }
         public static TResult PostObject<T, TResult>(this string URL, T entity, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false, long languageID = 0)
