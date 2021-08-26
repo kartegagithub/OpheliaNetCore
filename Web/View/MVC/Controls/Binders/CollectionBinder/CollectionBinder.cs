@@ -1201,7 +1201,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         link.Text = Convert.ToString(value);
                         if (!column.KeepHtml)
                             link.Text = link.Text.RemoveHTML();
-                        link.Title = link.Text;
                         if (column.MaxTextLength > 0)
                         {
                             if (!string.IsNullOrEmpty(link.Text) && link.Text.Length > column.MaxTextLength)
