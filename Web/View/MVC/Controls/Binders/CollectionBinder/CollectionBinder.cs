@@ -1198,7 +1198,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                         this.OnBeforeGetCellValue(item, column);
                         var value = column.GetValue(item);
-                        link.Text = Convert.ToString(value).RemoveHTML();
+                        link.Text = Convert.ToString(value);
+                        if (!column.KeepHtml)
+                            link.Text = link.Text.RemoveHTML();
                         link.Title = link.Text;
                         if (column.MaxTextLength > 0)
                         {

@@ -20,7 +20,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         }
         public ImageColumn(CollectionBinder<TModel, T> binder, string Name) : base(binder, Name)
         {
-
+            this.KeepHtml = true;
         }
     }
 }

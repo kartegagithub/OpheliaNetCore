@@ -26,6 +26,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         public string Text { get; set; }
         public string Name { get; set; }
         public int SortOrder { get; set; }
+        public bool KeepHtml { get; set; }
         public bool EnableColumnFiltering { get; set; }
         public bool EnableGrouping { get; set; }
         private string formattedName = "";
