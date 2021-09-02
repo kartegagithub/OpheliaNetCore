@@ -74,22 +74,7 @@ namespace Ophelia
         public static string EncodeUrl(string strIn, bool ReplaceSpecialChars = true)
         {
             if (string.IsNullOrEmpty(strIn)) return strIn;
-            StringBuilder sbOut = new StringBuilder(strIn.Trim());
-            sbOut = sbOut.Replace("-", "");
-            sbOut = sbOut.Replace(" ", "-");
-            sbOut = sbOut.Replace("  ", "-");
-            sbOut = sbOut.Replace("ğ", "g");
-            sbOut = sbOut.Replace("Ğ", "G");
-            sbOut = sbOut.Replace("ü", "u");
-            sbOut = sbOut.Replace("Ü", "U");
-            sbOut = sbOut.Replace("ş", "s");
-            sbOut = sbOut.Replace("Ş", "S");
-            sbOut = sbOut.Replace("ç", "c");
-            sbOut = sbOut.Replace("Ç", "C");
-            sbOut = sbOut.Replace("ö", "o");
-            sbOut = sbOut.Replace("Ö", "O");
-            sbOut = sbOut.Replace("ı", "i");
-            sbOut = sbOut.Replace("İ", "I");
+            StringBuilder sbOut = new StringBuilder(strIn.Trim().Replace("-", "").Replace("  ", "-").Replace(" ", "-").ReplaceSpecialVowelsAndConsonant());
             if (!ReplaceSpecialChars)
             {
                 sbOut = sbOut.Replace("$", "-24");

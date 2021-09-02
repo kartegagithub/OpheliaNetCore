@@ -17,7 +17,6 @@ namespace Ophelia
                 val = request.Query[key].ToString();
             return val;
         }
-
         public static string RawUrl(this HttpRequest request)
         {
             return Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(request);

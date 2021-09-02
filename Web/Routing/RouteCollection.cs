@@ -189,6 +189,11 @@ namespace Ophelia.Web.Routing
         #endregion "GetRootItem"
 
         #region "GetURL"
+
+        protected virtual void OnURLNotFound(string Name, string Controller, string Action)
+        {
+
+        }
         public virtual string GetURL(string langCode, string Name, string Controller, string Action, string Parameter1, string Value1, string Parameter2, string Value2, string Parameter3, string Value3, string Parameter4, string Value4, string Parameter5, string Value5, bool AbsolutePath = false)
         {
             string URL = "";
@@ -202,7 +207,9 @@ namespace Ophelia.Web.Routing
                 else
                     URL = (routeURL as RouteItemURLPattern).Pattern;
             }
-
+            else
+                this.OnURLNotFound(Name, Controller, Action);
+            
             var returnURL = "";
             if (!returnURL.Equals("/"))
                 returnURL = "/" + URL;
