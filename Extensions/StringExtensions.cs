@@ -386,7 +386,7 @@ namespace Ophelia
                 m => ((m.Index == 0) ? string.Empty : dash) + m.Value.ToLowerInvariant());
         }
 
-        public static string ToString(this string value)
+        public static string ToStringSlug(this string value)
         {
 
             if (string.IsNullOrWhiteSpace(value))
