@@ -130,6 +130,19 @@ namespace Ophelia.Web.Routing
                         return temp.FirstOrDefault().FixedURLs.Where(op => op.LanguageCode == langCode && op.URL != "").FirstOrDefault();
                     }
                 }
+                temp = Routes.Where(op => op.Patterns.Where(op2 => op2.Pattern != "").Any()).ToList();
+                if (temp.Count > 0)
+                {
+                    return temp.FirstOrDefault().Patterns.Where(op => op.Pattern != "").FirstOrDefault();
+                }
+                else
+                {
+                    temp = Routes.Where(op => op.FixedURLs.Where(op2 => op2.URL != "").Any()).ToList();
+                    if (temp.Count > 0)
+                    {
+                        return temp.FirstOrDefault().FixedURLs.Where(op => op.URL != "").FirstOrDefault();
+                    }
+                }
             }
             return null;
         }
