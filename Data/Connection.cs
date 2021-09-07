@@ -152,6 +152,8 @@ namespace Ophelia.Data
                 case DatabaseType.Oracle:
                     this.internalConnection = new Oracle.ManagedDataAccess.Client.OracleConnection(ConnectionString);
                     this.Context.Configuration.UseNamespaceAsSchema = false;
+                    this.Context.Configuration.UseUppercaseObjectNames = true;
+                    this.Context.Configuration.ObjectNameCharLimit = 30;
                     break;
                 case DatabaseType.MySQL:
                     this.Context.Configuration.UseNamespaceAsSchema = false;
@@ -513,7 +515,7 @@ namespace Ophelia.Data
             {
                 sp = this.Context.NamespaceMap[sp];
             }
-            if (this.Type == DatabaseType.Oracle)
+            if (this.Context.Configuration.UseUppercaseObjectNames)
                 sp = sp.ToUpper().Replace("İ", "I");
             return sp;
         }
@@ -523,7 +525,7 @@ namespace Ophelia.Data
             {
                 tb = this.Context.TableMap[tb];
             }
-            if (this.Type == DatabaseType.Oracle)
+            if (this.Context.Configuration.UseUppercaseObjectNames)
                 tb = tb.ToUpper().Replace("İ", "I");
             return tb;
         }
@@ -533,7 +535,7 @@ namespace Ophelia.Data
             {
                 f = this.Context.FieldMap[f];
             }
-            if (this.Type == DatabaseType.Oracle)
+            if (this.Context.Configuration.UseUppercaseObjectNames)
                 f = f.ToUpper().Replace("İ", "I");
             return f;
         }
@@ -583,9 +585,9 @@ namespace Ophelia.Data
         }
         internal string CheckCharLimit(string key)
         {
-            if (this.Type == DatabaseType.Oracle && key.Length > 30)
+            if (this.Context.Configuration.ObjectNameCharLimit > 0 && key.Length > this.Context.Configuration.ObjectNameCharLimit)
             {
-                key = key.Left(30);
+                key = key.Left(this.Context.Configuration.ObjectNameCharLimit);
             }
             return key;
         }

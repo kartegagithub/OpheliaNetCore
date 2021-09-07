@@ -19,6 +19,8 @@ namespace Ophelia.Data
         public string OracleStringColumnCollation { get; set; }
         public Dictionary<Type, string> LinkedDatabases { get; set; }
         public string DatabaseVersion { get; set; }
+        public int ObjectNameCharLimit { get; set; }
+        public bool UseUppercaseObjectNames { get; set; }
 
         /// <summary>
         /// 
