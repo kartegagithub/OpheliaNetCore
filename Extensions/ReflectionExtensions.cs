@@ -7,6 +7,29 @@ namespace Ophelia
 {
     public static class ReflectionExtensions
     {
+        public static T2 CopyTo<T1, T2>(this T1 obj1, T2 obj2)
+            where T1 : class
+            where T2 : class
+        {
+            var type1 = typeof(T1);
+            var type2 = typeof(T2);
+            var props = type1.GetProperties();
+            foreach (var p in props)
+            {
+                if (type2.GetProperty(p.Name) != null)
+                {
+                    try
+                    {
+                        type2.GetProperty(p.Name).SetValue(obj2, p.GetValue(obj1));
+                    }
+                    catch (Exception)
+                    {
+
+                    }                    
+                }
+            }
+            return obj2;
+        }
         public static List<T> ToList<T>(this System.Collections.ArrayList arrayList)
         {
             List<T> list = new List<T>(arrayList.Count);
