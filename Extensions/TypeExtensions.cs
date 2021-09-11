@@ -12,8 +12,7 @@ namespace Ophelia
             if (type == typeof(String)) return true;
             return (type.IsValueType || type.IsPrimitive);
         }
-        public static MethodInfo GetRuntimeMethod(
-            this Type type, string name, Func<MethodInfo, bool> predicate, params Type[][] parameterTypes)
+        public static MethodInfo GetRuntimeMethod(this Type type, string name, Func<MethodInfo, bool> predicate, params Type[][] parameterTypes)
         {
             return parameterTypes
                 .Select(t => type.GetRuntimeMethod(name, predicate, t))
@@ -29,8 +28,7 @@ namespace Ophelia
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
                 && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
         }
-        private static MethodInfo GetRuntimeMethod(
-            this Type type, string name, Func<MethodInfo, bool> predicate, Type[] parameterTypes)
+        private static MethodInfo GetRuntimeMethod(this Type type, string name, Func<MethodInfo, bool> predicate, Type[] parameterTypes)
         {
             var methods = type.GetRuntimeMethods().Where(
                 m => name == m.Name

@@ -167,7 +167,6 @@ namespace Ophelia
             return EndOfWeek.AddDays(7).AddMilliseconds(-1); ;
         }
 
-
         /// <summary>
         /// 6: Saturday, 0 Sunday
         /// </summary>
@@ -238,6 +237,28 @@ namespace Ophelia
             {
                 return false;
             }
+        }
+
+        private static DateTime _jan1st1970 = new DateTime(1970, 1, 1);
+
+        /// <summary>
+        /// Tarihi Javascript formatına çevirir 
+        /// </summary>
+        /// <param name="from">Çevrilecek tarih</param>
+        /// <returns>1 Ocak 1970 00:00:00 UTC'den bu yana geçen milisaniye sayısını temsil eden bir tamsayı değeri.</returns>
+        public static long ConvertToJSDate(this DateTime from)
+        {
+            return Convert.ToInt64((from - _jan1st1970).TotalMilliseconds);
+        }
+
+        /// <summary>
+        /// Javascript formatındaki tarihi DateTime'a çevirir
+        /// </summary>
+        /// <param name="from">1 Ocak 1970 00:00:00 UTC'den bu yana geçen milisaniye sayısını temsil eden bir tamsayı değeri.</param>
+        /// <returns>DateTime olarak tarih, local time değeri döner</returns>
+        public static DateTime ConvertFromJSDate(this long from)
+        {
+            return _jan1st1970.AddMilliseconds(from);
         }
     }
 }
