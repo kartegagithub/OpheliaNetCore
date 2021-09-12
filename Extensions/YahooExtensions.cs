@@ -135,7 +135,7 @@ namespace Ophelia
         public static StockChartResult GetStockChart(this string stockCode, string region = "US", string lang = "en-US", string interval = "2m", string range = "1d")
         {
             StockChartResult result = null;
-            var url = $"https://query1.finance.yahoo.com/v8/finance/chart/{stockCode}?region={region}&{lang}=en-US&includePrePost=false&interval={interval}&useYfid=true&range={range}&corsDomain=finance.yahoo.com&.tsrc=finance";
+            var url = $"https://query1.finance.yahoo.com/v8/finance/chart/{stockCode}?region={region}&lang={lang}&includePrePost=false&interval={interval}&useYfid=true&range={range}&corsDomain=finance.yahoo.com&.tsrc=finance";
 
             var response = url.DownloadURL();
             if (!string.IsNullOrEmpty(response))
@@ -283,13 +283,8 @@ namespace Ophelia
         }
 
         /// <summary>
-        /// Hisse senedinin chart bilgilerini döner
+        /// Hisse senedinin aralık bilgilerini döner
         /// </summary>
-        /// <param name="stockCode">hisse senedi kodu</param>
-        /// <param name="region">bölge kodu</param>
-        /// <param name="lang">dil culture kodu</param>
-        /// <param name="interval">ne kadar aralık ile çekileceği --1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo</param>
-        /// <param name="range">ne kadar uzunlukta çekileceği --1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max</param>
         /// <returns></returns>
         public static List<StockRange> GetStockChartRanges()
         {
