@@ -7,7 +7,7 @@ namespace Ophelia
 {
     public static class ReflectionExtensions
     {
-        public static T2 CopyTo<T1, T2>(this T1 obj1, T2 obj2)
+        public static T2 CopyTo<T1, T2>(this T1 obj1, T2 obj2, params string[] excludedProps)
             where T1 : class
             where T2 : class
         {
@@ -16,7 +16,7 @@ namespace Ophelia
             var props = type1.GetProperties();
             foreach (var p in props)
             {
-                if (type2.GetProperty(p.Name) != null)
+                if (type2.GetProperty(p.Name) != null && (excludedProps == null || !excludedProps.Any() || !excludedProps.Contains(p.Name)))
                 {
                     try
                     {
@@ -25,7 +25,7 @@ namespace Ophelia
                     catch (Exception)
                     {
 
-                    }                    
+                    }
                 }
             }
             return obj2;
