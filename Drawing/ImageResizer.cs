@@ -1,12 +1,14 @@
-﻿using System;
+﻿using ImageMagick;
+using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 
 namespace Ophelia.Drawing
 {
     public static class ImageResizer
     {
-        public static System.Drawing.Image Rotate(System.Drawing.Image originalImage)
+        public static Image Rotate(Image originalImage)
         {
             try
             {
@@ -36,79 +38,104 @@ namespace Ophelia.Drawing
             return originalImage;
         }
 
-        public static System.Drawing.Bitmap CropImage(byte[] data, int Width, int Height)
+        public static Bitmap CropImage(byte[] data, int Width, int Height)
         {
-            return CropImage(System.Drawing.Bitmap.FromStream(new System.IO.MemoryStream(data)), Width, Height);
+            return CropImage(Bitmap.FromStream(new System.IO.MemoryStream(data)), Width, Height);
         }
 
-        public static System.Drawing.Bitmap CropImage(System.Drawing.Image Image, int Width, int Height)
+        public static Bitmap CropImage(Image image, int Width, int Height)
         {
-            if ((Image != null))
+            if ((image != null))
             {
-                Rotate(Image);
-                if (Image.Width > Width || Image.Height > Height)
+                if (image.Width > Width || image.Height > Height)
                 {
-                    decimal Ratio = Convert.ToDecimal(Image.Width) / Convert.ToDecimal(Image.Height);
-                    int SizedWidth = Image.Width;
-                    int SizedHeight = Image.Height;
+                    decimal Ratio = Convert.ToDecimal(image.Width) / Convert.ToDecimal(image.Height);
+                    int SizedWidth = image.Width;
+                    int SizedHeight = image.Height;
                     if (Ratio > 1)
                     {
-                        if (Height > Image.Height)
-                            Height = Image.Height;
+                        if (Height > image.Height)
+                            Height = image.Height;
                         SizedHeight = Height;
                         SizedWidth = Convert.ToInt32(SizedHeight * Ratio);
                     }
                     else
                     {
-                        if (Width > Image.Width)
-                            Width = Image.Width;
+                        if (Width > image.Width)
+                            Width = image.Width;
                         SizedWidth = Width;
                         SizedHeight = Convert.ToInt32(SizedWidth / Ratio);
                     }
 
-                    System.Drawing.Bitmap NewImage = null;
-                    if (Image.PixelFormat.ToString().Contains("Indexed"))
-                    {
-                        NewImage = new System.Drawing.Bitmap(Convert.ToInt32(SizedWidth), Convert.ToInt32(SizedHeight));
-                    }
-                    else
-                    {
-                        NewImage = new System.Drawing.Bitmap(SizedWidth, SizedHeight, Image.PixelFormat);
-                    }
-                    System.Drawing.Graphics Graph = System.Drawing.Graphics.FromImage(NewImage);
-                    Graph.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    Graph.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    Graph.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                    Graph.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                    System.Drawing.Rectangle Rect = new System.Drawing.Rectangle(0, 0, SizedWidth, SizedHeight);
-                    Graph.DrawImage(Image, Rect);
-
-                    System.Drawing.Rectangle CroppedRect = new System.Drawing.Rectangle((NewImage.Width - Width) / 2, (NewImage.Height - Height) / 2, Width, Height);
-                    System.Drawing.Bitmap BMP = NewImage.Clone(CroppedRect, NewImage.PixelFormat);
+                    var NewImage = ProcessImage(image.ToByteArray(), SizedWidth, SizedHeight);
+                    var CroppedRect = new Rectangle((NewImage.Width - Width) / 2, (NewImage.Height - Height) / 2, Width, Height);
+                    var BMP = NewImage.Clone(CroppedRect, NewImage.PixelFormat);
                     return BMP;
                 }
                 else
                 {
-                    System.Drawing.Bitmap NewImage = null;
-                    if (Image.PixelFormat.ToString().Contains("Indexed"))
-                    {
-                        NewImage = new System.Drawing.Bitmap(Convert.ToInt32(Image.Width), Convert.ToInt32(Image.Height));
-                    }
-                    else
-                    {
-                        NewImage = new System.Drawing.Bitmap(Image.Width, Image.Height, Image.PixelFormat);
-                    }
-                    System.Drawing.Graphics Graph = System.Drawing.Graphics.FromImage(NewImage);
-                    Graph.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    Graph.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    Graph.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                    Graph.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                    System.Drawing.Rectangle Rect = new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height);
-                    Graph.DrawImage(Image, Rect);
-                    return NewImage;
+                    return ProcessImage(image.ToByteArray());
                 }
             }
             return null;
+        }
+        public static Bitmap ProcessImage(byte[] data, int width = 0, int height = 0, int quality = 75, ImageFormat format = ImageFormat.Invalid)
+        {
+            if (format == ImageFormat.Invalid)
+            {
+                format = data.GetImageFormat();
+                if (format == ImageFormat.Unknown)
+                    format = ImageFormat.Invalid;
+            }
+            var BMP = Bitmap.FromStream(new MemoryStream(data));
+
+            Rotate(BMP);
+            if (BMP.Width > width)
+                height = width * BMP.Height / BMP.Width;
+            else if (BMP.Height > height)
+                width = height * BMP.Width / BMP.Height;
+            else
+            {
+                width = BMP.Width;
+                height = BMP.Height;
+            }
+            var image = new Bitmap(BMP, width, height);
+
+            using (var mImage = new MagickImage(image.ToByteArray()))
+            {
+                if(format == ImageFormat.Invalid)
+                {
+                    if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Png)
+                        mImage.Format = MagickFormat.Png24;
+                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Jpeg)
+                        mImage.Format = MagickFormat.Jpg;
+                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Gif)
+                        mImage.Format = MagickFormat.Gif;
+                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Tiff)
+                        mImage.Format = MagickFormat.Tiff;
+                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Bmp)
+                        mImage.Format = MagickFormat.Bmp;
+                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.MemoryBmp || image.RawFormat.ToString() == "MemoryBMP")
+                        mImage.Format = MagickFormat.Bmp;
+                }
+                else
+                {
+                    if (format == ImageFormat.PNG)
+                        mImage.Format = MagickFormat.Png24;
+                    else if (format == ImageFormat.JPEG)
+                        mImage.Format = MagickFormat.Jpg;
+                    else if (format == ImageFormat.GIF)
+                        mImage.Format = MagickFormat.Gif;
+                    else if (format == ImageFormat.TIFF)
+                        mImage.Format = MagickFormat.Tiff;
+                    else if (format == ImageFormat.BMP)
+                        mImage.Format = MagickFormat.Bmp;
+                }
+                mImage.Quality = quality;
+                if (width > 0 && height > 0)
+                    mImage.Resize(width, height);
+                return mImage.ToBitmap();
+            }
         }
         public static string SaveImageFile(System.IO.Stream File, string FileName, string DomainImageDirectory, int fixedHeight = 0, int fixedWidth = 0)
         {
@@ -123,14 +150,14 @@ namespace Ophelia.Drawing
                 if (FileExtension.Contains("png") || FileExtension.Contains("jpg") || FileExtension.Contains("jpeg") || FileExtension.Contains("gif") || FileExtension.Contains("bmp"))
                 {
                     dynamic ID = DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + "_" + DateTime.Now.Millisecond;
-                    if (!System.IO.Directory.Exists(DomainImageDirectory + "Large/"))
-                        System.IO.Directory.CreateDirectory(DomainImageDirectory + "Large");
-                    if (!System.IO.Directory.Exists(DomainImageDirectory + "Medium/"))
-                        System.IO.Directory.CreateDirectory(DomainImageDirectory + "Medium");
-                    if (!System.IO.Directory.Exists(DomainImageDirectory + "Small/"))
-                        System.IO.Directory.CreateDirectory(DomainImageDirectory + "Small/");
+                    if (!Directory.Exists(DomainImageDirectory + "Large/"))
+                        Directory.CreateDirectory(DomainImageDirectory + "Large");
+                    if (!Directory.Exists(DomainImageDirectory + "Medium/"))
+                        Directory.CreateDirectory(DomainImageDirectory + "Medium");
+                    if (!Directory.Exists(DomainImageDirectory + "Small/"))
+                        Directory.CreateDirectory(DomainImageDirectory + "Small/");
 
-                    System.Drawing.Image Image = System.Drawing.Image.FromStream(File);
+                    var Image = System.Drawing.Image.FromStream(File);
 
                     Rotate(Image);
 
@@ -158,7 +185,7 @@ namespace Ophelia.Drawing
                     }
                     if (ResizeBeForeCrop)
                     {
-                        Image = new System.Drawing.Bitmap(Image, new System.Drawing.Size(ImageWidth, ImageHeight));
+                        Image = new Bitmap(Image, new Size(ImageWidth, ImageHeight));
                     }
 
                     CropImage(Image, fixedWidth > 0 ? fixedWidth : 160, fixedHeight > 0 ? fixedHeight : 160).Save(DomainImageDirectory + "Small/" + ID + "." + FileExtension);
@@ -174,26 +201,11 @@ namespace Ophelia.Drawing
             }
             return "";
         }
-        public static System.Drawing.Image ResizeImage(System.Drawing.Image BMP, int Width, int Height, string PathToSave)
+        public static Image ResizeImage(Image BMP, int width, int height, string PathToSave, int quality = 75)
         {
             try
             {
-                Rotate(BMP);
-
-                if (BMP.Width > Width)
-                {
-                    Height = Width * BMP.Height / BMP.Width;
-                }
-                else if (BMP.Height > Height)
-                {
-                    Width = Height * BMP.Width / BMP.Height;
-                }
-                else
-                {
-                    Width = BMP.Width;
-                    Height = BMP.Height;
-                }
-                System.Drawing.Bitmap NewBMP = new System.Drawing.Bitmap(BMP, Width, Height);
+                var NewBMP = ProcessImage(BMP.ToByteArray(), width, height,quality);
                 if (!string.IsNullOrEmpty(PathToSave))
                     NewBMP.Save(PathToSave);
                 return NewBMP;
@@ -204,28 +216,11 @@ namespace Ophelia.Drawing
             }
         }
 
-        public static void ResizeImage(System.IO.Stream InputStream, int Width, int Height, string PathToSave)
+        public static void ResizeImage(Stream inputStream, int width, int height, string PathToSave, int quality = 75)
         {
             try
             {
-                System.Drawing.Image BMP = System.Drawing.Bitmap.FromStream(InputStream);
-
-                Rotate(BMP);
-
-                if (BMP.Width > Width)
-                {
-                    Height = Width * BMP.Height / BMP.Width;
-                }
-                else if (BMP.Height > Height)
-                {
-                    Width = Height * BMP.Width / BMP.Height;
-                }
-                else
-                {
-                    Width = BMP.Width;
-                    Height = BMP.Height;
-                }
-                System.Drawing.Bitmap NewBMP = new System.Drawing.Bitmap(BMP, Width, Height);
+                var NewBMP = ProcessImage(inputStream.ReadFully(0), width, height, quality);
                 NewBMP.Save(PathToSave);
             }
             catch (Exception)
@@ -233,28 +228,11 @@ namespace Ophelia.Drawing
                 PathToSave = "";
             }
         }
-        public static System.Drawing.Bitmap ResizeImage(byte[] data, int Width, int Height)
+        public static Bitmap ResizeImage(byte[] data, int width, int height, int quality = 75)
         {
             try
             {
-                System.Drawing.Image BMP = System.Drawing.Bitmap.FromStream(new System.IO.MemoryStream(data));
-
-                Rotate(BMP);
-
-                if (BMP.Width > Width)
-                {
-                    Height = Width * BMP.Height / BMP.Width;
-                }
-                else if (BMP.Height > Height)
-                {
-                    Width = Height * BMP.Width / BMP.Height;
-                }
-                else
-                {
-                    Width = BMP.Width;
-                    Height = BMP.Height;
-                }
-                System.Drawing.Bitmap NewBMP = new System.Drawing.Bitmap(BMP, Width, Height);
+                var NewBMP = ProcessImage(data, width, height, quality);
                 return NewBMP;
             }
             catch (Exception)

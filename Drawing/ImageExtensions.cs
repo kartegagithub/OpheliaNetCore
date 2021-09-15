@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -18,7 +20,33 @@ namespace Ophelia
 
     public static class ImageExtensions
     {
-
+        public static byte[] ToByteArray(this Image img, ImageFormat format = ImageFormat.Invalid)
+        {
+            using (var stream = new MemoryStream())
+            {
+                var imageFormat = System.Drawing.Imaging.ImageFormat.Bmp;
+                if (format != ImageFormat.Invalid)
+                {
+                    if (format == ImageFormat.JPEG)
+                        imageFormat = System.Drawing.Imaging.ImageFormat.Jpeg;
+                    else if (format == ImageFormat.PNG)
+                        imageFormat = System.Drawing.Imaging.ImageFormat.Png;
+                    else if (format == ImageFormat.TIFF)
+                        imageFormat = System.Drawing.Imaging.ImageFormat.Tiff;
+                    else if (format == ImageFormat.GIF)
+                        imageFormat = System.Drawing.Imaging.ImageFormat.Gif;
+                }
+                else
+                {
+                    if (img.RawFormat == System.Drawing.Imaging.ImageFormat.MemoryBmp || img.RawFormat.ToString() == "MemoryBMP")
+                        imageFormat = System.Drawing.Imaging.ImageFormat.Bmp;
+                    else
+                        imageFormat = img.RawFormat;
+                }
+                img.Save(stream, imageFormat);
+                return stream.ToArray();
+            }
+        }
         public static bool IsAcceptableImage(this byte[] bytes, params ImageFormat[] parameters)
         {
             if (parameters == null || parameters.Length == 0)
