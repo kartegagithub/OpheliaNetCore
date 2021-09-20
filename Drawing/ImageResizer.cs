@@ -128,9 +128,9 @@ namespace Ophelia.Drawing
             var BMP = Bitmap.FromStream(new MemoryStream(data));
 
             Rotate(BMP);
-            if (BMP.Width > width)
+            if (BMP.Width > width && width > 0)
                 height = width * BMP.Height / BMP.Width;
-            else if (BMP.Height > height)
+            else if (BMP.Height > height && height > 0)
                 width = height * BMP.Width / BMP.Height;
             else
             {
