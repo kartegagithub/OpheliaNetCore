@@ -79,43 +79,19 @@ namespace Ophelia.Drawing
             }
             return null;
         }
-        public static void ProcessImages(string folderPath, int quality = 75)
+        public static void Compress(string folderPath, int quality = 75)
         {
             var files = Directory.GetFiles(folderPath);
             foreach (var file in files)
             {
-                ProcessImage(file, quality);
+                LosslessCompress(file);
             }
 
             var subfolders = Directory.GetDirectories(folderPath);
             foreach (var folder in subfolders)
             {
-                ProcessImages(folder, quality);
+                Compress(folder, quality);
             }
-        }
-        public static Bitmap ProcessImage(string filePath, int quality = 75)
-        {
-            var extension = Path.GetExtension(filePath).Replace(".", "").ToLower();
-            var format = ImageFormat.Unknown;
-            switch (extension)
-            {
-                case "jpg":
-                case "jpeg":
-                    format = ImageFormat.JPEG;
-                    break;
-                case "png":
-                    format = ImageFormat.PNG;
-                    break;
-                case "gif":
-                    format = ImageFormat.GIF;
-                    break;
-                case "tiff":
-                    format = ImageFormat.TIFF;
-                    break;
-            }
-            if (format == ImageFormat.Unknown)
-                return null;
-            return ProcessImage(System.IO.File.ReadAllBytes(filePath), 0, 0, quality, format);
         }
         public static Bitmap ProcessImage(byte[] data, int width = 0, int height = 0, int quality = 75, ImageFormat format = ImageFormat.Invalid)
         {
