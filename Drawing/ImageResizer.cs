@@ -125,54 +125,58 @@ namespace Ophelia.Drawing
                 if (format == ImageFormat.Unknown)
                     format = ImageFormat.Invalid;
             }
-            var BMP = Bitmap.FromStream(new MemoryStream(data));
-
-            Rotate(BMP);
-            if (BMP.Width > width && width > 0)
-                height = width * BMP.Height / BMP.Width;
-            else if (BMP.Height > height && height > 0)
-                width = height * BMP.Width / BMP.Height;
-            else
+            using (var mImage = new MagickImage(data))
             {
-                width = BMP.Width;
-                height = BMP.Height;
-            }
-            var image = new Bitmap(BMP, width, height);
-
-            using (var mImage = new MagickImage(image.ToByteArray()))
-            {
-                if (format == ImageFormat.Invalid)
-                {
-                    if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Png)
-                        mImage.Format = MagickFormat.Png24;
-                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Jpeg)
-                        mImage.Format = MagickFormat.Jpg;
-                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Gif)
-                        mImage.Format = MagickFormat.Gif;
-                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Tiff)
-                        mImage.Format = MagickFormat.Tiff;
-                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.Bmp)
-                        mImage.Format = MagickFormat.Bmp;
-                    else if (image.RawFormat == System.Drawing.Imaging.ImageFormat.MemoryBmp || image.RawFormat.ToString() == "MemoryBMP")
-                        mImage.Format = MagickFormat.Bmp;
-                }
+                if (mImage.Width > width && width > 0)
+                    height = width * mImage.Height / mImage.Width;
+                else if (mImage.Height > height && height > 0)
+                    width = height * mImage.Width / mImage.Height;
                 else
                 {
-                    if (format == ImageFormat.PNG)
-                        mImage.Format = MagickFormat.Png24;
-                    else if (format == ImageFormat.JPEG)
-                        mImage.Format = MagickFormat.Jpg;
-                    else if (format == ImageFormat.GIF)
-                        mImage.Format = MagickFormat.Gif;
-                    else if (format == ImageFormat.TIFF)
-                        mImage.Format = MagickFormat.Tiff;
-                    else if (format == ImageFormat.BMP)
-                        mImage.Format = MagickFormat.Bmp;
+                    width = mImage.Width;
+                    height = mImage.Height;
                 }
+
+                if (format == ImageFormat.PNG)
+                    mImage.Format = MagickFormat.Png8;
+                else if (format == ImageFormat.JPEG)
+                    mImage.Format = MagickFormat.Jpg;
+                else if (format == ImageFormat.GIF)
+                    mImage.Format = MagickFormat.Gif;
+                else if (format == ImageFormat.TIFF)
+                    mImage.Format = MagickFormat.Tiff;
+                else if (format == ImageFormat.BMP)
+                    mImage.Format = MagickFormat.Bmp;
+
                 mImage.Quality = quality;
-                if (width > 0 && height > 0)
+                if (mImage.Width != width && mImage.Height != height && width > 0 && height > 0)
                     mImage.Resize(width, height);
-                return mImage.ToBitmap();
+
+                return Rotate(LosslessCompress(mImage.ToByteArray())) as Bitmap;
+            }
+        }
+
+        public static bool LosslessCompress(string path, bool optimalCompression = false)
+        {
+            ImageOptimizer optimizer = new ImageOptimizer();
+            optimizer.OptimalCompression = optimalCompression;
+            return optimizer.LosslessCompress(path);
+        }
+        public static Stream LosslessCompress(Stream stream, bool optimalCompression = false)
+        {
+            ImageOptimizer optimizer = new ImageOptimizer();
+            optimizer.OptimalCompression = optimalCompression;
+            optimizer.LosslessCompress(stream);
+            return stream;
+        }
+        public static Bitmap LosslessCompress(byte[] data, bool optimalCompression = false)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                ImageOptimizer optimizer = new ImageOptimizer();
+                optimizer.OptimalCompression = optimalCompression;
+                optimizer.LosslessCompress(stream);
+                return Bitmap.FromStream(stream) as Bitmap;
             }
         }
         public static string SaveImageFile(System.IO.Stream File, string FileName, string DomainImageDirectory, int fixedHeight = 0, int fixedWidth = 0)
