@@ -79,7 +79,7 @@ namespace Ophelia.Drawing
             }
             return null;
         }
-        public static void Compress(string folderPath, int quality = 75)
+        public static void Compress(string folderPath)
         {
             var files = Directory.GetFiles(folderPath);
             foreach (var file in files)
@@ -90,7 +90,7 @@ namespace Ophelia.Drawing
             var subfolders = Directory.GetDirectories(folderPath);
             foreach (var folder in subfolders)
             {
-                Compress(folder, quality);
+                Compress(folder);
             }
         }
         public static Bitmap ProcessImage(byte[] data, int width = 0, int height = 0, int quality = 75, ImageFormat format = ImageFormat.Invalid)
