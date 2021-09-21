@@ -141,11 +141,18 @@ namespace Ophelia.Drawing
 
         public static bool LosslessCompress(string path, bool optimalCompression = false)
         {
-            if (!path.IsImageFile())
+            try
+            {
+                if (!path.IsImageFile())
+                    return false;
+                ImageOptimizer optimizer = new ImageOptimizer();
+                optimizer.OptimalCompression = optimalCompression;
+                return optimizer.LosslessCompress(path);
+            }
+            catch (Exception)
+            {
                 return false;
-            ImageOptimizer optimizer = new ImageOptimizer();
-            optimizer.OptimalCompression = optimalCompression;
-            return optimizer.LosslessCompress(path);
+            }            
         }
         public static Stream LosslessCompress(Stream stream, bool optimalCompression = false)
         {
