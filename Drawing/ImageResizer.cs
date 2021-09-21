@@ -37,7 +37,12 @@ namespace Ophelia.Drawing
             }
             return originalImage;
         }
-
+        public static bool IsImageFile(this string fileName)
+        {
+            var extension = new string[] { "png", "jpg", "jpeg", "bmp", "gif", "tiff" };
+            var ext = Path.GetExtension(fileName).ToLower().Replace(".", "").Replace("ı", "i");
+            return extension.Where(op => op == ext).Any();
+        }
         public static Bitmap CropImage(byte[] data, int Width, int Height)
         {
             return CropImage(Bitmap.FromStream(new System.IO.MemoryStream(data)), Width, Height);
@@ -84,6 +89,8 @@ namespace Ophelia.Drawing
             var files = Directory.GetFiles(folderPath);
             foreach (var file in files)
             {
+                if (!file.IsImageFile())
+                    continue;
                 LosslessCompress(file);
             }
 
@@ -134,6 +141,8 @@ namespace Ophelia.Drawing
 
         public static bool LosslessCompress(string path, bool optimalCompression = false)
         {
+            if (!path.IsImageFile())
+                return false;
             ImageOptimizer optimizer = new ImageOptimizer();
             optimizer.OptimalCompression = optimalCompression;
             return optimizer.LosslessCompress(path);
