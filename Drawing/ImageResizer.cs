@@ -121,7 +121,7 @@ namespace Ophelia.Drawing
                 }
 
                 if (format == ImageFormat.PNG)
-                    mImage.Format = MagickFormat.Png8;
+                    mImage.Format = MagickFormat.Png24;
                 else if (format == ImageFormat.JPEG)
                     mImage.Format = MagickFormat.Jpg;
                 else if (format == ImageFormat.GIF)
