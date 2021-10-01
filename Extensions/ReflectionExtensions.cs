@@ -20,7 +20,9 @@ namespace Ophelia
                 {
                     try
                     {
-                        type2.GetProperty(p.Name).SetValue(obj2, p.GetValue(obj1));
+                        var type2Prop = type2.GetProperty(p.Name);
+                        if (type2Prop.PropertyType.IsAssignableFrom(p.PropertyType))
+                            type2Prop.SetValue(obj2, p.GetValue(obj1));
                     }
                     catch (Exception)
                     {

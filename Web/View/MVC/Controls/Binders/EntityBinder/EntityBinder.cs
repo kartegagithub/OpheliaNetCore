@@ -14,6 +14,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
     public class EntityBinder<T> : Panel, IDisposable where T : class
     {
         private readonly ViewContext viewContext;
+        public ViewContext ViewContext { get { return this.viewContext; } }
         public HttpRequest Request { get { return this.Client.Request; } }
         public T Entity { get; private set; }
         public long EntityID { get; private set; }
