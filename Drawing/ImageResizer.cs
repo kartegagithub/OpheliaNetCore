@@ -163,78 +163,13 @@ namespace Ophelia.Drawing
         }
         public static Bitmap LosslessCompress(byte[] data, bool optimalCompression = false)
         {
-            using (var stream = new MemoryStream(data))
-            {
-                ImageOptimizer optimizer = new ImageOptimizer();
-                optimizer.OptimalCompression = optimalCompression;
-                optimizer.LosslessCompress(stream);
-                return Bitmap.FromStream(stream) as Bitmap;
-            }
+            var stream = new MemoryStream(data);
+            ImageOptimizer optimizer = new ImageOptimizer();
+            optimizer.OptimalCompression = optimalCompression;
+            optimizer.LosslessCompress(stream);
+            return Bitmap.FromStream(stream) as Bitmap;
         }
-        public static string SaveImageFile(System.IO.Stream File, string FileName, string DomainImageDirectory, int fixedHeight = 0, int fixedWidth = 0)
-        {
-            try
-            {
-                if (File == null)
-                    return "";
-
-                if (string.IsNullOrEmpty(DomainImageDirectory))
-                    DomainImageDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                string FileExtension = System.IO.Path.GetExtension(FileName).Replace(".", "").ToLower();
-                if (FileExtension.Contains("png") || FileExtension.Contains("jpg") || FileExtension.Contains("jpeg") || FileExtension.Contains("gif") || FileExtension.Contains("bmp"))
-                {
-                    dynamic ID = DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + "_" + DateTime.Now.Millisecond;
-                    if (!Directory.Exists(DomainImageDirectory + "Large/"))
-                        Directory.CreateDirectory(DomainImageDirectory + "Large");
-                    if (!Directory.Exists(DomainImageDirectory + "Medium/"))
-                        Directory.CreateDirectory(DomainImageDirectory + "Medium");
-                    if (!Directory.Exists(DomainImageDirectory + "Small/"))
-                        Directory.CreateDirectory(DomainImageDirectory + "Small/");
-
-                    var Image = System.Drawing.Image.FromStream(File);
-
-                    Rotate(Image);
-
-                    Image.Save(DomainImageDirectory + "Large/" + ID + "." + FileExtension);
-                    int ImageWidth = Image.Width;
-                    int ImageHeight = Image.Height;
-                    bool ResizeBeForeCrop = false;
-                    if (Image.Width > Image.Height)
-                    {
-                        if (Image.Width > 5000)
-                        {
-                            ImageHeight = 5000 * ImageHeight / ImageWidth;
-                            ImageWidth = 5000;
-                            ResizeBeForeCrop = true;
-                        }
-                    }
-                    else
-                    {
-                        if (Image.Height > 5000)
-                        {
-                            ImageWidth = 5000 * ImageWidth / ImageHeight;
-                            ImageHeight = 5000;
-                            ResizeBeForeCrop = true;
-                        }
-                    }
-                    if (ResizeBeForeCrop)
-                    {
-                        Image = new Bitmap(Image, new Size(ImageWidth, ImageHeight));
-                    }
-
-                    CropImage(Image, fixedWidth > 0 ? fixedWidth : 160, fixedHeight > 0 ? fixedHeight : 160).Save(DomainImageDirectory + "Small/" + ID + "." + FileExtension);
-                    CropImage(Image, fixedWidth > 0 ? fixedWidth : 320, fixedHeight > 0 ? fixedHeight : 320).Save(DomainImageDirectory + "Medium/" + ID + "." + FileExtension);
-                    CropImage(Image, fixedWidth > 0 ? fixedWidth : 640, fixedHeight > 0 ? fixedHeight : 640).Save(DomainImageDirectory + "Large/" + ID + "." + FileExtension);
-                    return ID + "." + FileExtension.ToLower().Replace("ı", "i");
-                }
-
-            }
-            catch (Exception)
-            {
-                return "";
-            }
-            return "";
-        }
+        
         public static Image ResizeImage(Image BMP, int width, int height, string PathToSave, int quality = 75)
         {
             try

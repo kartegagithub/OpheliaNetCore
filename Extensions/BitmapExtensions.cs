@@ -65,10 +65,6 @@ namespace Ophelia
             }
             return source;
         }
-        public static byte[] ToByteArray(this Bitmap source)
-        {
-            return source.ToByteArray(System.Drawing.Imaging.ImageFormat.Png);
-        }
         public static byte[] ToByteArray(this Bitmap source, System.Drawing.Imaging.ImageFormat format)
         {
             using (var stream = new MemoryStream())
