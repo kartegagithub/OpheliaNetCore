@@ -158,9 +158,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             object value = null;
             if (this.Expression != null)
             {
-                value = this.Expression.GetValue(item, this.Binder.Client.CurrentLanguageID, this.Binder.DefaultEntityProperties);
+                value = this.Expression.GetValue(item, this.Binder.Client.CurrentLanguageID, this.Binder.DefaultEntityProperties, new Reflection.Accessor.NullReferenceEventDelegate(this.NullReferenceEventHandler));
             }
             return value;
+        }
+        protected void NullReferenceEventHandler(object item, System.Reflection.PropertyInfo propInfo)
+        {
+            this.Binder.HandleColumnValueNullReference(item, propInfo);
         }
         public BaseColumn(CollectionBinder<TModel, T> binder, string Name)
         {

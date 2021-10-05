@@ -1823,6 +1823,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
 
         }
+        public virtual void HandleColumnValueNullReference(object item, System.Reflection.PropertyInfo propInfo)
+        {
+
+        }
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

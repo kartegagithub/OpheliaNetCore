@@ -67,7 +67,7 @@ namespace Ophelia
             }
             return null;
         }
-        public static object GetValue(this Expression expression, object item, int languageID = 0, string[] excludedProps = null)
+        public static object GetValue(this Expression expression, object item, int languageID = 0, string[] excludedProps = null, Reflection.Accessor.NullReferenceEventDelegate nullReferenceEventDelegate = null)
         {
             if (item == null || expression == null)
                 return null;
@@ -134,7 +134,10 @@ namespace Ophelia
                 accessor.Item = item;
             accessor.MemberName = path;
             accessor.MethodCallExpression = methodCallExpression;
-            return accessor.Value;
+            accessor.NullReferenceEventHandler += nullReferenceEventDelegate;
+            var value = accessor.Value;
+            accessor.NullReferenceEventHandler -= nullReferenceEventDelegate;
+            return value;
         }
 
         public static bool TryParsePath(this Expression expression, out string path)

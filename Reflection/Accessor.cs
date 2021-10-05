@@ -14,7 +14,9 @@ namespace Ophelia.Reflection
         private object oValueItem;
         private string ValueMemberName = "";
         public event ItemInitiliazedEventHandler ItemInitiliazed;
+        public event NullReferenceEventDelegate NullReferenceEventHandler;
         public delegate void ItemInitiliazedEventHandler(object Item);
+        public delegate void NullReferenceEventDelegate(object Item, PropertyInfo prop);
         public event ValueInitiliazedEventHandler ValueInitiliazed;
         public delegate void ValueInitiliazedEventHandler(ref object Value);
         private bool bIgnoreNullReferences = false;
@@ -220,7 +222,14 @@ namespace Ophelia.Reflection
                                             {
                                                 if ((TempValue != null))
                                                 {
-                                                    TempValue = this.GetPropertyInfo(TempValue, TemporaryMemberName).GetValue(TempValue, null);
+                                                    var propertyInfo = this.GetPropertyInfo(TempValue, TemporaryMemberName);
+                                                    var preTempValue = TempValue;
+                                                    TempValue = propertyInfo.GetValue(preTempValue, null);
+                                                    if (TempValue == null && this.NullReferenceEventHandler != null)
+                                                    {
+                                                        this.NullReferenceEventHandler(preTempValue, propertyInfo);
+                                                        TempValue = propertyInfo.GetValue(preTempValue, null);
+                                                    }
                                                 }
                                             }
                                         }
