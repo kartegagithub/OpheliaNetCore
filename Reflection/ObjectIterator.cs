@@ -36,7 +36,7 @@ namespace Ophelia.Reflection
             var props = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
             foreach (var p in props)
             {
-                if (p.PropertyType.IsClass && !p.PropertyType.IsAbstract && p.GetMethod != null) 
+                if (p.PropertyType.IsClass && !p.PropertyType.IsAbstract && p.GetMethod != null && p.GetMethod.IsPublic) 
                 {
                     try
                     {

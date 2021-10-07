@@ -34,7 +34,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                                 var strProps = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(op => op.PropertyType.IsAssignableFrom(typeof(string))).ToList();
                                 foreach (var p in strProps)
                                 {
-                                    if (p.SetMethod == null)
+                                    if (p.SetMethod == null || !p.SetMethod.IsPublic || p.GetMethod == null || !p.GetMethod.IsPublic)
                                         continue;
 
                                     var strValue = p.GetValue(obj) as string;
