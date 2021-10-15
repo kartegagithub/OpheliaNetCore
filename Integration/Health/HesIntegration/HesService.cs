@@ -53,22 +53,22 @@ namespace Ophelia.Integration.Health
             {
                 var tempHesCode = "";
                 #region controls
-                if (!string.IsNullOrEmpty(city))
+                if (string.IsNullOrEmpty(city))
                 {
                     result.Fail("CityCanNotBeBlank");
                     return result;
                 }
-                if (!string.IsNullOrEmpty(district))
+                if (string.IsNullOrEmpty(district))
                 {
                     result.Fail("DistrictCanNotBeBlank");
                     return result;
                 }
-                if (!string.IsNullOrEmpty(address))
+                if (string.IsNullOrEmpty(address))
                 {
                     result.Fail("AddressCanNotBeBlank");
                     return result;
                 }
-                if (!string.IsNullOrEmpty(hesCode))
+                if (string.IsNullOrEmpty(hesCode))
                 {
                     result.Fail("HesCodeCanNotBeBlank");
                     return result;
@@ -127,7 +127,7 @@ namespace Ophelia.Integration.Health
             {
                 var tempHesCode = "";
                 #region controls
-                if (!string.IsNullOrEmpty(hesCode))
+                if (string.IsNullOrEmpty(hesCode))
                 {
                     result.Fail("HesCodeCanNotBeBlank");
                     return result;
@@ -177,7 +177,7 @@ namespace Ophelia.Integration.Health
             try
             {
                 #region controls
-                if (!string.IsNullOrEmpty(hesCode))
+                if (string.IsNullOrEmpty(hesCode))
                 {
                     result.Fail("HesCodeCanNotBeBlank");
                     return result;
@@ -239,7 +239,7 @@ namespace Ophelia.Integration.Health
             {
                 var tempHesCode = "";
                 #region controls
-                if (!string.IsNullOrEmpty(hesCode))
+                if (string.IsNullOrEmpty(hesCode))
                 {
                     result.Fail("HesCodeCanNotBeBlank");
                     return result;
@@ -289,7 +289,7 @@ namespace Ophelia.Integration.Health
             try
             {
                 #region controls
-                if (!string.IsNullOrEmpty(hesCode))
+                if (string.IsNullOrEmpty(hesCode))
                 {
                     result.Fail("HesCodeCanNotBeBlank");
                     return result;
