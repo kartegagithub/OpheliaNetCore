@@ -5,43 +5,34 @@ using System.Net;
 
 namespace Ophelia.Integration.Health
 {
-    public static class Service
+    public class HesService
     {
-        private static string oServiceURL { get; set; }
-
-        public static string ServiceURL
+        public HesService(string serviceURL, string userName, string password)
         {
-            //Live: https://hesservis.turkiye.gov.tr/services/g2g/test/saglik/hes/
-            //Test: https://hesservis.turkiye.gov.tr/services/g2g/saglik/hes/
-            get
-            {
-                return oServiceURL;
-            }
-            set
-            {
-                oServiceURL = value;
-                if (!string.IsNullOrEmpty(oServiceURL))
-                {
-                    oServiceURL = oServiceURL.TrimEnd('/');
-                }
-            }
+            this.ServiceURL = serviceURL;
+            this.UserName = userName;
+            this.Password = password;
         }
 
-        public static string UserName { get; set; }
+        //Live: https://hesservis.turkiye.gov.tr/services/g2g/test/saglik/hes/
+        //Test: https://hesservis.turkiye.gov.tr/services/g2g/saglik/hes/
+        public string ServiceURL { get; set; }
 
-        public static string Password { get; set; }
+        public string UserName { get; set; }
 
-        private static string oAuthenticationToken;
+        public string Password { get; set; }
 
-        private static string AuthenticationToken
+        private string oAuthenticationToken;
+
+        private string AuthenticationToken
         {
             get
             {
-                if (string.IsNullOrEmpty(oAuthenticationToken))
+                if (string.IsNullOrEmpty(this.oAuthenticationToken))
                 {
-                    oAuthenticationToken = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(string.Format("{0}:{1}", UserName, Password)));
+                    this.oAuthenticationToken = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(string.Format("{0}:{1}", UserName, Password)));
                 }
-                return oAuthenticationToken;
+                return this.oAuthenticationToken;
             }
         }
 
@@ -55,7 +46,7 @@ namespace Ophelia.Integration.Health
         /// <param name="latitude">sorgulama yapılan enlem</param>
         /// <param name="longitude">sorgulama yapılan boylam</param>
         /// <returns>Dönülen tarih UTC+0 zaman dilimindedir. Tarih kullanılmadan localtime'a çevrilmelidir.</returns>
-        public static ServiceObjectResult<HesCodeResult> CheckVisitorHesCode(string city, string district, string address, string hesCode, string latitude, string longitude)
+        public ServiceObjectResult<HesCodeResult> CheckVisitorHesCode(string city, string district, string address, string hesCode, string latitude, string longitude)
         {
             var result = new ServiceObjectResult<HesCodeResult>();
             try
@@ -108,7 +99,7 @@ namespace Ophelia.Integration.Health
 
                 var headers = new WebHeaderCollection
                 {
-                    { "Authorization", "Basic " + AuthenticationToken }
+                    { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
                 result.SetData(URL.PostURL<HesCodeResult>(parameters, headers, contentType: "application/json"));
@@ -129,7 +120,7 @@ namespace Ophelia.Integration.Health
         /// </summary>
         /// <param name="hesCode">zorunlu / sorgulama yapılan hes kodu bilgisi</param>
         /// <returns>Dönülen tarih UTC+0 zaman dilimindedir. Tarih kullanılmadan localtime'a çevrilmelidir.</returns>
-        public static ServiceObjectResult<HesCodeResult> CheckEmployeeHesCode(string hesCode)
+        public ServiceObjectResult<HesCodeResult> CheckEmployeeHesCode(string hesCode)
         {
             var result = new ServiceObjectResult<HesCodeResult>();
             try
@@ -159,7 +150,7 @@ namespace Ophelia.Integration.Health
 
                 var headers = new WebHeaderCollection
                 {
-                    { "Authorization", "Basic " + AuthenticationToken }
+                    { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
                 result.SetData(URL.PostURL<HesCodeResult>(parameters, headers, contentType: "application/json"));
@@ -180,7 +171,7 @@ namespace Ophelia.Integration.Health
         /// </summary>
         /// <param name="hesCode">zorunlu / sorgulama yapılan hes kodu bilgisi</param>
         /// <returns>Dönülen tarih UTC+0 zaman dilimindedir. Tarih kullanılmadan localtime'a çevrilmelidir.</returns>
-        public static ServiceObjectResult<AllHesCodeResult> CheckHesCodes(string hesCode)
+        public ServiceObjectResult<AllHesCodeResult> CheckHesCodes(string hesCode)
         {
             var result = new ServiceObjectResult<AllHesCodeResult>();
             try
@@ -214,7 +205,7 @@ namespace Ophelia.Integration.Health
 
                 var headers = new WebHeaderCollection
                 {
-                    { "Authorization", "Basic " + AuthenticationToken }
+                    { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
                 result.SetData(URL.PostURL<AllHesCodeResult>(list, headers, contentType: "application/json"));
@@ -241,7 +232,7 @@ namespace Ophelia.Integration.Health
         /// </summary>
         /// <param name="hesCode">zorunlu / sorgulama yapılan hes kodu bilgisi</param>
         /// <returns>Dönülen tarih UTC+0 zaman dilimindedir. Tarih kullanılmadan localtime'a çevrilmelidir.</returns>
-        public static ServiceObjectResult<HesCodeDetailResult> CheckHesCodePlus(string hesCode)
+        public ServiceObjectResult<HesCodeDetailResult> CheckHesCodePlus(string hesCode)
         {
             var result = new ServiceObjectResult<HesCodeDetailResult>();
             try
@@ -271,7 +262,7 @@ namespace Ophelia.Integration.Health
 
                 var headers = new WebHeaderCollection
                 {
-                    { "Authorization", "Basic " + AuthenticationToken }
+                    { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
                 result.SetData(URL.PostURL<HesCodeDetailResult>(parameters, headers, contentType: "application/json"));
@@ -292,7 +283,7 @@ namespace Ophelia.Integration.Health
         /// </summary>
         /// <param name="hesCode">zorunlu / sorgulama yapılan hes kodu bilgisi</param>
         /// <returns>Dönülen tarih UTC+0 zaman dilimindedir. Tarih kullanılmadan localtime'a çevrilmelidir.</returns>
-        public static ServiceObjectResult<AllHesCodeDetailResult> CheckHesCodesPlus(string hesCode)
+        public ServiceObjectResult<AllHesCodeDetailResult> CheckHesCodesPlus(string hesCode)
         {
             var result = new ServiceObjectResult<AllHesCodeDetailResult>();
             try
@@ -327,7 +318,7 @@ namespace Ophelia.Integration.Health
 
                 var headers = new WebHeaderCollection
                 {
-                    { "Authorization", "Basic " + AuthenticationToken }
+                    { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
                 result.SetData(URL.PostURL<AllHesCodeDetailResult>(list, headers, contentType: "application/json"));
