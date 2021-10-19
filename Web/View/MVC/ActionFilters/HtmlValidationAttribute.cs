@@ -87,6 +87,10 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                         allowedAttributes.Add("property");
                         allowedAttributes.Add("sizes");
                         allowedAttributes.Add("rel");
+                        allowedAttributes.Add("target");
+                        allowedAttributes.Add("href");
+                        allowedAttributes.Add("class");
+                        allowedAttributes.Add("frameborder");
                         this.Sanitizer = new Ganss.XSS.HtmlSanitizer(allowedTags);
                     }
                     return this.Sanitizer.Sanitize(val);
