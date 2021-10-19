@@ -380,6 +380,27 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return control.Render();
         }
 
+        public static IHtmlContent EnumSelectboxField<T>(this FieldContainer<T> container, string Name, string Text, string SelectedValue, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "", bool IsMultiple = false) where T : class
+        {
+            var control = new Fields.SelectboxField<T>(container);
+            control.Text = Text;
+
+            control.DataControl.DataSource = enumType.GetEnumSelectList(container.Client);
+            control.DataControl.SelectedValue = SelectedValue;
+            control.DataControl.DefaultText = DefaultText;
+            control.DataControl.DefaultValue = DefaultValue;
+            control.DataControl.DisplayMemberName = "Text";
+            control.DataControl.ValueMemberName = "Value";
+            control.DataControl.IsMultiple = IsMultiple;
+            control.DataControl.ID = Name;
+            control.DataControl.Name = Name;
+
+            control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
+            container.AddField(control);
+            return control.Render();
+        }
+
         public static IHtmlContent EnumSelectboxFieldFor<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class { return container.EnumSelectboxFieldFor("", expression, enumType, isRequired, htmlAttributes, DefaultText, DefaultValue); }
         public static IHtmlContent EnumSelectboxFieldFor<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class
         {
