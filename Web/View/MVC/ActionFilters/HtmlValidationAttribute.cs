@@ -75,7 +75,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                 case HtmlValidationProcessType.None:
                     return val;
                 case HtmlValidationProcessType.Sanitize:
-                    if(this.Sanitizer == null)
+                    if (this.Sanitizer == null)
                     {
                         var allowedTags = Ganss.XSS.HtmlSanitizer.DefaultAllowedTags;
                         allowedTags.Add("iframe");
@@ -91,7 +91,12 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                         allowedAttributes.Add("href");
                         allowedAttributes.Add("class");
                         allowedAttributes.Add("frameborder");
-                        this.Sanitizer = new Ganss.XSS.HtmlSanitizer(allowedTags);
+
+                        var allowedSchemes = Ganss.XSS.HtmlSanitizer.DefaultAllowedSchemes;
+                        allowedSchemes.Add("mailto");
+                        allowedSchemes.Add("tel");
+
+                        this.Sanitizer = new Ganss.XSS.HtmlSanitizer(allowedTags, allowedSchemes, allowedAttributes);
                     }
                     return this.Sanitizer.Sanitize(val);
                 case HtmlValidationProcessType.RemoveHtml:
