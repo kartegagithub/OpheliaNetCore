@@ -33,5 +33,9 @@ namespace Ophelia.Integration.Health
         [DataMember]
         [JsonProperty("params")]
         public string Params { get; set; }
+
+        [DataMember]
+        [JsonProperty("detail")]
+        public string Detail { get; set; }
     }
 }
