@@ -33,10 +33,14 @@ namespace Ophelia.Reflection
             if (this.IterationCount >= this.MaxIterationCount)
                 return;
 
+            this.IteratedObjects.Add(obj);
+            if (this.IterationCallback != null)
+                this.IterationCallback(obj);
+
             var props = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
             foreach (var p in props)
             {
-                if (p.PropertyType.IsClass && !p.PropertyType.IsAbstract && p.GetMethod != null && p.GetMethod.IsPublic) 
+                if (!p.PropertyType.IsPrimitiveType() && p.PropertyType.IsClass && !p.PropertyType.IsAbstract && p.GetMethod != null && p.GetMethod.IsPublic) 
                 {
                     try
                     {

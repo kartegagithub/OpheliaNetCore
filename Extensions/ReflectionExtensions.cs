@@ -11,25 +11,38 @@ namespace Ophelia
             where T1 : class
             where T2 : class
         {
+            if (obj1 == null || obj2 == null)
+                return obj2;
+
             var type1 = typeof(T1);
             var type2 = typeof(T2);
-            var props = type1.GetProperties();
-            foreach (var p in props)
+            new Reflection.ObjectIterator()
             {
-                if (type2.GetProperty(p.Name) != null && (excludedProps == null || !excludedProps.Any() || !excludedProps.Contains(p.Name)))
+                IterationCallback = (obj) =>
                 {
-                    try
+                    var props = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
+                    foreach (var p in props)
                     {
-                        var type2Prop = type2.GetProperty(p.Name);
-                        if (type2Prop.PropertyType.IsAssignableFrom(p.PropertyType))
-                            type2Prop.SetValue(obj2, p.GetValue(obj1));
-                    }
-                    catch (Exception)
-                    {
+                        if (p.SetMethod == null || !p.SetMethod.IsPublic || p.GetMethod == null || !p.GetMethod.IsPublic)
+                            continue;
 
+                        if (type2.GetProperty(p.Name) != null && (excludedProps == null || !excludedProps.Any() || !excludedProps.Contains(p.Name)))
+                        {
+                            try
+                            {
+                                var type2Prop = type2.GetProperty(p.Name);
+                                if (type2Prop.PropertyType.IsAssignableFrom(p.PropertyType))
+                                    type2Prop.SetValue(obj2, p.GetValue(obj1));
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+                        }
                     }
+                    return null;
                 }
-            }
+            }.Iterate(obj1).Dispose();
             return obj2;
         }
         public static List<T> ToList<T>(this System.Collections.ArrayList arrayList)
