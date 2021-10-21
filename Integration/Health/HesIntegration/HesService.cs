@@ -102,7 +102,7 @@ namespace Ophelia.Integration.Health
                     { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
-                result.SetData(URL.PostURL<HesCodeResult>(parameters, headers, contentType: "application/json"));
+                result.SetData(URL.PostURL<HesCodeResult>(parameters.ToJson(), "application/json", headers));
                 if (result.Data != null)
                 {
                     result.Data.HesCode = hesCode;
@@ -153,7 +153,7 @@ namespace Ophelia.Integration.Health
                     { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
-                result.SetData(URL.PostURL<HesCodeResult>(parameters, headers, contentType: "application/json"));
+                result.SetData(URL.PostURL<HesCodeResult>(parameters.ToJson(), "application/json", headers));
                 if (result.Data != null)
                 {
                     result.Data.HesCode = hesCode;
@@ -208,7 +208,7 @@ namespace Ophelia.Integration.Health
                     { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
-                result.SetData(URL.PostURL<AllHesCodeResult>(list, headers, contentType: "application/json"));
+                result.SetData(URL.PostURL<AllHesCodeResult>(list.ToJson(), "application/json", headers));
                 if (result.Data != null)
                 {
                     if (result.Data.SuccessMap?.Count > 0)
@@ -259,13 +259,12 @@ namespace Ophelia.Integration.Health
                 {
                     hes_code = tempHesCode
                 };
-
                 var headers = new WebHeaderCollection
                 {
                     { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
-                result.SetData(URL.PostURL<HesCodeDetailResult>(parameters, headers, contentType: "application/json"));
+                result.SetData(URL.PostURL<HesCodeDetailResult>(parameters.ToJson(), "application/json", headers));
                 if (result.Data != null)
                 {
                     result.Data.HesCode = hesCode;
@@ -321,7 +320,7 @@ namespace Ophelia.Integration.Health
                     { "Authorization", "Basic " + this.AuthenticationToken }
                 };
 
-                result.SetData(URL.PostURL<AllHesCodeDetailResult>(list, headers, contentType: "application/json"));
+                result.SetData(URL.PostURL<AllHesCodeDetailResult>(list.ToJson(), "application/json", headers));
                 if (result.Data != null)
                 {
                     if (result.Data.SuccessMap?.Count > 0)
