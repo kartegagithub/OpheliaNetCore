@@ -306,13 +306,16 @@ namespace Ophelia
                 return true;
             return false;
         }
-        public static List<long> ToLongList(this string value, char seperator = ',')
+        public static List<long> ToLongList(this string value, params char[] seperator)
         {
+            if (seperator == null)
+                seperator = new char[] { ',' };
+
             if (string.IsNullOrEmpty(value))
                 return new List<long>();
             try
             {
-                return value.ToString().Split(seperator).Select(i => long.Parse(i)).ToList();
+                return value.ToString().Split(seperator, StringSplitOptions.RemoveEmptyEntries).Select(i => long.Parse(i)).ToList();
             }
             catch (Exception)
             {
