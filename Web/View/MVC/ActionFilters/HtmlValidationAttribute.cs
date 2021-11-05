@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Web;
 using Ophelia;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -70,6 +71,8 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
         private Ganss.XSS.HtmlSanitizer Sanitizer;
         protected virtual string ProcessHtml(string val, PropertyInfo p, HtmlValidationProcessType type)
         {
+            if (!string.IsNullOrEmpty(val))
+                val = HttpUtility.HtmlDecode(val);
             switch (type)
             {
                 case HtmlValidationProcessType.None:
