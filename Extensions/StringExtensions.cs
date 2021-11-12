@@ -308,7 +308,7 @@ namespace Ophelia
         }
         public static List<long> ToLongList(this string value, params char[] seperator)
         {
-            if (seperator == null)
+            if (seperator == null || seperator.Length == 0)
                 seperator = new char[] { ',' };
 
             if (string.IsNullOrEmpty(value))
