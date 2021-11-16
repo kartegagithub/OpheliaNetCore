@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Ophelia.Data.Attributes;
 using Ophelia.Data.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Ophelia.Data.EntityFramework
     public class DatabaseContext : Microsoft.EntityFrameworkCore.DbContext
     {
         private bool _IsDisposed;
+        public DataProtector DataProtector { get; set; }
         public override void Dispose()
         {
             this._IsDisposed = true;
@@ -80,8 +82,16 @@ namespace Ophelia.Data.EntityFramework
                 //multiple classes may have changed. We will consider the unchanged and undeleted ones.
                 foreach (var entry in changeSet.Where(c => c.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged))
                 {
+                    List<object> attributes = null;
+                    if (this.DataProtector != null)
+                    {
+                        attributes = entry.Entity.GetType().GetCustomAttributes(typeof(GDPClassAttribute));
+                        if (attributes != null && attributes.Count > 0)
+                            this.DataProtector.OnSave(entry.Entity);
+                    }
+
                     var logs = new List<AuditLog>();
-                    var attributes = entry.Entity.GetType().GetCustomAttributes(typeof(AuditLoggingAttribute));
+                    attributes = entry.Entity.GetType().GetCustomAttributes(typeof(AuditLoggingAttribute));
                     if (attributes == null || attributes.Count == 0 || !(attributes.FirstOrDefault() as AuditLoggingAttribute).Enable)
                         continue;
 
@@ -194,6 +204,7 @@ namespace Ophelia.Data.EntityFramework
             this.Configuration = config;
             this.Options = options;
             this.PostActionAudits = new Dictionary<string, long>();
+            this.DataProtector = new DataProtector();
         }
     }
 }

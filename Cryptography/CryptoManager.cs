@@ -13,7 +13,8 @@ namespace Ophelia.Cryptography
             {
                 if (CryptoManager.Encoding == null)
                     CryptoManager.Encoding = System.Text.Encoding.ASCII;
-
+                if (string.IsNullOrEmpty(encryptionKey))
+                    encryptionKey = "";
                 if (string.IsNullOrEmpty(chipperText))
                     return chipperText;
                 TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
@@ -35,7 +36,8 @@ namespace Ophelia.Cryptography
             {
                 if (CryptoManager.Encoding == null)
                     CryptoManager.Encoding = System.Text.Encoding.ASCII;
-
+                if (string.IsNullOrEmpty(decryptionKey))
+                    decryptionKey = "";
                 if (string.IsNullOrEmpty(richText))
                     return richText;
                 TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
