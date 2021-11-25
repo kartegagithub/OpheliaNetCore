@@ -36,7 +36,7 @@ namespace Ophelia.Data.EntityFramework
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            var types = typeof(Ophelia.Data.EntityFramework.IEntityConfigurator).GetAssignableClasses();
+            var types = typeof(Ophelia.Data.EntityFramework.IEntityConfigurator).GetAssignableClasses().Where(op => op.Assembly.FullName == this.GetType().Assembly.FullName);
             foreach (var type in types)
             {
                 ((Ophelia.Data.EntityFramework.IEntityConfigurator)Activator.CreateInstance(type)).Configure(builder);
