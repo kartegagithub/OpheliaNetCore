@@ -20,7 +20,7 @@ namespace Ophelia
         {
             if (!string.IsNullOrEmpty(value))
             {
-                return value.ToLower()
+                return value.ToLowerInvariant()
                         .Replace(" ", "")
                         .Replace("ı", "i")
                         .Replace("ğ", "g")
@@ -300,9 +300,9 @@ namespace Ophelia
         {
             if (value.IsNumeric())
                 return value.ToInt64() > 0;
-            else if (value.ToLower().Equals("true"))
+            else if (value.ToLowerInvariant().Equals("true"))
                 return true;
-            else if (value.ToLower().Equals("yes"))
+            else if (value.ToLowerInvariant().Equals("yes"))
                 return true;
             return false;
         }

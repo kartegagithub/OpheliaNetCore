@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
 
@@ -290,6 +291,19 @@ namespace Ophelia
                     request.Parameters[item] = Convert.ToString(jsonParams[item]);
                 }
             }
+        }
+
+        public static PingReply Ping(string address, string data = "test")
+        {
+            var pingSender = new Ping();
+            var options = new PingOptions()
+            {
+                DontFragment = true
+            };
+
+            byte[] buffer = Encoding.ASCII.GetBytes(data);
+            int timeout = 120;
+            return pingSender.Send(address, timeout, buffer, options);
         }
     }
 }

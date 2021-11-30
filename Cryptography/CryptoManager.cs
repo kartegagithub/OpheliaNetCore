@@ -12,7 +12,7 @@ namespace Ophelia.Cryptography
             try
             {
                 if (CryptoManager.Encoding == null)
-                    CryptoManager.Encoding = System.Text.Encoding.ASCII;
+                    CryptoManager.Encoding = System.Text.Encoding.UTF8;
                 if (string.IsNullOrEmpty(encryptionKey))
                     encryptionKey = "";
                 if (string.IsNullOrEmpty(chipperText))
@@ -35,7 +35,7 @@ namespace Ophelia.Cryptography
             try
             {
                 if (CryptoManager.Encoding == null)
-                    CryptoManager.Encoding = System.Text.Encoding.ASCII;
+                    CryptoManager.Encoding = System.Text.Encoding.UTF8;
                 if (string.IsNullOrEmpty(decryptionKey))
                     decryptionKey = "";
                 if (string.IsNullOrEmpty(richText))
