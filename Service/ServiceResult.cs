@@ -45,6 +45,9 @@ namespace Ophelia.Service
         public bool HasFailed { get; set; }
 
         [DataMember]
+        public bool ClosePopup { get; set; }
+
+        [DataMember]
         [OpenApiIgnore]
         [JsonSchemaIgnore]
         public bool IsRetrievedFromCache { get; set; }
