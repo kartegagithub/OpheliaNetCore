@@ -290,7 +290,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             }
             else if (expression.NodeType == ExpressionType.NotEqual)
             {
-                this.Comparison = Comparison.Equal;
+                this.Comparison = Comparison.Different;
                 this.Exclude = true;
             }
             else if (expression.NodeType == ExpressionType.Not)
