@@ -66,7 +66,7 @@ namespace Ophelia.Integration.GitHub
             var result = new ServiceCollectionResult<GitHubCommitResult>();
             try
             {
-                var parameters = "since=" + sinceDate.Date.AddHours(00).ToString("O") + "&until=" + untilDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999).ToString("O") + "";
+                var parameters = "since=" + sinceDate.Date.StartOfDay().ToString("O") + "&until=" + untilDate.Date.EndOfDay().ToString("O") + "";
                 var URL = ServiceURL + "/repos" + "/" + repoOwner + "/" + repoName + "/commits?" + parameters;
                 var method = "GET";
                 var contentType = "application/x-www-form-urlencoded";
@@ -97,7 +97,7 @@ namespace Ophelia.Integration.GitHub
             try
             {
                 GetUserGithubRepos();
-                var parameters = "since=" + sinceDate.Date.AddHours(00).ToString("O") + "&until=" + untilDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(999).ToString("O") + "";
+                var parameters = "since=" + sinceDate.Date.StartOfDay().ToString("O") + "&until=" + untilDate.Date.EndOfDay().ToString("O") + "";
                 var URL = "";
                 var method = "GET";
                 var contentType = "application/x-www-form-urlencoded";
