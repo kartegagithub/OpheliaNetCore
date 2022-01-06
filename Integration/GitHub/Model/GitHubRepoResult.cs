@@ -12,13 +12,13 @@ namespace Ophelia.Integration.GitHub
         /// </summary>
         [DataMember]
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int ID { get; set; }
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("node_id")]
-        public string NodeId { get; set; }
+        public string NodeID { get; set; }
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
@@ -490,13 +490,13 @@ namespace Ophelia.Integration.GitHub
         /// </summary>
         [DataMember]
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int ID { get; set; }
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("node_id")]
-        public string NodeId { get; set; }
+        public string NodeID { get; set; }
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
@@ -508,7 +508,7 @@ namespace Ophelia.Integration.GitHub
         /// </summary>
         [DataMember]
         [JsonProperty("gravatar_id")]
-        public string GravatarId { get; set; }
+        public string GravatarID { get; set; }
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
