@@ -78,7 +78,7 @@ namespace Ophelia.Integration.GitHub
 
                 if (page > 0 && pageSize > 0)
                 {
-                    URL += $"?page={page}&per_page={pageSize}";
+                    URL += $"&page={page}&per_page={pageSize}";
                 }
 
                 var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
