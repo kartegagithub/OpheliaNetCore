@@ -79,7 +79,7 @@ namespace Ophelia.Integration.GitHub
                 
                 if (!string.IsNullOrEmpty(branchCommitSha))
                 {
-                    URL += $"&sha={branchCommitSha}";
+                    URL += $"&sha={branchCommitSha.EncodeURL()}";
                 }
                 if (page > 0 && pageSize > 0)
                 {
