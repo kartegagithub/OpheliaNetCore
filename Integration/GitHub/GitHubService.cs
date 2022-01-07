@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Ophelia.Integration.GitHub;
 using Ophelia.Service;
 using System;
 using System.Collections.Generic;
@@ -69,21 +70,56 @@ namespace Ophelia.Integration.GitHub
         /// <param name="endDate">Yalnızca bu tarihten önceki commitleri getirir </param>
         /// <param name="page"> </param>
         /// <param name="pageSize">max 100 için değer döner </param>
-        public ServiceCollectionResult<GitHubCommitResult> GetRepoCommits(string repoOwner, string repoName, DateTime startDate, DateTime endDate, int page = 1, int pageSize = 100)
+        public ServiceCollectionResult<GitHubCommitResult> GetRepoCommits(string repoOwner, string repoName, DateTime startDate, DateTime endDate, string branchCommitSha, int page = 1, int pageSize = 100)
         {
             var result = new ServiceCollectionResult<GitHubCommitResult>();
             try
             {
                 var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits?since={startDate.Date.StartOfDay().ToString("O")}&until={endDate.Date.EndOfDay().ToString("O")}";
-
+                
+                if (!string.IsNullOrEmpty(branchCommitSha))
+                {
+                    URL += $"&sha={branchCommitSha}";
+                }
                 if (page > 0 && pageSize > 0)
                 {
                     URL += $"&page={page}&per_page={pageSize}";
                 }
-
+                
                 var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
                 if (!string.IsNullOrEmpty(serviceResult))
                     result.SetData(serviceResult.FromJson<List<GitHubCommitResult>>());
+                else
+                    result.Fail("AProblemOccurred");
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Repoya ait branchları döner
+        /// </summary>
+        /// <param name="repoOwner">Reponun sahibi</param>
+        /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>
+        /// <param name="page"> </param>
+        /// <param name="pageSize">max 100 için değer döner </param>
+        public ServiceCollectionResult<GitHubRepoBranchResult> GetRepoBranches(string repoOwner, string repoName,  int page = 1, int pageSize = 100)
+        {
+            var result = new ServiceCollectionResult<GitHubRepoBranchResult>();
+            try
+            {
+                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/branches";
+
+                if (page > 0 && pageSize > 0)
+                {
+                    URL += $"?page={page}&per_page={pageSize}";
+                }
+                var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
+                if (!string.IsNullOrEmpty(serviceResult))
+                    result.SetData(serviceResult.FromJson<List<GitHubRepoBranchResult>>());
                 else
                     result.Fail("AProblemOccurred");
             }
