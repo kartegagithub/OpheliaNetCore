@@ -8,16 +8,21 @@ namespace Ophelia.LDAP
 {
     public abstract class ADFacade
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public static SearchResultCollection FindUsers(string userName, params string[] properties)
         {
             var search = GetUserDirectorySearcher(userName, properties);
             return search.FindAll();
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public static SearchResult FindUser(string userName, params string[] properties)
         {
             var search = GetUserDirectorySearcher(userName, properties);
             return search.FindOne();
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public static string GetGroups(string path, string filterAttribute)
         {
             var search = new DirectorySearcher(path)
@@ -58,6 +63,8 @@ namespace Ophelia.LDAP
             }
             return groupNames.ToString();
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         private static DirectorySearcher GetUserDirectorySearcher(string userName, params string[] properties)
         {
             if (userName.IndexOf("\\") > -1)
@@ -77,6 +84,8 @@ namespace Ophelia.LDAP
             }
             return search;
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public static bool IsAuthenticated(string domain, string username, string pwd, string path)
         {
             string whitelist = @"^[a-zA-Z\-\.']$";
@@ -113,6 +122,7 @@ namespace Ophelia.LDAP
             return false;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public static ServiceObjectResult<SearchResult> GetAuthenticatedUserInfo(string domain, string username, string pwd, string path, string requestedUserName = "")
         {
             var Result = new ServiceObjectResult<SearchResult>();

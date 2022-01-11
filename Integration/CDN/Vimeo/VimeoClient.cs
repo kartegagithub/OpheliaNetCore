@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Ophelia.Net.Http;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -71,12 +73,11 @@ namespace Ophelia.Integration.CDN.Vimeo
                 {"code", authCode},
                 {"redirect_uri", redirect}
             };
-            var headers = new WebHeaderCollection()
+            var headers = new Dictionary<string, string>()
             {
                 {"Authorization", String.Format("Basic {0}", encoded)}
             };
-            var response = Helpers.HTTPFetch(this.APIURL + "/oauth/access_token", "POST", headers, payload).Read();
-
+            var response = Helpers.HTTPFetch(this.APIURL + "/oauth/access_token", "POST", headers, payload).Content.ReadAsStringAsync().Result;
             return response.FromJson<Dictionary<string, object>>();
         }
         public string GetClientCredentials(string scopes = null)
@@ -86,18 +87,18 @@ namespace Ophelia.Integration.CDN.Vimeo
             {
                 {"grant_type", "client_credentials"}
             };
-            var headers = new WebHeaderCollection
+            var headers = new Dictionary<string, string>
             {
                 {"Authorization", String.Format("Basic {0}", basicAuth)}
             };
             if (scopes != null) payload.Add("scope", scopes);
-            var response = Helpers.HTTPFetch(this.APIURL + "/oauth/authorize/client", "POST", headers, payload).Read();
+            var response = Helpers.HTTPFetch(this.APIURL + "/oauth/authorize/client", "POST", headers, payload).Content.ReadAsStringAsync().Result;
             var json = response.FromJson<Dictionary<string, string>>();
             return json["access_token"];
         }
-        public HttpWebResponse RequestResponse(string url, Dictionary<string, string> parameters, string method, bool jsonBody = true)
+        public HttpResponseMessage RequestResponse(string url, Dictionary<string, string> parameters, string method, bool jsonBody = true)
         {
-            var headers = new WebHeaderCollection()
+            var headers = new Dictionary<string, string>()
             {
                 { "Authorization", String.Format("Bearer {0}", this.AccessToken) }
             };
@@ -110,9 +111,7 @@ namespace Ophelia.Integration.CDN.Vimeo
             if (parameters != null && parameters.Count > 0)
             {
                 if (method == "GET")
-                {
-                    url += "?" + Helpers.KeyValueToString(parameters);
-                }
+                    url += "?" + parameters.ToQueryString();
                 else if (method == "POST" || method == "PATCH" || method == "PUT" || method == "DELETE")
                 {
                     if (jsonBody)
@@ -122,7 +121,7 @@ namespace Ophelia.Integration.CDN.Vimeo
                     }
                     else
                     {
-                        body = Helpers.KeyValueToString(parameters);
+                        body = parameters.ToQueryString();
                     }
                 }
             }
@@ -131,7 +130,7 @@ namespace Ophelia.Integration.CDN.Vimeo
         }
         public Dictionary<string, object> Request(string url, Dictionary<string, string> parameters, string method, bool jsonBody = true)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(RequestResponse(url, parameters, method, jsonBody).Read());
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(RequestResponse(url, parameters, method, jsonBody).Content.ReadAsStringAsync().Result);
         }
         public Dictionary<string, object> GetUser()
         {
@@ -189,16 +188,18 @@ namespace Ophelia.Integration.CDN.Vimeo
         public FileUploadVerification VerifyUpload(long localFileSize, string uri, string ticket_id, string method = "PUT")
         {
             var result = new FileUploadVerification();
-            var headers = new WebHeaderCollection();
+            var headers = new Dictionary<string, string>();
             headers.Add("Content-Range", "bytes */*");
             var response = Helpers.HTTPFetch(uri, method, headers, "");
             if (Convert.ToInt32(response.StatusCode) == 308)
                 result.Status = true;
-            if (!string.IsNullOrEmpty(response.Headers["Range"]))
-                result.FileSize = Convert.ToInt64(response.Headers["Range"].Split('-')[1]);
+
+            var range = response.Headers.GetValues("Range").FirstOrDefault();
+            if (!string.IsNullOrEmpty(range))
+                result.FileSize = Convert.ToInt64(range.Split('-')[1]);
             if (result.Status && result.FileSize == localFileSize)
                 result.Status = true;
-            var strResponse = response.Read();
+            var strResponse = response.Content.ReadAsStringAsync().Result;
 
             this.OnVerifyUpload(strResponse, result);
 
@@ -210,10 +211,10 @@ namespace Ophelia.Integration.CDN.Vimeo
         }
         public string Upload(long fromByte, long ToByte, long TotalByte, string uri, byte[] data, string method = "PUT")
         {
-            var headers = new WebHeaderCollection();
+            var headers = new Dictionary<string, string>();
             headers.Add("Content-Range", "bytes " + fromByte + "-" + ToByte + "/" + TotalByte);
-            var response = PostForm(uri, "", "video/mp4", data, headers, method);
-            return response.Read();
+            var response = PostForm(uri, "video/mp4", data, headers, method);
+            return response.Content.ReadAsStringAsync().Result;
         }
         public virtual void ProgressiveUpload(FileUploadRequest request)
         {
@@ -318,38 +319,24 @@ namespace Ophelia.Integration.CDN.Vimeo
         public string CompleteUpload(string completeURL)
         {
             var response = this.RequestResponse(completeURL, null, "DELETE");
-            string location = Convert.ToString(response.Headers["Location"]);
+            string location = Convert.ToString(response.Headers.GetValues("Location").FirstOrDefault());
             this.OnCompleteUpload(response, string.IsNullOrEmpty(location) ? "" : location);
-            response.Close();
             return location;
         }
-        protected virtual void OnCompleteUpload(HttpWebResponse response, string location)
+        protected virtual void OnCompleteUpload(HttpResponseMessage response, string location)
         {
 
         }
         private readonly Encoding encoding = Encoding.UTF8;
-        private HttpWebResponse PostForm(string postUrl, string userAgent, string contentType, byte[] formData, WebHeaderCollection headers, string method = "POST")
+        private HttpResponseMessage PostForm(string postUrl, string contentType, byte[] formData, Dictionary<string, string> headers, string method = "POST")
         {
-            HttpWebRequest request = WebRequest.Create(postUrl) as HttpWebRequest;
-
-            if (request == null)
-            {
-                throw new NullReferenceException("request is not a http request");
-            }
-            request.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-            request.Headers.Add(headers);
-
-            request.Method = method;
-            request.ContentType = contentType;
-            request.UserAgent = userAgent;
-            request.ContentLength = formData.Length;
-            using (Stream requestStream = request.GetRequestStream())
-            {
-                requestStream.Write(formData, 0, formData.Length);
-                requestStream.Close();
-            }
-
-            return request.GetResponseWithoutException();
+            var factory = new RequestFactory()
+                    .CreateClient()
+                    .AddAccept("application/vnd.vimeo.*+json; version=3.2")
+                    .AddHeaders(headers)
+                    .CreateRequest(postUrl, method)
+                    .CreateByteContent(formData, contentType);
+            return factory.SendAsync().Result;
         }
     }
 }

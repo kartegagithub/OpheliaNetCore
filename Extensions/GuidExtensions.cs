@@ -11,7 +11,7 @@ namespace Ophelia
         /// <returns>Değer null ise veya boş ise 1 döndürür.</returns>
         public static bool IsNullOrEmpty(this Guid target)
         {
-            return target == null || target.Equals(Guid.Empty);
+            return target.Equals(Guid.Empty);
         }
     }
 }

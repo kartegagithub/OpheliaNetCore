@@ -17,8 +17,8 @@ namespace Ophelia.Cryptography
                     encryptionKey = "";
                 if (string.IsNullOrEmpty(chipperText))
                     return chipperText;
-                TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
-                MD5CryptoServiceProvider hashMD5 = new MD5CryptoServiceProvider();
+                var DES = TripleDES.Create();
+                var hashMD5 = MD5.Create();
                 DES.Key = hashMD5.ComputeHash(CryptoManager.Encoding.GetBytes(encryptionKey));
                 DES.Mode = CipherMode.ECB;
                 ICryptoTransform Encryptor = DES.CreateEncryptor();
@@ -40,8 +40,8 @@ namespace Ophelia.Cryptography
                     decryptionKey = "";
                 if (string.IsNullOrEmpty(richText))
                     return richText;
-                TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
-                MD5CryptoServiceProvider hashMD5 = new MD5CryptoServiceProvider();
+                var DES = TripleDES.Create();
+                var hashMD5 = MD5.Create();
                 DES.Key = hashMD5.ComputeHash(CryptoManager.Encoding.GetBytes(decryptionKey));
                 DES.Mode = CipherMode.ECB;
                 ICryptoTransform Decryptor = DES.CreateDecryptor();
@@ -64,15 +64,15 @@ namespace Ophelia.Cryptography
                 {
                     default:
                     case HashAlgorithms.SHA1:
-                        hashProvider = new SHA1CryptoServiceProvider(); break;
+                        hashProvider = SHA1.Create(); break;
                     case HashAlgorithms.SHA256:
-                        hashProvider = new SHA256CryptoServiceProvider(); break;
+                        hashProvider = SHA256.Create(); break;
                     case HashAlgorithms.SHA384:
-                        hashProvider = new SHA384CryptoServiceProvider(); break;
+                        hashProvider = SHA384.Create(); break;
                     case HashAlgorithms.SHA512:
-                        hashProvider = new SHA512CryptoServiceProvider(); break;
+                        hashProvider = SHA512.Create(); break;
                     case HashAlgorithms.MD5:
-                        hashProvider = new MD5CryptoServiceProvider(); break;
+                        hashProvider = MD5.Create(); break;
                 }
 
                 string hashedText = plainText + saltText;

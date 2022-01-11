@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Ophelia;
+using Ophelia.Net.Http;
 using Ophelia.Service;
 using System;
 using System.Collections.Generic;
@@ -88,52 +89,27 @@ namespace Ophelia
         {
             return URL.DownloadURL("POST", parameters, contentType, headers, PreAuthenticate, 120000, credential);
         }
-        public static string DownloadURL(this string URL, string method = "GET", string parameters = "", string ContentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool PreAuthenticate = false, int Timeout = 120000, NetworkCredential credential = null)
+        public static string DownloadURL(this string url, string method = "GET", string parameters = "", string contentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool preAuthenticate = false, int timeout = 120000, NetworkCredential credential = null)
         {
-            byte[] postData = null;
             if (!string.IsNullOrEmpty(parameters))
             {
                 if (method == "GET")
                 {
-                    if (URL.IndexOf("?") == -1)
-                        URL += "?";
-                    URL += parameters;
-                }
-                else
-                {
-                    postData = Encoding.UTF8.GetBytes(parameters);
+                    if (url.IndexOf("?") == -1)
+                        url += "?";
+                    url += parameters;
                 }
             }
 
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(URL);
-            if (URLExtensions.Timeout > 0)
-                request.Timeout = URLExtensions.Timeout;
-            else
-                request.Timeout = Timeout;
-
-            request.PreAuthenticate = PreAuthenticate;
-            if (credential != null)
-                request.Credentials = credential;
-            if (headers != null)
-                request.Headers.Add(headers);
-            request.Method = method;
-            if (!URL.StartsWith("ftp://", StringComparison.InvariantCultureIgnoreCase))
-            {
-                request.ContentType = ContentType;
-                if ((method == "POST" || method == "PUT") && postData != null)
-                {
-                    request.ContentLength = postData.Length;
-                    using (var stream = request.GetRequestStream())
-                    {
-                        stream.Write(postData, 0, postData.Length);
-                    }
-                }
-                else
-                    request.ContentLength = 0;
-            }
-            FilesToUpload = null;
-            FilesToUploadBase64 = null;
-            return request.GetResponseWithoutException().Read();
+            var factory = new RequestFactory()
+                .CreateClient()
+                .SetTimeout(timeout)
+                .SetCredentials(credential)
+                .SetPreAuthenticate(preAuthenticate)
+                .AddHeaders(headers)
+                .CreateRequest(url, method)
+                .CreateStringContent(parameters, contentType);
+            return factory.GetStringResponse();
         }
         public static TResult PostObject<T, TResult>(this string URL, T entity, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false, long languageID = 0)
         {

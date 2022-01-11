@@ -58,7 +58,7 @@ namespace Ophelia
         {
             using (Graphics graph = Graphics.FromImage(source))
             {
-                if (size == null)
+                if (size.Width <= 0)
                     graph.DrawImage(image, point);
                 else
                     graph.DrawImage(image, point.X, point.Y, size.Width, size.Height);

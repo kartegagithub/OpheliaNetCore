@@ -134,9 +134,9 @@ namespace Ophelia.Data.Model
                 this.CheckKey(property, defaultValue);
                 return this.Properties[key].Value;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
             finally
             {
@@ -195,9 +195,9 @@ namespace Ophelia.Data.Model
                     this.Properties[key].HasChanged = false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
             finally
             {

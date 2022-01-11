@@ -63,43 +63,43 @@ namespace Ophelia.Data.Model
         {
             //this._Expression = baseQuery.Expression;
             this._Expression = Expression.Constant(this);
-            var type = DatabaseType.SQLServer;
-            var innerContext = baseQuery.Provider.GetPropertyValue("InternalContext");
-            if (innerContext != null)
-            {
-                if (Convert.ToString(innerContext.GetPropertyValue("ProviderName")) == "System.Data.SqlClient")
-                    type = DatabaseType.SQLServer;
-                this._Context = new DataContext(type, Convert.ToString(innerContext.GetPropertyValue("OriginalConnectionString")));
-                this._Context.DBStructureCache.LoadFromEDMX(innerContext.GetPropertyStringValue("ConnectionStringName"));
-            }
-            else
-            {
-                try
-                {
-                    var provider = baseQuery.Provider as Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider;
-                    var _queryCompiler = provider?.GetType()?.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "_queryCompiler")?.FirstOrDefault()?.GetValue(provider) as Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler;
-                    var database = _queryCompiler?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(op => op.Name == "Database")?.FirstOrDefault()?.GetValue(_queryCompiler);
-                    var relationalDependencies = database?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "RelationalDependencies")?.FirstOrDefault()?.GetValue(database);
-                    var connection = relationalDependencies?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "Connection")?.FirstOrDefault()?.GetValue(relationalDependencies);
-                    var dbConn = (connection as Microsoft.EntityFrameworkCore.Storage.RelationalConnection)?.DbConnection;
-                    if (dbConn != null)
-                    {
-                        if (dbConn is System.Data.SqlClient.SqlConnection)
-                            type = DatabaseType.SQLServer;
-                        else if (dbConn is Oracle.ManagedDataAccess.Client.OracleConnection)
-                            type = DatabaseType.Oracle;
-                        else if (dbConn is Npgsql.NpgsqlConnection)
-                            type = DatabaseType.PostgreSQL;
-                        this._Context = new DataContext(type, dbConn.ConnectionString);
-                    }
-                    else
-                        this._Context = new DataContext(type, "");
-                }
-                catch (Exception)
-                {
-                    this._Context = new DataContext(type, "");
-                }
-            }
+            //var type = DatabaseType.SQLServer;
+            //var innerContext = baseQuery.Provider.GetPropertyValue("InternalContext");
+            //if (innerContext != null)
+            //{
+            //    if (Convert.ToString(innerContext.GetPropertyValue("ProviderName")) == "System.Data.SqlClient")
+            //        type = DatabaseType.SQLServer;
+            //    this._Context = new DataContext(type, Convert.ToString(innerContext.GetPropertyValue("OriginalConnectionString")));
+            //    this._Context.DBStructureCache.LoadFromEDMX(innerContext.GetPropertyStringValue("ConnectionStringName"));
+            //}
+            //else
+            //{
+            //    try
+            //    {
+            //        var provider = baseQuery.Provider as Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider;
+            //        var _queryCompiler = provider?.GetType()?.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "_queryCompiler")?.FirstOrDefault()?.GetValue(provider) as Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler;
+            //        var database = _queryCompiler?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(op => op.Name == "Database")?.FirstOrDefault()?.GetValue(_queryCompiler);
+            //        var relationalDependencies = database?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "RelationalDependencies")?.FirstOrDefault()?.GetValue(database);
+            //        var connection = relationalDependencies?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "Connection")?.FirstOrDefault()?.GetValue(relationalDependencies);
+            //        var dbConn = (connection as Microsoft.EntityFrameworkCore.Storage.RelationalConnection)?.DbConnection;
+            //        if (dbConn != null)
+            //        {
+            //            if (dbConn is System.Data.SqlClient.SqlConnection)
+            //                type = DatabaseType.SQLServer;
+            //            else if (dbConn is Oracle.ManagedDataAccess.Client.OracleConnection)
+            //                type = DatabaseType.Oracle;
+            //            else if (dbConn is Npgsql.NpgsqlConnection)
+            //                type = DatabaseType.PostgreSQL;
+            //            this._Context = new DataContext(type, dbConn.ConnectionString);
+            //        }
+            //        else
+            //            this._Context = new DataContext(type, "");
+            //    }
+            //    catch (Exception)
+            //    {
+            //        this._Context = new DataContext(type, "");
+            //    }
+            //}
             var tmp = baseQuery.ElementType.FullName.Split('.');
             this._Context.Configuration.NamespacesToIgnore.Add(string.Join(".", tmp.Take(tmp.Length - 2)));
             this._list = this.CreateList();

@@ -6,6 +6,7 @@ namespace Ophelia.LDAP
 {
     public static class Extensions
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public static object GetPropertyValue(this SearchResult result, string key)
         {
             if (result == null)
@@ -16,6 +17,8 @@ namespace Ophelia.LDAP
                 return result.Properties[key][0];
             return "";
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public static ResultPropertyValueCollection GetPropertyValues(this SearchResult result, string key)
         {
             if (result.Properties.Contains(key) && result.Properties[key].Count > 0)

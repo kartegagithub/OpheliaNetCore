@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -86,22 +87,19 @@ namespace Ophelia
 
 
             string url = cURL + "?location=" + cWeatherID + "&" + cUnitID + "&format=" + cFormat;
-            using (var client = new WebClient())
+            using (var client = new System.Net.Http.HttpClient())
             {
                 string responseText = string.Empty;
                 try
                 {
                     string headerString = _get_auth();
 
-                    using (WebClient webClient = new WebClient())
-                    {
-                        webClient.Headers[HttpRequestHeader.ContentType] = "application/json";
-                        webClient.Headers[HttpRequestHeader.Authorization] = headerString;
-                        webClient.Headers.Add("X-Yahoo-App-Id", cAppID);
-                        byte[] reponse = webClient.DownloadData(url);
-                        string lOut = Encoding.ASCII.GetString(reponse);
-                        return lOut;
-                    }
+                    client.DefaultRequestHeaders.Add("content-type", "application/json");
+                    client.DefaultRequestHeaders.Add("Authorization", headerString);
+                    client.DefaultRequestHeaders.Add("X-Yahoo-App-Id", cAppID);
+                    byte[] reponse = client.GetByteArrayAsync(url).Result;
+                    string lOut = Encoding.ASCII.GetString(reponse);
+                    return lOut;
                 }
                 catch (WebException exception)
                 {

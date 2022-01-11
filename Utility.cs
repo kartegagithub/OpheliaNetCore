@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Ophelia
@@ -18,7 +19,7 @@ namespace Ophelia
                 chars = "1234567890".ToCharArray();
 
             byte[] data = new byte[1];
-            RNGCryptoServiceProvider crypto = new RNGCryptoServiceProvider();
+            var crypto = RandomNumberGenerator.Create();
             crypto.GetNonZeroBytes(data);
             data = new byte[maxSize];
             crypto.GetNonZeroBytes(data);
@@ -52,18 +53,17 @@ namespace Ophelia
         {
             byte[] bytes = null;
             object clonedObject = null;
-            var formatter = new BinaryFormatter();
             try
             {
-                using (MemoryStream stream = new MemoryStream())
+                using (var stream = new MemoryStream())
                 {
-                    formatter.Serialize(stream, Original);
+                    JsonSerializer.Serialize(stream, Original);
                     bytes = stream.ToArray();
                     stream.Close();
                 }
-                using (MemoryStream stream = new MemoryStream())
+                using (var stream = new MemoryStream())
                 {
-                    clonedObject = formatter.Deserialize(stream);
+                    clonedObject = JsonSerializer.Deserialize(stream, Original.GetType(), new JsonSerializerOptions() { MaxDepth = 10 });
                     stream.Close();
                 }
             }

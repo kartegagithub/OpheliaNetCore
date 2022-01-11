@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ophelia.Net.Http;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Security;
@@ -184,30 +185,13 @@ namespace Ophelia.Mobile.Notification.Firebase
             var Result = new FirebaseNotificationResult();
             try
             {
-                ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateServerCertificate);
-                byte[] byteArray = Encoding.UTF8.GetBytes(data);
-                HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(this.URL);
-                Request.Method = "POST";
-                Request.KeepAlive = false;
-                Request.ContentType = postDataContentType;
-                Request.Headers.Add(string.Format("Authorization: key={0}", apiKey));
-                Request.ContentLength = byteArray.Length;
-                Stream dataStream = Request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-                try
-                {
-                    WebResponse Response = Request.GetResponse();
-                    StreamReader Reader = new StreamReader(Response.GetResponseStream());
-                    var content = Reader.ReadToEnd();
-                    Result.ResultData = content.FromJson<FirebaseNotificationResultData>();
-                    Reader.Close();
-                    Result.SetData(Result.ResultData.success > 0);
-                }
-                catch (Exception ex)
-                {
-                    Result.Fail(ex);
-                }
+                var factory = new RequestFactory()
+                            .CreateClient()
+                            .SetAuthorization("", string.Format("Authorization: key={0}", apiKey))
+                            .CreateRequest(this.URL, "POST")
+                            .CreateStringContent(data, postDataContentType);
+                Result.ResultData = factory.GetJsonResponse<FirebaseNotificationResultData>();
+                Result.SetData(Result.ResultData.success > 0);
             }
             catch (Exception ex)
             {

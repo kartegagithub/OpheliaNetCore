@@ -159,9 +159,9 @@ namespace Ophelia.Web.Routing
                 if (!found)
                     this.OnRouteNotFound(requestContext, pageURL);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
 
             await this.DefaulRouter.RouteAsync(requestContext);

@@ -484,7 +484,7 @@ namespace Ophelia.Data.Querying.Query
                     }
                 }
                 this.DesignMode = false;
-                throw ex;
+                throw;
             }
         }
         public QueryBuilder()

@@ -1,4 +1,5 @@
 ﻿using Ophelia.Cryptography;
+using Ophelia.Net.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -643,63 +644,13 @@ namespace Ophelia
         }
         public static string RequestURL(this string strHostAddress, string data = "", string method = "POST", string contentType = "multipart/form-data")
         {
-            HttpWebRequest _WebRequest = (HttpWebRequest)WebRequest.Create(strHostAddress);
-            Stream dataStream = null;
-            _WebRequest.Method = method;
-            _WebRequest.KeepAlive = false;
-            _WebRequest.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; ru; rv:1.9.2.3) Gecko/20100401 Firefox/4.0 (.NET CLR 3.5.30729) Ophelia";
-            _WebRequest.Accept = "*/*;q=0.8";
-
-            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-            _WebRequest.ContentType = contentType;
-
-            if (!string.IsNullOrEmpty(data))
-            {
-                byte[] byteArray = Encoding.UTF8.GetBytes(data);
-                _WebRequest.ContentLength = byteArray.Length;
-
-                dataStream = _WebRequest.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-            }
-
-            HttpWebResponse _WebResponse = (HttpWebResponse)_WebRequest.GetResponse();
-
-            if (_WebResponse.StatusCode == HttpStatusCode.OK || _WebResponse.StatusCode == HttpStatusCode.BadGateway)
-            {
-                Encoding Encoding;
-                if (string.IsNullOrEmpty(_WebResponse.CharacterSet))
-                    Encoding = Encoding.Default;
-                else
-                {
-                    Encoding = Encoding.GetEncoding(_WebResponse.CharacterSet);
-                }
-                return new StreamReader(_WebResponse.GetResponseStream(), Encoding).ReadToEnd();
-            }
-
-            return "";
+            var factory = new RequestFactory()
+                .CreateClient()
+                .CreateRequest(strHostAddress, method)
+                .CreateStringContent(data, contentType);
+            return factory.GetStringResponse();
         }
 
-        public static string RequestURL(this string strHostAddress, Dictionary<string, object> dictionary)
-        {
-            var NVCdata = dictionary.Aggregate(new System.Collections.Specialized.NameValueCollection(), (seed, current) => { seed.Add(current.Key, Convert.ToString(current.Value)); return seed; });
-            return strHostAddress.RequestURL(NVCdata);
-        }
-
-        public static string RequestURL(this string strHostAddress, List<KeyValuePair<string, object>> values)
-        {
-            var NVCdata = values.Aggregate(new System.Collections.Specialized.NameValueCollection(), (seed, current) => { seed.Add(current.Key, Convert.ToString(current.Value)); return seed; });
-            return strHostAddress.RequestURL(NVCdata);
-        }
-
-        public static string RequestURL(this string strHostAddress, System.Collections.Specialized.NameValueCollection data)
-        {
-            using (var webClient = new WebClient())
-            {
-                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-                return Encoding.UTF8.GetString(webClient.UploadValues(strHostAddress, data));
-            }
-        }
         public static string Remove(this string val, string[] itemsToRemove)
         {
             if (string.IsNullOrEmpty(val))
