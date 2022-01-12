@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Ophelia.Integration.GitHub;
+using Ophelia.Integration.GitHub.Model;
 using Ophelia.Service;
 using System;
 using System.Collections.Generic;
@@ -68,18 +69,19 @@ namespace Ophelia.Integration.GitHub
         /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>
         /// <param name="startDate">Yalnızca bu tarihten sonraki commitleri getirir </param>
         /// <param name="endDate">Yalnızca bu tarihten önceki commitleri getirir </param>
+        /// <param name="branchName">Reponun sahibi</param>
         /// <param name="page"> </param>
         /// <param name="pageSize">max 100 için değer döner </param>
-        public ServiceCollectionResult<GitHubCommitResult> GetRepoCommits(string repoOwner, string repoName, DateTime startDate, DateTime endDate, string branchCommitSha, int page = 1, int pageSize = 100)
+        public ServiceCollectionResult<GitHubCommitResult> GetRepoCommits(string repoOwner, string repoName, DateTime startDate, DateTime endDate, string branchName, int page = 1, int pageSize = 100)
         {
             var result = new ServiceCollectionResult<GitHubCommitResult>();
             try
             {
-                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits?since={startDate.Date.StartOfDay().ToString("O")}&until={endDate.Date.EndOfDay().ToString("O")}";
+                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits?since={startDate.ToString("O")}&until={endDate.ToString("O")}";
                 
-                if (!string.IsNullOrEmpty(branchCommitSha))
+                if (!string.IsNullOrEmpty(branchName))
                 {
-                    URL += $"&sha={branchCommitSha.EncodeURL()}";
+                    URL += $"&sha={branchName.EncodeURL()}";
                 }
                 if (page > 0 && pageSize > 0)
                 {
@@ -120,6 +122,32 @@ namespace Ophelia.Integration.GitHub
                 var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
                 if (!string.IsNullOrEmpty(serviceResult))
                     result.SetData(serviceResult.FromJson<List<GitHubRepoBranchResult>>());
+                else
+                    result.Fail("AProblemOccurred");
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Repoya ait commitleri detayları ile  döner
+        /// </summary>
+        /// <param name="repoOwner">Reponun sahibi</param>
+        /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>
+        /// <param name="commitSha">Yalnızca bu tarihten sonraki commitleri getirir </param>
+        public ServiceObjectResult<GitHubCommitDetailResult> GetRepoCommitDetail(string repoOwner, string repoName, string commitSha)
+        {
+            var result = new ServiceObjectResult<GitHubCommitDetailResult>();
+            try
+            {
+                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits/{commitSha}";
+
+                var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
+                if (!string.IsNullOrEmpty(serviceResult))
+                    result.SetData(serviceResult.FromJson<GitHubCommitDetailResult>());
                 else
                     result.Fail("AProblemOccurred");
             }
