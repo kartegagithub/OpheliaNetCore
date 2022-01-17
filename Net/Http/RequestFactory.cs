@@ -127,10 +127,13 @@ namespace Ophelia.Net.Http
             if (!string.IsNullOrEmpty(this.AuthorizationValue) && !string.IsNullOrEmpty(this.AuthorizationScheme))
                 this.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(this.AuthorizationScheme, this.AuthorizationValue);
             else if (!string.IsNullOrEmpty(authHeader))
-            { 
-                this.AuthorizationScheme = authHeader.Left(authHeader.IndexOf(" "));
-                this.AuthorizationValue = authHeader.Replace(this.AuthorizationScheme, "").Trim();
-                this.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(this.AuthorizationScheme, authHeader);
+            {
+                if (authHeader.IndexOf(" ") > -1)
+                    this.AuthorizationScheme = authHeader.Left(authHeader.IndexOf(" "));
+                if (!string.IsNullOrEmpty(this.AuthorizationScheme))
+                    this.AuthorizationValue = authHeader.Replace(this.AuthorizationScheme, "").Trim();
+                if (!string.IsNullOrEmpty(this.AuthorizationScheme) && !string.IsNullOrEmpty(authHeader))
+                    this.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(this.AuthorizationScheme, authHeader);
             }
             if (this.Headers.Any())
             {
