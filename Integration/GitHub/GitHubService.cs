@@ -77,7 +77,7 @@ namespace Ophelia.Integration.GitHub
             var result = new ServiceCollectionResult<GitHubCommitResult>();
             try
             {
-                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits?since={startDate.ToString("s")}&until={endDate.ToString("s")}";
+                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits?since={startDate.ToUniversalTime().ToString("s")}Z&until={endDate.ToUniversalTime().ToString("s")}Z";
                 
                 if (!string.IsNullOrEmpty(branchName))
                 {
