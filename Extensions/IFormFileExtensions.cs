@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Ophelia.Service;
 using System.IO;
 
 namespace Ophelia
@@ -18,6 +19,20 @@ namespace Ophelia
                 inputStream.Read(array, 0, array.Length);
                 return array;
             }
+        }
+
+        public static FileData ToFileData(this IFormFile formFile, string key = "")
+        {
+            if (formFile == null || formFile.Length <= 0)
+                return null;
+
+            return new FileData()
+            {
+                KeyName = string.IsNullOrEmpty(key) ? formFile.FileName : key,
+                FileName = formFile.FileName,
+                ByteData = formFile.ToByteArray(),
+                FileSize = formFile.Length
+            };
         }
     }
 }

@@ -58,6 +58,7 @@ namespace Ophelia.Service
         private byte[] oByteData = null;
         public string KeyName { get; set; }
         public string FileName { get; set; }
+        public long FileSize { get; set; }
         public byte[] ByteData
         {
             get
@@ -70,6 +71,8 @@ namespace Ophelia.Service
                             this.Base64Data = this.Base64Data.Substring(this.Base64Data.IndexOf(',') + 1);
                         this.oByteData = Convert.FromBase64String(this.Base64Data);
                         this.Base64Data = "";
+                        if (this.oByteData != null)
+                            this.FileSize = this.oByteData.Length;
                     }
                     catch
                     {
@@ -81,6 +84,8 @@ namespace Ophelia.Service
             set
             {
                 this.oByteData = value;
+                if (value != null)
+                    this.FileSize = value.Length;
             }
         }
         public string Base64Data { get; set; }

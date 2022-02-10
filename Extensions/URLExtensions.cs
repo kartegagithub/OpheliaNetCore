@@ -242,12 +242,7 @@ namespace Ophelia
             {
                 foreach (var file in FilesToUpload.Where(op => op.Value != null && op.Value.Length > 0))
                 {
-                    request.Files.Add(new FileData()
-                    {
-                        KeyName = file.Key,
-                        FileName = file.Value.FileName,
-                        ByteData = file.Value.ToByteArray()
-                    });
+                    request.Files.Add(file.Value.ToFileData(file.Key));
                 }
             }
             FilesToUpload = null;
@@ -280,6 +275,20 @@ namespace Ophelia
             byte[] buffer = Encoding.ASCII.GetBytes(data);
             int timeout = 120;
             return pingSender.Send(address, timeout, buffer, options);
+        }
+
+        public static string CombineURL(this string baseURI, params string[] segments)
+        {
+            if (segments != null && segments.Any())
+            {
+                var uri = baseURI;
+                foreach (var item in segments)
+                {
+                    uri = string.Format("{0}/{1}", uri, item.Trim('/'));
+                }
+                return uri;
+            }
+            return baseURI;
         }
     }
 }
