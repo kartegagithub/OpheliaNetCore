@@ -138,7 +138,7 @@ namespace Ophelia.Web.Application.Client
                     {
                         if (this.InnerList[key] == null)
                             ItemCount += 1;
-                        this.InnerList[key] = this.Request.GetValue(key);
+                        this.InnerList[key] = this.Request.GetValue(key).RemoveHTML().EncodeJavascript(); ;
                     }
                     n++;
                 }
@@ -150,7 +150,7 @@ namespace Ophelia.Web.Application.Client
                         {
                             if (this.InnerList[key] == null)
                                 ItemCount += 1;
-                            this.InnerList[key] = this.Request.GetValue(key);
+                            this.InnerList[key] = this.Request.GetValue(key).RemoveHTML().EncodeJavascript(); ;
                         }
                     }
                 }
@@ -177,7 +177,7 @@ namespace Ophelia.Web.Application.Client
                             Value = sIdentifiers[n].Right(sIdentifiers[n].Length - sIdentifiers[n].IndexOf('=') - 1);
                         }
                         if (!string.IsNullOrEmpty(Key))
-                            this.Add(Key, Value);
+                            this.Add(Key, Value.RemoveHTML().EncodeJavascript());
                         n += 1;
                     }
                 }
