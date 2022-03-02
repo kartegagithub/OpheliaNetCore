@@ -691,6 +691,14 @@ namespace Ophelia
             Guid guidOutput;
             return Guid.TryParse(inputString, out guidOutput);
         }
+
+        public static string RemoveNonNumericChars(this string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+                value = Regex.Replace(value, "[^0-9.]", "");
+            return value;
+        }
+
         /// <summary>
         /// QueryableDataSet Full Text Search Support
         /// </summary>
