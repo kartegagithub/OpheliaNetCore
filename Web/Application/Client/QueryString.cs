@@ -138,7 +138,7 @@ namespace Ophelia.Web.Application.Client
                     {
                         if (this.InnerList[key] == null)
                             ItemCount += 1;
-                        this.InnerList[key] = this.Request.GetValue(key).RemoveHTML().EncodeJavascript();
+                        this.InnerList[key] = this.Request.GetValue(key).RemoveHTML().EncodeJavascript(); ;
                     }
                     n++;
                 }
@@ -150,7 +150,7 @@ namespace Ophelia.Web.Application.Client
                         {
                             if (this.InnerList[key] == null)
                                 ItemCount += 1;
-                            this.InnerList[key] = this.Request.GetValue(key).RemoveHTML().EncodeJavascript();
+                            this.InnerList[key] = this.Request.GetValue(key).RemoveHTML().EncodeJavascript(); ;
                         }
                     }
                 }
