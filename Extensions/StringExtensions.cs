@@ -104,6 +104,31 @@ namespace Ophelia
             else
                 return "";
         }
+        public static string CheckHTMLOnFuntions(this string value)
+        {
+            //If plain text, otherwise it is already sanitized
+            if (!string.IsNullOrEmpty(value) && value.IndexOf("<") == -1)
+            {
+                //Check if it starts with " or ', then on[click,focus,etc...], then =, then " or ', then " or ' or empty
+                //test"onfocus="alert(111)"
+                var matches = Regex.Matches(value, "[\"|'](.*?)on(.*?)=(.*?)[(\"|')|$](.*?)[(\"|')|$](.*?)[(\"|')|$](.*?)[(\"|')|$]");
+                if (!matches.Any())
+                    matches = Regex.Matches(value, "[\"|'](.*?)on(.*?)=(.*?)[(\"|')|$](.*?)[(\"|')|$](.*?)[(\"|')|$]");
+                if (!matches.Any())
+                    matches = Regex.Matches(value, "[\"|'](.*?)on(.*?)=(.*?)[(\"|')|$](.*?)[(\"|')|$]");
+                if (matches.Any())
+                {
+                    foreach (Match item in matches)
+                    {
+                        value = value.Remove(item.Groups[0].Index, item.Groups[0].Length);
+                        value = value.Insert(item.Groups[0].Index, item.Groups[0].Value.Replace("\"", "&#34;").Replace("'", "&#39;"));
+                    }
+                }
+                return value;
+            }
+            else
+                return "";
+        }
         public static string Right(this string value, int length)
         {
             return value.Substring(Math.Max(0, value.Length - length));
