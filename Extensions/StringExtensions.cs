@@ -743,7 +743,7 @@ namespace Ophelia
         public static string RemoveNonNumericChars(this string value)
         {
             if (!string.IsNullOrEmpty(value))
-                value = value.Replace(" ", "").Replace("(", "").Replace(")", "").Replace("-", "");
+                value = Regex.Replace(value, "[^0-9.]", "");
             return value;
         }
         /// <summary>
