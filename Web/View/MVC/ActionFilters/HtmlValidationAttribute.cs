@@ -101,7 +101,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
 
                         this.Sanitizer = new Ganss.XSS.HtmlSanitizer(allowedTags, allowedSchemes, allowedAttributes);
                     }
-                    return this.Sanitizer.Sanitize(val).CheckHTMLOnFuntions();
+                    return this.Sanitizer.Sanitize(val);
                 case HtmlValidationProcessType.RemoveHtml:
                     return val.RemoveHTML().EncodeJavascript().CheckHTMLOnFuntions();
             }
