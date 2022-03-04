@@ -103,7 +103,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                     }
                     return this.Sanitizer.Sanitize(val);
                 case HtmlValidationProcessType.RemoveHtml:
-                    return val.RemoveHTML().EncodeJavascript().CheckHTMLOnFuntions();
+                    return val.RemoveHTML().CheckHTMLOnFuntions();
             }
             return val;
         }
