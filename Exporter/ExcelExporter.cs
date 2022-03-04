@@ -131,6 +131,9 @@ namespace Ophelia.Data.Exporter
             var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell() { CellReference = cellReference, DataType = type };
             CellValue cellValue = new CellValue();
             cellValue.Text = cellStringValue;
+            if (!string.IsNullOrEmpty(cellValue.Text))
+                cellValue.Text = $"'{cellValue.Text}";
+
             cell.Append(cellValue);
             excelRow.Append(cell);
         }
