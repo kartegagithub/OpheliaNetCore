@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Web;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 {
@@ -1198,7 +1199,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                         this.OnBeforeGetCellValue(item, column);
                         var value = column.GetValue(item);
-                        link.Text = Convert.ToString(value);
                         if (!column.KeepHtml)
                             link.Text = link.Text.RemoveHTML();
                         if (column.MaxTextLength > 0)
@@ -1208,6 +1208,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 link.Text = link.Text.Left(column.MaxTextLength) + "...";
                             }
                         }
+                        link.Text = Convert.ToString(value);
+                        if (!string.IsNullOrEmpty(link.Text))
+                            link.Text = HttpUtility.HtmlEncode(link.Text);
+                        link.Title = link.Text;
                         try
                         {
                             link.ID = column.FormatName() + "_" + item.GetPropertyValue("ID");
@@ -1439,7 +1443,12 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             if (name == null)
                 name = entity.GetPropertyValue("Title");
             if (name != null)
-                return name.ToString();
+            {
+                var text = name.ToString();
+                if (!string.IsNullOrEmpty(text))
+                    text = HttpUtility.HtmlEncode(text);
+                return text;
+            }
             return "";
         }
         protected virtual string GetBinderCheckboxProperties(T entity)
