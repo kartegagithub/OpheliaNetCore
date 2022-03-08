@@ -132,7 +132,7 @@ namespace Ophelia.Data.Exporter
             CellValue cellValue = new CellValue();
             cellValue.Text = cellStringValue;
             if (!string.IsNullOrEmpty(cellValue.Text) && cellValue.Text.StartsWith("="))
-                cellValue.Text = $"'{cellValue.Text}";
+                cellValue.Text = $" {cellValue.Text}";
 
             cell.Append(cellValue);
             excelRow.Append(cell);
