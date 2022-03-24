@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System.Text;
 
 namespace Ophelia
 {
@@ -19,11 +21,25 @@ namespace Ophelia
         }
         public static string RawUrl(this HttpRequest request)
         {
-            return Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(request);
+            var sb = new StringBuilder();
+            sb.Append(request.PathBase.Value).Append(request.Path.Value);
+            if (request.Query.Any())
+                sb.Append("?");
+            foreach (var item in request.Query)
+            {
+                sb.Append(item.Key).Append("=");
+                if (!string.IsNullOrEmpty(item.Value))
+                {
+                    sb.Append(item.Value.ToString().RemoveHTML().CheckHTMLOnFuntions().EncodeJavascript());
+                }
+                if (item.Key != request.Query.LastOrDefault().Key)
+                    sb.Append("&");
+            }
+            return sb.ToString();
         }
         public static string AbsolutePath(this HttpRequest request)
         {
-            return string.Format("{0}://{1}{2}{3}", request.Scheme, request.Host, request.Path, request.QueryString);
+            return string.Format("{0}://{1}{2}", request.Scheme, request.Host, request.RawUrl());
         }
         public static string BasePath(this HttpRequest request)
         {
