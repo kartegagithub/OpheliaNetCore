@@ -19,12 +19,9 @@ namespace Ophelia
                 val = request.Query[key].ToString();
             return val;
         }
-        public static string RawUrl(this HttpRequest request)
+        public static string QueryStringValue(this HttpRequest request)
         {
             var sb = new StringBuilder();
-            sb.Append(request.PathBase.Value).Append(request.Path.Value);
-            if (request.Query.Any())
-                sb.Append("?");
             foreach (var item in request.Query)
             {
                 sb.Append(item.Key).Append("=");
@@ -37,6 +34,16 @@ namespace Ophelia
             }
             return sb.ToString();
         }
+        public static string RawUrl(this HttpRequest request)
+        {
+            var sb = new StringBuilder();
+            sb.Append(request.PathBase.Value).Append(request.Path.Value);
+            if (request.Query.Any())
+                sb.Append("?");
+            sb.Append(request.QueryStringValue());
+            return sb.ToString();
+        }
+
         public static string AbsolutePath(this HttpRequest request)
         {
             return string.Format("{0}://{1}{2}", request.Scheme, request.Host, request.RawUrl());
