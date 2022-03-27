@@ -113,14 +113,14 @@ namespace Ophelia.Web.Application.Client
                 {
                     if (Convert.ToString(this.ValueList[n]) == "true,false" || Convert.ToString(this.ValueList[n]) == "true,true")
                     {
-                        this.sValue += this.KeyList[n] + "=true&";
+                        this.sValue += this.KeyList[n].ToString().ClearRequestParameter() + "=true&";
                     }
                     else if (Convert.ToString(this.ValueList[n]) == "false,true" || Convert.ToString(this.ValueList[n]) == "false,false")
                     {
-                        this.sValue += this.KeyList[n] + "=false&";
+                        this.sValue += this.KeyList[n].ToString().ClearRequestParameter() + "=false&";
                     }
                     else
-                        this.sValue += this.KeyList[n] + "=" + this.ValueList[n] + "&";
+                        this.sValue += this.KeyList[n].ToString().ClearRequestParameter() + "=" + this.ValueList[n] + "&";
                 }
                 if (this.sValue.Length - 1 == this.sValue.LastIndexOf('&'))
                     this.sValue = this.sValue.Left(this.sValue.Length - 1);
