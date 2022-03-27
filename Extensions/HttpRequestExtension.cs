@@ -24,7 +24,8 @@ namespace Ophelia
             var sb = new StringBuilder();
             foreach (var item in request.Query)
             {
-                sb.Append(item.Key).Append("=");
+                if (!string.IsNullOrEmpty(item.Key))
+                    sb.Append(item.Key.ClearRequestParameter()).Append("=");
                 if (!string.IsNullOrEmpty(item.Value))
                 {
                     sb.Append(item.Value.ToString().RemoveHTML().CheckHTMLOnFuntions().EncodeJavascript());

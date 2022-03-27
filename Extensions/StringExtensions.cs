@@ -597,7 +597,9 @@ namespace Ophelia
         }
         public static string ClearRequestParameter(this string param)
         {
-            return param.Replace("\"", "");
+            if (string.IsNullOrEmpty(param))
+                return "";
+            return Regex.Replace(param, @"[^0-9a-zA-Z.,_-]+", "");
         }
         public static string Pluralize(this string source)
         {
