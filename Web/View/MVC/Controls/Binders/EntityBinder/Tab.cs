@@ -9,6 +9,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public bool IsSelected { get; set; }
         public bool IsRequired { get; set; }
         public string Title { get; set; }
+        public string ShowingClass { get; set; }
         public bool Callback { get; set; }
         public TabControl<T> TabControl { get; private set; }
         public override TextWriter Output { get { return this.TabControl.Binder.Output; } set { base.Output = value; } }
@@ -50,14 +51,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             base.onBeforeRenderControl(writer);
             this.CssClass += " " + this.TabControl.Binder.Configuration.TabPaneCssClass;
             if (this.IsSelected)
-                this.CssClass += " in active";
+                this.CssClass += $" {this.ShowingClass} active";
         }
 
         public virtual void RenderHeader()
         {
             this.Output.Write("<div class='" + this.TabControl.Binder.Configuration.TabPaneCssClass);
             if (this.IsSelected)
-                this.Output.Write(" in active");
+                this.Output.Write($" {this.ShowingClass} active");
             this.Output.Write("' id=\"" + (this.TabControl.Binder.IsAjaxEntityBinderRequest ? "AjaxBinder" : "") + this.ID + "\">");
         }
 
@@ -145,6 +146,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.Visible = true;
             this.LabelCssClass = this.TabControl.Binder.Configuration.LabelCssClass;
             this.DataControlParentCssClass = this.TabControl.Binder.Configuration.DataControlParentCssClass;
+            this.ShowingClass = "in";
         }
     }
 }

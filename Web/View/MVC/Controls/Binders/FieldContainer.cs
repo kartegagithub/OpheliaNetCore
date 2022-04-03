@@ -12,6 +12,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
         public abstract int CurrentLanguageID { get; }
         public string DataControlParentCssClass { get; set; }
         public string LabelCssClass { get; set; }
+        public string FieldParentCssClass { get; set; }
         public string DecimalFormat { get; set; }
         public string IntFormat { get; set; }
         public Fields.BaseField<T> GetField(string Name)
