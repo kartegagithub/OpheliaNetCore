@@ -63,7 +63,7 @@ namespace Ophelia.Web.UI.Controls
             link.AddAttribute("data-toggle", "dropdown");
             link.AddAttribute("data-bs-toggle", "dropdown");
             link.AddAttribute("aria-haspopup", "true");
-            link.AddAttribute("aria-expanded", "true");
+            link.AddAttribute("aria-expanded", "false");
 
             item.CssClass = LiCssClass;
             this.Controls.Add(item);
