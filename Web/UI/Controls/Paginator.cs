@@ -58,7 +58,7 @@ namespace Ophelia.Web.UI.Controls
             if (pageCount > 1 && this.CurrentPage > 1)
             {
                 this.QS.Update(this.PageKeyword, "1");
-                this.AddItem("‹‹", this.QS.Value).Controls.FirstOrDefault().AddAttribute("title", this.StartTitle);
+                this.AddItem("‹‹", this.QS.Value, "page-item", "page-link").Controls.FirstOrDefault().AddAttribute("title", this.StartTitle);
             }
 
             if (startPage > 1)
@@ -67,12 +67,12 @@ namespace Ophelia.Web.UI.Controls
                     this.QS.Update(this.PageKeyword, "1");
                 else
                     this.QS.Update(this.PageKeyword, (startPage - Convert.ToInt32(this.LinkedPageCount / 2)).ToString());
-                this.AddItem("‹", this.QS.Value).Controls.FirstOrDefault().AddAttribute("title", this.PreviousPageTitle);
+                this.AddItem("‹", this.QS.Value, "page-item", "page-link").Controls.FirstOrDefault().AddAttribute("title", this.PreviousPageTitle);
             }
             for (int i = startPage; i <= endPage; i++)
             {
                 this.QS.Update(this.PageKeyword, i.ToString());
-                this.AddItem(i.ToString(), this.QS.Value, (i == this.CurrentPage ? "active" : ""));
+                this.AddItem(i.ToString(), this.QS.Value, (i == this.CurrentPage ? "active page-item" : "page-item"), "page-link");
             }
             if (endPage < pageCount)
             {
@@ -80,12 +80,12 @@ namespace Ophelia.Web.UI.Controls
                     this.QS.Update(this.PageKeyword, pageCount.ToString());
                 else
                     this.QS.Update(this.PageKeyword, (endPage + Convert.ToInt32(this.LinkedPageCount / 2) + 1).ToString());
-                this.AddItem("›", this.QS.Value).Controls.FirstOrDefault().AddAttribute("title", this.NextPageTitle);
+                this.AddItem("›", this.QS.Value, "page-item", "page-link").Controls.FirstOrDefault().AddAttribute("title", this.NextPageTitle);
             }
             if (pageCount > 1 && this.CurrentPage < endPage)
             {
                 this.QS.Update(this.PageKeyword, pageCount.ToString());
-                this.AddItem("››", this.QS.Value).Controls.FirstOrDefault().AddAttribute("title", this.EndTitle);
+                this.AddItem("››", this.QS.Value, "page-item", "page-link").Controls.FirstOrDefault().AddAttribute("title", this.EndTitle);
             }
             base.onBeforeRenderControl(writer);
         }

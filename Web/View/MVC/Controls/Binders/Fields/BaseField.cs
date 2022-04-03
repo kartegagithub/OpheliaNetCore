@@ -71,7 +71,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 this.HtmlAttributes = newProps;
             }
             this.SetDataValue();
-            this.CssClass = "form-group";
+            if (string.IsNullOrEmpty(this.FieldContainer.FieldParentCssClass))
+                this.CssClass = "form-group";
+            else
+                this.CssClass = this.FieldContainer.FieldParentCssClass;
             if (!this.Editable)
                 this.DataControl.AddAttribute("readonly", "readonly");
             base.onBeforeRenderControl(writer);

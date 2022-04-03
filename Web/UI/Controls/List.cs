@@ -45,6 +45,8 @@ namespace Ophelia.Web.UI.Controls
             item.Controls.Add(link);
             link.AddAttribute("data-toggle", "modal");
             link.AddAttribute("data-target", ModalID);
+            link.AddAttribute("data-bs-toggle", "modal");
+            link.AddAttribute("data-bs-target", ModalID);
             item.CssClass = LiCssClass;
             this.Controls.Add(item);
             if (toIndex > -1)
@@ -56,7 +58,13 @@ namespace Ophelia.Web.UI.Controls
         {
             var item = new ListItem();
             item.Controls.Add(link);
+            if (!link.CssClass.Contains("dropdown-toggle"))
+                link.CssClass += " dropdown-toggle";
             link.AddAttribute("data-toggle", "dropdown");
+            link.AddAttribute("data-bs-toggle", "dropdown");
+            link.AddAttribute("aria-haspopup", "true");
+            link.AddAttribute("aria-expanded", "true");
+
             item.CssClass = LiCssClass;
             this.Controls.Add(item);
             if (toIndex > -1)
