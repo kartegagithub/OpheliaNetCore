@@ -1231,7 +1231,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         {
                             using (var editControl = column.GetEditableControl(item, value))
                             {
-                                editControl.AddAttribute("data-filters", this.Request.QueryString.ToString().Replace("IsAjaxRequest=1", "").Replace("ajaxentitybinder=1", "").Trim('&'));
+                                editControl.AddAttribute("data-filters", this.Request.QueryStringValue().Replace("IsAjaxRequest=1", "").Replace("ajaxentitybinder=1", ""));
                                 this.Output.Write(this.DrawCellEditableControl(column, editControl, item));
                             }
                         }
