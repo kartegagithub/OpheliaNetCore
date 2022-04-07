@@ -86,7 +86,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             if (this.FieldContainer.Entity == null)
                 return;
 
-            var stringlengthAttr = this.FieldContainer.Entity.GetType().GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.StringLengthAttribute));
+            var prop = this.FieldContainer.Entity.GetType().GetProperties().Where(op => op.Name == this.DataControl.ID).FirstOrDefault();
+            if (prop == null)
+                return;
+
+            var stringlengthAttr = prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.StringLengthAttribute));
             if (stringlengthAttr != null && stringlengthAttr.Any())
             {
                 var maxLength = (stringlengthAttr.FirstOrDefault() as System.ComponentModel.DataAnnotations.StringLengthAttribute).MaximumLength;
