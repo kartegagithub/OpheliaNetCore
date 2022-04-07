@@ -77,7 +77,28 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 this.CssClass = this.FieldContainer.FieldParentCssClass;
             if (!this.Editable)
                 this.DataControl.AddAttribute("readonly", "readonly");
+
+            this.SetAttributes();
             base.onBeforeRenderControl(writer);
+        }
+        protected void SetAttributes()
+        {
+            if (this.FieldContainer.Entity == null)
+                return;
+
+            var prop = this.FieldContainer.Entity.GetType().GetProperties().Where(op => op.Name == this.DataControl.ID).FirstOrDefault();
+            if (prop == null)
+                return;
+
+            var stringlengthAttr = prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.StringLengthAttribute));
+            if (stringlengthAttr != null && stringlengthAttr.Any())
+            {
+                var maxLength = (stringlengthAttr.FirstOrDefault() as System.ComponentModel.DataAnnotations.StringLengthAttribute).MaximumLength;
+                if (maxLength > 0 && maxLength < int.MaxValue)
+                {
+                    this.DataControl.AddAttribute("maxlength", maxLength.ToString());
+                }
+            }
         }
         protected override void onRenderControl(TextWriter writer)
         {
