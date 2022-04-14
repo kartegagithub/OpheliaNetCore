@@ -2,8 +2,8 @@
 
 namespace Ophelia.Data.Attributes
 {
-    public class ManualMaxLength : Attribute
+    public class DisableMaxLength : Attribute
     {
-        public ManualMaxLength() { }
+        public DisableMaxLength() { }
     }
 }
