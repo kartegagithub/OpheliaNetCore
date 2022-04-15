@@ -90,6 +90,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             if (prop == null)
                 return;
 
+            var disableMaxLength = prop.GetCustomAttributes(typeof(Data.Attributes.DisableMaxLength));
+            if (disableMaxLength != null && disableMaxLength.Any())
+                return;
+
             var stringlengthAttr = prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.StringLengthAttribute));
             if (stringlengthAttr != null && stringlengthAttr.Any())
             {
