@@ -20,19 +20,36 @@ namespace Ophelia.Tasks
                 if (!this.Executing)
                 {
                     this.Executing = true;
-                    this.RegisterJobs();
-                    for (int i = 0; i < this.Jobs.Count; i++)
+                    if (this.CheckSystemAvailablity())
                     {
-                        this.Jobs[i].Run();
+                        this.RegisterJobs();
+                        for (int i = 0; i < this.Jobs.Count; i++)
+                        {
+                            this.Jobs[i].Run();
+                        }
+                    }
+                    else
+                    {
+                        this.OnSystemNotAvailable();
                     }
                     this.Executing = false;
                 }
             }
             catch (Exception ex)
             {
+                this.Executing = false;
                 Console.WriteLine("JobManager.Execute:");
                 Console.WriteLine(ex.ToString());
+                this.OnSystemNotAvailable();
             }
+        }
+        protected virtual void OnSystemNotAvailable()
+        {
+
+        }
+        protected virtual bool CheckSystemAvailablity()
+        {
+            return true;
         }
         public void StartTimer(int interval)
         {
