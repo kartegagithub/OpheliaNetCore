@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Text;
 using System.Linq;
+using System.Collections.Generic;
+using System;
+using System.Linq.Expressions;
 
 namespace Ophelia
 {
@@ -57,6 +60,16 @@ namespace Ophelia
             if (request == null)
                 return false;
             return request.Host.Host.IndexOf("localhost") > -1 || request.Host.Host == "127.0.0.1" || request.Host.Host == "::1";
+        }
+        public static IEnumerable<T> ToObjectListByID<T>(this HttpRequest request, string name, Expression<Func<T, object>> expression)
+        {
+            var idList = request.GetValue(name).ToLongList();
+            foreach (var item in idList)
+            {
+                var obj = Activator.CreateInstance(typeof(T));
+                obj.SetPropertyValue(expression.ParsePath(), item);
+                yield return (T)obj;
+            }
         }
     }
 }
