@@ -83,7 +83,7 @@ namespace Ophelia.Integration.Amazon
                 GetPreSignedUrlRequest request = new GetPreSignedUrlRequest();
                 request.BucketName = this.Bucket;
                 request.Key = file;
-                request.Expires = DateTime.Now.AddHours(24);
+                request.Expires = DateTime.Now.AddYears(this.ExpireYear);
                 request.Protocol = Protocol.HTTP;
                 string url = this.Client.GetPreSignedURL(request);
 
