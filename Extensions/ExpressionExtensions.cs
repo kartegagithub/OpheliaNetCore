@@ -59,10 +59,16 @@ namespace Ophelia
             }
             else if (expression is LambdaExpression)
             {
-                var unaryExp = ((expression as LambdaExpression).Body as UnaryExpression);
+                var lambda = expression as LambdaExpression;
+                var unaryExp = lambda.Body as UnaryExpression;
                 if (unaryExp != null)
                 {
                     return (unaryExp.Operand as MemberExpression).GetPropertyType();
+                }
+                var memberExp = lambda.Body as MemberExpression;
+                if (memberExp != null)
+                {
+                    return memberExp.GetPropertyType();
                 }
             }
             return null;

@@ -54,6 +54,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                     }
                     this.DataControl.DataSource = list;
                     this.DataControl.SelectedValue = string.Join(",", list.Select(op => op.Value).ToArray());
+
+                    var entityType = this.SelectedValueExpression.GetPropertyType();
+                    if (entityType != null)
+                    {
+                        this.DataControl.AddAttribute("view-namespace", entityType.GetNamespace());
+                        this.DataControl.AddAttribute("view-type", entityType.Name);
+                    }
                 }
             }
             else
