@@ -1157,10 +1157,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 {
                     link.URL = "javascript:void(0);";
                 }
-                if (link.URL.IndexOf("?") == -1)
-                    link.URL += "?";
+                if (this.Configuration.AppendListOfIDOnItemLink)
+                {
+                    if (link.URL.IndexOf("?") == -1)
+                        link.URL += "?";
 
-                link.URL = link.URL.Trim('&') + "&" + allIDs;
+                    link.URL = link.URL.Trim('&') + "&" + allIDs;
+                }
 
                 this.Output.Write("<tr ");
                 this.Output.Write("data-name=\"" + this.GetDisplayName(item) + "\" ");
