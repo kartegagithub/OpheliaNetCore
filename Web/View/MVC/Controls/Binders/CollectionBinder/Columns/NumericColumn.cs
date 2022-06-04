@@ -9,6 +9,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         public string Format { get; set; }
         public override object GetValue(T item)
         {
+            this.SetFormat(this.Format, this.Binder.Configuration.DecimalFormat, this.Binder.Configuration.IntFormat);
+
             var value = base.GetValue(item);
             if (value == null)
                 return 0.ToString(this.Format);
@@ -34,6 +36,38 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             this.SetAttributes(textbox);
             return textbox;
         }
+
+        public void SetFormat(string format, string defaultDecimalFormat, string defaultIntFormat)
+        {
+            if (format == "-")
+                return;
+            if (!string.IsNullOrEmpty(format))
+                this.Format = format;
+            else
+            {
+                if (!string.IsNullOrEmpty(defaultDecimalFormat) || !string.IsNullOrEmpty(defaultIntFormat))
+                {
+                    var propType = this.Expression.GetPropertyType();
+                    if (propType == null)
+                        return;
+
+                    if (!string.IsNullOrEmpty(defaultDecimalFormat) && propType.Name.IndexOf("Decimal", StringComparison.InvariantCultureIgnoreCase) > -1)
+                    {
+                        this.Format = defaultDecimalFormat;
+                    }
+                    else if (!string.IsNullOrEmpty(defaultDecimalFormat) &&
+                        (propType.Name.IndexOf("long", StringComparison.InvariantCultureIgnoreCase) > -1
+                        || propType.Name.IndexOf("int", StringComparison.InvariantCultureIgnoreCase) > -1
+                        || propType.Name.IndexOf("int16", StringComparison.InvariantCultureIgnoreCase) > -1
+                        || propType.Name.IndexOf("int32", StringComparison.InvariantCultureIgnoreCase) > -1
+                        || propType.Name.IndexOf("int64", StringComparison.InvariantCultureIgnoreCase) > -1))
+                    {
+                        this.Format = defaultIntFormat;
+                    }
+                }
+            }
+        }
+
         public NumericColumn(CollectionBinder<TModel, T> binder, string Name) : base(binder, Name)
         {
             this.Alignment = HorizontalAlign.Right;

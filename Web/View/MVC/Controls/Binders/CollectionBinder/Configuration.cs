@@ -38,6 +38,8 @@
         public string SaveButtonText { get; set; }
         public string SaveButtonIcon { get; set; }
         public string SaveButtonClass { get; set; }
+        public string DecimalFormat { get; set; }
+        public string IntFormat { get; set; }
         public Configuration()
         {
             this.AppendListOfIDOnItemLink = true;
@@ -61,6 +63,7 @@
             this.SaveButtonText = "Save";
             this.ColumnSortingByLink = false;
             this.KeepSelectedCheckboxes = true;
+            this.DecimalFormat = "N2";
         }
     }
     public enum ColumnFilteringType
