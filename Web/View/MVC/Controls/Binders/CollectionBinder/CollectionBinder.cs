@@ -1117,6 +1117,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             if (this.DataSource == null || this.DataSource.Items == null || this.DataSource.Items.Count == 0)
                 return;
 
+            if (this.Configuration.RedirectOnSingleResult && this.DataSource.Items.Count == 1)
+            {
+                var url = this.GetItemLink(this.DataSource.Items.FirstOrDefault());
+                this.Output.Write("<script>document.location.href='" + url + "';</script>");
+                return;
+            }
+
             if (string.IsNullOrEmpty(className))
                 className = "table-body";
             if (string.IsNullOrEmpty(tbodyId))

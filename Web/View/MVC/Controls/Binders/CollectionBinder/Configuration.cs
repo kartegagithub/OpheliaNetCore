@@ -29,6 +29,7 @@
         public bool KeepSelectedCheckboxes { get; set; }
         public bool ShowCheckAll { get; set; }
         public bool ShowDefaultFields { get; set; }
+        public bool RedirectOnSingleResult { get; set; }
         public string CheckboxProperty { get; set; }
         public bool AppendListOfIDOnItemLink { get; set; }
         public string CheckboxIdentifierProperty { get; set; }
