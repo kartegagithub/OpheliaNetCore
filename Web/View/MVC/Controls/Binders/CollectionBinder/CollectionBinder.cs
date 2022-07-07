@@ -1218,9 +1218,12 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             }
                         }
                         link.Text = Convert.ToString(value);
-                        if (!string.IsNullOrEmpty(link.Text))
-                            link.Text = HttpUtility.HtmlEncode(link.Text);
-                        link.Title = link.Text;
+                        if (!column.KeepHtml)
+                        {
+                            if (!string.IsNullOrEmpty(link.Text))
+                                link.Text = HttpUtility.HtmlEncode(link.Text);
+                            link.Title = link.Text;
+                        }
                         try
                         {
                             link.ID = column.FormatName() + "_" + item.GetPropertyValue("ID");
