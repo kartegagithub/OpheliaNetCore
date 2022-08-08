@@ -400,11 +400,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 highValue = "";
                             }
                         }
-                        if ((doubleSelection && (!string.IsNullOrEmpty(lowValue) || !string.IsNullOrEmpty(highValue))) || (!string.IsNullOrEmpty(this.Request.GetValue(path)) && defaultValue != value && value != null))
+                        var propTree = typeof(T).GetPropertyInfoTree(entityProp);
+                        var propInfo = propTree.LastOrDefault();
+                        var propType = propInfo?.PropertyType;
+                        if (this.CanApplyFilter(propType, entityProp, doubleSelection, lowValue, highValue, path, defaultValue, value))
                         {
-                            var propTree = typeof(T).GetPropertyInfoTree(entityProp);
-                            var propInfo = propTree.LastOrDefault();
-                            var propType = propInfo?.PropertyType;
                             if (propType != null && propInfo.GetCustomAttribute(typeof(Data.Attributes.ManualFiltering)) == null)
                             {
                                 if (propType.IsGenericType && propType.Name.StartsWith("Null"))
@@ -785,14 +785,44 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             return true;
         }
+        protected bool CanApplyFilter(Type propType, string entityProp, bool doubleSelection, string lowValue, string highValue, string path, object defaultValue, object value)
+        {
+            if (doubleSelection)
+                return !string.IsNullOrEmpty(lowValue) || !string.IsNullOrEmpty(highValue);
+
+            if (string.IsNullOrEmpty(this.Request.GetValue(path)))
+                return false;
+
+            var isNumeric = propType.IsNumeric();
+            if (!doubleSelection)
+            {
+                if (isNumeric)
+                {
+                    if (defaultValue.ToInt64() != value.ToInt64())
+                        return true;
+                }
+                else
+                    return defaultValue != value && value != null;
+            }
+            if (!string.IsNullOrEmpty(this.Request.GetValue(entityProp + "-Comparison")))
+            {
+                var comparison = (Comparison)this.Request.GetValue(entityProp + "-Comparison").ToInt32();
+                if (isNumeric)
+                    return comparison != Comparison.Equal;
+                else
+                    return comparison != Comparison.Contains;
+            }
+            return false;
+        }
         private void ApplyFilter(string entityProp, string value, Type propType, bool isQueryableDataSet, PropertyInfo[] propTree)
         {
             var comparison = Comparison.Contains;
             var isNumeric = propType.IsNumeric();
             value = Convert.ToString(value).Trim();
             var formattedValue = Convert.ChangeType(value, propType);
-            if (isNumeric && Convert.ToInt64(formattedValue.ToString()) < 0)
-                comparison = Comparison.GreaterAndEqual;
+
+            if (isNumeric)
+                comparison = Comparison.Equal;
 
             if (!string.IsNullOrEmpty(this.Request.GetValue(entityProp + "-Comparison")))
                 comparison = (Comparison)this.Request.GetValue(entityProp + "-Comparison").ToInt32();
