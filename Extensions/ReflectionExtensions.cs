@@ -137,6 +137,8 @@ namespace Ophelia
         }
         public static bool IsNumeric(this Type type)
         {
+            if (type == null)
+                return false;
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
