@@ -10,17 +10,6 @@ namespace Ophelia.Integration.I18NService
 {
     public class I18NIntegratorClient : IDisposable
     {
-        [ThreadStatic]
-        internal static I18NIntegratorClient _Current;
-        public static I18NIntegratorClient Current
-        {
-            get
-            {
-                if (_Current == null)
-                    _Current = new I18NIntegratorClient();
-                return _Current;
-            }
-        }
         public string ServiceURL { get; set; }
         private Services.IntegrationService Service { get; set; }
         public string AppCode { get; set; }
@@ -162,7 +151,6 @@ namespace Ophelia.Integration.I18NService
             this.AppName = "";
             this.ProjectCode = "";
             this.ProjectName = "";
-            _Current = null;
         }
     }
 }
