@@ -47,7 +47,16 @@ namespace Ophelia.Integration.I18NService
             if (string.IsNullOrEmpty(this.AppKey))
                 return;
             if (this.Accesses != null && this.Accesses.Any() && this.Service != null && !string.IsNullOrEmpty(this.ServiceURL))
-                this.Service.ProcessAccesses(this.Accesses);
+            {
+                var ts = new System.Threading.ThreadStart(FlushAsynch);
+                var t = new System.Threading.Thread(ts);
+                t.Start();
+            }
+        }
+        private void FlushAsynch()
+        {
+            var result = this.Service.ProcessAccesses(this.Accesses);
+            this.Accesses.Clear();
         }
         public ServiceObjectResult<bool> UpdateTranslation(Models.TranslationPool pool)
         {
