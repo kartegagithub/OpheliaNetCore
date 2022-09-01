@@ -143,13 +143,12 @@ namespace Ophelia
         {
             if (!string.IsNullOrEmpty(value))
             {
-                value = value.Trim();
+                value = value.Trim().Replace("-", "").Replace("+", "");
                 if (value.Equals("0"))
                     return true;
 
-                decimal decValue = 0;
-                decimal.TryParse(value, out decValue);
-                return decValue > 0;
+                decimal decValue = decimal.MinValue;
+                return decimal.TryParse(value, out decValue);
             }
             return false;
         }
