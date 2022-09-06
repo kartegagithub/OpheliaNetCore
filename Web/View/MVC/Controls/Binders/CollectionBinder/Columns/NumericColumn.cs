@@ -13,8 +13,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
 
             var value = base.GetValue(item);
             if (value == null)
-                return 0.ToString(this.Format);
-            
+                return "";
+
             if (string.IsNullOrEmpty(this.Format))
                 return value;
             else
