@@ -157,6 +157,7 @@ namespace Ophelia.Data
                     break;
                 case DatabaseType.MySQL:
                     this.Context.Configuration.UseNamespaceAsSchema = false;
+                    this.internalConnection = new MySql.Data.MySqlClient.MySqlConnection(ConnectionString);
                     break;
             }
 
@@ -439,7 +440,7 @@ namespace Ophelia.Data
                 case DatabaseType.Oracle:
                     return Name.Replace("+", "||");
                 case DatabaseType.MySQL:
-                    return Name;
+                    return Name.Replace("+", "||"); ;
             }
             return "";
         }
@@ -487,25 +488,26 @@ namespace Ophelia.Data
         public string GetTableName(string schema, string name, bool format = true, string databaseName = "")
         {
             var sb = new StringBuilder();
+            if (!string.IsNullOrEmpty(schema))
+            {
+                if (this.Context.Configuration.UseNamespaceAsSchema)
+                    schema = this.FormatDataElement(this.GetMappedNamespace(schema).Replace(".", "_")) + ".";
+                else
+                    schema = this.GetMappedNamespace(schema).Replace(".", "_") + "_";
+            }
+            if (!string.IsNullOrEmpty(databaseName))
+                sb.Append(this.FormatDataElement(databaseName) + ".");
+
             if (format)
             {
-                if (!string.IsNullOrEmpty(databaseName))
-                    sb.Append(this.FormatDataElement(databaseName) + ".");
-
                 if (this.Context.Configuration.UseNamespaceAsSchema)
-                {
-                    sb.Append(this.FormatDataElement(this.GetMappedNamespace(schema).Replace(".", "_"))).Append(".").Append(this.FormatDataElement(this.GetMappedTableName(name)));
-                }
+                    sb.Append(schema).Append(this.FormatDataElement(this.GetMappedTableName(name)));
                 else
-                {
-                    sb.Append(this.FormatDataElement(this.GetMappedNamespace(schema).Replace(".", "_") + "_" + this.GetMappedTableName(name)));
-                }
+                    sb.Append(this.FormatDataElement(schema + this.GetMappedTableName(name)));
             }
             else
             {
-                if (!string.IsNullOrEmpty(databaseName))
-                    sb.Append(this.FormatDataElement(databaseName) + ".");
-                sb.Append(this.GetMappedNamespace(schema).Replace(".", "_")).Append("_").Append(this.GetMappedTableName(name));
+                sb.Append(schema).Append(this.GetMappedTableName(name));
             }
             return sb.ToString();
         }
@@ -542,6 +544,15 @@ namespace Ophelia.Data
         public string GetTableName(Type type, bool format = true)
         {
             var dbName = "";
+            var tableName = type.Name;
+            var schema = this.GetSchema(type);
+
+            var tableAttr = (System.ComponentModel.DataAnnotations.Schema.TableAttribute)type.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.TableAttribute)).FirstOrDefault();
+            if (tableAttr != null)
+            {
+                tableName = tableAttr.Name;
+                schema = tableAttr.Schema;
+            }
             if (this.Context.Configuration.AllowLinkedDatabases)
             {
                 if (!this.Context.ContainsEntityType(type))
@@ -560,7 +571,7 @@ namespace Ophelia.Data
                     }
                 }
             }
-            return GetTableName(this.GetSchema(type), type.Name, format, dbName);
+            return GetTableName(schema, tableName, format, dbName);
         }
         public string GetSchema(Type type)
         {
@@ -602,7 +613,7 @@ namespace Ophelia.Data
                 case DatabaseType.Oracle:
                     return "\"";
                 case DatabaseType.MySQL:
-                    return "'";
+                    return "`";
             }
             return "";
         }
@@ -617,7 +628,7 @@ namespace Ophelia.Data
                 case DatabaseType.Oracle:
                     return "\"";
                 case DatabaseType.MySQL:
-                    return "'";
+                    return "`";
             }
             return "";
         }
@@ -693,7 +704,14 @@ namespace Ophelia.Data
             }
             sb.Append(table.Alias);
             sb.Append(".");
-            sb.Append(this.FormatDataElement(this.GetMappedFieldName(p.Name)));
+
+            var fieldName = p.Name;
+
+            var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
+            if (columnAttr != null)
+                fieldName = columnAttr.Name;
+
+            sb.Append(this.FormatDataElement(this.GetMappedFieldName(fieldName)));
             if (isSubTable && table.Query.Context.Connection.Type == DatabaseType.SQLServer)
             {
                 sb.Append(" AS ");
