@@ -142,6 +142,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
         }
         public string GetFieldName(BaseQuery query, MemberInfo member, Expression expression)
         {
+            var memberName = "";
+            var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)member.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
+            if (columnAttr != null)
+                memberName = columnAttr.Name;
+
             var path = expression.ParsePath();
             if (path.IndexOf(".") > -1)
             {
@@ -149,10 +154,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 var p = props[props.Length - 2];
                 var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == p.Name + "ID" && op.EntityType == p.DeclaringType).FirstOrDefault();
                 if (table != null)
-                    return query.Context.Connection.GetMappedFieldName(table.Alias + "_" + member.Name);
+                    return query.Context.Connection.GetMappedFieldName(table.Alias + "_" + memberName);
             }
             else
-                return query.Context.Connection.GetMappedFieldName(member.Name);
+                return query.Context.Connection.GetMappedFieldName(memberName);
 
             return "";
         }
@@ -201,7 +206,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             var properties = member.GetMemberInfoType().GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
                             foreach (var p in properties)
                             {
-                                fieldName = query.Context.Connection.GetMappedFieldName(table.Alias + "_" + p.Name);
+                                fieldName = p.Name;
+                                var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
+                                if (columnAttr != null)
+                                    fieldName = columnAttr.Name;
+                                fieldName = query.Context.Connection.GetMappedFieldName(table.Alias + "_" + fieldName);
                                 if (p.PropertyType.IsPrimitiveType() && row.Table.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
                                 {
                                     try
@@ -221,7 +230,14 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             fieldName = this.GetFieldName(query, member, bindingMember.Value);
                     }
                     else
-                        fieldName = query.Context.Connection.GetMappedFieldName(member.Name);
+                    {
+                        fieldName = member.Name;
+                        var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)member.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
+                        if (columnAttr != null)
+                            fieldName = columnAttr.Name;
+
+                        fieldName = query.Context.Connection.GetMappedFieldName(fieldName);
+                    }
                 }
                 this.SetData(member, fieldName, row, type, entity, bindingMember);
                 counter++;
