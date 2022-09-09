@@ -545,48 +545,75 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(value2));
                     break;
                 case Comparison.StartsWith:
-                    if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
-                        sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE "));
-                    else
-                        sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
-                    if (!oracleNull)
+                    if (query.Context.Connection.Type == DatabaseType.MySQL)
                     {
+                        sb.Append(" LIKE CONCAT(");
                         sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        sb.Append(query.Context.Connection.FormatStringConcat("+ '%'"));
+                        sb.Append(",'%')");
                     }
                     else
-                        sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
+                    {
+                        if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
+                            sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE "));
+                        else
+                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
+                        if (!oracleNull)
+                        {
+                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                            sb.Append(query.Context.Connection.FormatStringConcat("+ '%'"));
+                        }
+                        else
+                            sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
+                    }
                     break;
                 case Comparison.EndsWith:
-                    if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
-                        sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE "));
-                    else
-                        sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
-                    if (!oracleNull)
+                    if (query.Context.Connection.Type == DatabaseType.MySQL)
                     {
-                        sb.Append(query.Context.Connection.FormatStringConcat("'%' + "));
+                        sb.Append(" LIKE CONCAT('%',");
                         sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        sb.Append(")");
                     }
                     else
-                        sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
+                    {
+                        if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
+                            sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE "));
+                        else
+                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
+                        if (!oracleNull)
+                        {
+                            sb.Append(query.Context.Connection.FormatStringConcat("'%' + "));
+                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        }
+                        else
+                            sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
+                    }
                     break;
                 case Comparison.Contains:
-                    if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
-                        sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE '%' + "));
-                    else if (query.Context.Connection.Type == DatabaseType.Oracle)
+                    if (query.Context.Connection.Type == DatabaseType.MySQL)
                     {
-                        if (!oracleNull)
-                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%' + "));
-                        else
-                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%'"));
+                        sb.Append(" LIKE CONCAT('%',");
+                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        sb.Append(",'%')");
                     }
                     else
-                        sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%' + "));
-
-                    if (!oracleNull)
                     {
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        sb.Append(query.Context.Connection.FormatStringConcat(" + '%'"));
+                        if (query.Context.Connection.Type == DatabaseType.PostgreSQL)
+                            sb.Append(query.Context.Connection.FormatStringConcat(" ILIKE '%' + "));
+                        else if (query.Context.Connection.Type == DatabaseType.Oracle)
+                        {
+                            if (!oracleNull)
+                                sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%' + "));
+                            else
+                                sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%'"));
+                        }
+                        else
+                            sb.Append(query.Context.Connection.FormatStringConcat(" LIKE '%' + "));
+
+                        if (!oracleNull)
+                        {
+                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                            sb.Append(query.Context.Connection.FormatStringConcat(" + '%'"));
+                        }
                     }
                     break;
             }
