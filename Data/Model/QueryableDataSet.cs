@@ -226,6 +226,10 @@ namespace Ophelia.Data.Model
                                 foreach (var p in properties)
                                 {
                                     var fieldName = query.Context.Connection.GetMappedFieldName(p.Name);
+                                    var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
+                                    if (columnAttr != null)
+                                        fieldName = columnAttr.Name;
+
                                     if (p.PropertyType.IsPrimitiveType() && data.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
                                     {
                                         try
