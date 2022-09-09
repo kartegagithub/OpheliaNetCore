@@ -633,7 +633,7 @@ namespace Ophelia
             if (info == null)
                 return new List<object>();
 
-            var list = info.GetCustomAttributes(true).Where(op => op.GetType().IsAssignableFrom(attributeType));
+            var list = info.GetCustomAttributes(true).Where(op => op.GetType().IsAssignableFrom(attributeType) || op.GetType().UnderlyingSystemType.BaseType.IsAssignableFrom(attributeType));
             return new List<object>(list);
         }
         public static Type GetMemberInfoType(this MemberInfo member)
