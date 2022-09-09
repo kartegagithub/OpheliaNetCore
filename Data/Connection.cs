@@ -488,26 +488,34 @@ namespace Ophelia.Data
         public string GetTableName(string schema, string name, bool format = true, string databaseName = "")
         {
             var sb = new StringBuilder();
-            if (!string.IsNullOrEmpty(schema))
-            {
-                if (this.Context.Configuration.UseNamespaceAsSchema)
-                    schema = this.FormatDataElement(this.GetMappedNamespace(schema).Replace(".", "_")) + ".";
-                else
-                    schema = this.GetMappedNamespace(schema).Replace(".", "_") + "_";
-            }
-            if (!string.IsNullOrEmpty(databaseName))
-                sb.Append(this.FormatDataElement(databaseName) + ".");
-
             if (format)
             {
+                if (!string.IsNullOrEmpty(databaseName))
+                    sb.Append(this.FormatDataElement(databaseName) + ".");
+
                 if (this.Context.Configuration.UseNamespaceAsSchema)
-                    sb.Append(schema).Append(this.FormatDataElement(this.GetMappedTableName(name)));
+                {
+                    if (!string.IsNullOrEmpty(schema))
+                        sb.Append(this.FormatDataElement(this.GetMappedNamespace(schema).Replace(".", "_"))).Append(".").Append(this.FormatDataElement(this.GetMappedTableName(name)));
+                    else
+                        sb.Append(this.FormatDataElement(this.GetMappedTableName(name)));
+                }
                 else
-                    sb.Append(this.FormatDataElement(schema + this.GetMappedTableName(name)));
+                {
+                    if (!string.IsNullOrEmpty(schema))
+                        sb.Append(this.FormatDataElement(this.GetMappedNamespace(schema).Replace(".", "_") + "_" + this.GetMappedTableName(name)));
+                    else
+                        sb.Append(this.FormatDataElement(this.GetMappedTableName(name)));
+                }
             }
             else
             {
-                sb.Append(schema).Append(this.GetMappedTableName(name));
+                if (!string.IsNullOrEmpty(databaseName))
+                    sb.Append(this.FormatDataElement(databaseName) + ".");
+                if (!string.IsNullOrEmpty(schema))
+                    sb.Append(this.GetMappedNamespace(schema).Replace(".", "_")).Append("_").Append(this.GetMappedTableName(name));
+                else
+                    sb.Append(this.GetMappedTableName(name));
             }
             return sb.ToString();
         }
