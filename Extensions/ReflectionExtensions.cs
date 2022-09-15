@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Ophelia
 {
@@ -628,13 +629,17 @@ namespace Ophelia
             var list = type.GetCustomAttributes(true).Where(op => op.GetType().IsAssignableFrom(attributeType));
             return new List<object>(list);
         }
-        public static List<object> GetCustomAttributes(this PropertyInfo info, Type attributeType)
+        public static IEnumerable<object> GetCustomAttributes(this PropertyInfo info, Type attributeType)
         {
             if (info == null)
-                return new List<object>();
+                yield return new List<object>();
 
-            var list = info.GetCustomAttributes(true).Where(op => op.GetType().IsAssignableFrom(attributeType) || op.GetType().UnderlyingSystemType.BaseType.IsAssignableFrom(attributeType));
-            return new List<object>(list);
+            var list = info.GetCustomAttributes(true);
+            foreach (var op in list)
+            {
+                if (op.GetType().IsAssignableFrom(attributeType) || (op.GetType().UnderlyingSystemType.BaseType.Name != "Attribute" && op.GetType().UnderlyingSystemType.BaseType.IsAssignableFrom(attributeType)))
+                    yield return op;
+            }
         }
         public static Type GetMemberInfoType(this MemberInfo member)
         {
