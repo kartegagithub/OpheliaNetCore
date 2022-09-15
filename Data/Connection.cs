@@ -664,7 +664,7 @@ namespace Ophelia.Data
                     if (excludedProps == null || !excludedProps.Where(op => ((Attributes.ExcludeDefaultColumn)op).Columns.Contains(p.Name)).Any())
                     {
                         var pAttributes = p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute));
-                        if (pAttributes == null || pAttributes.Count == 0)
+                        if (pAttributes == null || !pAttributes.Any())
                         {
                             var fieldStr = this.GetFieldSelectString(table, p, isSubTable, loadByXML);
                             sb.Append(fieldStr);

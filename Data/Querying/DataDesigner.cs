@@ -217,7 +217,7 @@ namespace Ophelia.Data.Querying
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
             foreach (var p in properties)
             {
-                var isNotMapped = p.GetCustomAttributes(typeof(NotMappedAttribute)).Count > 0;
+                var isNotMapped = p.GetCustomAttributes(typeof(NotMappedAttribute)).Any();
                 if (isNotMapped)
                     continue;
 
