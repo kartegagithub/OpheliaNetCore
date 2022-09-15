@@ -592,10 +592,11 @@ namespace Ophelia.Data
         }
         public string GetPrimaryKeyName(Type type)
         {
+            var pkPRoperty = Extensions.GetPrimaryKeyProperty(type);
             if (this.Context.Configuration.PrimaryKeyContainsEntityName)
-                return this.FormatDataElement(this.GetMappedFieldName(type.Name + "ID"));
+                return this.FormatDataElement(this.GetMappedFieldName(type.Name + Extensions.GetColumnName(pkPRoperty)));
             else
-                return this.FormatDataElement(this.GetMappedFieldName("ID"));
+                return this.FormatDataElement(this.GetMappedFieldName(Extensions.GetColumnName(pkPRoperty)));
         }
 
         internal string FormatDataElement(string key)
@@ -694,7 +695,8 @@ namespace Ophelia.Data
             if (p.PropertyType.IsDataEntity()) { return ""; }
             if (p.PropertyType.IsQueryableDataSet()) { return ""; }
 
-            var alias = this.FormatDataElement(this.GetMappedFieldName(table.Alias + "_" + p.Name));
+            var fieldName = Extensions.GetColumnName(p);
+            var alias = this.FormatDataElement(this.GetMappedFieldName(table.Alias + "_" + fieldName));
             if (isSubTable && loadByXML)
             {
                 if (table.Query.Context.Connection.Type == DatabaseType.PostgreSQL)
@@ -713,12 +715,6 @@ namespace Ophelia.Data
             sb.Append(table.Alias);
             sb.Append(".");
 
-            var fieldName = p.Name;
-
-            var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
-            if (columnAttr != null)
-                fieldName = columnAttr.Name;
-
             sb.Append(this.FormatDataElement(this.GetMappedFieldName(fieldName)));
             if (isSubTable && table.Query.Context.Connection.Type == DatabaseType.SQLServer)
             {
@@ -729,7 +725,7 @@ namespace Ophelia.Data
             {
                 sb.Append(")");
             }
-            else if (isSubTable && !loadByXML && (table.Query.Context.Connection.Type == DatabaseType.PostgreSQL || table.Query.Context.Connection.Type == DatabaseType.Oracle))
+            else if (isSubTable && !loadByXML && (table.Query.Context.Connection.Type == DatabaseType.MySQL || table.Query.Context.Connection.Type == DatabaseType.PostgreSQL || table.Query.Context.Connection.Type == DatabaseType.Oracle))
             {
                 sb.Append(" AS ");
                 sb.Append(alias);

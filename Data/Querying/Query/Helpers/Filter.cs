@@ -178,7 +178,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             sb.Append(",");
                         if (memExp.Expression != null)
                         {
-                            var memberName = (memExp.Expression as MemberExpression).Member.Name + "ID";
+                            var memberName = Extensions.GetForeignKeyName((memExp.Expression as MemberExpression).Member);
                             var joinedTable = baseTable.Joins.Where(op => op.JoinOn == memberName).FirstOrDefault();
                             if (joinedTable == null)
                                 joinedTable = baseTable.AddJoin(new Table(query, memExp.Expression.Type, JoinType.Left, baseTable.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(memberName), JoinedTable = baseTable });
@@ -364,34 +364,18 @@ namespace Ophelia.Data.Querying.Query.Helpers
                                 table = subqueryTable;
 
                             Table joinedTable = null;
-                            var propInfo = lastType.GetProperties().Where(op => op.Name.Equals(_prop.Name + "ID", StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-                            if (propInfo != null && Nullable.GetUnderlyingType(propInfo.PropertyType) != null)
+                            var propInfo = Extensions.GetForeignKeyProp(_prop).Item1;
+                            var fkName = Extensions.GetForeignKeyName(_prop);
+                            joinedTable = table.Joins.Where(op => op.JoinOn == fkName).FirstOrDefault();
+                            if (joinedTable == null)
                             {
-                                joinedTable = table.Joins.Where(op => op.JoinOn == propInfo.Name).FirstOrDefault();
-                                if (joinedTable == null)
-                                {
-                                    var toJoinTable = table.Joins.LastOrDefault();
-                                    if (toJoinTable == null)
-                                        toJoinTable = baseTableToJoin;
-                                    else if (toJoinTable.EntityType.GetProperty(propInfo.Name) == null)
-                                        toJoinTable = baseTableToJoin;
+                                var toJoinTable = table.Joins.LastOrDefault();
+                                if (toJoinTable == null)
+                                    toJoinTable = baseTableToJoin;
+                                else if (toJoinTable.EntityType.GetProperty(propInfo.Name) == null)
+                                    toJoinTable = baseTableToJoin;
 
-                                    joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(propInfo.Name), JoinedTable = toJoinTable });
-                                }
-                            }
-                            else
-                            {
-                                joinedTable = table.Joins.Where(op => op.JoinOn == _prop.Name + "ID").FirstOrDefault();
-                                if (joinedTable == null)
-                                {
-                                    var toJoinTable = table.Joins.LastOrDefault();
-                                    if (toJoinTable == null)
-                                        toJoinTable = baseTableToJoin;
-                                    else if (toJoinTable.EntityType.GetProperty(_prop.Name + "ID") == null)
-                                        toJoinTable = baseTableToJoin;
-
-                                    joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(_prop.Name + "ID"), JoinedTable = toJoinTable });
-                                }
+                                joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(fkName), JoinedTable = toJoinTable });
                             }
 
                             if (!this.Tables.Where(op => op.Alias == joinedTable.Alias).Any())

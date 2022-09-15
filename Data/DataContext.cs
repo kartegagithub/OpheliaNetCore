@@ -12,7 +12,6 @@ namespace Ophelia.Data
         private Connection _Connection;
         [ThreadStatic]
         protected static Dictionary<Type, DataContext> _Currents;
-        private DBStructureCache _DBStructureCache;
         public int ExecutionTimeout { get; set; }
         public Dictionary<string, string> NamespaceMap { get; set; }
         public Dictionary<string, string> TableMap { get; set; }
@@ -39,15 +38,6 @@ namespace Ophelia.Data
             get
             {
                 return this._Connection;
-            }
-        }
-        public DBStructureCache DBStructureCache
-        {
-            get
-            {
-                if (this._DBStructureCache == null)
-                    this._DBStructureCache = new DBStructureCache();
-                return this._DBStructureCache;
             }
         }
         public DataConfiguration Configuration { get; set; }
