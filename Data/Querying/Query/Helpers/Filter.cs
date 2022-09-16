@@ -357,7 +357,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     foreach (var _prop in props)
                     {
                         lastType = _prop.PropertyType;
-                        if (lastType.IsDataEntity())
+                        if (lastType.IsDataEntity() || lastType.IsPOCOEntity())
                         {
                             var table = query.Data.MainTable;
                             if (subqueryTable != null)
@@ -399,7 +399,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         }
                         else
                         {
-                            name += query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(_prop.Name));
+                            name += query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(_prop)));
 
                             if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
                                 name += ")";
