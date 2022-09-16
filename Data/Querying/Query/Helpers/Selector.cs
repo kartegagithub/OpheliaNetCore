@@ -142,11 +142,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
         }
         public string GetFieldName(BaseQuery query, MemberInfo member, Expression expression)
         {
-            var memberName = "";
-            var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)member.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
-            if (columnAttr != null)
-                memberName = columnAttr.Name;
-
+            var memberName = Extensions.GetColumnName(member);
             var path = expression.ParsePath();
             if (path.IndexOf(".") > -1)
             {
@@ -206,10 +202,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             var properties = member.GetMemberInfoType().GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
                             foreach (var p in properties)
                             {
-                                fieldName = p.Name;
-                                var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
-                                if (columnAttr != null)
-                                    fieldName = columnAttr.Name;
+                                fieldName = Extensions.GetColumnName(p);
                                 fieldName = query.Context.Connection.GetMappedFieldName(table.Alias + "_" + fieldName);
                                 if (p.PropertyType.IsPrimitiveType() && row.Table.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
                                 {
@@ -231,12 +224,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                     else
                     {
-                        fieldName = member.Name;
-                        var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)member.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
-                        if (columnAttr != null)
-                            fieldName = columnAttr.Name;
-
-                        fieldName = query.Context.Connection.GetMappedFieldName(fieldName);
+                        fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(member));
                     }
                 }
                 this.SetData(member, fieldName, row, type, entity, bindingMember);

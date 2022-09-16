@@ -39,16 +39,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
         }
         private Includer DecideType()
         {
-            var idProperty = this.PropertyInfo.DeclaringType.GetProperty(this.PropertyInfo.Name + "ID");
-            if (idProperty == null && DBStructureCache.TypeCache != null && DBStructureCache.TypeCache.Count > 0)
+            var idProperty = Extensions.GetForeignKeyProp(this.PropertyInfo);
+            if (idProperty.Item1 != null)
             {
-                var type = DBStructureCache.TypeCache.Where(op => op.Type.FullName == this.PropertyInfo.DeclaringType.FullName).FirstOrDefault();
-                idProperty = this.PropertyInfo.DeclaringType.GetProperty(type.NavigationProperties.Where(op => op.PropInfo == this.PropertyInfo).FirstOrDefault().Field);
-            }
-            if (idProperty != null)
-            {
-                this.ReferencePropertyInfo = idProperty;
-                if (idProperty.PropertyType.IsNullable())
+                this.ReferencePropertyInfo = idProperty.Item1;
+                if (idProperty.Item1.PropertyType.IsNullable())
                     this.JoinType = JoinType.Left;
             }
             return this;
@@ -124,30 +119,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     sb.Append("))");
                 }
                 var foreignKeyRelationAttribute = this.PropertyInfo.GetCustomAttributes(typeof(Attributes.RelationFKProperty)).FirstOrDefault() as Attributes.RelationFKProperty;
-                if (foreignKeyRelationAttribute == null && DBStructureCache.TypeCache != null && DBStructureCache.TypeCache.Where(op => op.Type == this.PropertyInfo.DeclaringType && op.NavigationProperties.Where(op2 => op2.PropInfo == this.PropertyInfo && !op2.QueryOverRelation).Any()).Any())
-                {
-                    var p = DBStructureCache.TypeCache.Where(op => op.Type == this.PropertyInfo.DeclaringType && op.NavigationProperties.Where(op2 => op2.PropInfo == this.PropertyInfo && !op2.QueryOverRelation).Any()).FirstOrDefault().NavigationProperties.Where(op2 => op2.PropInfo == this.PropertyInfo && !op2.QueryOverRelation).FirstOrDefault();
-                    foreignKeyRelationAttribute = new Attributes.RelationFKProperty()
-                    {
-                        PropertyName = p.Field
-                    };
-                }
                 var n2nRelationAttribute = this.PropertyInfo.GetCustomAttributes(typeof(Attributes.N2NRelationProperty)).FirstOrDefault() as Attributes.N2NRelationProperty;
                 Helpers.Table relationTable = null;
                 if (n2nRelationAttribute != null)
                 {
                     relationTable = new Helpers.Table(query, n2nRelationAttribute.RelationClassType, "REL" + index, index);
-                }
-                else if (foreignKeyRelationAttribute == null && DBStructureCache.TypeCache != null && DBStructureCache.TypeCache.Where(op => op.Type == this.PropertyInfo.DeclaringType && op.NavigationProperties.Where(op2 => op2.PropInfo == this.PropertyInfo && op2.QueryOverRelation).Any()).Any())
-                {
-                    var p1 = DBStructureCache.TypeCache.Where(op => op.Type == this.PropertyInfo.DeclaringType && op.NavigationProperties.Where(op2 => op2.PropInfo == this.PropertyInfo && op2.QueryOverRelation).Any()).FirstOrDefault().NavigationProperties.Where(op2 => op2.PropInfo == this.PropertyInfo && op2.QueryOverRelation).FirstOrDefault();
-                    var p2 = DBStructureCache.TypeCache.Where(op => op.Type == this.PropertyInfo.PropertyType.GetGenericArguments()[0] && op.NavigationProperties.Where(op2 => op2.TableName == p1.TableName && op2.QueryOverRelation).Any()).FirstOrDefault().NavigationProperties.Where(op2 => op2.TableName == p1.TableName && op2.QueryOverRelation).FirstOrDefault();
-                    n2nRelationAttribute = new Attributes.N2NRelationProperty()
-                    {
-                        ReverseFilterName = query.Context.Connection.GetMappedFieldName(p2.Field),
-                        FilterName = query.Context.Connection.GetMappedFieldName(p1.Field)
-                    };
-                    relationTable = new Helpers.Table(query, null, "REL" + index, index, p1.TableName, p1.SchemaName);
                 }
 
                 sb.Append(" FROM ");
@@ -157,7 +133,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     if (!string.IsNullOrEmpty(n2nRelationAttribute.ReverseFilterName))
                         relationTable.JoinOn = n2nRelationAttribute.ReverseFilterName;
                     else
+                    {
                         relationTable.JoinOn = subTable.EntityType.Name + "ID";
+                    }
 
                     relationTable.ReverseRelation = true;
                     relationTable.JoinType = JoinType.Inner;
@@ -270,9 +248,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     hasParentQuery = true;
                 }
                 if (hasParentQuery)
-                    this.Table = table.AddJoin(new Table(query, this.EntityType, joinType, table.Joins.Count + query.GetTableJoinIndex()) { JoinOn = query.Context.Connection.GetMappedFieldName(this.PropertyInfo.Name + "ID"), JoinedTable = table }, table.Joins);
+                    this.Table = table.AddJoin(new Table(query, this.EntityType, joinType, table.Joins.Count + query.GetTableJoinIndex()) { JoinOn = query.Context.Connection.GetMappedFieldName(Extensions.GetForeignKeyName(this.PropertyInfo)), JoinedTable = table }, table.Joins);
                 else
-                    this.Table = table.AddJoin(new Table(query, this.EntityType, joinType, table.Joins.Count + query.GetTableJoinIndex()) { JoinOn = query.Context.Connection.GetMappedFieldName(this.PropertyInfo.Name + "ID"), JoinedTable = table }, table.Joins, query.Data.MainTable.Joins);
+                    this.Table = table.AddJoin(new Table(query, this.EntityType, joinType, table.Joins.Count + query.GetTableJoinIndex()) { JoinOn = query.Context.Connection.GetMappedFieldName(Extensions.GetForeignKeyName(this.PropertyInfo)), JoinedTable = table }, table.Joins, query.Data.MainTable.Joins);
                 this.Tables.Add(this.Table);
                 sb.Append(query.Context.Connection.GetAllSelectFields(this.Table, true, this.BuildAsXML));
                 if (this.SubIncluders.Count > 0)
@@ -330,10 +308,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 var properties = this.PropertyInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
                 foreach (var p in properties)
                 {
-                    var fieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(baseName + p.Name));
-                    var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
-                    if (columnAttr != null)
-                        fieldName = columnAttr.Name;
+                    var fieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(baseName + Extensions.GetColumnName(p)));
                     if (row.Table.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
                     {
                         if (referencedEntity == null)
@@ -360,7 +335,8 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 }
                 if (referencedEntity != null)
                 {
-                    if (Convert.ToInt64(referencedEntity.GetPropertyValue("ID")) > 0)
+                    var pkProp = Extensions.GetPrimaryKeyProperty(referencedEntity.GetType());
+                    if (Convert.ToInt64(pkProp.GetValue(referencedEntity)) > 0)
                     {
                         this.PropertyInfo.SetValue(entity, referencedEntity);
                         if (referencedEntity is Model.DataEntity)
@@ -432,7 +408,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         var properties = this.EntityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
                         foreach (var p in properties)
                         {
-                            var fieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(this.Table.Alias + "_" + p.Name));
+                            var fieldName = query.Context.Connection.CheckCharLimit(query.Context.Connection.GetMappedFieldName(this.Table.Alias + "_" + Extensions.GetColumnName(p)));
                             if (item.Table.Columns.Contains(fieldName) && item[fieldName] != DBNull.Value)
                             {
                                 if (item[fieldName] != DBNull.Value)

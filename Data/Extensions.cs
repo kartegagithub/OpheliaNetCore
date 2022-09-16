@@ -1,7 +1,9 @@
 ﻿using Ophelia.Data.Querying.Query.Helpers;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Ophelia.Data
 {
@@ -161,6 +163,54 @@ namespace Ophelia.Data
                 }
             }
             return source;
+        }
+
+        internal static (PropertyInfo, bool) GetForeignKeyProp(PropertyInfo prop)
+        {
+            var idProps = prop.DeclaringType.GetProperties().Where(op => op != prop && op.Name.StartsWith(prop.Name, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            if (idProps.Count == 0)
+                return (prop, false);
+            else if (idProps.Count > 1)
+            {
+                foreach (var idProp in idProps)
+                {
+                    var tmpName = idProp.Name.Replace(prop.Name, "").Replace("_", "").ToUpperInvariant().Replace("İ", "I");
+                    if (tmpName == "ID")
+                        return (idProp, true);
+                }
+            }
+            return (idProps.FirstOrDefault(), true);
+        }
+        internal static string GetForeignKeyName(PropertyInfo prop)
+        {
+            var p = GetForeignKeyProp(prop);
+            return GetColumnName(p.Item1, p.Item2 ? "" : "ID");
+        }
+        internal static string GetForeignKeyName(MemberInfo prop)
+        {
+            return GetForeignKeyName((PropertyInfo)prop);
+        }
+        internal static string GetColumnName(PropertyInfo p, string suffix = "")
+        {
+            var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
+            if (columnAttr != null)
+                return columnAttr.Name + suffix;
+            return p.Name + suffix;
+        }
+        internal static string GetColumnName(MemberInfo p)
+        {
+            var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
+            if (columnAttr != null)
+                return columnAttr.Name;
+            return p.Name;
+        }
+        internal static PropertyInfo GetPrimaryKeyProperty(Type type)
+        {
+            var keyProp = type.GetProperties().Where(op => op.GetCustomAttributes(typeof(KeyAttribute)).Any()).FirstOrDefault();
+            if (keyProp != null)
+                return keyProp;
+
+            return type.GetProperty("ID");
         }
     }
 }

@@ -64,41 +64,30 @@ namespace Ophelia.Data.Model
             //this._Expression = baseQuery.Expression;
             this._Expression = Expression.Constant(this);
             var type = DatabaseType.SQLServer;
-            var innerContext = baseQuery.Provider.GetPropertyValue("InternalContext");
-            if (innerContext != null)
+            try
             {
-                if (Convert.ToString(innerContext.GetPropertyValue("ProviderName")) == "System.Data.SqlClient")
-                    type = DatabaseType.SQLServer;
-                this._Context = new DataContext(type, Convert.ToString(innerContext.GetPropertyValue("OriginalConnectionString")));
-                this._Context.DBStructureCache.LoadFromEDMX(innerContext.GetPropertyStringValue("ConnectionStringName"));
-            }
-            else
-            {
-                try
+                var provider = baseQuery.Provider as Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider;
+                var _queryCompiler = provider?.GetType()?.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "_queryCompiler")?.FirstOrDefault()?.GetValue(provider) as Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler;
+                var database = _queryCompiler?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(op => op.Name == "Database")?.FirstOrDefault()?.GetValue(_queryCompiler);
+                var relationalDependencies = database?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "RelationalDependencies")?.FirstOrDefault()?.GetValue(database);
+                var connection = relationalDependencies?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "Connection")?.FirstOrDefault()?.GetValue(relationalDependencies);
+                var dbConn = (connection as Microsoft.EntityFrameworkCore.Storage.RelationalConnection)?.DbConnection;
+                if (dbConn != null)
                 {
-                    var provider = baseQuery.Provider as Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider;
-                    var _queryCompiler = provider?.GetType()?.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "_queryCompiler")?.FirstOrDefault()?.GetValue(provider) as Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler;
-                    var database = _queryCompiler?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(op => op.Name == "Database")?.FirstOrDefault()?.GetValue(_queryCompiler);
-                    var relationalDependencies = database?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "RelationalDependencies")?.FirstOrDefault()?.GetValue(database);
-                    var connection = relationalDependencies?.GetType()?.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.Where(op => op.Name == "Connection")?.FirstOrDefault()?.GetValue(relationalDependencies);
-                    var dbConn = (connection as Microsoft.EntityFrameworkCore.Storage.RelationalConnection)?.DbConnection;
-                    if (dbConn != null)
-                    {
-                        if (dbConn is System.Data.SqlClient.SqlConnection)
-                            type = DatabaseType.SQLServer;
-                        else if (dbConn is Oracle.ManagedDataAccess.Client.OracleConnection)
-                            type = DatabaseType.Oracle;
-                        else if (dbConn is Npgsql.NpgsqlConnection)
-                            type = DatabaseType.PostgreSQL;
-                        this._Context = new DataContext(type, dbConn.ConnectionString);
-                    }
-                    else
-                        this._Context = new DataContext(type, "");
+                    if (dbConn is System.Data.SqlClient.SqlConnection)
+                        type = DatabaseType.SQLServer;
+                    else if (dbConn is Oracle.ManagedDataAccess.Client.OracleConnection)
+                        type = DatabaseType.Oracle;
+                    else if (dbConn is Npgsql.NpgsqlConnection)
+                        type = DatabaseType.PostgreSQL;
+                    this._Context = new DataContext(type, dbConn.ConnectionString);
                 }
-                catch (Exception)
-                {
+                else
                     this._Context = new DataContext(type, "");
-                }
+            }
+            catch (Exception)
+            {
+                this._Context = new DataContext(type, "");
             }
             var tmp = baseQuery.ElementType.FullName.Split('.');
             this._Context.Configuration.NamespacesToIgnore.Add(string.Join(".", tmp.Take(tmp.Length - 2)));
@@ -225,11 +214,7 @@ namespace Ophelia.Data.Model
                                 var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
                                 foreach (var p in properties)
                                 {
-                                    var fieldName = query.Context.Connection.GetMappedFieldName(p.Name);
-                                    var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
-                                    if (columnAttr != null)
-                                        fieldName = columnAttr.Name;
-
+                                    var fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(p));
                                     if (p.PropertyType.IsPrimitiveType() && data.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
                                     {
                                         try
