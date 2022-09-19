@@ -629,7 +629,7 @@ namespace Ophelia
             var list = type.GetCustomAttributes(true).Where(op => op.GetType().IsAssignableFrom(attributeType));
             return new List<object>(list);
         }
-        public static IEnumerable<object> GetCustomAttributes(this PropertyInfo info, Type attributeType)
+        public static IEnumerable<object> GetCustomAttributes(this PropertyInfo info, Type attributeType, bool checkBase = false)
         {
             if (info == null)
                 yield return new List<object>();
@@ -637,7 +637,7 @@ namespace Ophelia
             var list = info.GetCustomAttributes(true);
             foreach (var op in list)
             {
-                if (op.GetType().IsAssignableFrom(attributeType) || (op.GetType().UnderlyingSystemType.BaseType.Name != "Attribute" && op.GetType().UnderlyingSystemType.BaseType.IsAssignableFrom(attributeType)))
+                if (op.GetType().IsAssignableFrom(attributeType) || (checkBase && op.GetType().UnderlyingSystemType.BaseType.Name != "Attribute" && op.GetType().UnderlyingSystemType.BaseType.IsAssignableFrom(attributeType)))
                     yield return op;
             }
         }
