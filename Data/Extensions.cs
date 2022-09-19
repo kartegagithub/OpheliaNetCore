@@ -193,14 +193,14 @@ namespace Ophelia.Data
         internal static string GetColumnName(PropertyInfo p, string suffix = "")
         {
             var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
-            if (columnAttr != null)
+            if (columnAttr != null && !string.IsNullOrEmpty(columnAttr.Name))
                 return columnAttr.Name + suffix;
             return p.Name + suffix;
         }
         internal static string GetColumnName(MemberInfo p)
         {
             var columnAttr = (System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.ColumnAttribute)).FirstOrDefault();
-            if (columnAttr != null)
+            if (columnAttr != null && !string.IsNullOrEmpty(columnAttr.Name))
                 return columnAttr.Name;
             return p.Name;
         }
