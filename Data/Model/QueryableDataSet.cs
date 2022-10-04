@@ -24,7 +24,7 @@ namespace Ophelia.Data.Model
         protected IList _list;
         internal QueryData ExtendedData { get; set; }
         internal bool HasChanged { get; set; }
-
+        internal bool DistinctEnabled { get; set; }
         public IList GroupedData { get; set; }
 
         internal int Count
@@ -199,7 +199,7 @@ namespace Ophelia.Data.Model
                             {
                                 parameters.Add(row[item.ColumnName]);
                             }
-                            var aEntity = Activator.CreateInstance(type, parameters.ToArray());
+                            var aEntity = TypeExtensions.CreateAnonymous(type, parameters.ToArray());
                             this._list.Add(aEntity);
                         }
                         else

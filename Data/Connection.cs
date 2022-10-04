@@ -683,14 +683,17 @@ namespace Ophelia.Data
         {
             var sb = new StringBuilder();
 
-            if (!p.CanWrite || !p.CanRead) { return ""; }
+            if (!p.DeclaringType.IsAnonymousType())
+            {
+                if (!p.CanWrite || !p.CanRead) { return ""; }
 
-            MethodInfo mget = p.GetGetMethod(false);
-            MethodInfo mset = p.GetSetMethod(false);
+                MethodInfo mget = p.GetGetMethod(false);
+                MethodInfo mset = p.GetSetMethod(false);
 
-            // Get and set methods have to be public
-            if (mget == null) { return ""; }
-            if (mset == null) { return ""; }
+                // Get and set methods have to be public
+                if (mget == null) { return ""; }
+                if (mset == null) { return ""; }
+            }            
 
             if (p.PropertyType.IsDataEntity()) { return ""; }
             if (p.PropertyType.IsQueryableDataSet()) { return ""; }

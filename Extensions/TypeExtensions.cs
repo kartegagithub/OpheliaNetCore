@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -27,6 +28,25 @@ namespace Ophelia
                 && type.IsGenericType && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
                 && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
+        }
+        public static object CreateAnonymous(Type type, params object[] parameters)
+        {
+            var tempParams = new List<object>();
+            if (parameters != null && parameters.Any())
+            {
+                var counter = 0;
+                var arguments = type.GetGenericArguments();
+                if (arguments.Length != parameters.Length)
+                {
+                    throw new TargetParameterCountException($"Target anonymous type has {arguments.Length} parameters, but supplied {parameters.Length}");
+                }
+                foreach (var argument in arguments)
+                {
+                    tempParams.Add(argument.ConvertData(parameters[counter]));
+                    counter++;
+                }
+            }
+            return Activator.CreateInstance(type, tempParams.ToArray());
         }
         private static MethodInfo GetRuntimeMethod(this Type type, string name, Func<MethodInfo, bool> predicate, Type[] parameterTypes)
         {

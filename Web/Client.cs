@@ -23,6 +23,7 @@ namespace Ophelia.Web
                 if (_Current == null)
                 {
                     _Current = (Client)typeof(Client).GetRealTypeInstance(true);
+                    //Debug.WriteLine($"Client created: {_Current.InstanceID}, RawUrl: {_Current.Request?.RawUrl()}, Method: {_Current.Request?.Method}");
                     if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current != null)
                         Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"] = _Current;
                 }

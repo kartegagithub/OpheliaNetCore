@@ -42,6 +42,8 @@ namespace Ophelia.Data.Querying.Query
         [DataMember]
         public List<Helpers.Selector> Selectors { get; set; }
 
+        public bool DistinctEnabled { get; set; }
+
         [DataMember]
         public List<object> Parameters { get; set; }
 

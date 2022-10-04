@@ -84,10 +84,13 @@ namespace Ophelia.Data.Querying.Query
             sb.Append("SELECT ");
             if (cmdType == CommandType.Count)
             {
-                sb.Append("COUNT(1) As " + this.Context.Connection.FormatDataElement("Counted"));
+                sb.Append(this.BuildCountString() + " As " + this.Context.Connection.FormatDataElement("Counted"));
             }
             else
             {
+                if (this.Data.DistinctEnabled && this.Data.Selectors.Any())
+                    sb.Append("DISTINCT ");
+
                 bool hasField = false;
                 if (this.Data.Groupers.Count > 0)
                 {
