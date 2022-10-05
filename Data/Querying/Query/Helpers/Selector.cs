@@ -180,7 +180,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         continue;
                     }
                     else
-                        fieldName = query.Context.Connection.GetMappedFieldName(member.Name);
+                        fieldName = Extensions.GetColumnName(member);
                 }
                 else
                 {
