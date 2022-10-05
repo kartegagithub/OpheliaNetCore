@@ -234,18 +234,35 @@ namespace Ophelia.Data.Querying.Query.Helpers
         private void SetData(MemberInfo member, string fieldName, System.Data.DataRow row, Type type, object entity, KeyValuePair<MemberInfo, Expression> bindingMember)
         {
             var memberType = member.GetMemberInfoType();
+            if (bindingMember.Key == null)
+                return;
+
+            var p = type.GetProperty(bindingMember.Key.Name);
+            if (bindingMember.Value != null)
+            {
+                if (bindingMember.Value is ConstantExpression)
+                {
+                    p.SetValue(entity, (bindingMember.Value as ConstantExpression).Value);
+                }
+                else if (bindingMember.Value is MemberExpression)
+                {
+                    var propInfo = (bindingMember.Value as MemberExpression).Member as PropertyInfo;
+                    if (propInfo != null && propInfo.IsStaticProperty())
+                    {
+                        p.SetValue(entity, propInfo.GetStaticPropertyValue());
+                    }
+                }
+            }
             if (!string.IsNullOrEmpty(fieldName) && memberType.IsPrimitiveType() && row.Table.Columns.Contains(fieldName) && row[fieldName] != DBNull.Value)
             {
                 try
                 {
                     if (bindingMember.Value != null)
                     {
-                        var p = type.GetProperty(bindingMember.Key.Name);
                         p.SetValue(entity, p.PropertyType.ConvertData(row[fieldName]));
                     }
                     else
                     {
-                        var p = type.GetProperty(member.Name);
                         p.SetValue(entity, p.PropertyType.ConvertData(row[fieldName]));
                     }
                 }

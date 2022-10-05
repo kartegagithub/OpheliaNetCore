@@ -108,15 +108,21 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 {
                     if (item.BindingType == MemberBindingType.Assignment)
                     {
-                        if ((item as MemberAssignment).Expression is MemberExpression)
+                        var memberAssignment = (item as MemberAssignment);
+                        if (memberAssignment.Expression is MemberExpression)
                         {
-                            this.Members.Add(((item as MemberAssignment).Expression as MemberExpression).Member);
-                            this.BindingMembers.Add(item.Member, (item as MemberAssignment).Expression);
+                            this.Members.Add((memberAssignment.Expression as MemberExpression).Member);
+                            this.BindingMembers.Add(item.Member, memberAssignment.Expression);
                         }
-                        else if ((item as MemberAssignment).Expression is MemberInitExpression)
+                        else if (memberAssignment.Expression is MemberInitExpression)
                         {
                             this.Members.Add(item.Member);
-                            this.BindingMembers.Add(item.Member, (item as MemberAssignment).Expression);
+                            this.BindingMembers.Add(item.Member, memberAssignment.Expression);
+                        }
+                        else if (memberAssignment.Expression is ConstantExpression)
+                        {
+                            this.Members.Add(item.Member);
+                            this.BindingMembers.Add(item.Member, memberAssignment.Expression);
                         }
                     }
                 }
