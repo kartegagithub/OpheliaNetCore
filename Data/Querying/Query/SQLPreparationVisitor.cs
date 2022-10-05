@@ -307,7 +307,13 @@ namespace Ophelia.Data.Querying.Query
             this.Data.Selectors.Add(Helpers.Selector.Create(expression.Expression));
             return expression;
         }
-
+        public virtual Expression VisitDistinct(Expressions.DistinctExpression expression)
+        {
+            this.Data.DistinctEnabled = true;
+            if (expression.Expression != null)
+                this.Data.Selectors.Add(Helpers.Selector.Create(expression.Expression));
+            return expression;
+        }
         private void AddWhereClause(Expression expression)
         {
             var callExpression = (expression as LambdaExpression).Body as MethodCallExpression;

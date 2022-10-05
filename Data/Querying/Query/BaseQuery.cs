@@ -69,7 +69,7 @@ namespace Ophelia.Data.Querying.Query
                     }
                 }
                 this.DesignMode = false;
-                throw;
+                throw ex;
             }
             finally
             {
@@ -115,6 +115,7 @@ namespace Ophelia.Data.Querying.Query
         {
             this.Expression = expression;
             this.dataToExtend = source.ExtendedData;
+            this.Data.DistinctEnabled = source.DistinctEnabled;
         }
         protected void VisitExpression()
         {
@@ -292,6 +293,22 @@ namespace Ophelia.Data.Querying.Query
                 return sb.ToString().Trim(',');
             }
             return "";
+        }
+
+        protected string BuildCountString()
+        {
+            if (this.Data.Selectors.Count > 0)
+            {
+                var sb = new StringBuilder();
+                sb.Append("Count(DISTINCT ");
+                foreach (var selector in this.Data.Selectors)
+                {
+                    sb.Append(selector.Build(this));
+                    sb.Append(",");
+                }
+                return sb.ToString().Trim(',') + ")";
+            }
+            return "Count(1)";
         }
     }
 }

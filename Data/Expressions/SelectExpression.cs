@@ -8,7 +8,7 @@ namespace Ophelia.Data.Expressions
         public Expression Expression { get; set; }
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public override Type Type => Expression.GetType();
+        public override Type Type => Expression?.GetType();
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {
