@@ -360,7 +360,7 @@ namespace Ophelia.Data
             Model.SQLLog log = null;
             try
             {
-                bool canApplyDBLevelPaging = maxCount > 0 && this.Type != DatabaseType.Oracle;
+                bool canApplyDBLevelPaging = maxCount > 0 && this.Type != DatabaseType.Oracle && this.Type != DatabaseType.MySQL;
                 if (canApplyDBLevelPaging)
                 {
                     canApplyDBLevelPaging = sqlSelect.IndexOf(" TOP ", StringComparison.InvariantCultureIgnoreCase) == -1 &&
