@@ -52,7 +52,7 @@ namespace Ophelia
                 var result = (T)Activator.CreateInstance(typeof(T));
                 if (result is ServiceResult)
                 {
-                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Fail(ex, "ERRAPI");
                     (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
@@ -79,7 +79,7 @@ namespace Ophelia
                 var result = (T)Activator.CreateInstance(typeof(T));
                 if (result is ServiceResult)
                 {
-                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Fail(ex, "ERRAPI");
                     (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
@@ -149,7 +149,7 @@ namespace Ophelia
                 var result = (TResult)Activator.CreateInstance(typeof(TResult));
                 if (result is ServiceResult)
                 {
-                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Fail(ex, "ERRAPI");
                     (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
@@ -168,7 +168,7 @@ namespace Ophelia
                 var result = (ServiceObjectResult<T>)Activator.CreateInstance(typeof(ServiceObjectResult<T>));
                 if (result is ServiceResult)
                 {
-                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Fail(ex, "ERRAPI");
                     (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
@@ -211,7 +211,7 @@ namespace Ophelia
                 var result = (TResult)Activator.CreateInstance(typeof(TResult));
                 if (result is ServiceResult)
                 {
-                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Fail(ex, "ERRAPI");
                     (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
@@ -230,7 +230,7 @@ namespace Ophelia
                 var result = (T)Activator.CreateInstance(typeof(T));
                 if (result is ServiceResult)
                 {
-                    (result as ServiceResult).Fail("ERRAPI", ex.ToString());
+                    (result as ServiceResult).Fail(ex, "ERRAPI");
                     (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
