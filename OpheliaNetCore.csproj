@@ -36,15 +36,15 @@
 		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AWSSDK.S3" Version="3.7.9.7" />
-		<PackageReference Include="BouncyCastle.NetCore" Version="1.8.8" />
-		<PackageReference Include="DocumentFormat.OpenXml" Version="2.11.3" />
+		<PackageReference Include="AWSSDK.S3" Version="3.7.101.4" />
+		<PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
+		<PackageReference Include="DocumentFormat.OpenXml" Version="2.18.0" />
 		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
 		<PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
-		<PackageReference Include="HtmlSanitizer" Version="5.0.355" />
-		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.3.1" />
-		<PackageReference Include="Magick.NET.Core" Version="8.3.1" />
-		<PackageReference Include="Magick.NET.SystemDrawing" Version="4.0.6" />
+		<PackageReference Include="HtmlSanitizer" Version="8.0.601" />
+		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.2.0" />
+		<PackageReference Include="Magick.NET.Core" Version="12.2.0" />
+		<PackageReference Include="Magick.NET.SystemDrawing" Version="6.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
@@ -52,27 +52,27 @@
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.10" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-		<PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
-		<PackageReference Include="MySql.Data" Version="8.0.30" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
+		<PackageReference Include="Microsoft.OpenApi" Version="1.4.3" />
+		<PackageReference Include="MySql.Data" Version="8.0.31" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
-		<PackageReference Include="NSwag.AspNetCore" Version="13.9.4" />
-		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.100" />
+		<PackageReference Include="NSwag.AspNetCore" Version="13.17.0" />
+		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.80" />
 		<PackageReference Include="Pluralize.NET" Version="1.0.2" />
 		<PackageReference Include="PushSharp.Core" Version="1.0.2" />
-		<PackageReference Include="StackExchange.Redis" Version="2.2.4" />
-		<PackageReference Include="StackExchange.Redis.Extensions.Core" Version="6.3.5" />
-		<PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="6.3.5" />
+		<PackageReference Include="StackExchange.Redis" Version="2.6.70" />
+		<PackageReference Include="StackExchange.Redis.Extensions.Core" Version="8.0.5" />
+		<PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="8.0.5" />
 		<PackageReference Include="System.Collections" Version="4.3.0" />
-		<PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" />
 		<PackageReference Include="System.Data.Common" Version="4.3.0" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-		<PackageReference Include="System.DirectoryServices" Version="5.0.0" />
-		<PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.4" />
+		<PackageReference Include="System.DirectoryServices" Version="6.0.0" />
+		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 		<PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
 		<PackageReference Include="System.IO" Version="4.3.0" />
 		<PackageReference Include="System.IO.Compression" Version="4.3.0" />
@@ -81,13 +81,13 @@
 		<PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
 		<PackageReference Include="System.Reflection" Version="4.3.0" />
 		<PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
-		<PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
+		<PackageReference Include="System.Reflection.Metadata" Version="6.0.1" />
 		<PackageReference Include="System.Reflection.Primitives" Version="4.3.0" />
 		<PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
-		<PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
+		<PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
 		<PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
 		<PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
-		<PackageReference Include="System.ServiceModel.Http" Version="4.8.0" />
+		<PackageReference Include="System.ServiceModel.Http" Version="4.10.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Globalization\" />
