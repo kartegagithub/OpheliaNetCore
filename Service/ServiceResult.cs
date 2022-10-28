@@ -125,9 +125,9 @@ namespace Ophelia.Service
             this.Fail();
             this.WriteLog();
         }
-        public void Fail(Exception ex)
+        public void Fail(Exception ex, string code = "E1")
         {
-            this.Messages.Add(new ServiceResultMessage() { Code = "E1", Description = "SystemFailureSeeLogsForDetail", IsError = true });
+            this.Messages.Add(new ServiceResultMessage() { Code = code, Description = "SystemFailureSeeLogsForDetail", IsError = true });
             this.Fail();
             try
             {
