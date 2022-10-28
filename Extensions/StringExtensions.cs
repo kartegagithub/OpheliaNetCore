@@ -46,7 +46,7 @@ namespace Ophelia
         {
             if (!string.IsNullOrEmpty(value))
             {
-                var sanitizer = new Ganss.XSS.HtmlSanitizer();
+                var sanitizer = new Ganss.Xss.HtmlSanitizer();
                 return sanitizer.Sanitize(value);
             }
             else

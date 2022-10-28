@@ -68,7 +68,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
             }
             base.OnActionExecuting(actionContext);
         }
-        private Ganss.XSS.HtmlSanitizer Sanitizer;
+        private Ganss.Xss.HtmlSanitizer Sanitizer;
         protected virtual string ProcessHtml(string val, PropertyInfo p, HtmlValidationProcessType type)
         {
             if (!string.IsNullOrEmpty(val))
@@ -80,26 +80,24 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                 case HtmlValidationProcessType.Sanitize:
                     if (this.Sanitizer == null)
                     {
-                        var allowedTags = Ganss.XSS.HtmlSanitizer.DefaultAllowedTags;
-                        allowedTags.Add("iframe");
-                        allowedTags.Add("meta");
-                        allowedTags.Add("link");
+                        this.Sanitizer = new Ganss.Xss.HtmlSanitizer();
 
-                        var allowedAttributes = Ganss.XSS.HtmlSanitizer.DefaultAllowedAttributes;
-                        allowedAttributes.Add("content");
-                        allowedAttributes.Add("property");
-                        allowedAttributes.Add("sizes");
-                        allowedAttributes.Add("rel");
-                        allowedAttributes.Add("target");
-                        allowedAttributes.Add("href");
-                        allowedAttributes.Add("class");
-                        allowedAttributes.Add("frameborder");
+                        this.Sanitizer.AllowedTags.Add("tel");
+                        this.Sanitizer.AllowedTags.Add("iframe");
+                        this.Sanitizer.AllowedTags.Add("meta");
+                        this.Sanitizer.AllowedTags.Add("link");
 
-                        var allowedSchemes = Ganss.XSS.HtmlSanitizer.DefaultAllowedSchemes;
-                        allowedSchemes.Add("mailto");
-                        allowedSchemes.Add("tel");
+                        this.Sanitizer.AllowedSchemes.Add("mailto");
+                        this.Sanitizer.AllowedSchemes.Add("tel");
 
-                        this.Sanitizer = new Ganss.XSS.HtmlSanitizer(allowedTags, allowedSchemes, allowedAttributes);
+                        this.Sanitizer.AllowedAttributes.Add("content");
+                        this.Sanitizer.AllowedAttributes.Add("property");
+                        this.Sanitizer.AllowedAttributes.Add("sizes");
+                        this.Sanitizer.AllowedAttributes.Add("rel");
+                        this.Sanitizer.AllowedAttributes.Add("target");
+                        this.Sanitizer.AllowedAttributes.Add("href");
+                        this.Sanitizer.AllowedAttributes.Add("class");
+                        this.Sanitizer.AllowedAttributes.Add("frameborder");
                     }
                     return this.Sanitizer.Sanitize(val).CheckHTMLOnFuntions();
                 case HtmlValidationProcessType.RemoveHtml:
