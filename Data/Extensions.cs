@@ -58,7 +58,15 @@ namespace Ophelia.Data
                     foreach (var item in data.Sorters)
                     {
                         if (!string.IsNullOrEmpty(item.Name))
+                        {
+                            var propTree = typeof(T).GetPropertyInfoTree(item.Name);
+                            var p = propTree.LastOrDefault();
+                            if (p != null)
+                            {
+                                item.Name = String.Join('.', propTree.Select(op => op.Name));
+                            }
                             source = source.OrderBy(item.Name + " " + (item.Ascending ? "asc" : "desc"));
+                        }
                     }
                 }
                 if (data.Includers != null)
@@ -66,7 +74,16 @@ namespace Ophelia.Data
                     foreach (var item in data.Includers)
                     {
                         if (!string.IsNullOrEmpty(item.Name))
+                        {
+                            var propTree = typeof(T).GetPropertyInfoTree(item.Name);
+                            var p = propTree.LastOrDefault();
+                            if (p != null)
+                            {
+                                item.Name = String.Join('.', propTree.Select(op => op.Name));
+                            }
+
                             source = source.Include(item.Name);
+                        }
                     }
                 }
                 if (data.Filter != null)
@@ -90,6 +107,20 @@ namespace Ophelia.Data
                 {
                     if (data.SubFilter != null)
                         return source.Apply(data.SubFilter);
+
+                    var propTree = typeof(T).GetPropertyInfoTree(data.Name);
+                    var p = propTree.LastOrDefault();
+                    if (p != null)
+                    {
+                        if (string.IsNullOrEmpty(data.ValueType))
+                        {
+                            if (p.PropertyType.IsGenericType)
+                                data.ValueType = p.PropertyType.GenericTypeArguments.FirstOrDefault().Name;
+                            else
+                                data.ValueType = p.PropertyType.Name;
+                        }
+                        data.Name = String.Join('.', propTree.Select(op => op.Name));
+                    }
 
                     var applyFilter = true;
                     var comparison = "";
@@ -148,14 +179,24 @@ namespace Ophelia.Data
                             if (data.Value is DateTime dateData)
                             {
                                 if (dateData > DateTime.MinValue)
-                                    source = source.Where(data.Name + comparison, data.Value);
+                                {
+                                    if (p == null)
+                                        source = source.Where(data.Name + comparison, data.Value);
+                                    else
+                                        source = source.Where(data.Name + comparison, p.PropertyType.ConvertData(data.Value));
+                                }
                             }
                             else if (data.Value is double doubleData)
                             {
                                 source = source.Where(data.Name + comparison, decimal.Parse(doubleData.ToString()));
                             }
                             else
-                                source = source.Where(data.Name + comparison, data.Value);
+                            {
+                                if (p == null)
+                                    source = source.Where(data.Name + comparison, data.Value);
+                                else
+                                    source = source.Where(data.Name + comparison, p.PropertyType.ConvertData(data.Value));
+                            }
                         }
                         else
                             source = source.Where(data.Name + comparison.Replace("@0", "null"));

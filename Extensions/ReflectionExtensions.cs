@@ -343,7 +343,7 @@ namespace Ophelia
             {
                 foreach (var p in property.Split('.'))
                 {
-                    var prop = type.GetProperties().Where(op => op.Name == p).FirstOrDefault();
+                    var prop = type.GetProperties().FirstOrDefault(op => op.Name.Equals(p, StringComparison.InvariantCultureIgnoreCase));
                     if (prop != null)
                     {
                         props.Add(prop);
@@ -356,7 +356,7 @@ namespace Ophelia
                 }
             }
             else
-                props.Add(type.GetProperties().Where(op => op.Name == property).FirstOrDefault());
+                props.Add(type.GetProperties().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault());
             return props.ToArray();
         }
         public static object GetPropertyValue<TResult>(this TResult source, string property) where TResult : class
