@@ -696,7 +696,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
         public object ProcessValue(object val, string type)
         {
-            if (val != null)
+            if (val != null && !string.IsNullOrEmpty(type))
             {
                 bool isList = type.IndexOf("List") > -1;
                 bool isArray = type.IndexOf("Array") > -1;
@@ -714,6 +714,12 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     case "Int16":
                         dataType = typeof(Int16);
                         break;
+                    case "Decimal":
+                        dataType = typeof(decimal);
+                        break;
+                    case "Double":
+                        dataType = typeof(double);
+                        break;
                     case "DateTime":
                         dataType = typeof(DateTime);
                         break;
@@ -721,6 +727,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         dataType = typeof(string);
                         break;
                 }
+                if (val is Newtonsoft.Json.Linq.JArray)
+                    isList = true;
+
                 if (isList)
                 {
                     if (val is Newtonsoft.Json.Linq.JArray)
