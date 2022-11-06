@@ -379,7 +379,7 @@ namespace Ophelia
                 }
                 else
                 {
-                    var props = source.GetType().GetProperties().Where(op => op.Name == property);
+                    var props = source.GetType().GetProperties().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase));
                     PropertyInfo propInfo = null;
                     if (props.Count() > 1)
                         propInfo = props.Where(op => op.DeclaringType == source.GetType()).FirstOrDefault();
@@ -394,7 +394,7 @@ namespace Ophelia
                     }
                     props = null;
 
-                    var fields = source.GetType().GetFields().Where(op => op.Name == property);
+                    var fields = source.GetType().GetFields().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase));
                     if (fields.Count() > 1)
                         return fields.Where(op => op.DeclaringType == source.GetType()).FirstOrDefault()?.GetValue(source);
                     if (fields.Count() > 0)
