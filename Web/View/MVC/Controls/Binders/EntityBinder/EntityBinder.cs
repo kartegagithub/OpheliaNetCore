@@ -160,14 +160,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.PageTitles.Controls.Add(control);
             return control;
         }
-        public EntityBinder<T> AddSearchHelp(Expression<Func<T, object>> expression, string URL, string Callback = "")
+        public EntityBinder<T> AddSearchHelp(Expression<Func<T, object>> expression, string URL, string Callback = "", object props = null)
         {
-            return this.AddSearchHelp(expression.Body.ParsePath(), URL, Callback);
+            return this.AddSearchHelp(expression.Body.ParsePath(), URL, Callback, props);
         }
-        public EntityBinder<T> AddSearchHelp(string Key, string URL, string Callback = "")
+        public EntityBinder<T> AddSearchHelp(string Key, string URL, string Callback = "", object props = null)
         {
             if (!this.Configuration.Help.SearchHelps.Where(op => op.Path == Key).Any())
-                this.Configuration.Help.SearchHelps.Add(new SearchHelp() { Path = Key, URL = URL, Callback = Callback });
+                this.Configuration.Help.SearchHelps.Add(new SearchHelp() { Path = Key, URL = URL, Callback = Callback, Props = props });
 
             return this;
         }
