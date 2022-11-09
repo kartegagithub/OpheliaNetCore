@@ -117,6 +117,16 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             {
                 this.DataControl.AddAttribute("data-search-help", "1");
                 this.DataControl.AddAttribute("data-search-help-url", this.SearchHelp.URL);
+                this.DataControl.AddAttribute("data-search-help-callback", this.SearchHelp.Callback);
+                if (this.SearchHelp.Props != null)
+                {
+                    var type = this.SearchHelp.Props.GetType();
+                    var props = type.GetProperties().ToDictionary(op => op.Name, op => op.GetValue(this.SearchHelp.Props, null));
+                    foreach (var item in props)
+                    {
+                        this.DataControl.AddAttribute("data-search-help-" + item.Key, Convert.ToString(item.Value));
+                    }
+                }
             }
         }
 

@@ -163,7 +163,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             }
             if (!string.IsNullOrEmpty(this.HelpClassName) && (!string.IsNullOrEmpty(this.HelpTip)) || !string.IsNullOrEmpty(this.HelpNavigator))
             {
-                this.LabelControl.Controls.Add(new Literal() { Text = "<i class='" + this.HelpClassName + "' data-help-tooltip='" + this.HelpTip + "' data-help-navigator='" + this.HelpNavigator + "'></i>" });
+                this.LabelControl.CssClass += " help-enabled";
+                this.LabelControl.Controls.Add(new Literal() { Text = "<i class='" + this.HelpClassName + "' data-toggle=\"tooltip\" data-placement=\"top\" data-help-tooltip='" + this.HelpTip + "' title='" + this.HelpTip + "' data-help-navigator='" + this.HelpNavigator + "'></i>" });
             }
         }
         protected abstract WebControl CreateDataControl();
