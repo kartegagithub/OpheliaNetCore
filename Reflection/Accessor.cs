@@ -406,7 +406,7 @@ namespace Ophelia.Reflection
         }
         public PropertyInfo GetPropertyInfo(object Item, string MemberName)
         {
-            return Item.GetType().GetProperties().Where(Prop => Prop.Name.Equals(MemberName)).FirstOrDefault();
+            return Item.GetType().GetProperties().Where(Prop => Prop.Name.Equals(MemberName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
         }
         private ArrayList ReArrangeParameters(string RawParameters)
         {
