@@ -181,7 +181,7 @@ namespace Ophelia
         {
             if (entity != null)
             {
-                var methods = entity.GetType().GetMethods().Where(op => op.Name == method).ToList();
+                var methods = entity.GetType().GetMethods().Where(op => op.Name.Equals(method, StringComparison.InvariantCultureIgnoreCase)).ToList();
                 MethodInfo m = null;
                 if (parameters != null)
                     m = methods.Where(op => op.GetParameters().Length == parameters.Length).FirstOrDefault();
@@ -317,7 +317,7 @@ namespace Ophelia
                 var tmpType = type;
                 foreach (var item in splitted)
                 {
-                    prop = tmpType.GetProperties().Where(op => op.Name == item).FirstOrDefault();
+                    prop = tmpType.GetProperties().Where(op => op.Name.Equals(item, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                     if (prop != null)
                         tmpType = prop.PropertyType;
                     else if (tmpType.IsGenericType)
@@ -330,7 +330,7 @@ namespace Ophelia
             }
             if (prop == null)
             {
-                prop = type.GetProperties().Where(op => op.Name == property).FirstOrDefault();
+                prop = type.GetProperties().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                 if (prop == null && type.IsGenericType)
                     prop = type.GenericTypeArguments[0].GetPropertyInfo(property);
             }
@@ -407,7 +407,7 @@ namespace Ophelia
         {
             if (source != null)
             {
-                var props = source.GetType().GetProperties().Where(op => op.Name == property);
+                var props = source.GetType().GetProperties().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase));
                 PropertyInfo p = null;
                 if (props.Count() > 1)
                     p = props.Where(op => op.DeclaringType == source.GetType()).FirstOrDefault();
@@ -484,7 +484,7 @@ namespace Ophelia
                         var Types = a.GetTypes();
                         if (Types != null)
                         {
-                            Types = Types.Where(op => !op.IsInterface && op.FullName == baseType).ToArray();
+                            Types = Types.Where(op => !op.IsInterface && op.FullName.Equals(baseType, StringComparison.InvariantCultureIgnoreCase)).ToArray();
                             if (Types != null && Types.Length > 0)
                             {
                                 return Types.FirstOrDefault();
@@ -581,7 +581,7 @@ namespace Ophelia
                         var Types = a.GetTypes();
                         if (Types != null)
                         {
-                            Types = Types.Where(op => op.FullName == typeName).ToArray();
+                            Types = Types.Where(op => op.FullName.Equals(typeName, StringComparison.InvariantCultureIgnoreCase)).ToArray();
                             if (Types != null && Types.Length > 0)
                             {
                                 finalType = Types.FirstOrDefault();
