@@ -34,16 +34,6 @@ namespace Ophelia
             return result;
         }
 
-        public static decimal ToDecimal(this object value)
-        {
-            Decimal result = 0;
-
-            if (value != null && value.ToString().IsNumeric())
-                Decimal.TryParse(value.ToString(), out result);
-
-            return result;
-        }
-
         public static byte ToByte(this object value)
         {
             byte result = 0;
