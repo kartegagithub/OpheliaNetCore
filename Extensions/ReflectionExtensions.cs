@@ -136,6 +136,18 @@ namespace Ophelia
                 throw;
             }
         }
+        public static bool IsDecimal(this Type type)
+        {
+            if (type == null)
+                return false;
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Decimal:
+                    return true;
+                default:
+                    return false;
+            }
+        }
         public static bool IsNumeric(this Type type)
         {
             if (type == null)
