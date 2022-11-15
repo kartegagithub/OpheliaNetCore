@@ -1557,6 +1557,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         protected string DrawFilterComparison(Columns.BaseColumn<TModel, T> column)
         {
+            if (!column.DrawComparison)
+                return "";
+
             var comparisons = new List<Comparison>();
             if (column is NumericColumn<TModel, T>)
             {
