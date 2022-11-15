@@ -801,7 +801,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     var isDecimal = propType.IsDecimal();
                     if (isDecimal)
                     {
-                        if (defaultValue.ToDecimal() != value.ToDecimal())
+                        if (defaultValue.ToString().ToDecimal() != value.ToString().ToDecimal())
                             return true;
                     }
                     else
