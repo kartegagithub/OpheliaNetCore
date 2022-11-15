@@ -798,8 +798,17 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 if (isNumeric)
                 {
-                    if (defaultValue.ToInt64() != value.ToInt64())
-                        return true;
+                    var isDecimal = propType.IsDecimal();
+                    if (isDecimal)
+                    {
+                        if (defaultValue.ToDecimal() != value.ToDecimal())
+                            return true;
+                    }
+                    else
+                    {
+                        if (defaultValue.ToInt64() != value.ToInt64())
+                            return true;
+                    }
                 }
                 else
                     return defaultValue != value && value != null;
