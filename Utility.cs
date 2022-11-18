@@ -29,6 +29,33 @@ namespace Ophelia
             }
             return result.ToString();
         }
+        public static string GeneratePassword(int length) 
+        {
+            Random _rand = new Random(); 
+            const string lowerCase = "abcdefghijklmnopqrstuvwxyz";
+            const string upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string number = "1234567890";
+            var bytes = new byte[length];
+            new RNGCryptoServiceProvider().GetBytes(bytes);
+
+            var result = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                switch (_rand.Next(3))
+                {
+                    case 0:
+                        result.Append(lowerCase[b % lowerCase.Length]);
+                        break;
+                    case 1:
+                        result.Append(upperCase[b % upperCase.Length]);
+                        break;
+                    case 2:
+                        result.Append(number[b % number.Length]);
+                        break;
+                }
+            }
+            return result.ToString();
+        }
         public static string Randomize()
         {
             Random r = new Random();
