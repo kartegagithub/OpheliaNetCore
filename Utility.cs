@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-
+using IdentityModel;
+using Microsoft.AspNetCore.Identity;
 namespace Ophelia
 {
     public static class Utility
@@ -29,32 +32,58 @@ namespace Ophelia
             }
             return result.ToString();
         }
-        public static string GeneratePassword(int length) 
+        public static string Generate(PasswordOptions opts = null)
         {
-            Random _rand = new Random(); 
-            const string lowerCase = "abcdefghijklmnopqrstuvwxyz";
-            const string upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const string number = "1234567890";
-            var bytes = new byte[length];
-            new RNGCryptoServiceProvider().GetBytes(bytes);
-
-            var result = new StringBuilder();
-            foreach (byte b in bytes)
+            if (opts == null) opts = new PasswordOptions()
             {
-                switch (_rand.Next(3))
-                {
-                    case 0:
-                        result.Append(lowerCase[b % lowerCase.Length]);
-                        break;
-                    case 1:
-                        result.Append(upperCase[b % upperCase.Length]);
-                        break;
-                    case 2:
-                        result.Append(number[b % number.Length]);
-                        break;
-                }
+                RequiredLength = 8,
+                RequiredUniqueChars = 4,
+                RequireDigit = true,
+                RequireLowercase = true,
+                RequireNonAlphanumeric = true,
+                RequireUppercase = true
+            };
+
+            string[] randomChars = new[] {
+                "ABCDEFGHJKLMNOPQRSTUVWXYZ",
+                "abcdefghijkmnopqrstuvwxyz",
+                "0123456789",
+                "!@$?_-"
+            };
+            CryptoRandom rand = new CryptoRandom();
+            List<char> chars = new List<char>();
+
+            if (opts.RequireUppercase)
+                chars.Insert(rand.Next(0, chars.Count), randomChars[0][rand.Next(0, randomChars[0].Length)]);
+
+            if (opts.RequireLowercase)
+                chars.Insert(rand.Next(0, chars.Count), randomChars[1][rand.Next(0, randomChars[1].Length)]);
+
+            if (opts.RequireDigit)
+                chars.Insert(rand.Next(0, chars.Count), randomChars[2][rand.Next(0, randomChars[2].Length)]);
+
+            if (opts.RequireNonAlphanumeric)
+                chars.Insert(rand.Next(0, chars.Count), randomChars[3][rand.Next(0, randomChars[3].Length)]);
+
+            var randomCharList = new List<string>();
+            if (opts.RequireUppercase)
+                randomCharList.Add("ABCDEFGHJKLMNOPQRSTUVWXYZ");
+            if (opts.RequireLowercase)
+                randomCharList.Add("abcdefghijkmnopqrstuvwxyz");
+            if (opts.RequireDigit)
+                randomCharList.Add("0123456789");
+            if (opts.RequireNonAlphanumeric)
+                randomCharList.Add("!@$?_-");
+
+            randomChars = randomCharList.ToArray();
+
+            for (int i = chars.Count; i < opts.RequiredLength || chars.Distinct().Count() < opts.RequiredUniqueChars; i++)
+            {
+                string rcs = randomChars[rand.Next(0, randomChars.Length)];
+                chars.Insert(rand.Next(0, chars.Count), rcs[rand.Next(0, rcs.Length)]);
             }
-            return result.ToString();
+
+            return new string(chars.ToArray());
         }
         public static string Randomize()
         {
