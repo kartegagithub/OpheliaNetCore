@@ -4,11 +4,14 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Ophelia.Data.Exporter.Controls;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ophelia.Data.Exporter
 {
     public class ExcelExporter : IExporter
     {
+        public bool AutoSizeColumns { get; set; }
+
         public byte[] Export(Grid grid)
         {
             var grids = new List<Grid>();
@@ -34,7 +37,7 @@ namespace Ophelia.Data.Exporter
             stream.Dispose();
             return data;
         }
-        private static void WriteExcelFile(List<Controls.Grid> grids, SpreadsheetDocument spreadsheet)
+        private void WriteExcelFile(List<Controls.Grid> grids, SpreadsheetDocument spreadsheet)
         {
             //  Create the Excel file contents.  This function is used when creating an Excel file either writing 
             //  to a file, or writing to a MemoryStream.
@@ -85,7 +88,7 @@ namespace Ophelia.Data.Exporter
         }
 
 
-        private static void WriteDataTableToExcelWorksheet(Controls.Grid grid, WorksheetPart worksheetPart)
+        private void WriteDataTableToExcelWorksheet(Controls.Grid grid, WorksheetPart worksheetPart)
         {
             var worksheet = worksheetPart.Worksheet;
             var sheetData = worksheet.GetFirstChild<SheetData>();
@@ -123,9 +126,15 @@ namespace Ophelia.Data.Exporter
                     colInx++;
                 }
             }
+
+            if (this.AutoSizeColumns)
+            {
+                var columns = AutoSize(sheetData);
+                worksheet.InsertAt(columns, 0);
+            }
         }
 
-        private static void AppendCell(string cellReference, string cellStringValue, DocumentFormat.OpenXml.Spreadsheet.Row excelRow, CellValues type = CellValues.String)
+        private void AppendCell(string cellReference, string cellStringValue, DocumentFormat.OpenXml.Spreadsheet.Row excelRow, CellValues type = CellValues.String)
         {
             //  Add a new Excel Cell to our Row 
             var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell() { CellReference = cellReference, DataType = type };
@@ -138,7 +147,7 @@ namespace Ophelia.Data.Exporter
             excelRow.Append(cell);
         }
 
-        private static string GetExcelColumnName(int columnIndex)
+        private string GetExcelColumnName(int columnIndex)
         {
             if (columnIndex < 26)
                 return ((char)('A' + columnIndex)).ToString();
@@ -149,7 +158,7 @@ namespace Ophelia.Data.Exporter
             return string.Format("{0}{1}", firstChar, secondChar);
         }
 
-        private static Type GetNullableType(Type t)
+        private Type GetNullableType(Type t)
         {
             Type returnType = t;
             if (t.IsGenericType && t.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
@@ -158,9 +167,85 @@ namespace Ophelia.Data.Exporter
             }
             return returnType;
         }
-        private static bool IsNullableType(Type type)
+        private bool IsNullableType(Type type)
         {
             return (type == typeof(string) || type.IsArray || (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>))));
+        }
+
+        private Columns AutoSize(SheetData sheetData)
+        {
+            var maxColWidth = GetMaxCharacterWidth(sheetData);
+
+            Columns columns = new Columns();
+            //this is the width of my font - yours may be different
+            double maxWidth = 7;
+            foreach (var item in maxColWidth)
+            {
+                //width = Truncate([{Number of Characters} * {Maximum Digit Width} + {5 pixel padding}]/{Maximum Digit Width}*256)/256
+                double width = Math.Truncate((item.Value * maxWidth + 5) / maxWidth * 256) / 256;
+
+                //pixels=Truncate(((256 * {width} + Truncate(128/{Maximum Digit Width}))/256)*{Maximum Digit Width})
+                double pixels = Math.Truncate(((256 * width + Math.Truncate(128 / maxWidth)) / 256) * maxWidth);
+
+                //character width=Truncate(({pixels}-5)/{Maximum Digit Width} * 100+0.5)/100
+                double charWidth = Math.Truncate((pixels - 5) / maxWidth * 100 + 0.5) / 100;
+
+                var col = new DocumentFormat.OpenXml.Spreadsheet.Column() { BestFit = true, Min = (UInt32)(item.Key + 1), Max = (UInt32)(item.Key + 1), CustomWidth = true, Width = (DoubleValue)width };
+                columns.Append(col);
+            }
+
+            return columns;
+        }
+
+
+        private Dictionary<int, int> GetMaxCharacterWidth(SheetData sheetData)
+        {
+            //iterate over all cells getting a max char value for each column
+            Dictionary<int, int> maxColWidth = new Dictionary<int, int>();
+            var rows = sheetData.Elements<DocumentFormat.OpenXml.Spreadsheet.Row>();
+            UInt32[] numberStyles = new UInt32[] { 5, 6, 7, 8 }; //styles that will add extra chars
+            UInt32[] boldStyles = new UInt32[] { 1, 2, 3, 4, 6, 7, 8 }; //styles that will bold
+            foreach (var r in rows)
+            {
+                var cells = r.Elements<DocumentFormat.OpenXml.Spreadsheet.Cell>().ToArray();
+
+                //using cell index as my column
+                for (int i = 0; i < cells.Length; i++)
+                {
+                    var cell = cells[i];
+                    var cellValue = cell.CellValue == null ? string.Empty : cell.CellValue.InnerText;
+                    var cellTextLength = cellValue.Length;
+
+                    if (cell.StyleIndex != null && numberStyles.Contains(cell.StyleIndex))
+                    {
+                        int thousandCount = (int)Math.Truncate((double)cellTextLength / 4);
+
+                        //add 3 for '.00' 
+                        cellTextLength += (3 + thousandCount);
+                    }
+
+                    if (cell.StyleIndex != null && boldStyles.Contains(cell.StyleIndex))
+                    {
+                        //add an extra char for bold - not 100% acurate but good enough for what i need.
+                        cellTextLength += 1;
+                    }
+
+                    if (maxColWidth.ContainsKey(i))
+                    {
+                        var current = maxColWidth[i];
+                        if (cellTextLength > current)
+                        {
+                            maxColWidth[i] = cellTextLength;
+                        }
+                    }
+                    else
+                    {
+                        maxColWidth.Add(i, cellTextLength);
+                    }
+                }
+            }
+
+            return maxColWidth;
         }
     }
 }
