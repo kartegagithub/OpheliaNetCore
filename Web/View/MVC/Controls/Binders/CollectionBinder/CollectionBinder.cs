@@ -798,8 +798,17 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 if (isNumeric)
                 {
-                    if (defaultValue.ToInt64() != value.ToInt64())
-                        return true;
+                    var isDecimal = propType.IsDecimal();
+                    if (isDecimal)
+                    {
+                        if (defaultValue.ToString().ToDecimal() != value.ToString().ToDecimal())
+                            return true;
+                    }
+                    else
+                    {
+                        if (defaultValue.ToInt64() != value.ToInt64())
+                            return true;
+                    }
                 }
                 else
                     return defaultValue != value && value != null;
@@ -1548,6 +1557,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         protected string DrawFilterComparison(Columns.BaseColumn<TModel, T> column)
         {
+            if (!column.DrawComparison)
+                return "";
+
             var comparisons = new List<Comparison>();
             if (column is NumericColumn<TModel, T>)
             {
