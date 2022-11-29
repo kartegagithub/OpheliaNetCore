@@ -175,12 +175,12 @@ namespace Ophelia
         public static DateTimeOffset EndOfWeek(this DateTimeOffset dt, DayOfWeek startOfWeek)
         {
             var EndOfWeek = dt.StartOfWeek(startOfWeek);
-            return EndOfWeek.AddDays(7).AddMilliseconds(-1); ;
+            return EndOfWeek.AddDays(7).AddMilliseconds(-1).EndOfDay();
         }
         public static DateTime EndOfWeek(this DateTime dt, DayOfWeek startOfWeek)
         {
             var EndOfWeek = dt.StartOfWeek(startOfWeek);
-            return EndOfWeek.AddDays(7).AddMilliseconds(-1); ;
+            return EndOfWeek.AddDays(7).AddMilliseconds(-1).EndOfDay();
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace Ophelia
 
         public static DateTime EndOfMonth(this DateTime dt)
         {
-            return new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
+            return new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month)).EndOfDay();
         }
 
         public static DateTime StartOfYear(this DateTime dt)
@@ -225,7 +225,7 @@ namespace Ophelia
 
         public static DateTime EndOfYear(this DateTime dt)
         {
-            return new DateTime(dt.Year, 12, 31).Date;
+            return new DateTime(dt.Year, 12, 31).Date.EndOfDay();
         }
 
         public static DateTime StartOfDay(this DateTime dt)
@@ -245,7 +245,7 @@ namespace Ophelia
 
         public static DateTimeOffset EndOfMonth(this DateTimeOffset dt)
         {
-            return DateTimeOffset.ParseExact($"{DateTime.DaysInMonth(dt.Year, dt.Month)}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year}", "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            return DateTimeOffset.ParseExact($"{DateTime.DaysInMonth(dt.Year, dt.Month)}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year}", "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture).EndOfDay();
         }
 
         public static DateTimeOffset StartOfYear(this DateTimeOffset dt)
