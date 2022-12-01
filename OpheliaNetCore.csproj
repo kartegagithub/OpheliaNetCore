@@ -45,7 +45,7 @@
     <PackageReference Include="PushSharp.Core" Version="1.0.2" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
     <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="6.3.5" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     <PackageReference Include="System.DirectoryServices" Version="5.0.0" />
     <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
