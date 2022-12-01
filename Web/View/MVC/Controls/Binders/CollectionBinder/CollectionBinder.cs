@@ -14,6 +14,7 @@ using Ophelia.Web.View.Mvc.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -581,8 +582,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Debug.WriteLine(ex.ToString());
                         continue;
                     }
                 }
