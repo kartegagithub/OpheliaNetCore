@@ -51,6 +51,8 @@
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.8.0" />
+	<PackageReference Include="IdentityModel" Version="6.0.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Globalization\" />
