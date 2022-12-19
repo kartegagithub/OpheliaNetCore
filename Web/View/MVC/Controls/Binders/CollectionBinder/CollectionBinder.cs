@@ -811,7 +811,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                 }
                 else
-                    return defaultValue != value && value != null;
+                    return value != null && !defaultValue.Equals(value);
             }
             if (!string.IsNullOrEmpty(this.Request.GetValue(entityProp + "-Comparison")))
             {
