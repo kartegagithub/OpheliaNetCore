@@ -340,7 +340,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             }
             else if (expression.Object != null)
             {
-                if (expression.Object is MemberExpression && (expression.Object.GetType().Name.IndexOf("Field") > -1 || expression.Object.GetType().Name.IndexOf("Property") > -1))
+                if (expression.Object is MemberExpression && !(expression.Object as MemberExpression).Type.IsPrimitiveType() && (expression.Object.GetType().Name.IndexOf("Field") > -1 || expression.Object.GetType().Name.IndexOf("Property") > -1))
                 {
                     // idList.Contains(op.Name)
                     this.Name = expression.Arguments[0].ParsePath();
