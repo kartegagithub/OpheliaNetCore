@@ -907,7 +907,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         protected virtual void OnBeforeRemoteDataSourceCall(WebApiCollectionRequest<T> request)
         {
-
+            if (this.CanExport && !request.Parameters.ContainsKey("ExecuteToExport"))
+            {
+                request.Parameters.Add("ExecuteToExport", "1");
+            }
         }
         protected virtual void OnBeforeQueryExecuted()
         {
