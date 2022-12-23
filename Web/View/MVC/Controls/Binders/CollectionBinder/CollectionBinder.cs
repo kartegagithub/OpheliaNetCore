@@ -672,6 +672,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 if (this.DataSource.OnBeforeRemoteDataSourceCall != null)
                                     request = this.DataSource.OnBeforeRemoteDataSourceCall(request);
 
+                                this.OnBeforeRemoteDataSourceCall(request);
+
                                 var response = this.DataSource.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
                                 if (response.RawData != null)
                                 {
@@ -722,6 +724,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 var request = new Service.WebApiCollectionRequest<T>() { Page = this.CanExport ? 1 : this.DataSource.Pagination.PageNumber, PageSize = this.CanExport ? int.MaxValue : this.DataSource.Pagination.PageSize, QueryData = queryData.Serialize(), Parameters = additionalParams, TypeName = typeof(T).FullName, Data = this.FiltersToEntity() };
                                 if (this.DataSource.OnBeforeRemoteDataSourceCall != null)
                                     request = this.DataSource.OnBeforeRemoteDataSourceCall(request);
+
+                                this.OnBeforeRemoteDataSourceCall(request);
 
                                 var response = this.DataSource.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
                                 if (response.RawData != null)
@@ -898,6 +902,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             return this.DataSource.Query;
         }
         protected virtual void OnAfterQueryExecuted()
+        {
+
+        }
+        protected virtual void OnBeforeRemoteDataSourceCall(WebApiCollectionRequest<T> request)
         {
 
         }
