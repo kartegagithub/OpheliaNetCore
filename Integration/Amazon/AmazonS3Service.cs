@@ -1,4 +1,4 @@
-﻿﻿using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Model;
 using Ophelia.Integration.Amazon.Model;
 using Ophelia.Service;
@@ -15,9 +15,14 @@ namespace Ophelia.Integration.Amazon
         private string SecretKey = "";
         private string Bucket = "";
         private string ServiceURL = "";
-        private int ExpireYear = 10;
 
         private AmazonS3Client oClient;
+
+        public TimeSpan? Expiration { get; set; }
+        public bool KeepFilePath { get; set; }
+        public Protocol Protocol { get; set; }
+        public AmazonS3Config Config { get; set; }
+
 
         private AmazonS3Client Client
         {
@@ -25,9 +30,12 @@ namespace Ophelia.Integration.Amazon
             {
                 if (this.oClient == null)
                 {
-                    AmazonS3Config config = new AmazonS3Config();
-                    config.ServiceURL = this.ServiceURL;
-                    this.oClient = new AmazonS3Client(this.AccessKey, this.SecretKey, config);
+                    if (this.Config == null)
+                        this.Config = new AmazonS3Config();
+
+                    if (!string.IsNullOrEmpty(this.ServiceURL))
+                        this.Config.ServiceURL = this.ServiceURL;
+                    this.oClient = new AmazonS3Client(this.AccessKey, this.SecretKey, this.Config);
                 }
                 return this.oClient;
             }
@@ -37,13 +45,13 @@ namespace Ophelia.Integration.Amazon
         /// Constructor
         /// </summary>
         /// <param name="API"></param>
-        public AmazonS3Service(string accessKey, string secretKey, string bucket, string serviceURL, int expireYear = 10)
+        public AmazonS3Service(string accessKey, string secretKey, string bucket, string serviceURL, Protocol protocol = Protocol.HTTPS)
         {
             this.AccessKey = accessKey;
             this.SecretKey = secretKey;
             this.Bucket = bucket;
             this.ServiceURL = serviceURL;
-            this.ExpireYear = expireYear;
+            this.Protocol = protocol;
         }
 
         public ServiceObjectResult<AmazonResponse> Upload(FileData file)
@@ -51,21 +59,77 @@ namespace Ophelia.Integration.Amazon
             var result = new ServiceObjectResult<AmazonResponse>();
             try
             {
-                var extension = System.IO.Path.GetExtension(file.FileName).ToLower();
-                string fileName = Guid.NewGuid().ToString() + extension;
+                return this.Upload(file.ByteData, file.FileName);
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
 
-                using (var memoryStream = new MemoryStream(file.ByteData))
+        public ServiceObjectResult<AmazonResponse> Upload(byte[] fileData, string filePath)
+        {
+            var result = new ServiceObjectResult<AmazonResponse>();
+            try
+            {
+                using (var memoryStream = new MemoryStream(fileData))
                 {
-                    PutObjectRequest request = new PutObjectRequest();
-                    request.BucketName = this.Bucket;
-                    request.Key = fileName;
-                    request.InputStream = memoryStream;
-                    var objectResult = this.Client.PutObjectAsync(request).Result;
-                    var getResult = this.GetURL(fileName);
+                    return this.Upload(memoryStream, filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        public ServiceObjectResult<AmazonResponse> Upload(Stream fileData, string filePath)
+        {
+            var result = new ServiceObjectResult<AmazonResponse>();
+            try
+            {
+                PutObjectRequest request = new PutObjectRequest();
+                request.BucketName = this.Bucket;
+                if (this.KeepFilePath)
+                    request.Key = filePath;
+                else
+                    request.Key = System.IO.Path.GetFileName(filePath);
+                request.InputStream = fileData;
+                var objectResult = this.Client.PutObjectAsync(request).Result;
+                var getResult = this.GetURL(filePath);
+                if (!getResult.HasFailed && getResult.Data != null)
+                    result.SetData(getResult.Data);
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        public ServiceObjectResult<AmazonResponse> Upload(string filePath)
+        {
+            var result = new ServiceObjectResult<AmazonResponse>();
+            try
+            {
+                PutObjectRequest request = new PutObjectRequest();
+                request.BucketName = this.Bucket;
+                if (this.KeepFilePath)
+                    request.Key = filePath;
+                else
+                    request.Key = System.IO.Path.GetFileName(filePath);
+                request.FilePath = filePath;
+                var objectResult = this.Client.PutObjectAsync(request).Result;
+                if (objectResult.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var getResult = this.GetURL(request.Key);
                     if (!getResult.HasFailed && getResult.Data != null)
                         result.SetData(getResult.Data);
                 }
-
+                else
+                    result.Fail($"Could not upload to AWS S3: {objectResult.HttpStatusCode.ToString()}");
             }
             catch (Exception ex)
             {
@@ -79,14 +143,17 @@ namespace Ophelia.Integration.Amazon
             var result = new ServiceObjectResult<AmazonResponse>();
             try
             {
-                var model = new AmazonResponse();
-                GetPreSignedUrlRequest request = new GetPreSignedUrlRequest();
+                if (this.Expiration == null)
+                    this.Expiration = TimeSpan.FromDays(1000);
+
+                var request = new GetPreSignedUrlRequest();
                 request.BucketName = this.Bucket;
                 request.Key = file;
-                request.Expires = DateTime.Now.AddYears(this.ExpireYear);
-                request.Protocol = Protocol.HTTP;
+                request.Expires = DateTime.Now.Add(this.Expiration.Value);
+                request.Protocol = this.Protocol;
                 string url = this.Client.GetPreSignedURL(request);
 
+                var model = new AmazonResponse();
                 model.ExpireDate = request.Expires;
                 model.URL = url;
                 result.SetData(model);
