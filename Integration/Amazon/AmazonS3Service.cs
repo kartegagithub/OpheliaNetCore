@@ -18,11 +18,11 @@ namespace Ophelia.Integration.Amazon
 
         private AmazonS3Client oClient;
 
-        public TimeSpan Expiration { get; set; }
+        public TimeSpan? Expiration { get; set; }
         public bool KeepFilePath { get; set; }
         public Protocol Protocol { get; set; }
         public AmazonS3Config Config { get; set; }
-
+        public bool CanGetFileURLAfterUpload { get; set; }
 
         private AmazonS3Client Client
         {
@@ -90,6 +90,7 @@ namespace Ophelia.Integration.Amazon
             var result = new ServiceObjectResult<AmazonResponse>();
             try
             {
+                filePath = filePath.Trim('/');
                 PutObjectRequest request = new PutObjectRequest();
                 request.BucketName = this.Bucket;
                 if (this.KeepFilePath)
@@ -98,9 +99,12 @@ namespace Ophelia.Integration.Amazon
                     request.Key = System.IO.Path.GetFileName(filePath);
                 request.InputStream = fileData;
                 var objectResult = this.Client.PutObjectAsync(request).Result;
-                var getResult = this.GetURL(filePath);
-                if (!getResult.HasFailed && getResult.Data != null)
-                    result.SetData(getResult.Data);
+                if (this.CanGetFileURLAfterUpload)
+                {
+                    var getResult = this.GetURL(request.Key);
+                    if (!getResult.HasFailed && getResult.Data != null)
+                        result.SetData(getResult.Data);
+                }
             }
             catch (Exception ex)
             {
@@ -124,9 +128,12 @@ namespace Ophelia.Integration.Amazon
                 var objectResult = this.Client.PutObjectAsync(request).Result;
                 if (objectResult.HttpStatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    var getResult = this.GetURL(request.Key);
-                    if (!getResult.HasFailed && getResult.Data != null)
-                        result.SetData(getResult.Data);
+                    if (this.CanGetFileURLAfterUpload)
+                    {
+                        var getResult = this.GetURL(request.Key);
+                        if (!getResult.HasFailed && getResult.Data != null)
+                            result.SetData(getResult.Data);
+                    }
                 }
                 else
                     result.Fail($"Could not upload to AWS S3: {objectResult.HttpStatusCode.ToString()}");
@@ -149,7 +156,7 @@ namespace Ophelia.Integration.Amazon
                 var request = new GetPreSignedUrlRequest();
                 request.BucketName = this.Bucket;
                 request.Key = file;
-                request.Expires = DateTime.Now.Add(this.Expiration);
+                request.Expires = DateTime.Now.Add(this.Expiration.Value);
                 request.Protocol = this.Protocol;
                 string url = this.Client.GetPreSignedURL(request);
 
