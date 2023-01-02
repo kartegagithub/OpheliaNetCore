@@ -80,6 +80,11 @@ namespace Ophelia.Data.Querying
             switch (expression.Method.Name)
             {
                 case "Count":
+                    using (var query = this._Context.CreateSelectQuery(expression, data))
+                    {
+                        data.TotalCount = Convert.ToInt64(query.Execute<TResult>(CommandType.Count));
+                    }
+                    return (TResult)Convert.ChangeType(data.TotalCount, typeof(TResult));
                 case "Any":
                     if (data.TotalCount < 0)
                     {
@@ -88,9 +93,7 @@ namespace Ophelia.Data.Querying
                             data.TotalCount = Convert.ToInt64(query.Execute<TResult>(CommandType.Count));
                         }
                     }
-                    if (expression.Method.Name.Equals("Any"))
-                        return (TResult)Convert.ChangeType((data.TotalCount > 0), typeof(TResult));
-                    return (TResult)Convert.ChangeType(data.TotalCount, typeof(TResult));
+                    return (TResult)Convert.ChangeType((data.TotalCount > 0), typeof(TResult));
                 case "Sum":
                     using (var query = this._Context.CreateSelectQuery(expression, data))
                     {
