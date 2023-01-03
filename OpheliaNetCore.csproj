@@ -46,6 +46,7 @@
 		<PackageReference Include="Magick.NET.Core" Version="12.2.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.10" />
 		<PackageReference Include="MySql.Data" Version="8.0.31" />
+		<PackageReference Include="Novell.Directory.Ldap.NETStandard2_0" Version="3.1.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
 		<PackageReference Include="NSwag.AspNetCore" Version="13.17.0" />
 		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.80" />
@@ -54,7 +55,6 @@
 		<PackageReference Include="StackExchange.Redis" Version="2.6.70" />
 		<PackageReference Include="StackExchange.Redis.Extensions.Core" Version="8.0.5" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.4" />
-		<PackageReference Include="System.DirectoryServices" Version="6.0.0" />
 		<PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
 		<PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
 		<PackageReference Include="System.ServiceModel.Http" Version="4.10.0" />

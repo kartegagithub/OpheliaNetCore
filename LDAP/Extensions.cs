@@ -1,55 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.DirectoryServices;
+using Novell.Directory.Ldap;
+using System.Text;
+using System.Linq;
 
 namespace Ophelia.LDAP
 {
     public static class Extensions
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
-        public static object GetPropertyValue(this SearchResult result, string key)
+        public static string GetPropertyValue(this LdapEntry result, string key)
         {
+            var value = new StringBuilder();
             if (result == null)
                 return "";
-            if (result.Properties == null)
-                return "";
-            if (result.Properties.Contains(key) && result.Properties[key].Count > 0)
-                return result.Properties[key][0];
-            return "";
+            if (!string.IsNullOrEmpty(result.DN) && result.DN.IndexOf(key) > -1)
+            {
+                int equalsIndex, commaIndex;
+                string resultString = result.DN.ToString();
+                equalsIndex = resultString.IndexOf(key + "=", 1);
+                commaIndex = resultString.IndexOf(",", 1);
+                if (-1 == equalsIndex)
+                {
+                    return null;
+                }
+                value.Append(resultString.Substring((equalsIndex + 1), (commaIndex - equalsIndex) - 1));
+            }
+            return value.ToString();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
-        public static ResultPropertyValueCollection GetPropertyValues(this SearchResult result, string key)
-        {
-            if (result.Properties.Contains(key) && result.Properties[key].Count > 0)
-                return result.Properties[key];
-            return null;
-        }
-        public static string GetUserFirstName(this SearchResult result)
+        public static string GetUserFirstName(this LdapEntry result)
         {
             return Convert.ToString(result.GetPropertyValue(ADProperties.FIRSTNAME));
         }
-        public static string GetUserLastName(this SearchResult result)
+        public static string GetUserLastName(this LdapEntry result)
         {
             return Convert.ToString(result.GetPropertyValue(ADProperties.LASTNAME));
         }
-        public static string GetUserEmail(this SearchResult result)
+        public static string GetUserEmail(this LdapEntry result)
         {
             return Convert.ToString(result.GetPropertyValue(ADProperties.EMAILADDRESS));
         }
-        public static List<string> GetUserMemberOf(this SearchResult result)
-        {
-            var list = new List<string>();
-
-            var values = result.GetPropertyValues("memberof");
-            if (values != null)
-            {
-                foreach (var item in values)
-                {
-                    list.Add(Convert.ToString(item).Split(',')[0].Replace("CN=", ""));
-                }
-            }
-            return list;
-        }
+        
     }
 }
