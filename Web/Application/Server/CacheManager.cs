@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Caching;
 
 namespace Ophelia.Web.Application.Server
 {
@@ -142,10 +140,6 @@ namespace Ophelia.Web.Application.Server
         public static List<string> GetAllKeysByContext(string contextName)
         {
             return Contexts[contextName].GetAllKeys();
-        }
-        public static void OnCachedItemRemoved(CacheEntryRemovedArguments arguments)
-        {
-            string strLog = String.Concat("Reason: ", arguments.RemovedReason.ToString(), " | Key-Name: ", arguments.CacheItem.Key, " | Value-Object: ", arguments.CacheItem.Value.ToString());
         }
     }
 }

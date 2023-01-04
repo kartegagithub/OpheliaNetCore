@@ -149,8 +149,8 @@ namespace Ophelia.Data
                 case DatabaseType.PostgreSQL:
                     this.internalConnection = new Npgsql.NpgsqlConnection(ConnectionString);
                     break;
-                case DatabaseType.Oracle:
-                    this.internalConnection = new Oracle.ManagedDataAccess.Client.OracleConnection(ConnectionString);
+                case DatabaseType.Oracle:                    
+                    //this.internalConnection = new Oracle.ManagedDataAccess.Client.OracleConnection(ConnectionString);
                     this.Context.Configuration.UseNamespaceAsSchema = false;
                     this.Context.Configuration.UseUppercaseObjectNames = true;
                     this.Context.Configuration.ObjectNameCharLimit = 30;

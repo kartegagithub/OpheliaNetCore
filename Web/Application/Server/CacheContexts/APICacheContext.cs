@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Runtime.Caching;
-using System.Linq;
 using Ophelia.Web.Application.Server.DistributedCaches;
 using Newtonsoft.Json;
 
@@ -15,17 +12,6 @@ namespace Ophelia.Web.Application.Server.CacheContexts
         public APICacheContext(APICache apiCache)
         {
             this.APICache = apiCache;
-        }
-        private CacheItemPolicy GetCachePolicy(string key, DateTime absoluteExpiration)
-        {
-            if (absoluteExpiration <= DateTime.Now) absoluteExpiration = DateTime.Now.AddMinutes(CacheManager.CacheDuration);
-            CacheItemPolicy cachingPolicy = new CacheItemPolicy
-            {
-                Priority = CacheItemPriority.Default,
-                AbsoluteExpiration = absoluteExpiration,
-                RemovedCallback = new CacheEntryRemovedCallback(CacheManager.OnCachedItemRemoved)
-            };
-            return cachingPolicy;
         }
 
         public long CacheCount { get { return 0; } }

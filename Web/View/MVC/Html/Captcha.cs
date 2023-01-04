@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Ophelia.Web.View.Mvc.Models;
+using SixLaborsCaptcha.Core;
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 
 namespace Ophelia.Web.View.Mvc.Html
@@ -69,61 +68,14 @@ namespace Ophelia.Web.View.Mvc.Html
         public string GetCaptchaImageString()
         {
             this.GenerateCaptchaValue();
-            Bitmap CaptchaImage = new Bitmap(this.CaptchaModel.Width, this.CaptchaModel.Height);
-            Graphics Graphic = Graphics.FromImage(CaptchaImage);
-            Graphic.SmoothingMode = SmoothingMode.HighQuality;
-            Rectangle CaptchaContainer = new Rectangle(0, 0, this.CaptchaModel.Width, this.CaptchaModel.Height);
-            HatchBrush CaptchaBackground = new HatchBrush(HatchStyle.SmallConfetti, Color.LightSlateGray, Color.White);
-            Graphic.FillRectangle(CaptchaBackground, CaptchaContainer);
-
-            Font Font = new Font(this.CaptchaModel.FontFamily, this.CaptchaModel.FontSize, FontStyle.Bold);
-            SizeF Size = Graphic.MeasureString(Client.Current.Session.GetString("Captcha_" + this.CaptchaSessionKey), Font);
-            StringFormat Format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            GraphicsPath Path = new GraphicsPath();
-            Path.AddString(Client.Current.Session.GetString("Captcha_" + this.CaptchaSessionKey), Font.FontFamily, (int)Font.Style, this.CaptchaModel.FontSize, CaptchaContainer, Format);
-
-            Font.Dispose();
-            Font = null;
-
-            float v = 3.5F;
-            Random Rand = new Random(DateTime.Now.Millisecond);
-            int RandomWidth = Rand.Next(CaptchaContainer.Width);
-            int RandomHeight = Rand.Next(CaptchaContainer.Height);
-            PointF[] Points =
+            var slc = new SixLaborsCaptchaModule(new SixLaborsCaptchaOptions
             {
-                new PointF(RandomWidth / v, RandomHeight / v),
-                new PointF(CaptchaContainer.Width - RandomWidth / v, RandomHeight / v),
-                new PointF(RandomWidth / v, CaptchaContainer.Height - RandomHeight / v),
-                new PointF(CaptchaContainer.Width - RandomWidth / v, CaptchaContainer.Height - RandomHeight / v)
-            };
-
-            Matrix Matrix = new Matrix();
-            Matrix.Translate(0F, 0F);
-            Path.Warp(Points, CaptchaContainer, Matrix, WarpMode.Perspective, 0F);
-
-            CaptchaBackground = new HatchBrush(HatchStyle.LargeConfetti, Color.FromArgb(130, 130, 130), Color.FromArgb(130, 130, 130));
-            Graphic.FillPath(CaptchaBackground, Path);
-
-            int m = Math.Max(CaptchaContainer.Width, CaptchaContainer.Height);
-            for (int i = 0; i < (int)(CaptchaContainer.Width * CaptchaContainer.Height / 30F); i++)
-            {
-                int x = Rand.Next(CaptchaContainer.Width);
-                int y = Rand.Next(CaptchaContainer.Height);
-                int w = Rand.Next(m / 50);
-                int h = Rand.Next(m / 50);
-                Graphic.FillEllipse(CaptchaBackground, x, y, w, h);
-            }
-            CaptchaBackground.Dispose();
-            CaptchaBackground = null;
-            Graphic.Dispose();
-            Graphic = null;
-
-            string CaptchaImageString = string.Empty;
-            using (MemoryStream MemoryStream = new MemoryStream())
-            {
-                CaptchaImage.Save(MemoryStream, System.Drawing.Imaging.ImageFormat.Png);
-                CaptchaImageString = "data:image/png;base64," + Convert.ToBase64String(MemoryStream.ToArray());
-            }
+                DrawLines = 7,
+                TextColor = new SixLabors.ImageSharp.Color[] { SixLabors.ImageSharp.Color.Blue, SixLabors.ImageSharp.Color.Black },
+            });
+            var captchaKey = Client.Current.Session.GetString("Captcha_" + this.CaptchaSessionKey);
+            var result = slc.Generate(captchaKey);
+            var CaptchaImageString = "data:image/png;base64," + Convert.ToBase64String(result);
             return CaptchaImageString;
         }
 

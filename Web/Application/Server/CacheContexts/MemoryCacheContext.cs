@@ -1,44 +1,45 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Runtime.Caching;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 
 namespace Ophelia.Web.Application.Server.CacheContexts
 {
     public class MemoryCacheContext : ICacheContext
     {
-        private MemoryCache _MemoryCacheContext = MemoryCache.Default;
-        public long CacheCount { get { return _MemoryCacheContext.GetCount(); } }
+        private MemoryCache _MemoryCacheContext = new MemoryCache(new MemoryCacheOptions() { });
+
+        public long CacheCount { get { return _MemoryCacheContext.Count; } }
         public bool Add(string key, object value, DateTime absoluteExpiration)
         {
             bool result = false;
             try
             {
-                if (_MemoryCacheContext.Contains(key))
+                try
+                {
                     _MemoryCacheContext.Remove(key);
+                }
+                catch (Exception)
+                {
 
-                _MemoryCacheContext.Set(key, value, GetCachePolicy(key, absoluteExpiration));
-
-                //Im-memory cache incnsistency. Added twice
-                if (_MemoryCacheContext.Contains(key))
-                    _MemoryCacheContext.Remove(key);
-
-                _MemoryCacheContext.Set(key, value, GetCachePolicy(key, absoluteExpiration));
+                }
+                _MemoryCacheContext.Set(key, value, GetCachePolicy(absoluteExpiration));
                 result = true;
             }
             catch { return result; }
             return result;
         }
 
-        private CacheItemPolicy GetCachePolicy(string key, DateTime absoluteExpiration)
+        private MemoryCacheEntryOptions GetCachePolicy(DateTime absoluteExpiration)
         {
             if (absoluteExpiration <= DateTime.Now) absoluteExpiration = DateTime.Now.AddMinutes(CacheManager.CacheDuration);
-            CacheItemPolicy cachingPolicy = new CacheItemPolicy
+            var cachingPolicy = new MemoryCacheEntryOptions
             {
-                Priority = CacheItemPriority.Default,
-                AbsoluteExpiration = absoluteExpiration,
-                RemovedCallback = new CacheEntryRemovedCallback(CacheManager.OnCachedItemRemoved)
+                Priority = CacheItemPriority.Normal,
+                AbsoluteExpiration = absoluteExpiration
             };
             return cachingPolicy;
         }
@@ -64,14 +65,10 @@ namespace Ophelia.Web.Application.Server.CacheContexts
         public bool ClearAll()
         {
             bool result = false;
-            if (_MemoryCacheContext.GetCount() > 0)
+            if (this.CacheCount > 0)
             {
+                _MemoryCacheContext.Clear();
                 result = true;
-                foreach (var cache in _MemoryCacheContext)
-                {
-                    if (!Remove(cache.Key))
-                        result = false;
-                }
             }
             return result;
         }
@@ -87,10 +84,13 @@ namespace Ophelia.Web.Application.Server.CacheContexts
                 {
                     foreach (string sKey in keys)
                     {
-                        if (_MemoryCacheContext.Contains(sKey))
+                        try
                         {
                             _MemoryCacheContext.Remove(sKey);
-                            result = true;
+                        }
+                        catch (Exception)
+                        {
+
                         }
                     }
                 }
@@ -101,7 +101,7 @@ namespace Ophelia.Web.Application.Server.CacheContexts
 
         public object Get(string key)
         {
-            return _MemoryCacheContext[key] as Object;
+            return _MemoryCacheContext.Get(key);
         }
 
         public T Get<T>(string key)
@@ -120,7 +120,27 @@ namespace Ophelia.Web.Application.Server.CacheContexts
 
         public List<string> GetAllKeys()
         {
-            return _MemoryCacheContext.Select(op => op.Key).ToList();
+            try
+            {
+                var field = typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
+                var collection = field.GetValue(_MemoryCacheContext) as ICollection;
+                var items = new List<string>();
+                if (collection != null)
+                {
+                    foreach (var item in collection)
+                    {
+                        var methodInfo = item.GetType().GetProperty("Key");
+                        var val = methodInfo.GetValue(item);
+                        items.Add(val.ToString());
+                    }
+                }
+                return items;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+            return new List<string>();
         }
 
         public bool Refresh(string key, DateTime absoluteExpiration)
