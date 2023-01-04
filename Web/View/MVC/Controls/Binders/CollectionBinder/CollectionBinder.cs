@@ -14,9 +14,11 @@ using Ophelia.Web.View.Mvc.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Web;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 {
@@ -580,8 +582,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Debug.WriteLine(ex.ToString());
                         continue;
                     }
                 }
@@ -669,6 +672,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 if (this.DataSource.OnBeforeRemoteDataSourceCall != null)
                                     request = this.DataSource.OnBeforeRemoteDataSourceCall(request);
 
+                                this.OnBeforeRemoteDataSourceCall(request);
+
                                 var response = this.DataSource.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
                                 if (response.RawData != null)
                                 {
@@ -719,6 +724,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 var request = new Service.WebApiCollectionRequest<T>() { Page = this.CanExport ? 1 : this.DataSource.Pagination.PageNumber, PageSize = this.CanExport ? int.MaxValue : this.DataSource.Pagination.PageSize, QueryData = queryData.Serialize(), Parameters = additionalParams, TypeName = typeof(T).FullName, Data = this.FiltersToEntity() };
                                 if (this.DataSource.OnBeforeRemoteDataSourceCall != null)
                                     request = this.DataSource.OnBeforeRemoteDataSourceCall(request);
+
+                                this.OnBeforeRemoteDataSourceCall(request);
 
                                 var response = this.DataSource.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
                                 if (response.RawData != null)
@@ -811,7 +818,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                 }
                 else
-                    return defaultValue != value && value != null;
+                    return value != null && !defaultValue.Equals(value);
             }
             if (!string.IsNullOrEmpty(this.Request.GetValue(entityProp + "-Comparison")))
             {
@@ -897,6 +904,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         protected virtual void OnAfterQueryExecuted()
         {
 
+        }
+        protected virtual void OnBeforeRemoteDataSourceCall(WebApiCollectionRequest<T> request)
+        {
+            if (this.CanExport && !request.Parameters.ContainsKey("ExecuteToExport"))
+            {
+                request.Parameters.Add("ExecuteToExport", "1");
+            }
         }
         protected virtual void OnBeforeQueryExecuted()
         {
@@ -1162,7 +1176,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 this.Output.Write("<script>document.location.href='" + url + "';</script>");
                 return;
             }
-
             if (string.IsNullOrEmpty(className))
                 className = "table-body";
             if (string.IsNullOrEmpty(tbodyId))
@@ -1247,19 +1260,19 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                         this.OnBeforeGetCellValue(item, column);
                         var value = column.GetValue(item);
-                        link.Text = Convert.ToString(value);
-                        if (!column.KeepHtml)
-                        {
-                            if (!string.IsNullOrEmpty(link.Text))
-                                link.Text = link.Text.RemoveHTML();
-                            link.Title = link.Text;
-                        }
                         if (column.MaxTextLength > 0)
                         {
                             if (!string.IsNullOrEmpty(link.Text) && link.Text.Length > column.MaxTextLength)
                             {
                                 link.Text = link.Text.Left(column.MaxTextLength) + "...";
                             }
+                        }
+                        link.Text = Convert.ToString(value);
+                        if (!column.KeepHtml)
+                        {
+                            if (!string.IsNullOrEmpty(link.Text))
+                                link.Text = HttpUtility.HtmlEncode(link.Text);
+                            link.Title = link.Text;
                         }
                         try
                         {
@@ -1492,7 +1505,12 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             if (name == null)
                 name = entity.GetPropertyValue("Title");
             if (name != null)
-                return name.ToString();
+            {
+                var text = name.ToString();
+                if (!string.IsNullOrEmpty(text))
+                    text = HttpUtility.HtmlEncode(text);
+                return text;
+            }
             return "";
         }
         protected virtual string GetBinderCheckboxProperties(T entity)
@@ -1559,7 +1577,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             if (!column.DrawComparison)
                 return "";
-
             var comparisons = new List<Comparison>();
             if (column is NumericColumn<TModel, T>)
             {
