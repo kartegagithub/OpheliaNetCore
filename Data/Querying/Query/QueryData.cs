@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Ophelia.Data.Querying.Query
@@ -38,6 +39,9 @@ namespace Ophelia.Data.Querying.Query
 
         [DataMember]
         public List<Helpers.Grouper> Groupers { get; set; }
+
+        [DataMember]
+        public bool Grouping { get { return this.Groupers != null && this.Groupers.Any(); } }
 
         [DataMember]
         public List<Helpers.Selector> Selectors { get; set; }

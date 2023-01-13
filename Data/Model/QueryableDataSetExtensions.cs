@@ -273,19 +273,19 @@ namespace Ophelia.Data
                     new Expression[] { source.Expression, new Expressions.SelectExpression(selector) }
                     ));
         }
-        public static QueryableDataSet<TResult> Distinct<TSource, TResult>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TResult>> selector)
+        public static QueryableDataSet<TResult> DistinctBy<TSource, TResult>(this QueryableDataSet<TSource> source, Expression<Func<TSource, TResult>> selector)
         {
             return (QueryableDataSet<TResult>)source.InternalProvider.CreateQuery<TResult, TSource>(
                 Expression.Call(
                     null,
-                    GetMethodInfoOf(() => QueryableDataSetExtensions.Distinct(
+                    GetMethodInfoOf(() => QueryableDataSetExtensions.DistinctBy(
                         default(QueryableDataSet<TSource>),
                         default(Expression<Func<TSource, TResult>>))),
                     new Expression[] { source.Expression, new Expressions.DistinctExpression(selector) }
                     ));
         }
 
-        public static QueryableDataSet<TSource> Distinct<TSource>(this QueryableDataSet<TSource> source)
+        public static QueryableDataSet<TSource> DistinctBy<TSource>(this QueryableDataSet<TSource> source)
         {
             source.DistinctEnabled = true;
             return source;

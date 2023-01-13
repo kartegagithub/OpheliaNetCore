@@ -92,7 +92,7 @@ namespace Ophelia.Data.Querying.Query
                     sb.Append("DISTINCT ");
 
                 bool hasField = false;
-                if (this.Data.Groupers.Count > 0)
+                if (this.Data.Grouping)
                 {
                     sb.Append(this.BuildGroupBySelectString());
                     hasField = true;
@@ -143,11 +143,16 @@ namespace Ophelia.Data.Querying.Query
                 if (!this.Data.Functions.Where(op => op.IsAggregiate).Any())
                     sb.Append(strOrder);
             }
-            if (this.Data.Groupers.Count > 0 && string.IsNullOrEmpty(strOrder))
+            if (this.Data.Grouping && string.IsNullOrEmpty(strOrder))
             {
                 sb.Append(" ORDER BY Counted DESC");
             }
-            return sb.ToString();
+            if (this.Data.Grouping && cmdType == CommandType.Count)
+            {
+                return $"SELECT Count(1) AS {this.Context.Connection.FormatDataElement("Counted")} FROM ({sb.ToString()}) GroupedTable";
+            }
+            else
+                return sb.ToString();
         }
     }
 }
