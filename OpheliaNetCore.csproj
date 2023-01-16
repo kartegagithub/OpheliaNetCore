@@ -42,6 +42,7 @@
 		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
 		<PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
 		<PackageReference Include="HtmlSanitizer" Version="8.0.601" />
+		<PackageReference Include="IdentityModel" Version="6.0.0" />
 		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.2.2" />
 		<PackageReference Include="Magick.NET.Core" Version="12.2.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
