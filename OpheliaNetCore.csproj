@@ -60,6 +60,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Globalization\" />
+		<Folder Include="Mobile\Notification\OneSignal\" />
 	</ItemGroup>
 	<Target Name="RemoveSystemDrawingCommon" AfterTargets="ResolveAssemblyReferences">
 		<ItemGroup>
