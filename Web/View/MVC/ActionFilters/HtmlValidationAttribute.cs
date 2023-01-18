@@ -43,7 +43,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                                     {
                                         HtmlValidationProcessType type = HtmlValidationProcessType.Sanitize;
 
-                                        var attribute = p.GetCustomAttributes(typeof(Ophelia.Data.Attributes.AllowHtml)).FirstOrDefault();
+                                        var attribute = p.GetCustomAttributes(typeof(Ophelia.Data.Attributes.AllowHtml), checkBase: true).FirstOrDefault();
                                         if (attribute != null)
                                         {
                                             if ((attribute as Ophelia.Data.Attributes.AllowHtml).Sanitize)
