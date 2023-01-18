@@ -99,7 +99,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                         this.Sanitizer.AllowedAttributes.Add("class");
                         this.Sanitizer.AllowedAttributes.Add("frameborder");
                     }
-                    return this.Sanitizer.Sanitize(val).CheckHTMLOnFuntions();
+                    return this.Sanitizer.Sanitize(val);
                 case HtmlValidationProcessType.RemoveHtml:
                     return val.RemoveHTML().CheckHTMLOnFuntions();
             }
