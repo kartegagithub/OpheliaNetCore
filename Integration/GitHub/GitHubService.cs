@@ -1,10 +1,8 @@
-﻿using Newtonsoft.Json;
-using Ophelia.Integration.GitHub;
+﻿using Ophelia.Integration.GitHub.Model;
 using Ophelia.Service;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
 namespace Ophelia.Integration.GitHub
 {
@@ -120,6 +118,32 @@ namespace Ophelia.Integration.GitHub
                 var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
                 if (!string.IsNullOrEmpty(serviceResult))
                     result.SetData(serviceResult.FromJson<List<GitHubRepoBranchResult>>());
+                else
+                    result.Fail("AProblemOccurred");
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Repoya ait commitleri detayları ile  döner
+        /// </summary>
+        /// <param name="repoOwner">Reponun sahibi</param>
+        /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>
+        /// <param name="commitSha">Yalnızca bu tarihten sonraki commitleri getirir </param>
+        public ServiceObjectResult<GitHubCommitDetailResult> GetRepoCommitDetail(string repoOwner, string repoName, string commitSha)
+        {
+            var result = new ServiceObjectResult<GitHubCommitDetailResult>();
+            try
+            {
+                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits/{commitSha}";
+
+                var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
+                if (!string.IsNullOrEmpty(serviceResult))
+                    result.SetData(serviceResult.FromJson<GitHubCommitDetailResult>());
                 else
                     result.Fail("AProblemOccurred");
             }
