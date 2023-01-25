@@ -3,11 +3,8 @@ using System.Linq;
 using System.Web;
 using Ophelia;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
 using Ophelia.Service;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Ophelia.Cryptography;
-using Ophelia.Configuration;
 using System.Reflection;
 
 namespace Ophelia.Web.View.Mvc.ActionFilters
