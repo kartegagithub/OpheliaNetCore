@@ -240,7 +240,7 @@ namespace Ophelia.Data.Querying.Query
                 var sb = new StringBuilder();
                 foreach (var includer in this.Data.Includers)
                 {
-                    if (this.IncluderIsSelected(includer))
+                    if (this.IncluderIsSelected(includer) || this.Data.Sorters.Any(op => op.Name.StartsWith(includer.Name + ".")))
                     {
                         sb.Append(includer.Build(this));
                         sb.Append(",");
