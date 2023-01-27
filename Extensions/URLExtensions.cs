@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
@@ -18,6 +19,8 @@ namespace Ophelia
         public static int Timeout { get; set; }
         public static Dictionary<string, IFormFile> FilesToUpload { get; set; }
         public static List<FileData> FilesToUploadBase64 { get; set; }
+        public static Func<HttpClientHandler, DelegatingHandler> RequestLogHandler { get; set; }
+        public static Action<HttpResponseMessage> OnResponseHandler { get; set; }
 
         public static T PostURL<T>(this string URL, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false, string contentType = "application/x-www-form-urlencoded", NetworkCredential credential = null)
         {
@@ -102,6 +105,8 @@ namespace Ophelia
             }
 
             var factory = new RequestFactory()
+                .SetLogHandler(URLExtensions.RequestLogHandler)
+                .SetOnResponse(URLExtensions.OnResponseHandler)
                 .CreateClient()
                 .SetTimeout(timeout)
                 .SetCredentials(credential)

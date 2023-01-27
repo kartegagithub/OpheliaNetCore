@@ -22,6 +22,8 @@ namespace Ophelia.Net.Http
         private Dictionary<string, string> Headers { get; set; }
         private HttpRequestMessage RequestMessage { get; set; }
         private HttpResponseMessage ResponseMessage { get; set; }
+        public Func<HttpClientHandler, DelegatingHandler> LogHandler { get; set; }
+        public Action<HttpResponseMessage> OnResponse { get; set; }
         private RequestFactory CreateClientIfNotSet()
         {
             if (this.Client == null)
@@ -33,9 +35,12 @@ namespace Ophelia.Net.Http
             this.Reset();
             this.ClientHandler = new HttpClientHandler()
             {
-
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             };
-            this.Client = new HttpClient(this.ClientHandler);
+            if (this.LogHandler != null)
+                this.Client = new HttpClient(this.LogHandler(this.ClientHandler));
+            else
+                this.Client = new HttpClient(this.ClientHandler);
             this.Client.DefaultRequestHeaders.Add("User-Agent", this.UserAgent);
             return this;
         }
@@ -54,6 +59,16 @@ namespace Ophelia.Net.Http
         public RequestFactory SetUserAgent(string userAgent)
         {
             this.UserAgent = userAgent;
+            return this;
+        }
+        public RequestFactory SetLogHandler(Func<HttpClientHandler, DelegatingHandler> logHandler)
+        {
+            this.LogHandler = logHandler;
+            return this;
+        }
+        public RequestFactory SetOnResponse(Action<HttpResponseMessage> handler)
+        {
+            this.OnResponse = handler;
             return this;
         }
         public RequestFactory AddHeaders(Dictionary<string, string> headers)
@@ -150,6 +165,9 @@ namespace Ophelia.Net.Http
                 this.Accept.ForEach(item => this.Client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(item)));
 
             this.ResponseMessage = await this.Client.SendAsync(this.RequestMessage);
+            if (this.OnResponse != null)
+                this.OnResponse(this.ResponseMessage);
+
             return this.ResponseMessage;
         }
 
