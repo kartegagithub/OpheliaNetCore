@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Ophelia
 {
@@ -169,6 +168,96 @@ namespace Ophelia
                 default:
                     return false;
             }
+        }
+        public static byte ToByte(this Type type, object value)
+        {
+            return Convert.ToByte(ToInt64(type, value));
+        }
+        public static Int16 ToInt16(this Type type, object value)
+        {
+            return Convert.ToInt16(ToInt64(type, value));
+        }
+        public static Int32 ToInt32(this Type type, object value)
+        {
+            return Convert.ToInt32(ToInt64(type, value));
+        }
+        public static long ToInt64(this Type type, object value)
+        {
+            var typeCode = Type.GetTypeCode(type);
+            switch (typeCode)
+            {
+                case TypeCode.Empty:
+                case TypeCode.Object:
+                case TypeCode.DBNull:
+                    return 0;
+                case TypeCode.Boolean:
+                    return ((bool)value) ? 1 : 0;
+                case TypeCode.Char:
+                    return Convert.ToInt64(Char.GetNumericValue((char)value));
+                case TypeCode.SByte:
+                    return Convert.ToInt64((sbyte)value);
+                case TypeCode.Byte:
+                    return Convert.ToInt64((byte)value);
+                case TypeCode.Int16:
+                    return Convert.ToInt64((short)value);
+                case TypeCode.UInt16:
+                    return Convert.ToInt64((ushort)value);
+                case TypeCode.Int32:
+                    return Convert.ToInt64((int)value);
+                case TypeCode.UInt32:
+                    return Convert.ToInt64((uint)value);
+                case TypeCode.Int64:
+                    return (long)value;
+                case TypeCode.UInt64:
+                    return Convert.ToInt64((ulong)value);
+                case TypeCode.Single:
+                    return Convert.ToInt64((float)value);
+                case TypeCode.Double:
+                    return Convert.ToInt64((double)value);
+                case TypeCode.Decimal:
+                    return Convert.ToInt64((decimal)value);
+                case TypeCode.DateTime:
+                    return 0;
+                default:
+                    var decimalSeperator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+                    var sValue = value.ToString().Trim().TrimStart('-').TrimStart('+');
+                    if (sValue.IndexOf(".") > -1 && sValue.IndexOf(",") > -1)
+                    {
+                        string thousandSeperator;
+                        if (decimalSeperator == ",")
+                            thousandSeperator = ".";
+                        else
+                            thousandSeperator = ",";
+                        sValue = sValue.Replace(thousandSeperator, "");
+                    }
+                    decimal decValue;
+                    decimal.TryParse(sValue, out decValue);
+                    return Convert.ToInt64(decValue);
+            }
+        }
+        public static bool ToBoolean(this Type type, object value)
+        {
+            if (value != null)
+            {
+                var typeCode = Type.GetTypeCode(type);
+                switch (typeCode)
+                {
+                    case TypeCode.Boolean:
+                        return (bool)value;
+                    case TypeCode.Char:
+                        var cValue = (char)value;
+                        return cValue.Equals("Y") || cValue.Equals("y");
+                    case TypeCode.String:
+                        var sValue = value.ToString().ToLower();
+                        if (string.IsNullOrEmpty(sValue))
+                            return false;
+
+                        return value.Equals("true") || value.Equals("yes");
+                    default:
+                        return type.ToInt64() > 0;
+                }
+            }
+            return false;
         }
         public static bool IsNullable(this Type type)
         {
