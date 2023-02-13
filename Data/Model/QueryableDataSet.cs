@@ -217,6 +217,7 @@ namespace Ophelia.Data.Model
                                 (entity as Model.DataEntity).Tracker.State = EntityState.Loaded;
                             }
                             this._list.Add(entity);
+                            query.Context.OnAfterEntityLoaded(entity);
                         }
 
                         var duration = DateTime.Now.Subtract(entLoadLoad).TotalMilliseconds;
