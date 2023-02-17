@@ -191,6 +191,10 @@ namespace Ophelia.Data
             this.Connection.Close();
             this.Connection.Dispose();
         }
+        public virtual void OnAfterEntityLoaded(object entity)
+        {
+
+        }
         protected virtual DataContext MapTable<T>(string toType)
         {
             return this.MapTable(typeof(T).Name, toType);
@@ -251,6 +255,7 @@ namespace Ophelia.Data
             else
                 return Activator.CreateInstance(Type);
         }
+
         public QueryBuilder CreateSQLBuilder()
         {
             return QueryBuilder.Init(this);
