@@ -295,6 +295,7 @@ namespace Ophelia.Data.Model
                                     }
 
                                     queryable = queryable.Where(p, value);
+                                    queryable.ExtendData(clonedData);
                                     var ctor = groupingType.GetConstructors().FirstOrDefault();
                                     var oGrouping = ctor.Invoke(new object[] { value, queryable, count });
                                     //var oGrouping = Activator.CreateInstance(groupingType, );
