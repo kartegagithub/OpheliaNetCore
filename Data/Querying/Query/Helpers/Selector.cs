@@ -97,7 +97,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             {
                 var props = query.Data.EntityType.GetPropertyInfoTree(name);
                 var p = props[props.Length - 2];
-                var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == p.Name + "ID" && op.EntityType == p.DeclaringType).FirstOrDefault();
+                var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == Extensions.GetForeignKeyName(p) && op.EntityType == p.DeclaringType).FirstOrDefault();
                 if (table != null)
                 {
                     this.Tables.Add(table);
@@ -108,7 +108,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 return query.Context.Connection.GetFieldSelectString(query.Data.MainTable, propInfo, false);
             else if (propInfo != null && (propInfo.PropertyType.IsDataEntity() || propInfo.PropertyType.IsPOCOEntity()))
             {
-                var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == propInfo.Name + "ID" && op.EntityType == propInfo.DeclaringType).FirstOrDefault();
+                var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == Extensions.GetForeignKeyName(propInfo) && op.EntityType == propInfo.DeclaringType).FirstOrDefault();
                 if (table != null)
                 {
                     this.Tables.Add(table);
@@ -148,7 +148,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             {
                 var props = query.Data.EntityType.GetPropertyInfoTree(path);
                 var p = props[props.Length - 2];
-                var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == p.Name + "ID" && op.EntityType == p.DeclaringType).FirstOrDefault();
+                var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == Extensions.GetForeignKeyName(p) && op.EntityType == p.DeclaringType).FirstOrDefault();
                 if (table != null)
                     return query.Context.Connection.GetMappedFieldName(table.Alias + "_" + memberName);
             }
@@ -198,7 +198,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             var prop = bindingMember.Key as PropertyInfo;
                             prop.SetValue(entity, refEntity);
 
-                            var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == member.Name + "ID" && op.EntityType == refEntity.GetType()).FirstOrDefault();
+                            var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == Extensions.GetForeignKeyName(member) && op.EntityType == refEntity.GetType()).FirstOrDefault();
                             var properties = member.GetMemberInfoType().GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
                             foreach (var p in properties)
                             {
