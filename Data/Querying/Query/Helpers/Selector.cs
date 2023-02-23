@@ -160,7 +160,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public void SetData(BaseQuery query, object entity, Type type, System.Data.DataRow row)
         {
             var counter = 0;
-            foreach (var member in this.Members)
+            foreach (PropertyInfo member in this.Members)
             {
                 var fieldName = "";
                 var bindingMember = new KeyValuePair<MemberInfo, Expression>();
@@ -180,7 +180,28 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         continue;
                     }
                     else
-                        fieldName = Extensions.GetColumnName(member);
+                    {
+                        foreach (var includer in query.Data.Includers)
+                        {
+                            if (includer.PropertyInfo != null && includer.PropertyInfo.PropertyType == member.DeclaringType)
+                            {
+                                if (includer.Table != null)
+                                {
+                                    var baseName = query.Context.Connection.GetMappedFieldName(includer.Table.Alias + "_");
+                                    foreach (System.Data.DataColumn item in row.Table.Columns)
+                                    {
+                                        if (item.ColumnName.StartsWith(baseName, StringComparison.CurrentCultureIgnoreCase))
+                                        {
+                                            fieldName = baseName + Extensions.GetColumnName(member);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (string.IsNullOrEmpty(fieldName))
+                            fieldName = Extensions.GetColumnName(member);
+                    }
                 }
                 else
                 {

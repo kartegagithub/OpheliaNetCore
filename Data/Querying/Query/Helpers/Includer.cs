@@ -353,7 +353,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             p.SetValue(referencedEntity, p.PropertyType.ConvertData(row[fieldName]));
                     }
                 }
-                if (referencedEntity != null)
+                if (referencedEntity != null && this.PropertyInfo.DeclaringType == entity.GetType())
                 {
                     var pkProp = Extensions.GetPrimaryKeyProperty(referencedEntity.GetType());
                     if (Convert.ToInt64(pkProp.GetValue(referencedEntity)) > 0)
