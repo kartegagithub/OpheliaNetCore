@@ -272,10 +272,9 @@ namespace Ophelia.Data.Querying.Query
                 return true;
             else if (selector.Members != null && selector.Members.Any())
             {
-                foreach (var item in selector.Members)
+                foreach (PropertyInfo item in selector.Members)
                 {
-                    if (item as PropertyInfo == includer.PropertyInfo)
-                        return true;
+                    if (item == includer.PropertyInfo || item.DeclaringType == includer.PropertyInfo.PropertyType) return true;
                 }
             }
             return false;

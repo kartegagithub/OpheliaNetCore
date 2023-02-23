@@ -252,7 +252,27 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 else
                     this.Table = table.AddJoin(new Table(query, this.EntityType, joinType, table.Joins.Count + query.GetTableJoinIndex()) { JoinOn = query.Context.Connection.GetMappedFieldName(Extensions.GetForeignKeyName(this.PropertyInfo)), JoinedTable = table }, table.Joins, query.Data.MainTable.Joins);
                 this.Tables.Add(this.Table);
-                sb.Append(query.Context.Connection.GetAllSelectFields(this.Table, true, this.BuildAsXML));
+
+                var selectedMembers = new List<PropertyInfo>();
+                foreach (var selector in query.Data.Selectors)
+                {
+                    foreach (PropertyInfo member in selector.Members)
+                    {
+                        if (member.DeclaringType == this.PropertyInfo.PropertyType)
+                            selectedMembers.Add(member);
+                    }
+                }
+                if (!selectedMembers.Any())
+                    sb.Append(query.Context.Connection.GetAllSelectFields(this.Table, true, this.BuildAsXML));
+                else
+                {
+                    foreach (var member in selectedMembers)
+                    {
+                        sb.Append(query.Context.Connection.GetFieldSelectString(this.Table, member, true, this.BuildAsXML));
+                        if (member != selectedMembers.LastOrDefault())
+                            sb.Append(",");
+                    }
+                }
                 if (this.SubIncluders.Count > 0)
                 {
                     foreach (var item in this.SubIncluders)
@@ -333,7 +353,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             p.SetValue(referencedEntity, p.PropertyType.ConvertData(row[fieldName]));
                     }
                 }
-                if (referencedEntity != null)
+                if (referencedEntity != null && this.PropertyInfo.DeclaringType == entity.GetType())
                 {
                     var pkProp = Extensions.GetPrimaryKeyProperty(referencedEntity.GetType());
                     if (Convert.ToInt64(pkProp.GetValue(referencedEntity)) > 0)
