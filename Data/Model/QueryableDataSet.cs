@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Drawing;
 using Microsoft.EntityFrameworkCore;
+using Ophelia.Data.Model.Interceptors;
 using Ophelia.Data.Querying.Query;
 using System;
 using System.Collections;
@@ -177,7 +178,11 @@ namespace Ophelia.Data.Model
                         }
                         else
                         {
-                            var entity = Activator.CreateInstance(type);
+                            var proxyGenerator = new Castle.DynamicProxy.ProxyGenerator();
+                            var propertyChangeInterceptor = new PropertyChangedInterceptor();
+                            var entity = proxyGenerator.CreateClassProxy(type,new Type[] { typeof(ITrackedEntity) }, propertyChangeInterceptor, new TrackedEntityInterceptor());
+
+                            //var entity = Activator.CreateInstance(type);
                             if (entity.GetType().IsDataEntity())
                             {
                                 (entity as Model.DataEntity).Tracker.State = EntityState.Loading;
@@ -217,6 +222,7 @@ namespace Ophelia.Data.Model
                                 (entity as Model.DataEntity).Tracker.State = EntityState.Loaded;
                             }
                             this._list.Add(entity);
+                            propertyChangeInterceptor.TrackChanges = true;
                             query.Context.OnAfterEntityLoaded(entity);
                         }
 
