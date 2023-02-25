@@ -401,8 +401,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return control.Render();
         }
 
-        public static IHtmlContent EnumSelectboxFieldFor<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class { return container.EnumSelectboxFieldFor("", expression, enumType, isRequired, htmlAttributes, DefaultText, DefaultValue); }
-        public static IHtmlContent EnumSelectboxFieldFor<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class
+        public static IHtmlContent EnumSelectboxFieldFor<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "", bool IsMultiple = false) where T : class { return container.EnumSelectboxFieldFor("", expression, enumType, isRequired, htmlAttributes, DefaultText, DefaultValue, IsMultiple); }
+        public static IHtmlContent EnumSelectboxFieldFor<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "", bool IsMultiple = false) where T : class
         {
             var control = new Fields.SelectboxField<T>(container);
             control.Expression = expression;
@@ -412,6 +412,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.DataControl.DefaultValue = DefaultValue;
             control.DataControl.DisplayMemberName = "Text";
             control.DataControl.ValueMemberName = "Value";
+            control.DataControl.IsMultiple = IsMultiple;
             control.IsRequired = isRequired;
             control.HtmlAttributes = htmlAttributes;
             container.AddField(control);
