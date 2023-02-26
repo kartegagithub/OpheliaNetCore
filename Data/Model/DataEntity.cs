@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Ophelia.Data.Attributes;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Ophelia.Data.Model
 {
     [Serializable]
@@ -8,9 +11,9 @@ namespace Ophelia.Data.Model
     {
         private DataEntityTracker _Tracker;
 
-        [System.Xml.Serialization.XmlIgnoreAttribute]
+        [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore]
-        internal DataEntityTracker Tracker
+        public DataEntityTracker Tracker
         {
             get
             {
@@ -20,6 +23,8 @@ namespace Ophelia.Data.Model
             }
         }
 
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long ID { get { return this.GetValue(op => op.ID); } set { this.SetValue(op => op.ID, value); } }
 
         [DataProperty(255)]

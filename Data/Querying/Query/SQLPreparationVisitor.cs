@@ -257,7 +257,6 @@ namespace Ophelia.Data.Querying.Query
                 };
             return expression;
         }
-
         public virtual Expression VisitIn(Expressions.InExpression expression)
         {
             if (this.Data.Filter == null)

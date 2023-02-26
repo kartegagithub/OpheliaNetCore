@@ -9,7 +9,7 @@ namespace Ophelia.Data.Querying
     public class DataDesigner : IDisposable
     {
         private Query.BaseQuery Query { get; set; }
-        private DataContext Context { get; set; }
+        internal DataContext Context { get; set; }
         private List<string> SQLList;
         public bool Check(Query.QueryBuilder query, Exception ex)
         {
@@ -195,18 +195,29 @@ namespace Ophelia.Data.Querying
             this.CreateSequence(type);
             this.CreateFields(type);
         }
-        private void CreateSequence(Type type)
+        internal void CreateSequence(Type type, string suffix = "", bool addToSqlList = true)
         {
-            var seqName = this.Context.Connection.GetSequenceName(type);
+            var seqName = this.Context.Connection.GetSequenceName(type, suffix);
+            this.CreateSequence(seqName, addToSqlList);
+        }
+        internal string CreateSequence(string seqName, bool addToSqlList = true)
+        {
             switch (this.Context.Connection.Type)
             {
                 case DatabaseType.PostgreSQL:
-                    this.AddSQL("CREATE SEQUENCE " + seqName + " START 1");
+                    if (addToSqlList)
+                        this.AddSQL("CREATE SEQUENCE " + seqName + " START 1");
+                    else
+                        return "CREATE SEQUENCE " + seqName + " START 1";
                     break;
                 case DatabaseType.Oracle:
-                    this.AddSQL("CREATE SEQUENCE " + seqName + " START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE");
+                    if (addToSqlList)
+                        this.AddSQL("CREATE SEQUENCE " + seqName + " START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE");
+                    else
+                        return "CREATE SEQUENCE " + seqName + " START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE";
                     break;
             }
+            return "";
         }
         private void CreateFields(Type type)
         {

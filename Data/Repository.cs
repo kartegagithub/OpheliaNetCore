@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ophelia.Data.Model;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -6,72 +7,62 @@ namespace Ophelia.Data
 {
     public class Repository : IDisposable
     {
-        private DataContext oContext;
+        public DataContext Context { get; private set; }
 
-        public DataContext Context
+        public bool Delete(object entity)
         {
-            get
-            {
-                return this.oContext;
-            }
+            return this.Context.CreateDeleteQuery(entity).Execute<int>() > 0;
         }
 
-        public bool Delete(Model.DataEntity entity)
+        public bool SaveChanges(object entity)
         {
-            if (entity.ID > 0)
+            var tracker = (entity.GetPropertyValue("Tracker") as PocoEntityTracker);
+            if (tracker != null && (tracker.HasChanged || tracker.IsNewRecord()))
             {
                 int effectedRowCount = 0;
-                effectedRowCount = this.Context.CreateDeleteQuery(entity).Execute<int>();
-                return effectedRowCount > 0;
-            }
-            return false;
-        }
-
-        public bool SaveChanges(Model.DataEntity entity)
-        {
-            if (entity.ID == 0 || entity.Tracker.HasChanged)
-            {
-                int effectedRowCount = 0;
-                if (entity.ID > 0)
+                if (!tracker.IsNewRecord())
                 {
-                    entity.Tracker.OnBeforeUpdateEntity();
-                    entity.DateModified = DateTime.Now;
+                    tracker?.OnBeforeUpdateEntity();
                     effectedRowCount = this.Context.CreateUpdateQuery(entity).Execute<int>();
-                    entity.Tracker.OnAfterUpdateEntity();
+                    tracker?.OnAfterUpdateEntity();
                 }
                 else
                 {
-                    entity.Tracker.OnBeforeInsertEntity();
-                    entity.DateModified = DateTime.Now;
-                    entity.DateCreated = DateTime.Now;
+                    tracker?.OnBeforeInsertEntity();
 
                     effectedRowCount = this.Context.CreateInsertQuery(entity).Execute<int>();
-                    if (entity.ID == 0 && (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer))
-                        entity.ID = effectedRowCount;
-                    entity.Tracker.OnAfterCreateEntity();
+                    if (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer)
+                    {
+                        var pkMethod = Extensions.GetPrimaryKeyProperty(entity.GetType());
+                        pkMethod.SetValue(entity, effectedRowCount);
+                    }
+                    tracker?.OnAfterCreateEntity();
                 }
 
                 var entityType = entity.GetType();
-                var properties = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => op.PropertyType.IsDataEntity()).ToList();
+                var properties = entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => op.PropertyType.IsPOCOEntity()).ToList();
                 if (properties.Count > 0)
                 {
                     foreach (var _prop in properties)
                     {
-                        var referenced = (Model.DataEntity)_prop.GetValue(entity);
+                        var referenced = _prop.GetValue(entity);
                         if (referenced != null)
                         {
-                            if (referenced.ID == 0 || referenced.Tracker.HasChanged)
+                            var innerTracker = (referenced.GetPropertyValue("Tracker") as PocoEntityTracker);
+                            if (innerTracker != null && (innerTracker.HasChanged || innerTracker.IsNewRecord()))
                             {
                                 this.SaveChanges(referenced);
 
-                                var refMethod = entityType.GetProperty(_prop.Name + "ID");
-                                if (refMethod != null && (long)refMethod.GetValue(entity) != referenced.ID)
+                                // Example: Entity (Student) has School prop. When saving new Student, School is saved/created and then SchoolID is set to Student.
+                                var refMethod = Extensions.GetForeignKeyProp(_prop).Item1;
+                                var pkMethod = Extensions.GetPrimaryKeyProperty(referenced.GetType());
+                                if (refMethod != null && refMethod.GetValue(entity) != pkMethod.GetValue(referenced))
                                 {
-                                    refMethod.SetValue(entity, referenced.ID);
+                                    refMethod.SetValue(entity, pkMethod.GetValue(referenced));
 
-                                    entity.Tracker.OnBeforeUpdateEntity();
+                                    tracker?.OnBeforeUpdateEntity();
                                     this.Context.CreateUpdateQuery(entity).Execute<int>();
-                                    entity.Tracker.OnAfterUpdateEntity();
+                                    tracker?.OnAfterUpdateEntity();
                                 }
                             }
                         }
@@ -97,24 +88,16 @@ namespace Ophelia.Data
                             {
                                 foreach (var referenced in referencedCollection)
                                 {
-                                    var oEntity = referenced as Model.DataEntity;
-                                    if (oEntity != null)
+                                    var innerTracker = (referenced.GetPropertyValue("Tracker") as PocoEntityTracker);
+                                    if (innerTracker != null && (innerTracker.HasChanged || innerTracker.IsNewRecord()))
                                     {
-                                        if (oEntity.ID == 0 || oEntity.Tracker.HasChanged)
+                                        var refMethod = Extensions.GetForeignKeyProp(referenced.GetType(), entityType.Name);
+                                        if (refMethod.Item2)
                                         {
-                                            var refMethods = referenced.GetType().GetProperties().Where(op => op.Name == entityType.Name + "ID").ToList();
-                                            if (refMethods.Count > 0)
-                                            {
-                                                if (refMethods.Count > 1)
-                                                {
-                                                    //Burada aynı tipte iki özellik varsa olacak karışıklık giderilecek.
-                                                    //Örneğin: ProjectProgress üzerinde NodeID ve ResponsibleNodeID gibi dönüş tipleri aynı olanlar.
-                                                }
-                                                var refMethod = refMethods.FirstOrDefault();
-                                                refMethod.SetValue(referenced, entity.ID);
-                                            }
-                                            this.SaveChanges(oEntity);
+                                            var pkMethod = Extensions.GetPrimaryKeyProperty(entity.GetType());
+                                            refMethod.Item1.SetValue(referenced, pkMethod.GetValue(entity));
                                         }
+                                        this.SaveChanges(referenced);
                                     }
                                 }
                             }
@@ -125,10 +108,13 @@ namespace Ophelia.Data
             }
             return false;
         }
-
-        public Repository(DataContext Context)
+        public object Track(object entity)
         {
-            this.oContext = Context;
+            return Model.Proxy.InternalProxyGenerator.CreateWithTarget(entity.GetType(), entity);
+        }
+        public Repository(DataContext context)
+        {
+            this.Context = context;
         }
 
         public virtual void Dispose()

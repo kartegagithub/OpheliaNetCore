@@ -5,9 +5,9 @@ namespace Ophelia.Data.Querying.Query
 {
     public class DeleteQuery : BaseQuery
     {
-        private Model.DataEntity Entity;
+        private object Entity;
 
-        public DeleteQuery(DataContext Context, Model.DataEntity Entity) : base(Context, Entity.GetType())
+        public DeleteQuery(DataContext Context, object Entity) : base(Context, Entity.GetType())
         {
             this.Entity = Entity;
         }
@@ -28,9 +28,7 @@ namespace Ophelia.Data.Querying.Query
             if (this.Entity != null)
             {
                 sb.Append(" WHERE ");
-                sb.Append(this.Context.Connection.GetPrimaryKeyName(this.Data.EntityType));
-                sb.Append(" = " + this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
-                this.Data.Parameters.Add(this.Entity.ID);
+                sb.Append(this.BuildPKWhere(this.Entity));
             }
             else
             {

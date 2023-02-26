@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Ophelia.Data.Model
 {
     [Serializable]
-    internal class DataValue : IDisposable
+    public class DataValue : IDisposable
     {
         private object _Value;
         public PropertyInfo PropertyInfo { get; set; }
@@ -16,8 +16,7 @@ namespace Ophelia.Data.Model
             }
             set
             {
-                if (this._Value != value)
-                    this.HasChanged = true;
+                this.HasChanged = (value == null && this._Value != null) || (value != null && this._Value == null) || (this._Value != null && !this._Value.Equals(value));
                 this._Value = value;
             }
         }

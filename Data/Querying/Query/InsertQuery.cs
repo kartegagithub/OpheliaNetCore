@@ -1,4 +1,8 @@
-﻿using Ophelia.Data;
+﻿using AngleSharp.Dom;
+using Google.Protobuf.WellKnownTypes;
+using Ophelia.Data;
+using Ophelia.Data.Model;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -7,15 +11,22 @@ namespace Ophelia.Data.Querying.Query
 {
     public class InsertQuery : BaseQuery
     {
-        private Model.DataEntity Entity;
-        private long SequenceValue = 0;
+        private object Entity;
+        private Dictionary<string, object> SequenceValue = new Dictionary<string, object>();
         protected override void OnAfterExecute()
         {
             base.OnAfterExecute();
-            if (this.SequenceValue > 0)
-                this.Entity.ID = this.SequenceValue;
+            if (this.SequenceValue.Any())
+            {
+                var pks = Extensions.GetPrimaryKeyProperties(this.Data.EntityType);
+                foreach (var pk in pks)
+                {
+                    if (this.SequenceValue.ContainsKey(pk.Name))
+                        pk.SetValue(this.Entity, this.SequenceValue[pk.Name]);
+                }
+            }
         }
-        public InsertQuery(DataContext Context, Model.DataEntity Entity) : base(Context, Entity.GetType())
+        public InsertQuery(DataContext Context, object Entity) : base(Context, Entity.GetType())
         {
             this.Entity = Entity;
         }
@@ -29,7 +40,7 @@ namespace Ophelia.Data.Querying.Query
         {
             var relationClassProperty = this.Data.EntityType.GetCustomAttributes(typeof(Attributes.RelationClass)).FirstOrDefault() as Attributes.RelationClass;
 
-            var changedProperties = this.Entity.Tracker.GetChanges();
+            var changedProperties = (this.Entity.GetPropertyValue("Tracker") as PocoEntityTracker)?.GetChanges();
             if (changedProperties != null && changedProperties.Count > 0)
             {
                 var sb = new StringBuilder();
@@ -61,12 +72,26 @@ namespace Ophelia.Data.Querying.Query
                 }
                 if (this.Context.Connection.Type != DatabaseType.SQLServer && this.Context.Connection.Type != DatabaseType.MySQL)
                 {
-                    sbFields.Append(",");
-                    sbFields.Append(this.Context.Connection.GetPrimaryKeyName(this.Entity.GetType()));
-                    sbValues.Append(",");
-                    sbValues.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
-                    this.SequenceValue = this.Context.Connection.GetSequenceNextVal(this.Entity.GetType());
-                    this.Data.Parameters.Add(this.SequenceValue);
+                    var pks = Extensions.GetPrimaryKeyProperties(this.Data.EntityType);
+                    foreach (var pk in pks)
+                    {
+                        if (!Extensions.IsComputedProperty(pk))
+                        {
+                            sbFields.Append(",");
+                            sbFields.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(pk.Name)));
+                            sbValues.Append(",");
+                            sbValues.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
+                            if (Extensions.IsIdentityProperty(pk))
+                            {
+                                this.SequenceValue[pk.Name] = this.Context.Connection.GetSequenceNextVal(this.Entity.GetType(), pk, pks.Count == 1);
+                                this.Data.Parameters.Add(this.SequenceValue);
+                            }
+                            else
+                            {
+                                this.Data.Parameters.Add(pk.GetValue(this.Entity));
+                            }
+                        }
+                    }
                 }
 
                 sb.Append("INSERT INTO ");

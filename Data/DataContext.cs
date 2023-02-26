@@ -42,7 +42,7 @@ namespace Ophelia.Data
         }
         public DataConfiguration Configuration { get; set; }
 
-        public Repository<T> GetRepository<T>() where T : Model.DataEntity
+        public Repository<T> GetRepository<T>() where T : class
         {
             return new Repository<T>(this);
         }
@@ -80,7 +80,7 @@ namespace Ophelia.Data
         {
             return new QueryLogger();
         }
-        internal DeleteQuery CreateDeleteQuery(Model.DataEntity data)
+        internal DeleteQuery CreateDeleteQuery(object data)
         {
             return new DeleteQuery(this, data);
         }
@@ -94,12 +94,12 @@ namespace Ophelia.Data
             return new InsertQuery(this, data, expression);
         }
 
-        internal InsertQuery CreateInsertQuery(Model.DataEntity data)
+        internal InsertQuery CreateInsertQuery(object data)
         {
             return new InsertQuery(this, data);
         }
 
-        internal UpdateQuery CreateUpdateQuery(Model.DataEntity data)
+        internal UpdateQuery CreateUpdateQuery(object data)
         {
             return new UpdateQuery(this, data);
         }
@@ -255,7 +255,6 @@ namespace Ophelia.Data
             else
                 return Activator.CreateInstance(Type);
         }
-
         public QueryBuilder CreateSQLBuilder()
         {
             return QueryBuilder.Init(this);
