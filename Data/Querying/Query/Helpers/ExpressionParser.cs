@@ -131,9 +131,13 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public ExpressionParser(NewExpression expression)
         {
             this.Members = new List<MemberInfo>();
-            foreach (var item in expression.Members)
+            this.BindingMembers = new Dictionary<MemberInfo, Expression>();
+            var counter = 0;
+            foreach (var exp in expression.Arguments)
             {
-                this.Members.Add(item);
+                this.Members.Add((exp as MemberExpression).Member);
+                this.BindingMembers.Add(expression.Members[counter], exp);
+                counter++;
             }
         }
         public ExpressionParser(Expressions.InExpression expression)
@@ -707,6 +711,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     grouper.Name += "ID";
             }
             grouper.Members = this.Members;
+            grouper.BindingMembers = this.BindingMembers;
             if (this.SubExpression != null)
                 grouper.SubGrouper = this.SubExpression.ToGrouper();
             return grouper;

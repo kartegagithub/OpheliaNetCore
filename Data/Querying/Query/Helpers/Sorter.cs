@@ -29,6 +29,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     return this.SubSorter.Build(query);
                 return "";
             }
+            if (query.Data.Groupers.Any())
+                this.Name = this.Name.Replace("Key.", "");
+
+            //TODO: GroupBy(op => new { PName = op.Product.Name }).OrderBy(op => op.Key.PName) is not working
             if (this.Name.IndexOf(".") > -1)
             {
                 var props = this.Name.Split('.');

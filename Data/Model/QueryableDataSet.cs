@@ -304,20 +304,21 @@ namespace Ophelia.Data.Model
                                 }
                                 else
                                 {
-                                    var members = item.Members;
+                                    var members = item.BindingMembers;
                                     if (members == null && item.SubGrouper != null)
-                                        members = item.SubGrouper.Members;
+                                        members = item.SubGrouper.BindingMembers;
                                     if (members != null && members.Count > 0)
                                     {
                                         var parameters = new List<object>();
                                         foreach (var member in members)
                                         {
-                                            var fieldName = query.Context.Connection.GetMappedFieldName(member.Name);
-                                            Type memberType = member.GetMemberInfoType();
+                                            var fieldName = query.Context.Connection.GetMappedFieldName(member.Key.Name);
+                                            Type memberType = member.Key.GetMemberInfoType();
                                             object value = memberType.ConvertData(row[fieldName]);
-                                            queryable = queryable.Where(member, value);
+                                            queryable = queryable.Where(Expression.Equal(member.Value, Expression.Constant(value)));
                                             parameters.Add(value);
                                         }
+                                        queryable.ExtendData(clonedData);
                                         var oGrouping = Activator.CreateInstance(groupingType, Activator.CreateInstance(this.ElementType.GenericTypeArguments[0], parameters.ToArray()), queryable, count);
                                         this._list.Add(oGrouping);
                                     }

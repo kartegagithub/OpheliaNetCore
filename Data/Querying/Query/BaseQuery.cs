@@ -189,7 +189,7 @@ namespace Ophelia.Data.Querying.Query
                 var sb = new StringBuilder();
                 foreach (var grouper in this.Data.Groupers)
                 {
-                    sb.Append(grouper.Build(this));
+                    sb.Append(grouper.Build(this, true));
                     sb.Append(",");
                 }
                 sb.Append("COUNT(1) As " + this.Context.Connection.FormatDataElement("Counted"));
