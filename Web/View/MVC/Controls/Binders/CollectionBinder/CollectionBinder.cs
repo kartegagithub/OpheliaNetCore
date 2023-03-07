@@ -813,7 +813,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                     else
                     {
-                        if (defaultValue.ToInt64() != value.ToInt64())
+                        if (defaultValue.ToString().ToInt64() != value.ToString().ToInt64())
                             return true;
                     }
                 }
