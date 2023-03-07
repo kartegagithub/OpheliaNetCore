@@ -11,6 +11,8 @@ namespace Ophelia.Service
     [DataContract(IsReference = true)]
     public class ServiceResult : IDisposable
     {
+        public static bool KeepRawException { get; set; } = false;
+
         [DataMember]
         [OpenApiIgnore]
         [JsonSchemaIgnore]
@@ -127,7 +129,19 @@ namespace Ophelia.Service
         }
         public void Fail(Exception ex, string code = "E1")
         {
-            this.Messages.Add(new ServiceResultMessage() { Code = code, Description = "SystemFailureSeeLogsForDetail", IsError = true });
+            if (KeepRawException)
+            {
+                var tmpEx = ex;
+                while (tmpEx != null)
+                {
+                    this.Messages.Add(new ServiceResultMessage() { Code = code, Description = ex.ToString(), IsError = true });
+                    tmpEx = tmpEx.InnerException;
+                }
+            }
+            else
+            {
+                this.Messages.Add(new ServiceResultMessage() { Code = code, Description = "SystemFailureSeeLogsForDetail", IsError = true });
+            }
             this.Fail();
             try
             {
