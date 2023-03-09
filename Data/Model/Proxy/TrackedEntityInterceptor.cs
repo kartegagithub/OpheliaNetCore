@@ -8,7 +8,7 @@ namespace Ophelia.Data.Model.Proxy
 {
     internal class TrackedEntityInterceptor : IInterceptor
     {
-        private object Source;
+        internal object Source { get; set; }
         public TrackedEntityInterceptor(object source)
         {
             this.Source = source;
@@ -16,14 +16,21 @@ namespace Ophelia.Data.Model.Proxy
         private PocoEntityTracker Tracker { get; set; }
         public void Intercept(Castle.DynamicProxy.IInvocation invocation)
         {
-            if (invocation.Method.Name == "get_Tracker")
+            try
             {
-                if (this.Tracker == null)
-                    this.Tracker = new PocoEntityTracker(this.Source, invocation.Proxy);
-                invocation.ReturnValue = this.Tracker;
+                if (invocation.Method.Name == "get_Tracker")
+                {
+                    if (this.Tracker == null)
+                        this.Tracker = new PocoEntityTracker(this.Source, invocation.Proxy);
+                    invocation.ReturnValue = this.Tracker;
+                }
+                else
+                    invocation.Proceed();
             }
-            else
-                invocation.Proceed();
+            catch (Exception)
+            {
+
+            }
         }
     }
 }

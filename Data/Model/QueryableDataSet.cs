@@ -214,7 +214,7 @@ namespace Ophelia.Data.Model
 
                             if (this.TrackChanges && !isDataEntity)
                             {
-                                var proxyEntity = Proxy.InternalProxyGenerator.CreateWithTarget(type, entity);
+                                var proxyEntity = Proxy.InternalProxyGenerator.Create(type, entity);
                                 this._list.Add(proxyEntity);
                                 query.Context.OnAfterEntityLoaded(proxyEntity);
                             }

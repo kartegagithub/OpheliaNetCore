@@ -11,6 +11,6 @@ namespace Ophelia.Data.Model.Proxy
     {
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore]
-        PocoEntityTracker Tracker { get; }
+        PocoEntityTracker Tracker { get; set; }
     }
 }

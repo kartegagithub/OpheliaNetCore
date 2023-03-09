@@ -108,10 +108,14 @@ namespace Ophelia.Data.Querying
 
                     if (data.Count > 0)
                     {
+                        object entity = null;
                         if (expression.Method.Name == "First" || expression.Method.Name == "FirstOrDefault")
-                            return (TResult)Convert.ChangeType(data.GetItem(0), typeof(TResult));
+                            entity = data.GetItem(0);
                         else
-                            return (TResult)Convert.ChangeType(data.GetItem(data.Count - 1), typeof(TResult));
+                            entity = data.GetItem(data.Count - 1);
+                        if (entity.GetType().IsSubclassOf(typeof(TResult)))
+                            return (TResult)entity;
+                        return (TResult)Convert.ChangeType(entity, typeof(TResult));
                     }
                     return default(TResult);
             }

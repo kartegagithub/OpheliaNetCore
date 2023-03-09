@@ -110,7 +110,7 @@ namespace Ophelia.Data
         }
         public object Track(object entity)
         {
-            return Model.Proxy.InternalProxyGenerator.CreateWithTarget(entity.GetType(), entity);
+            return Model.Proxy.InternalProxyGenerator.Create(entity.GetType(), entity);
         }
         public Repository(DataContext context)
         {

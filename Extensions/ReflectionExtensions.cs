@@ -14,8 +14,8 @@ namespace Ophelia
             if (obj1 == null || obj2 == null)
                 return obj2;
 
-            var type1 = typeof(T1);
-            var type2 = typeof(T2);
+            var type1 = obj1.GetType();
+            var type2 = obj2.GetType();
             new Reflection.ObjectIterator()
             {
                 IterationCallback = (obj) =>
