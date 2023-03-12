@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Core\Ophelia\Ophelia.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+	  <PackageReference Include="Microsoft.EntityFrameworkCore">
+	    <Version>7.0.3</Version>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational">
+	    <Version>7.0.3</Version>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+	  <PackageReference Include="Microsoft.EntityFrameworkCore">
+	    <Version>7.0.3</Version>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational">
+	    <Version>7.0.3</Version>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore">
+			<Version>5.0.17</Version>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational">
+			<Version>5.0.17</Version>
+		</PackageReference>
+	</ItemGroup>
+</Project>

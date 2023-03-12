@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.1</TargetFrameworks>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Kartega</Authors>
+		<Company>Kartega Yazilim ve Danismanlik A.S.</Company>
+		<Description>Ophelia Framework</Description>
+		<Copyright>© Kartega Yazilim ve Danismanlik A.S. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://www.kartega.com</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/kartegagithub/OpheliaNetCore</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackAsTool>False</PackAsTool>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<AnalysisLevel>latest-recommended</AnalysisLevel>
+		<Version>7.0.0.0</Version>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+		<WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+		<WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
+		<WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+		<WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Castle.Core" Version="5.1.1" />
+		<PackageReference Include="HtmlSanitizer" Version="8.0.645" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+		<PackageReference Include="NJsonSchema" Version="10.8.0" />
+		<PackageReference Include="NSwag.Annotations" Version="13.18.2" />
+		<PackageReference Include="NSwag.Core" Version="13.18.2" />
+		<PackageReference Include="Pluralize.NET" Version="1.0.2" />
+		<PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+		<PackageReference Include="System.Net.Http.Json" Version="7.0.0" />
+		<PackageReference Include="System.ServiceModel.Primitives" Version="4.10.0" />
+	</ItemGroup>
+</Project>
