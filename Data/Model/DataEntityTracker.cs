@@ -6,11 +6,10 @@ using System.Reflection;
 namespace Ophelia.Data.Model
 {
     [Serializable]
-    internal class DataEntityTracker : IDisposable
+    public class DataEntityTracker : PocoEntityTracker, IDisposable
     {
-        private DataEntity Entity;
+        public new DataEntity Entity { get; set; }
         internal bool LoadAnyway { get; set; }
-        internal bool HasChanged { get; set; }
         internal EntityState State { get; set; }
         internal Dictionary<string, DataValue> Properties { get; set; }
 
@@ -205,36 +204,16 @@ namespace Ophelia.Data.Model
             }
         }
 
-        internal void OnAfterCreateEntity()
+        public override List<DataValue> GetChanges()
         {
-
-        }
-        internal void OnBeforeUpdateEntity()
-        {
-
-        }
-        internal void OnBeforeInsertEntity()
-        {
-
-        }
-        internal void OnAfterUpdateEntity()
-        {
-
-        }
-
-        internal void OnAfterDeleteEntity()
-        {
-
-        }
-        internal List<DataValue> GetChanges()
-        {
-            if (this.Entity.ID > 0)
-                return this.Properties.Where(op => op.Value.HasChanged && op.Value.PropertyInfo.Name != "ID").Select(op => op.Value).ToList();
+            if (!this.IsNewRecord())
+                this.Changes = this.Properties.Where(op => op.Value.HasChanged && !Extensions.IsIdentityProperty(op.Value.PropertyInfo)).Select(op => op.Value).ToList();
             else
-                return this.Properties.Where(op => op.Value.PropertyInfo.Name != "ID").Select(op => op.Value).ToList();
+                this.Changes = this.Properties.Where(op => !Extensions.IsIdentityProperty(op.Value.PropertyInfo)).Select(op => op.Value).ToList();
+            return this.Changes;
         }
 
-        public DataEntityTracker(DataEntity entity)
+        public DataEntityTracker(DataEntity entity) : base(entity, null)
         {
             this.Entity = entity;
             this.Properties = new Dictionary<string, DataValue>();
@@ -245,6 +224,17 @@ namespace Ophelia.Data.Model
             GC.SuppressFinalize(this);
         }
 
+        internal override void OnBeforeInsertEntity()
+        {
+            base.OnBeforeInsertEntity();
+            this.Entity.DateCreated = DateTime.Now;
+            this.Entity.DateModified = DateTime.Now;
+        }
+        internal override void OnBeforeUpdateEntity()
+        {
+            base.OnBeforeUpdateEntity();
+            this.Entity.DateModified = DateTime.Now;
+        }
         protected virtual void Dispose(bool disposing)
         {
             this.Entity = null;

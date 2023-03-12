@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Drawing;
 using Microsoft.EntityFrameworkCore;
+using Ophelia.Data.Model.Proxy;
 using Ophelia.Data.Querying.Query;
 using System;
 using System.Collections;
@@ -24,6 +25,7 @@ namespace Ophelia.Data.Model
         protected IList _list;
         internal QueryData ExtendedData { get; set; }
         internal bool HasChanged { get; set; }
+        public bool TrackChanges { get; set; } = false;
         internal bool DistinctEnabled { get; set; }
         public IList GroupedData { get; set; }
 
@@ -154,17 +156,12 @@ namespace Ophelia.Data.Model
 
                         Type type = null;
                         if (query.Data.Selectors == null || query.Data.Selectors.Count == 0)
-                        {
                             type = this.InnerType != null ? this.InnerType : this.ElementType;
-                        }
                         else
-                        {
                             type = this.ElementType;
-                        }
+
                         if (type.IsPrimitiveType())
-                        {
                             this._list.Add(this.ElementType.ConvertData(row[0]));
-                        }
                         else if (type.IsAnonymousType())
                         {
                             var parameters = new List<object>();
@@ -177,11 +174,11 @@ namespace Ophelia.Data.Model
                         }
                         else
                         {
-                            var entity = Activator.CreateInstance(type);
-                            if (entity.GetType().IsDataEntity())
-                            {
-                                (entity as Model.DataEntity).Tracker.State = EntityState.Loading;
-                            }
+                            object entity = Activator.CreateInstance(type);
+                            var isDataEntity = entity.GetType().IsDataEntity();
+                            if (isDataEntity)
+                                (entity as DataEntity).Tracker.State = EntityState.Loading;
+
                             if (query.Data.Selectors == null || !query.Data.Selectors.Any())
                             {
                                 var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
@@ -212,12 +209,20 @@ namespace Ophelia.Data.Model
                                     selector.SetData(query, entity, type, row);
                                 }
                             }
-                            if (entity.GetType().IsDataEntity())
+                            if (isDataEntity)
+                                (entity as DataEntity).Tracker.State = EntityState.Loaded;
+
+                            if (this.TrackChanges && !isDataEntity)
                             {
-                                (entity as Model.DataEntity).Tracker.State = EntityState.Loaded;
+                                var proxyEntity = Proxy.InternalProxyGenerator.Create(type, entity);
+                                this._list.Add(proxyEntity);
+                                query.Context.OnAfterEntityLoaded(proxyEntity);
                             }
-                            this._list.Add(entity);
-                            query.Context.OnAfterEntityLoaded(entity);
+                            else
+                            {
+                                this._list.Add(entity);
+                                query.Context.OnAfterEntityLoaded(entity);
+                            }
                         }
 
                         var duration = DateTime.Now.Subtract(entLoadLoad).TotalMilliseconds;

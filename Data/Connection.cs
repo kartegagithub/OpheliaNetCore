@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ophelia.Data.Querying;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -149,7 +150,7 @@ namespace Ophelia.Data
                 case DatabaseType.PostgreSQL:
                     this.internalConnection = new Npgsql.NpgsqlConnection(ConnectionString);
                     break;
-                case DatabaseType.Oracle:                    
+                case DatabaseType.Oracle:
                     //this.internalConnection = new Oracle.ManagedDataAccess.Client.OracleConnection(ConnectionString);
                     this.Context.Configuration.UseNamespaceAsSchema = false;
                     this.Context.Configuration.UseUppercaseObjectNames = true;
@@ -473,9 +474,46 @@ namespace Ophelia.Data
             }
             return 0;
         }
-        public string GetSequenceName(Type type)
+
+        public long GetSequenceNextVal(Type type, PropertyInfo prop, bool singleAtTable = true)
         {
-            var tableName = this.GetTableName(type, false);
+            if (singleAtTable)
+                return this.GetSequenceNextVal(type);
+
+            var seqName = this.GetSequenceName(type, prop.Name);
+            try
+            {
+                switch (this.Type)
+                {
+                    case DatabaseType.PostgreSQL:
+                        return Convert.ToInt64(this.ExecuteScalar("SELECT nextval('" + seqName + "')"));
+                    case DatabaseType.Oracle:
+                        return Convert.ToInt64(this.ExecuteScalar("SELECT " + seqName + ".nextval FROM DUAL"));
+                }
+            }
+            catch (Exception)
+            {
+                var designer = new DataDesigner();
+                designer.Context = this.Context;
+                var sql = designer.CreateSequence(seqName, false);
+                if (!string.IsNullOrEmpty(sql))
+                {
+                    this.ExecuteNonQuery(sql);
+
+                    switch (this.Type)
+                    {
+                        case DatabaseType.PostgreSQL:
+                            return Convert.ToInt64(this.ExecuteScalar("SELECT nextval('" + seqName + "')"));
+                        case DatabaseType.Oracle:
+                            return Convert.ToInt64(this.ExecuteScalar("SELECT " + seqName + ".nextval FROM DUAL"));
+                    }
+                }
+            }
+            return 0;
+        }
+        public string GetSequenceName(Type type, string suffix = "")
+        {
+            var tableName = $"{this.GetTableName(type, false)}_{suffix}";
             if (this.Context.Connection.Type == DatabaseType.Oracle)
             {
                 if (tableName.Length > 28)

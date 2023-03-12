@@ -309,5 +309,20 @@ namespace Ophelia.Data.Querying.Query
             }
             return "Count(1)";
         }
+
+        protected string BuildPKWhere(object entity)
+        {
+            var pks = Extensions.GetPrimaryKeyProperties(this.Data.EntityType);
+            var sb = new StringBuilder();
+            foreach (var pkPRoperty in pks)
+            {
+                sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(pkPRoperty))));
+                sb.Append(" = " + this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
+                this.Data.Parameters.Add(pkPRoperty.GetValue(entity));
+                if (pkPRoperty != pks.LastOrDefault())
+                    sb.Append(" AND ");
+            }
+            return sb.ToString();
+        }
     }
 }

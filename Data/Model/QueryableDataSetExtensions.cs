@@ -59,6 +59,26 @@ namespace Ophelia.Data
                     new Expression[] { source.Expression, new Expressions.WhereExpression(predicate) }
                     ), source.ElementType);
         }
+        public static QueryableDataSet AsNoTracking(this QueryableDataSet source)
+        {
+            source.TrackChanges = false;
+            return source;
+        }
+        public static QueryableDataSet AsTracking(this QueryableDataSet source)
+        {
+            source.TrackChanges = true;
+            return source;
+        }
+        public static QueryableDataSet<TSource> AsNoTracking<TSource>(this QueryableDataSet<TSource> source)
+        {
+            source.TrackChanges = false;
+            return source;
+        }
+        public static QueryableDataSet<TSource> AsTracking<TSource>(this QueryableDataSet<TSource> source)
+        {
+            source.TrackChanges = true;
+            return source;
+        }
         internal static QueryableDataSet<TSource> Where<TSource>(this QueryableDataSet<TSource> source, Expression predicate)
         {
             return ((QueryableDataSet<TSource>)source.InternalProvider.CreateQuery<TSource>(
@@ -642,12 +662,16 @@ namespace Ophelia.Data
         {
             if (oldSource.ExtendedData != null)
                 newSource.ExtendData(oldSource.ExtendedData);
+
+            newSource.TrackChanges = oldSource.TrackChanges;
             return newSource;
         }
         public static QueryableDataSet Extend(this QueryableDataSet newSource, QueryableDataSet oldSource)
         {
             if (oldSource.ExtendedData != null)
                 newSource.ExtendData(oldSource.ExtendedData);
+
+            newSource.TrackChanges = oldSource.TrackChanges;
             return newSource;
         }
         //public static QueryableDataSet<TSource> Union<TSource>(this QueryableDataSet<TSource> source1, IEnumerable<TSource> source2)

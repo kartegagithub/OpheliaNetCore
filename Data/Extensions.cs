@@ -1,5 +1,6 @@
 ﻿using Ophelia.Data.Querying.Query.Helpers;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
@@ -114,7 +115,7 @@ namespace Ophelia.Data
                     {
                         if (string.IsNullOrEmpty(data.ValueType))
                         {
-                            if(p.PropertyType.IsGenericType)
+                            if (p.PropertyType.IsGenericType)
                                 data.ValueType = p.PropertyType.GenericTypeArguments.FirstOrDefault().Name;
                             else
                                 data.ValueType = p.PropertyType.Name;
@@ -208,24 +209,44 @@ namespace Ophelia.Data
 
         internal static (PropertyInfo, bool) GetForeignKeyProp(PropertyInfo prop)
         {
-            var idProps = prop.DeclaringType.GetProperties().Where(op => op != prop && op.Name.StartsWith(prop.Name, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            return GetForeignKeyProp(prop.DeclaringType, prop.Name);
+        }
+
+        internal static (PropertyInfo, bool) GetForeignKeyProp(Type type, string prop)
+        {
+            var idProps = type.GetProperties().Where(op => op.Name != prop && op.Name.StartsWith(prop, StringComparison.InvariantCultureIgnoreCase)).ToList();
             if (idProps.Count == 0)
-                return (prop, false);
+                return (type.GetProperty(prop), false);
             else if (idProps.Count > 1)
             {
                 foreach (var idProp in idProps)
                 {
-                    var tmpName = idProp.Name.Replace(prop.Name, "").Replace("_", "").ToUpperInvariant().Replace("İ", "I");
+                    var tmpName = idProp.Name.Replace(prop, "").Replace("_", "").ToUpperInvariant().Replace("İ", "I");
                     if (tmpName == "ID")
                         return (idProp, true);
                 }
             }
             return (idProps.FirstOrDefault(), true);
         }
+
         internal static string GetForeignKeyName(PropertyInfo prop)
         {
             var p = GetForeignKeyProp(prop);
             return GetColumnName(p.Item1, p.Item2 ? "" : "ID");
+        }
+        internal static bool IsIdentityProperty(PropertyInfo prop)
+        {
+            var dbAttr = (System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)).FirstOrDefault();
+            if (dbAttr != null)
+                return dbAttr.DatabaseGeneratedOption == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity;
+            return false;
+        }
+        internal static bool IsComputedProperty(PropertyInfo prop)
+        {
+            var dbAttr = (System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)).FirstOrDefault();
+            if (dbAttr != null)
+                return dbAttr.DatabaseGeneratedOption == System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Computed;
+            return false;
         }
         internal static string GetForeignKeyName(MemberInfo prop)
         {
@@ -252,6 +273,11 @@ namespace Ophelia.Data
                 return keyProp;
 
             return type.GetProperty("ID");
+        }
+
+        internal static List<PropertyInfo> GetPrimaryKeyProperties(Type type)
+        {
+            return type.GetProperties().Where(op => op.GetCustomAttributes(typeof(KeyAttribute)).Any()).ToList();
         }
     }
 }
