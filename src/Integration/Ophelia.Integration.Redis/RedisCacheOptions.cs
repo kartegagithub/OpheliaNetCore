@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Ophelia.Web.Application.Server.DistributedCaches
+namespace Ophelia.Integration.Redis
 {
     public class RedisCacheOptions : IOptions<RedisCacheOptions>
     {
@@ -30,7 +30,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
         }
         public RedisCacheOptions()
         {
-            this.ConfigurationOptions = new ConfigurationOptions();
+            ConfigurationOptions = new ConfigurationOptions();
         }
     }
 }

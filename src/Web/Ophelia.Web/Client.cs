@@ -17,14 +17,14 @@ namespace Ophelia.Web
         {
             get
             {
-                if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current != null)
-                    _Current = (Client)Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"];
+                if (Web.View.Mvc.Middlewares.HTTPContextAccessor.Current != null)
+                    _Current = (Client)Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"];
 
                 if (_Current == null)
                 {
                     _Current = (Client)typeof(Client).GetRealTypeInstance(true);
-                    if (Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current != null)
-                        Ophelia.Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"] = _Current;
+                    if (Web.View.Mvc.Middlewares.HTTPContextAccessor.Current != null)
+                        Web.View.Mvc.Middlewares.HTTPContextAccessor.Current.Items["Client"] = _Current;
                 }
 
                 return _Current;
@@ -35,7 +35,7 @@ namespace Ophelia.Web
         public decimal InstanceID { get; set; }
         public string ApplicationName { get; set; }
         public Dictionary<string, object> SharedData { get; set; }
-        public Ophelia.Web.View.Mvc.Controllers.Base.Controller Controller { get; set; }
+        public Web.View.Mvc.Controllers.Base.Controller Controller { get; set; }
         public HttpContext Context
         {
             get
@@ -164,29 +164,26 @@ namespace Ophelia.Web
         }
         protected virtual void SetCurrentLanguageCookie(string cookieName = "Language", CookieOptions options = null)
         {
-            if (options == null)
-            {
-                options = new CookieOptions()
+            options ??= new CookieOptions()
                 {
                     Expires = DateTime.Now.AddDays(365),
                     Path = "/",
                     HttpOnly = true,
                     Secure = this.Request.IsHttps
                 };
-            }
-            Ophelia.Web.Application.Client.CookieManager.Set(cookieName, this.CurrentLanguageID.ToString(), options);
+            Web.Application.Client.CookieManager.Set(cookieName, this.CurrentLanguageID.ToString(), options);
         }
 
         protected virtual int GetCurrentLanguageCookie(string cookieName = "Language")
         {
-            var languageCookies = Ophelia.Web.Application.Client.CookieManager.Get(cookieName);
+            var languageCookies = Web.Application.Client.CookieManager.Get(cookieName);
             int ID = 1;
             if (!string.IsNullOrEmpty(languageCookies))
             {
                 if (int.TryParse(languageCookies, out ID))
                     return ID;
             }
-            return 0;
+            return ID;
         }
         public virtual string TranslateText(string Text)
         {
@@ -219,7 +216,6 @@ namespace Ophelia.Web
 
             var rnd = new Random();
             this.InstanceID = rnd.Next(int.MaxValue);
-            rnd = null;
             this.SharedData = new Dictionary<string, object>();
         }
     }

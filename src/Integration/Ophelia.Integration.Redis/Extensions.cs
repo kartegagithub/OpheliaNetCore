@@ -1,11 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Ophelia.Web.Application.Server.DistributedCaches;
 
-namespace Ophelia.Web.Application.Server
+namespace Ophelia.Integration.Redis
 {
     public static class Extensions
     {

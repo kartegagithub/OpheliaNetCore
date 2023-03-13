@@ -30,8 +30,7 @@ namespace Ophelia.Integration.Amazon
             {
                 if (this.oClient == null)
                 {
-                    if (this.Config == null)
-                        this.Config = new AmazonS3Config();
+                    this.Config ??= new AmazonS3Config();
 
                     if (!string.IsNullOrEmpty(this.ServiceURL))
                         this.Config.ServiceURL = this.ServiceURL;
@@ -91,8 +90,10 @@ namespace Ophelia.Integration.Amazon
             try
             {
                 filePath = filePath.Trim('/');
-                PutObjectRequest request = new PutObjectRequest();
-                request.BucketName = this.Bucket;
+                var request = new PutObjectRequest
+                {
+                    BucketName = this.Bucket
+                };
                 if (this.KeepFilePath)
                     request.Key = filePath;
                 else
@@ -118,8 +119,10 @@ namespace Ophelia.Integration.Amazon
             var result = new ServiceObjectResult<AmazonResponse>();
             try
             {
-                PutObjectRequest request = new PutObjectRequest();
-                request.BucketName = this.Bucket;
+                var request = new PutObjectRequest
+                {
+                    BucketName = this.Bucket
+                };
                 if (this.KeepFilePath)
                     request.Key = filePath;
                 else
@@ -153,16 +156,20 @@ namespace Ophelia.Integration.Amazon
                 if (this.Expiration == null)
                     this.Expiration = TimeSpan.FromDays(1000);
 
-                var request = new GetPreSignedUrlRequest();
-                request.BucketName = this.Bucket;
-                request.Key = file;
-                request.Expires = DateTime.Now.Add(this.Expiration.Value);
-                request.Protocol = this.Protocol;
+                var request = new GetPreSignedUrlRequest
+                {
+                    BucketName = this.Bucket,
+                    Key = file,
+                    Expires = DateTime.Now.Add(this.Expiration.Value),
+                    Protocol = this.Protocol
+                };
                 string url = this.Client.GetPreSignedURL(request);
 
-                var model = new AmazonResponse();
-                model.ExpireDate = request.Expires;
-                model.URL = url;
+                var model = new AmazonResponse
+                {
+                    ExpireDate = request.Expires,
+                    URL = url
+                };
                 result.SetData(model);
             }
             catch (Exception ex)

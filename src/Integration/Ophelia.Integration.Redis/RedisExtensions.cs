@@ -1,11 +1,11 @@
 ﻿using System.Threading.Tasks;
 using StackExchange.Redis;
 
-namespace Ophelia.Web.Application.Server.DistributedCaches
+namespace Ophelia.Integration.Redis
 {
     internal static class RedisExtensions
     {
-        private const string HmGetScript = (@"return redis.call('HMGET', KEYS[1], unpack(ARGV))");
+        private const string HmGetScript = @"return redis.call('HMGET', KEYS[1], unpack(ARGV))";
 
         internal static RedisValue[] HashMemberGet(this IDatabase cache, string key, params string[] members)
         {

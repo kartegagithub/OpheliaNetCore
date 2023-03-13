@@ -4,7 +4,7 @@ namespace Ophelia.Integration.Notification.Expo
 {
     public class Notifier : Notification.Notifier
     {
-        public string URL { get; set; } = ""
+        public string URL { get; set; } = "";
         public ExpoNotificationResult SendToMultipleDevice(string[] registrationIds, string title, string body, string type = "notification", dynamic extraData = null, string priority = "high", bool content_available = true, string EntityType = "", long EntityID = 0, long BadgeCount = 0)
         {
             var Result = new ExpoNotificationResult();

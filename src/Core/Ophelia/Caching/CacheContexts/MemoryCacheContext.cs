@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-namespace Ophelia.Web.Application.Server.CacheContexts
+namespace Ophelia.Caching.CacheContexts
 {
     public class MemoryCacheContext : ICacheContext
     {
@@ -53,7 +53,7 @@ namespace Ophelia.Web.Application.Server.CacheContexts
                 list = new Dictionary<string, object>();
                 Add(keyGroup, list, absoluteExpiration);
             }
-            object objectValue = null;
+            object objectValue;
             if (list.TryGetValue(keyItem, out objectValue) && objectValue != null)
                 list[keyItem] = value;
             else

@@ -1,19 +1,43 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Kartega</Authors>
+		<Company>Kartega Yazılım ve Danışmanlık A.Ş.</Company>
+		<Description>Ophelia Framework</Description>
+		<Copyright>© Kartega Yazılım ve Danışmanlık A.Ş. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://www.kartega.com</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/kartegagithub/OpheliaNetCore</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackAsTool>False</PackAsTool>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<AnalysisLevel>latest-recommended</AnalysisLevel>
+		<Version>7.0.0.0</Version>
+		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="IdentityModel" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
+		<PackageReference Include="SixLaborsCaptcha.Core" Version="0.2.2" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\Ophelia\Ophelia.csproj" />
+		<ProjectReference Include="..\..\Data\Ophelia.Data.Exporter\Ophelia.Data.Exporter.csproj" />
+		<ProjectReference Include="..\..\Data\Ophelia.Data.Importer\Ophelia.Data.Importer.csproj" />
 		<ProjectReference Include="..\..\Data\Ophelia.Data\Ophelia.Data.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Folder Include="Application\Server\" />
+	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F" />
+	</Target>
 </Project>

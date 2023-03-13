@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using IdentityModel;
 using Microsoft.AspNetCore.Identity;
 
-namespace Ophelia
+namespace Ophelia.Web
 {
     public static class Utility
     {
         public static string Generate(PasswordOptions opts = null)
         {
-            if (opts == null) opts = new PasswordOptions()
+            opts ??= new PasswordOptions()
             {
                 RequiredLength = 8,
                 RequiredUniqueChars = 4,

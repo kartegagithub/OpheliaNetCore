@@ -3,6 +3,19 @@
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Kartega</Authors>
+		<Company>Kartega Yazılım ve Danışmanlık A.Ş.</Company>
+		<Description>Ophelia Framework</Description>
+		<Copyright>© Kartega Yazılım ve Danışmanlık A.Ş. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://www.kartega.com</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/kartegagithub/OpheliaNetCore</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackAsTool>False</PackAsTool>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<AnalysisLevel>latest-recommended</AnalysisLevel>
+		<Version>7.0.0.0</Version>
+		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -35,4 +48,7 @@
 			<Version>5.0.17</Version>
 		</PackageReference>
 	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F" />
+	</Target>
 </Project>

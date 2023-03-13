@@ -4,7 +4,7 @@ namespace Ophelia.Integration.Notification.Android
 {
     public class Notifier : Notification.Notifier
     {
-        public string URL { get; set; } = ""
+        public string URL { get; set; } = "";
         public Notifier()
         {
             this.URL = "https://android.googleapis.com/gcm/send";

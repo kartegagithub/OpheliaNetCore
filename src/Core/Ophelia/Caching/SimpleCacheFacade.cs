@@ -1,4 +1,4 @@
-﻿namespace Ophelia.Web.Application.Server
+﻿namespace Ophelia.Caching
 {
     public abstract class CacheFacade
     {

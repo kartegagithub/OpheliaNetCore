@@ -139,13 +139,11 @@ namespace Ophelia
         {
             if (type == null)
                 return false;
-            switch (Type.GetTypeCode(type))
+            return Type.GetTypeCode(type) switch
             {
-                case TypeCode.Decimal:
-                    return true;
-                default:
-                    return false;
-            }
+                TypeCode.Decimal => true,
+                _ => false,
+            };
         }
         public static bool IsNumeric(this Type type)
         {
@@ -276,7 +274,6 @@ namespace Ophelia
         {
             var arr = type.FullName.Split('.');
             var ns = arr[arr.Length - 2];
-            arr = null;
             return ns;
         }
         public static object ExecuteMethod<T>(this T entity, string method, params object[] parameters) where T : class

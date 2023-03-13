@@ -3,25 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Ophelia.Web.Application.Server.DistributedCaches;
+using Ophelia;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core.Implementations;
 
-namespace Ophelia.Web.Application.Server.CacheContexts
+namespace Ophelia.Integration.Redis
 {
-    public class RedisCacheContext : ICacheContext
+    public class RedisCacheContext : Ophelia.Caching.CacheContexts.ICacheContext
     {
         internal RedisCache _RedisCache { get; set; }
         public RedisCacheContext(IOptions<RedisCacheOptions> optionsAccessor)
         {
-            this._RedisCache = new RedisCache(optionsAccessor);
+            _RedisCache = new RedisCache(optionsAccessor);
         }
 
-        public long CacheCount { get { return ((RedisDatabase)this._RedisCache.Database).SearchKeysAsync("*").Result.Count(); } }
+        public long CacheCount { get { return ((RedisDatabase)_RedisCache.Database).SearchKeysAsync("*").Result.Count(); } }
 
         public bool Add(string key, object value, DateTime absoluteExpiration)
         {
-            this.SetItem(key, value, absoluteExpiration);
+            SetItem(key, value, absoluteExpiration);
             return true;
         }
 
@@ -32,18 +32,18 @@ namespace Ophelia.Web.Application.Server.CacheContexts
 
         public bool ClearAll()
         {
-            ((RedisDatabase)this._RedisCache.Database).FlushDbAsync();
+            ((RedisDatabase)_RedisCache.Database).FlushDbAsync();
             return true;
         }
 
         public object Get(string key)
         {
-            return this.GetItem(key);
+            return GetItem(key);
         }
 
         public T Get<T>(string key)
         {
-            return this.GetItem<T>(key);
+            return GetItem<T>(key);
         }
 
         public object Get(string keyGroup, string keyItem)
@@ -53,40 +53,40 @@ namespace Ophelia.Web.Application.Server.CacheContexts
 
         public List<string> GetAllKeys()
         {
-            return ((RedisDatabase)this._RedisCache.Database).SearchKeysAsync("*").Result.ToList();
+            return ((RedisDatabase)_RedisCache.Database).SearchKeysAsync("*").Result.ToList();
         }
 
         public bool Remove(string key)
         {
-            this._RedisCache.Remove(key);
+            _RedisCache.Remove(key);
             return true;
         }
         public bool Refresh(string key, DateTime absoluteExpiration)
         {
-            this._RedisCache.Refresh(key);
+            _RedisCache.Refresh(key);
             return true;
         }
 
         public void SetItem(string key, object value, Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions options = null)
         {
-            this._RedisCache.Set(key, ToByteArray(value), options);
+            _RedisCache.Set(key, ToByteArray(value), options);
         }
         public void SetItem(string key, object value, DateTime expiration)
         {
-            this._RedisCache.Set(key, ToByteArray(value), new Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions()
+            _RedisCache.Set(key, ToByteArray(value), new Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions()
             {
                 AbsoluteExpiration = expiration
             });
         }
         public object GetItem(string key)
         {
-            var objResult = FromByteArray(this._RedisCache.Get(key));
+            var objResult = FromByteArray(_RedisCache.Get(key));
             return objResult;
         }
 
         public T GetItem<T>(string key)
         {
-            var objResult = FromByteArray<T>(this._RedisCache.Get(key));
+            var objResult = FromByteArray<T>(_RedisCache.Get(key));
             return objResult;
         }
 
@@ -100,14 +100,14 @@ namespace Ophelia.Web.Application.Server.CacheContexts
         public T FromByteArray<T>(byte[] data)
         {
             if (data == null)
-                return default(T);
+                return default;
 
             return JsonConvert.DeserializeObject<T>(System.Text.Encoding.UTF8.GetString(data));
         }
         public object FromByteArray(byte[] data)
         {
             if (data == null)
-                return default(object);
+                return default;
 
             return JsonConvert.DeserializeObject(System.Text.Encoding.UTF8.GetString(data));
         }

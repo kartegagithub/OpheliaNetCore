@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Ophelia.Web.Application.Server
+namespace Ophelia.Caching
 {
     public static class CacheManager
     {
@@ -12,8 +12,7 @@ namespace Ophelia.Web.Application.Server
         {
             get
             {
-                if (_Contexts == null)
-                    _Contexts = new Dictionary<string, CacheContexts.ICacheContext>();
+                _Contexts ??= new Dictionary<string, CacheContexts.ICacheContext>();
                 return _Contexts;
             }
         }
@@ -32,16 +31,16 @@ namespace Ophelia.Web.Application.Server
         }
         public static CacheContexts.ICacheContext GetContext(string name)
         {
-            if (Contexts.ContainsKey(name))
-                return Contexts[name];
+            if (Contexts.TryGetValue(name, out CacheContexts.ICacheContext value))
+                return value;
             return null;
         }
         public static CacheContexts.ICacheContext Register(string key, CacheContexts.ICacheContext context, bool useAsDefault = false)
         {
             lock (lockObj)
             {
-                if (Contexts.ContainsKey(key))
-                    return Contexts[key];
+                if (Contexts.TryGetValue(key, out CacheContexts.ICacheContext value))
+                    return value;
 
                 Contexts.Add(key, context);
                 if (useAsDefault)
@@ -52,7 +51,7 @@ namespace Ophelia.Web.Application.Server
 
         public static int CacheDuration
         {
-            get { return ConfigurationManager.GetParameter<Int32>("CacheDuration", 1440); }
+            get { return 1440; }
         }
         public static long CacheCount { get { return DefaultContext.CacheCount; } }
 

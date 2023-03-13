@@ -4,7 +4,7 @@ using StackExchange.Redis;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-namespace Ophelia.Web.Application.Server.DistributedCaches
+namespace Ophelia.Integration.Redis
 {
     public class RedisCache : IDistributedCache, IDisposable
     {
@@ -19,12 +19,12 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
         // ARGV[3] = relative-expiration (long, in seconds, -1 for none) - Min(absolute-expiration - Now, sliding-expiration)
         // ARGV[4] = data - byte[]
         // this order should not change LUA script depends on it
-        private const string SetScript = (@"
+        private const string SetScript = @"
                 redis.call('HMSET', KEYS[1], 'absexp', ARGV[1], 'sldexp', ARGV[2], 'data', ARGV[4])
                 if ARGV[3] ~= '-1' then
                   redis.call('EXPIRE', KEYS[1], ARGV[3])
                 end
-                return 1");
+                return 1";
         private const string AbsoluteExpirationKey = "absexp";
         private const string SlidingExpirationKey = "sldexp";
         private const string DataKey = "data";
@@ -62,7 +62,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             return GetAndRefresh(key, getData: true);
         }
 
-        public async Task<byte[]> GetAsync(string key, CancellationToken token = default(CancellationToken))
+        public async Task<byte[]> GetAsync(string key, CancellationToken token = default)
         {
             if (key == null)
             {
@@ -99,7 +99,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
 
                 var absoluteExpiration = GetAbsoluteExpiration(creationTime, options);
 
-                var result = this.Database.ScriptEvaluate(SetScript, new RedisKey[] { _instance + key },
+                var result = Database.ScriptEvaluate(SetScript, new RedisKey[] { _instance + key },
                     new RedisValue[]
                     {
                         absoluteExpiration?.Ticks ?? NotPresent,
@@ -111,10 +111,10 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             catch (Exception ex)
             {
                 throw new Exception($"Error while setting key {key}", ex);
-            }            
+            }
         }
 
-        public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default(CancellationToken))
+        public async Task SetAsync(string key, byte[] value, DistributedCacheEntryOptions options, CancellationToken token = default)
         {
             if (key == null)
             {
@@ -139,7 +139,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
 
             var absoluteExpiration = GetAbsoluteExpiration(creationTime, options);
 
-            await this.Database.ScriptEvaluateAsync(SetScript, new RedisKey[] { _instance + key },
+            await Database.ScriptEvaluateAsync(SetScript, new RedisKey[] { _instance + key },
                 new RedisValue[]
                 {
                         absoluteExpiration?.Ticks ?? NotPresent,
@@ -159,7 +159,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             GetAndRefresh(key, getData: false);
         }
 
-        public async Task RefreshAsync(string key, CancellationToken token = default(CancellationToken))
+        public async Task RefreshAsync(string key, CancellationToken token = default)
         {
             if (key == null)
             {
@@ -173,7 +173,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
 
         private void Connect()
         {
-            if (this.Database != null)
+            if (Database != null)
             {
                 return;
             }
@@ -181,7 +181,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             _connectionLock.Wait();
             try
             {
-                if (this.Database == null)
+                if (Database == null)
                 {
                     if (_options.ConfigurationOptions != null)
                     {
@@ -191,7 +191,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
                     {
                         _connection = ConnectionMultiplexer.Connect(_options.Configuration);
                     }
-                    this.Database = _connection.GetDatabase();
+                    Database = _connection.GetDatabase();
                 }
             }
             finally
@@ -200,11 +200,11 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             }
         }
 
-        private async Task ConnectAsync(CancellationToken token = default(CancellationToken))
+        private async Task ConnectAsync(CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
 
-            if (this.Database != null)
+            if (Database != null)
             {
                 return;
             }
@@ -212,7 +212,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             await _connectionLock.WaitAsync(token);
             try
             {
-                if (this.Database == null)
+                if (Database == null)
                 {
                     if (_options.ConfigurationOptions != null)
                     {
@@ -223,7 +223,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
                         _connection = await ConnectionMultiplexer.ConnectAsync(_options.Configuration);
                     }
 
-                    this.Database = _connection.GetDatabase();
+                    Database = _connection.GetDatabase();
                 }
             }
             finally
@@ -248,11 +248,11 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
                 RedisValue[] results;
                 if (getData)
                 {
-                    results = this.Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey, DataKey);
+                    results = Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey, DataKey);
                 }
                 else
                 {
-                    results = this.Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey);
+                    results = Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey);
                 }
 
                 // TODO: Error handling
@@ -274,7 +274,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             return null;
         }
 
-        private async Task<byte[]> GetAndRefreshAsync(string key, bool getData, CancellationToken token = default(CancellationToken))
+        private async Task<byte[]> GetAndRefreshAsync(string key, bool getData, CancellationToken token = default)
         {
             if (key == null)
             {
@@ -290,11 +290,11 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             RedisValue[] results;
             if (getData)
             {
-                results = await this.Database.HashMemberGetAsync(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey, DataKey);
+                results = await Database.HashMemberGetAsync(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey, DataKey);
             }
             else
             {
-                results = await this.Database.HashMemberGetAsync(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey);
+                results = await Database.HashMemberGetAsync(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey);
             }
 
             // TODO: Error handling
@@ -321,11 +321,11 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             _CacheKey = key;
             Connect();
 
-            this.Database.KeyDelete(_instance + key);
+            Database.KeyDelete(_instance + key);
             // TODO: Error handling
         }
 
-        public async Task RemoveAsync(string key, CancellationToken token = default(CancellationToken))
+        public async Task RemoveAsync(string key, CancellationToken token = default)
         {
             if (key == null)
             {
@@ -334,7 +334,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
             _CacheKey = key;
             await ConnectAsync(token);
 
-            await this.Database.KeyDeleteAsync(_instance + key);
+            await Database.KeyDeleteAsync(_instance + key);
             // TODO: Error handling
         }
 
@@ -374,12 +374,12 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
                 {
                     expr = sldExpr;
                 }
-                this.Database.KeyExpire(_instance + key, expr);
+                Database.KeyExpire(_instance + key, expr);
                 // TODO: Error handling
             }
         }
 
-        private async Task RefreshAsync(string key, DateTimeOffset? absExpr, TimeSpan? sldExpr, CancellationToken token = default(CancellationToken))
+        private async Task RefreshAsync(string key, DateTimeOffset? absExpr, TimeSpan? sldExpr, CancellationToken token = default)
         {
             if (key == null)
             {
@@ -401,7 +401,7 @@ namespace Ophelia.Web.Application.Server.DistributedCaches
                 {
                     expr = sldExpr;
                 }
-                await this.Database.KeyExpireAsync(_instance + key, expr);
+                await Database.KeyExpireAsync(_instance + key, expr);
                 // TODO: Error handling
             }
         }

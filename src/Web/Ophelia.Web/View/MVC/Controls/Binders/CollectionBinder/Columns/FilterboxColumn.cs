@@ -34,7 +34,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         {
             var identifierValue = this.IdentifierExpression.GetValue(entity);
 
-            var control = new Ophelia.Web.UI.Controls.Select();
+            var control = new Web.UI.Controls.Select();
             control.ID = this.IdentifierKeyword + identifierValue;
             control.Name = control.ID;
             control.AddAttribute("data-identifier", Convert.ToString(identifierValue));

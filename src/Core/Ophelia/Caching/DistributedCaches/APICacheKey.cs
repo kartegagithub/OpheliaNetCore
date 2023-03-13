@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Ophelia.Web.Application.Server.DistributedCaches
+namespace Ophelia.Caching.DistributedCaches
 {
     [DataContract]
     public class APICacheKey

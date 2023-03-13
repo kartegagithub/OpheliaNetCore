@@ -10,8 +10,8 @@ namespace Ophelia.Web.Application.Client
         /// </summary>
         public static string Get(string cookieName)
         {
-            if (Ophelia.Web.Client.Current.Context != null)
-                return Ophelia.Web.Client.Current.Request.Cookies[cookieName];
+            if (Web.Client.Current.Context != null)
+                return Web.Client.Current.Request.Cookies[cookieName];
             else
                 return "";
         }
@@ -25,11 +25,11 @@ namespace Ophelia.Web.Application.Client
         /// <returns></returns>
         public static void Set(string cookieName, string value, int expireMinute = 10)
         {
-            if (Ophelia.Web.Client.Current.Context != null)
+            if (Web.Client.Current.Context != null)
             {
                 CookieOptions options = new CookieOptions();
                 options.Expires = DateTime.Now.AddMilliseconds(expireMinute);
-                Ophelia.Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
+                Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
             }
         }
 
@@ -41,8 +41,8 @@ namespace Ophelia.Web.Application.Client
         /// <param name="options"></param>
         public static void Set(string cookieName, string value, CookieOptions options)
         {
-            if (Ophelia.Web.Client.Current.Context != null)
-                Ophelia.Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
+            if (Web.Client.Current.Context != null)
+                Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
         }
 
         /// <summary>
@@ -50,12 +50,12 @@ namespace Ophelia.Web.Application.Client
         /// </summary>
         public static void ClearByName(string cookieName, CookieOptions options = null)
         {
-            if (Ophelia.Web.Client.Current != null && Ophelia.Web.Client.Current.Context != null)
+            if (Web.Client.Current != null && Web.Client.Current.Context != null)
             {
                 if (options == null)
                     options = new CookieOptions();
                 options.Expires = DateTime.Now.AddDays(-1);
-                Ophelia.Web.Client.Current.Response.Cookies.Delete(cookieName, options);
+                Web.Client.Current.Response.Cookies.Delete(cookieName, options);
             }
         }
     }

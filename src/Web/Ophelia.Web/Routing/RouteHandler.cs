@@ -178,7 +178,7 @@ namespace Ophelia.Web.Routing
         {
 
         }
-        public RouteHandler(IRouter defaulRouter, Ophelia.Web.Routing.RouteCollection Routes, bool checkSSL)
+        public RouteHandler(IRouter defaulRouter, Web.Routing.RouteCollection Routes, bool checkSSL)
         {
             this.DefaulRouter = defaulRouter;
             this.oRoutes = Routes;

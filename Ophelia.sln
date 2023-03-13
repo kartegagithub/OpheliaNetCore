@@ -50,13 +50,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Drawing", "Drawing", "{017B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{E81679F8-CD97-4132-B5A5-E9F72CC3A49F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ophelia.Data.SQLServer", "src\Data\Ophelia.Data.SQLServer\Ophelia.Data.SQLServer.csproj", "{4287D8CF-F81F-4EB4-ADF4-C15D11A996EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Data.SQLServer", "src\Data\Ophelia.Data.SQLServer\Ophelia.Data.SQLServer.csproj", "{4287D8CF-F81F-4EB4-ADF4-C15D11A996EA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Data.MySQL", "src\Data\Ophelia.Data.MySQL\Ophelia.Data.MySQL.csproj", "{A3D9A10A-A651-4379-977E-89731277F96E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Data.Npgsql", "src\Data\Ophelia.Data.Npgsql\Ophelia.Data.Npgsql.csproj", "{ED5DC6E4-A854-49F8-A404-C84CE06159B3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Data.Oracle", "src\Data\Ophelia.Data.Oracle\Ophelia.Data.Oracle.csproj", "{9B95A550-592A-40C2-8440-016ED6D98EB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ophelia.Integration.Redis", "src\Integration\Ophelia.Integration.Redis\Ophelia.Integration.Redis.csproj", "{5EB1C220-6D95-4552-8211-3DB6AFA9C700}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -136,6 +138,10 @@ Global
 		{9B95A550-592A-40C2-8440-016ED6D98EB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B95A550-592A-40C2-8440-016ED6D98EB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B95A550-592A-40C2-8440-016ED6D98EB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EB1C220-6D95-4552-8211-3DB6AFA9C700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EB1C220-6D95-4552-8211-3DB6AFA9C700}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EB1C220-6D95-4552-8211-3DB6AFA9C700}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EB1C220-6D95-4552-8211-3DB6AFA9C700}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -164,6 +170,7 @@ Global
 		{A3D9A10A-A651-4379-977E-89731277F96E} = {B1516E15-47D1-4376-B68E-AC4577821F67}
 		{ED5DC6E4-A854-49F8-A404-C84CE06159B3} = {B1516E15-47D1-4376-B68E-AC4577821F67}
 		{9B95A550-592A-40C2-8440-016ED6D98EB2} = {B1516E15-47D1-4376-B68E-AC4577821F67}
+		{5EB1C220-6D95-4552-8211-3DB6AFA9C700} = {639D4A27-2F86-4AF7-B1F0-F302651C1058}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2969838D-0DAF-4DE7-9620-3BA33BD1287C}

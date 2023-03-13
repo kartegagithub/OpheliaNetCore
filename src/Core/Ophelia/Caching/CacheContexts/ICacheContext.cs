@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Ophelia.Web.Application.Server.CacheContexts
+namespace Ophelia.Caching.CacheContexts
 {
     public interface ICacheContext
     {

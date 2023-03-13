@@ -6,6 +6,7 @@ using Ophelia.Data;
 using Ophelia.Data.Querying.Query;
 using Ophelia.Data.Querying.Query.Helpers;
 using Ophelia.Reflection;
+using Ophelia.Web.Service;
 using Ophelia.Service;
 using Ophelia.Web.UI.Controls;
 using Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns;
@@ -117,10 +118,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             this.Configuration = new Configuration();
             this.DataSource = dataSource;
             this.Columns = new List<Binders.CollectionBinder.Columns.BaseColumn<TModel, T>>();
-            this.Breadcrumb = new List();
-            this.Breadcrumb.CssClass = "breadcrumb";
-            this.ActionButtons = new List();
-            this.ActionButtons.CssClass = "breadcrumb-elements";
+            this.Breadcrumb = new List
+            {
+                CssClass = "breadcrumb"
+            };
+            this.ActionButtons = new List
+            {
+                CssClass = "breadcrumb-elements"
+            };
             this.Groupers = new GrouperList<T>();
 
             this.PageTitles = new Panel();
@@ -204,7 +209,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         public WebControl AddHeadingElementButton(string url, string text, bool openInNewWindow, string cssClass = "btn btn-link btn-float has-text")
         {
-            var control = new Link() { URL = url, Text = text, NewWindow = openInNewWindow, CssClass = CssClass };
+            var control = new Link() { URL = url, Text = text, NewWindow = openInNewWindow, CssClass = cssClass };
             this.HeadingElements.Controls.Add(control);
             return control;
         }
@@ -216,7 +221,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         public WebControl AddPageTitleLink(string url, string text, bool openInNewWindow, string cssClass = "")
         {
-            var control = new Link() { URL = url, Text = text, NewWindow = openInNewWindow, CssClass = CssClass };
+            var control = new Link() { URL = url, Text = text, NewWindow = openInNewWindow, CssClass = cssClass };
             this.PageTitles.Controls.Add(control);
             return control;
         }
@@ -280,7 +285,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 var defaultModel = Activator.CreateInstance(typeof(TModel));
 
-                foreach (Ophelia.Web.View.Mvc.Controls.Binders.Fields.BaseField<TModel> item in this.FilterPanel.Controls)
+                foreach (Web.View.Mvc.Controls.Binders.Fields.BaseField<TModel> item in this.FilterPanel.Controls)
                 {
                     try
                     {
@@ -659,7 +664,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 this.OnBeforeQueryExecuted();
                                 visitor.Visit(groupedData.Expression);
                                 queryData.GroupPageSize = this.DataSource.Pagination.PageSize;
-                                var qs = new Ophelia.Web.Application.Client.QueryString(this.Request);
+                                var qs = new Web.Application.Client.QueryString(this.Request);
                                 foreach (string item in qs.KeyList)
                                 {
                                     if (item.StartsWith("grouppage"))
@@ -1335,7 +1340,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             }
 
             this.RenderOnBeforeDrawLine(null);
-            var qs = new Ophelia.Web.Application.Client.QueryString(this.Request);
+            var qs = new Web.Application.Client.QueryString(this.Request);
             foreach (var column in this.Columns)
             {
                 if (column.Visible)
@@ -1502,8 +1507,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         protected virtual string GetDisplayName(object entity)
         {
             var name = entity.GetPropertyValue("Name");
-            if (name == null)
-                name = entity.GetPropertyValue("Title");
+            name ??= entity.GetPropertyValue("Title");
             if (name != null)
             {
                 var text = name.ToString();
@@ -1750,7 +1754,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         if (this.CanExportCellValue(column, value))
                         {
                             cell.Value = this.FormatCellValueForExport(item, column, value);
-                            var link = new Ophelia.Web.UI.Controls.Link() { Text = Convert.ToString(cell.Value) };
+                            var link = new Web.UI.Controls.Link() { Text = Convert.ToString(cell.Value) };
                             this.RenderCellProperties(item, column, link);
                             if (!string.IsNullOrEmpty(link.Text))
                                 cell.Value = link.Text;

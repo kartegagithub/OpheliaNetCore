@@ -13,17 +13,20 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Xml;
 
-namespace Ophelia
+namespace Ophelia.Web
 {
-    public static class URLExtensions
+    public static partial class URLExtensions
     {
         public static Dictionary<string, IFormFile>? FilesToUpload { get; set; }
         public static List<FileData>? FilesToUploadBase64 { get; set; }
 
         public static TResult PostObject<T, TResult>(this string URL, T entity, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false, long languageID = 0)
         {
-            var request = new WebApiObjectRequest<T>() { Data = entity };
-            request.LanguageID = languageID;
+            var request = new WebApiObjectRequest<T>
+            {
+                Data = entity,
+                LanguageID = languageID
+            };
             SetParameters(request, parameters);
             return URL.GetObject<T, TResult>(request, headers, PreAuthenticate);
         }
@@ -58,8 +61,7 @@ namespace Ophelia
                 var result = (TResult)Activator.CreateInstance(typeof(TResult));
                 if (result is ServiceResult)
                 {
-                    var serviceResult = result as ServiceResult;
-                    if (serviceResult != null)
+                    if (result is ServiceResult serviceResult)
                     {
                         serviceResult.Fail(ex, "ERRAPI");
                         serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
@@ -79,10 +81,10 @@ namespace Ophelia
             catch (Exception ex)
             {
                 var result = (ServiceObjectResult<T>)Activator.CreateInstance(typeof(ServiceObjectResult<T>));
-                if (result is ServiceResult)
+                if (result is ServiceResult serviceResult)
                 {
-                    (result as ServiceResult).Fail(ex, "ERRAPI");
-                    (result as ServiceResult).Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                    serviceResult.Fail(ex, "ERRAPI");
+                    serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                 }
                 return result;
             }
@@ -124,8 +126,7 @@ namespace Ophelia
                 var result = (TResult)Activator.CreateInstance(typeof(TResult));
                 if (result is ServiceResult)
                 {
-                    var serviceResult = result as ServiceResult;
-                    if (serviceResult != null)
+                    if (result is ServiceResult serviceResult)
                     {
                         serviceResult.Fail(ex, "ERRAPI");
                         serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
@@ -147,8 +148,7 @@ namespace Ophelia
                 var result = (T)Activator.CreateInstance(typeof(T));
                 if (result is ServiceResult)
                 {
-                    var serviceResult = result as ServiceResult;
-                    if (serviceResult != null)
+                    if (result is ServiceResult serviceResult)
                     {
                         serviceResult.Fail(ex, "ERRAPI");
                         serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });

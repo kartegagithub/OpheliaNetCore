@@ -2,7 +2,7 @@
 
 namespace Ophelia.Integration.Notification.OneSignal
 {
-    public class Notifier : Mobile.Notification.Notifier
+    public class Notifier : Notification.Notifier
     {
         public string URL { get; set; }
         public OneSignalNotificationResult SendToMultipleDevice(string[] registrationIds, string title, string body, string appId, string androidChannelID, string type = "", dynamic extraData = null, string EntityType = "", long EntityID = 0, long BadgeCount = 0, string webURL = "")

@@ -13,7 +13,7 @@ using System.Xml;
 
 namespace Ophelia
 {
-    public static class URLExtensions
+    public static partial class URLExtensions
     {
         public static int Timeout { get; set; }
         public static Func<HttpClientHandler, DelegatingHandler> RequestLogHandler { get; set; }

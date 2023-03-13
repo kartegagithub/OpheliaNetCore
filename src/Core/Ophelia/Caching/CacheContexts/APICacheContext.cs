@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Ophelia.Web.Application.Server.DistributedCaches;
 using Newtonsoft.Json;
+using Ophelia.Caching.DistributedCaches;
 
-namespace Ophelia.Web.Application.Server.CacheContexts
+namespace Ophelia.Caching.CacheContexts
 {
     public class APICacheContext: ICacheContext
     {

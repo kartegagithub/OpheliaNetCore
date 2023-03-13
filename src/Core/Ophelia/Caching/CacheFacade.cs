@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ophelia.Web.Application.Server
+namespace Ophelia.Caching
 {
     public abstract class CacheFacade<TEntity> where TEntity : class
     {

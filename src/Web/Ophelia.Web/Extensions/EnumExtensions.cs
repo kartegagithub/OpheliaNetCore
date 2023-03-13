@@ -1,11 +1,11 @@
-﻿using Ophelia.Web;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Ophelia.Web;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using System.Web.Mvc;
 
 namespace Ophelia
 {
@@ -52,7 +52,6 @@ namespace Ophelia
 
             var displayAttributeType = typeof(DisplayAttribute);
 
-            var items = new List<SelectListItem>();
             foreach (var value in source)
             {
                 FieldInfo field = value.GetType().GetField(value.ToString());

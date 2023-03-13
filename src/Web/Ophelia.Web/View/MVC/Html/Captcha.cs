@@ -79,7 +79,7 @@ namespace Ophelia.Web.View.Mvc.Html
 
         public bool CheckCaptcha(string captchaCode, string captchaSessionKey)
         {
-            var captchaValue = "";
+            string captchaValue;
             if (Client.Current.Session != null)
                 captchaValue = Client.Current.Session.GetString("Captcha_" + captchaSessionKey);
             else

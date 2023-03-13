@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ophelia.Web.Application.Server.DistributedCaches
+namespace Ophelia.Caching.DistributedCaches
 {
     public abstract class APICache : IDistributedCache, IDisposable
     {

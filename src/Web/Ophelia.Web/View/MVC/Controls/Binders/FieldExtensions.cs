@@ -36,7 +36,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
 
         public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string name, bool isRequired) where T : class { return container.AddTextboxField(name, "", isRequired); }
         public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string name, string value, bool isRequired) where T : class { return container.AddTextboxField(name, value, isRequired, null); }
-        public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string name, string value, bool isRequired, object htmlAttributes) where T : class { return container.AddTextboxField(name, name, value, isRequired, null); }
+        public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string name, string value, bool isRequired, object htmlAttributes) where T : class { return container.AddTextboxField(name, name, value, isRequired, htmlAttributes); }
         public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null) where T : class { return container.AddTextboxField("", expression, isRequired, htmlAttributes); }
         public static Fields.TextboxField<T> AddTextboxField<T>(this FieldContainer<T> container, string Text, string name, string value, bool isRequired, object htmlAttributes) where T : class
         {
@@ -44,7 +44,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.DataControl.ID = name;
             control.DataControl.Name = name;
             control.DataControl.Value = value;
-            control.DataControl.HtmlAttributes = htmlAttributes;
+            control.HtmlAttributes = htmlAttributes;
             control.IsRequired = isRequired;
             control.Text = Text;
             control.ID = name;
@@ -57,6 +57,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.Text = Text;
             control.ID = Text;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.TextboxField<T>)container.AddField(control);
         }
 
@@ -70,6 +71,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.DataControl.Name = Text;
             control.ID = Text;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.NumberboxField<T>)container.AddField(control);
         }
         public static Fields.NumberboxField<T> AddNumberboxField<T>(this FieldContainer<T> container, string Text, string name, string value, bool isRequired = false, object htmlAttributes = null) where T : class
@@ -81,6 +83,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.Text = Text;
             control.ID = name;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.NumberboxField<T>)container.AddField(control);
         }
 
@@ -98,6 +101,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.Text = Text;
             control.ID = Text;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.NumberboxField<T>)container.AddField(control);
         }
         public static Fields.NumberboxField<T> AddNumberboxRangeField<T>(this FieldContainer<T> container, string Text, string LowProperty, string HighProperty, object LowPropertyValue, object HighPropertyValue, bool isRequired = false, object htmlAttributes = null, string HighPlaceHolder = "End", string LowPlaceHolder = "Start") where T : class
@@ -112,6 +116,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.HighExpressionValue = HighPropertyValue;
             control.Mode = Fields.NumberboxFieldMode.DoubleSelection;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.NumberboxField<T>)container.AddField(control);
         }
 
@@ -123,6 +128,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.Text = Text;
             control.ID = Text;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.PasswordField<T>)container.AddField(control);
         }
 
@@ -138,6 +144,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.Text = Text;
             control.ID = Text;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.DateField<T>)container.AddField(control);
         }
         public static Fields.DateField<T> AddDateRangeField<T>(this FieldContainer<T> container, string Text, string LowProperty, string HighProperty, object LowPropertyValue, object HighPropertyValue, bool isRequired = false, object htmlAttributes = null) where T : class
@@ -150,6 +157,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.HighExpressionValue = HighPropertyValue;
             control.Mode = Fields.DateFieldMode.DoubleSelection;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.DateField<T>)container.AddField(control);
         }
         public static Fields.DateField<T> AddDateField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, DateTimeFormatType format = DateTimeFormatType.DateOnly, bool isRequired = false, object htmlAttributes = null, bool IsReadonly = false) where T : class
@@ -212,6 +220,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.Text = Text;
             control.IsRequired = isRequired;
             control.ID = Text;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.RichTextField<T>)container.AddField(control);
         }
 
@@ -225,6 +234,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.DataControl.DataOnText = DataOnText;
             control.DataControl.DataOffText = DataOffText;
             control.ID = Text;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.CheckboxField<T>)container.AddField(control);
         }
 
@@ -239,6 +249,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.DataControl.DataOnText = DataOnText;
             control.DataControl.DataOffText = DataOffText;
             control.ID = Text;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.CheckboxField<T>)container.AddField(control);
         }
 
@@ -250,6 +261,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.Text = Text;
             control.IsRequired = isRequired;
             control.ID = Text;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.RadioboxField<T>)container.AddField(control);
         }
         public static Fields.SelectboxField<T> AddBoolSelectboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class
@@ -274,6 +286,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.Text = Text;
             control.IsRequired = isRequired;
             control.ID = Text;
+            control.HtmlAttributes = htmlAttributes;
             container.AddField(control);
             container.SetFieldProperties(control);
             return control;
@@ -290,8 +303,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.DataControl.DefaultValue = DefaultValue;
             control.DataControl.DisplayMemberName = DisplayMemberName;
             control.DataControl.ValueMemberName = ValueMemberName;
+            control.HtmlAttributes = htmlAttributes;
             control.Text = Text;
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             container.AddField(control);
             container.SetFieldProperties(control);
             return control;
@@ -309,6 +324,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.DataControl.DisplayMemberName = "Text";
             control.DataControl.ValueMemberName = "Value";
             control.IsRequired = isRequired;
+            control.HtmlAttributes = htmlAttributes;
             return (Fields.SelectboxField<T>)container.AddField(control);
         }
 

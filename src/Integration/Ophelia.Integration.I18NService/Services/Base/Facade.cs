@@ -1,12 +1,9 @@
 ﻿using Ophelia.Service;
-using Ophelia.Web;
-using Ophelia.Web.Application.Client;
+using Ophelia.Web.Service;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace Ophelia.Integration.I18NService.Services.Base
 {
@@ -14,12 +11,12 @@ namespace Ophelia.Integration.I18NService.Services.Base
     {
         public void QueueFileToUpload(IFormFile file, string KeyName = "")
         {
-            if (Ophelia.URLExtensions.FilesToUpload == null)
-                Ophelia.URLExtensions.FilesToUpload = new Dictionary<string, IFormFile>();
+            if (Web.URLExtensions.FilesToUpload == null)
+                Web.URLExtensions.FilesToUpload = new Dictionary<string, IFormFile>();
             if (string.IsNullOrEmpty(KeyName))
-                KeyName = Ophelia.Utility.GenerateRandomPassword(5);
+                KeyName = Utility.GenerateRandomPassword(5);
 
-            Ophelia.URLExtensions.FilesToUpload.Add(KeyName, file);
+            Web.URLExtensions.FilesToUpload.Add(KeyName, file);
         }
 
         public I18NIntegratorClient API { get; private set; }
@@ -28,48 +25,48 @@ namespace Ophelia.Integration.I18NService.Services.Base
 
         public virtual TResult PostObject<T, TResult>(string URL, T entity, dynamic parameters, long languageID = 0)
         {
-            return this.ProcessResult(Ophelia.URLExtensions.PostObject<T, TResult>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, entity, parameters, this.GetHeaders(URL), true, languageID));
+            return this.ProcessResult(Web.URLExtensions.PostObject<T, TResult>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, entity, parameters, this.GetHeaders(URL), true, languageID));
         }
 
         public virtual ServiceObjectResult<T> PostObject<T>(string URL, T entity, long languageID = 0)
         {
-            return (ServiceObjectResult<T>)this.ProcessResult(Ophelia.URLExtensions.PostObject<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, entity, this.GetHeaders(URL), true, languageID));
+            return (ServiceObjectResult<T>)this.ProcessResult(Web.URLExtensions.PostObject<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, entity, this.GetHeaders(URL), true, languageID));
         }
 
         public virtual ServiceObjectResult<T> GetObject<T>(string URL, long ID, dynamic parameters = null)
         {
-            return this.ProcessResult(Ophelia.URLExtensions.GetObject<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, ID, parameters, this.GetHeaders(URL), true));
+            return this.ProcessResult(Web.URLExtensions.GetObject<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, ID, parameters, this.GetHeaders(URL), true));
         }
 
         public virtual ServiceObjectResult<T> GetObject<T>(string URL, T entity)
         {
-            return (ServiceObjectResult<T>)this.ProcessResult(Ophelia.URLExtensions.PostObject<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, entity, this.GetHeaders(URL), true));
+            return (ServiceObjectResult<T>)this.ProcessResult(Web.URLExtensions.PostObject<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, entity, this.GetHeaders(URL), true));
         }
 
         public virtual ServiceObjectResult<T> GetObject<T>(string URL, WebApiObjectRequest<T> request)
         {
-            return (ServiceObjectResult<T>)this.ProcessResult(Ophelia.URLExtensions.GetObject(this.API.ServiceURL + "/" + this.Schema + "/" + URL, request, this.GetHeaders(URL), true));
+            return (ServiceObjectResult<T>)this.ProcessResult(Web.URLExtensions.GetObject(this.API.ServiceURL + "/" + this.Schema + "/" + URL, request, this.GetHeaders(URL), true));
         }
 
         public virtual ServiceCollectionResult<T> GetCollection<T>(string URL, int page, int pageSize, dynamic parameters = null)
         {
-            return this.ProcessResult(Ophelia.URLExtensions.GetCollection<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, page, pageSize, parameters, this.GetHeaders(URL), true));
+            return this.ProcessResult(Web.URLExtensions.GetCollection<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, page, pageSize, parameters, this.GetHeaders(URL), true));
         }
         public virtual TResult GetCollection<T, TResult>(string URL, int page, int pageSize, dynamic parameters = null)
         {
-            return this.ProcessResult(Ophelia.URLExtensions.GetCollection<T, TResult>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, page, pageSize, parameters, this.GetHeaders(URL), true));
+            return this.ProcessResult(Web.URLExtensions.GetCollection<T, TResult>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, page, pageSize, parameters, this.GetHeaders(URL), true));
         }
         public virtual ServiceCollectionResult<T> GetCollection<T>(string URL, int page, int pageSize, T filterEntity, dynamic parameters = null)
         {
-            return this.ProcessResult(Ophelia.URLExtensions.GetCollection<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, page, pageSize, filterEntity, parameters, this.GetHeaders(URL), true));
+            return this.ProcessResult(Web.URLExtensions.GetCollection<T>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, page, pageSize, filterEntity, parameters, this.GetHeaders(URL), true));
         }
         public virtual TResult GetCollection<T, TResult>(string URL, int page, int pageSize, T filterEntity, dynamic parameters = null)
         {
-            return this.ProcessResult(Ophelia.URLExtensions.GetCollection<T, TResult>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, page, pageSize, filterEntity, parameters, this.GetHeaders(URL), true));
+            return this.ProcessResult(Web.URLExtensions.GetCollection<T, TResult>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, page, pageSize, filterEntity, parameters, this.GetHeaders(URL), true));
         }
         public virtual ServiceCollectionResult<T> GetCollection<T>(string URL, WebApiCollectionRequest<T> request)
         {
-            return (ServiceCollectionResult<T>)this.ProcessResult(Ophelia.URLExtensions.GetCollection<T, ServiceCollectionResult<T>>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, request, this.GetHeaders(URL), true));
+            return (ServiceCollectionResult<T>)this.ProcessResult(Web.URLExtensions.GetCollection<T, ServiceCollectionResult<T>>(this.API.ServiceURL + "/" + this.Schema + "/" + URL, request, this.GetHeaders(URL), true));
         }
 
         public T PostURL<T>(string URL, dynamic parameters, string contentType = "application/x-www-form-urlencoded")
@@ -95,7 +92,7 @@ namespace Ophelia.Integration.I18NService.Services.Base
 
         public void Dispose()
         {
-            Ophelia.URLExtensions.FilesToUpload = null;
+            Web.URLExtensions.FilesToUpload = null;
         }
 
         public Facade(I18NIntegratorClient API)
