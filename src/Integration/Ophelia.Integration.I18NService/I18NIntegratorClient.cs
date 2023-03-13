@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Ophelia.Integration.I18NService.Models;
 using Ophelia;
 using Ophelia.Service;

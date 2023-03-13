@@ -1,8 +1,6 @@
 ﻿using Ophelia.Integration.I18NService.Models;
 using Ophelia.Service;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Ophelia.Integration.I18NService.Services
 {

@@ -16,6 +16,7 @@
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
 		<Version>7.0.0.0</Version>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+		<PackageOutputPath>$(SolutionDir)packages\nuget\$(Configuration)\</PackageOutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>

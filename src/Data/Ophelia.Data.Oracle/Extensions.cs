@@ -6,8 +6,14 @@ namespace Ophelia.Data.SQLServer
     {
         public static void UseOracle()
         {
-            if (!Ophelia.Data.Connection.ConnectionProviders.ContainsKey("Oracle"))
-                Ophelia.Data.Connection.ConnectionProviders.Add("Oracle", typeof(Oracle.ManagedDataAccess.Client.OracleConnection));
+            if (!Connection.ConnectionProviders.ContainsKey("Oracle"))
+                Connection.ConnectionProviders.Add("Oracle", typeof(Oracle.ManagedDataAccess.Client.OracleConnection));
+        }
+
+        public static DatabaseType UseOracle(this DataContext context)
+        {
+            UseOracle();
+            return DatabaseType.Oracle;
         }
     }
 }

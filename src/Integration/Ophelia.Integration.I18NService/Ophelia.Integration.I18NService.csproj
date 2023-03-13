@@ -14,13 +14,13 @@
 		<PackAsTool>False</PackAsTool>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<Version>7.0.0.0</Version>
+		<Version>7.0.0.1</Version>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+		<PackageOutputPath>$(SolutionDir)packages\nuget\$(Configuration)\</PackageOutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\Ophelia\Ophelia.csproj" />
-		<ProjectReference Include="..\..\Web\Ophelia.Web\Ophelia.Web.csproj" />
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F" />

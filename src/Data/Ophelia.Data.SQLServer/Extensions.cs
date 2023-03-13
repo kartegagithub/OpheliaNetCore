@@ -6,8 +6,14 @@ namespace Ophelia.Data.SQLServer
     {
         public static void UseSQLServer()
         {
-            if (!Ophelia.Data.Connection.ConnectionProviders.ContainsKey("SQLServer"))
-                Ophelia.Data.Connection.ConnectionProviders.Add("SQLServer", typeof(System.Data.SqlClient.SqlConnection));
+            if (!Connection.ConnectionProviders.ContainsKey("SQLServer"))
+                Connection.ConnectionProviders.Add("SQLServer", typeof(System.Data.SqlClient.SqlConnection));
+        }
+
+        public static DatabaseType UseSQLServer(this DataContext context)
+        {
+            UseSQLServer();
+            return DatabaseType.SQLServer;
         }
     }
 }

@@ -56,7 +56,7 @@ namespace Ophelia.Data.Querying.Query
                                     sb.Append(", ");
                                 sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(_prop.PropertyInfo.Name)));
                                 sb.Append(" = ");
-                                sb.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count());
+                                sb.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
                                 if (_prop.Value == null)
                                 {
                                     this.Data.Parameters.Add(DBNull.Value);
@@ -78,7 +78,7 @@ namespace Ophelia.Data.Querying.Query
                         sb.Append(",");
                     sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Updater.Expression.ParsePath())));
                     sb.Append(" = ");
-                    sb.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count());
+                    sb.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
                     this.Data.Parameters.Add(Updater.Value);
                     counter++;
                 }

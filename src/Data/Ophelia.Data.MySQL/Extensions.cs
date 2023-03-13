@@ -6,8 +6,14 @@ namespace Ophelia.Data.MySQL
     {
         public static void UseMySQL()
         {
-            if (!Ophelia.Data.Connection.ConnectionProviders.ContainsKey("MySQL"))
-                Ophelia.Data.Connection.ConnectionProviders.Add("MySQL", typeof(MySql.Data.MySqlClient.MySqlConnection));
+            if (!Connection.ConnectionProviders.ContainsKey("MySQL"))
+                Connection.ConnectionProviders.Add("MySQL", typeof(MySql.Data.MySqlClient.MySqlConnection));
+        }
+
+        public static DatabaseType UseMySQL(this DataContext context)
+        {
+            UseMySQL();
+            return DatabaseType.MySQL;
         }
     }
 }

@@ -113,7 +113,166 @@ namespace Ophelia
                 .CreateStringContent(parameters, contentType);
             return factory.GetStringResponse();
         }
-        
+
+        public static List<FileData>? FilesToUploadBase64 { get; set; }
+
+        public static TResult PostObject<T, TResult>(this string URL, T entity, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false, long languageID = 0)
+        {
+            var request = new ServiceObjectRequest<T>
+            {
+                Data = entity,
+                LanguageID = languageID
+            };
+            SetParameters(request, parameters);
+            return URL.GetObject<T, TResult>(request, headers, PreAuthenticate);
+        }
+        public static ServiceObjectResult<T> PostObject<T>(this string URL, T entity, WebHeaderCollection headers = null, bool PreAuthenticate = false, long languageID = 0)
+        {
+            var request = new ServiceObjectRequest<T>() { Data = entity, LanguageID = languageID };
+            SetParameters(request, null);
+            return URL.GetObject(request, headers, PreAuthenticate);
+        }
+        public static ServiceObjectResult<T> GetObject<T>(this string URL, long ID, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var request = new ServiceObjectRequest<T>() { ID = ID };
+            SetParameters(request, parameters);
+            return URL.GetObject(request, headers, PreAuthenticate);
+        }
+        public static ServiceObjectResult<T> GetObjectByParam<T>(this string URL, dynamic parameters, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var request = new ServiceObjectRequest<T>();
+            SetParameters(request, parameters);
+            return URL.GetObject(request, headers, PreAuthenticate);
+        }
+        public static TResult GetObject<T, TResult>(this string URL, ServiceObjectRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var response = "";
+            try
+            {
+                response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
+                return JsonConvert.DeserializeObject<TResult>(response);
+            }
+            catch (Exception ex)
+            {
+                var result = (TResult)Activator.CreateInstance(typeof(TResult));
+                if (result is ServiceResult)
+                {
+                    if (result is ServiceResult serviceResult)
+                    {
+                        serviceResult.Fail(ex, "ERRAPI");
+                        serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                    }
+                }
+                return result;
+            }
+        }
+        public static ServiceObjectResult<T> GetObject<T>(this string URL, ServiceObjectRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var response = "";
+            try
+            {
+                response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
+                return JsonConvert.DeserializeObject<ServiceObjectResult<T>>(response);
+            }
+            catch (Exception ex)
+            {
+                var result = (ServiceObjectResult<T>)Activator.CreateInstance(typeof(ServiceObjectResult<T>));
+                if (result is ServiceResult serviceResult)
+                {
+                    serviceResult.Fail(ex, "ERRAPI");
+                    serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                }
+                return result;
+            }
+        }
+        public static ServiceCollectionResult<T> GetCollection<T>(this string URL, int page, int pageSize, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var request = new ServiceCollectionRequest<T>() { Page = page, PageSize = pageSize };
+            SetParameters(request, parameters);
+            return URL.GetCollection<T, ServiceCollectionResult<T>>(request, headers, PreAuthenticate);
+        }
+        public static TResult GetCollection<T, TResult>(this string URL, int page, int pageSize, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var request = new ServiceCollectionRequest<T>() { Page = page, PageSize = pageSize };
+            SetParameters(request, parameters);
+            return URL.GetCollection<T, TResult>(request, headers, PreAuthenticate);
+        }
+        public static ServiceCollectionResult<T> GetCollection<T>(this string URL, int page, int pageSize, T filterEntity, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var request = new ServiceCollectionRequest<T>() { Page = page, PageSize = pageSize, Data = filterEntity };
+            SetParameters(request, parameters);
+            return URL.GetCollection<T, ServiceCollectionResult<T>>(request, headers, PreAuthenticate);
+        }
+        public static TResult GetCollection<T, TResult>(this string URL, int page, int pageSize, T filterEntity, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var request = new ServiceCollectionRequest<T>() { Page = page, PageSize = pageSize, Data = filterEntity };
+            SetParameters(request, parameters);
+            return URL.GetCollection<T, TResult>(request, headers, PreAuthenticate);
+        }
+        public static TResult GetCollection<T, TResult>(this string URL, ServiceCollectionRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var response = "";
+            try
+            {
+                response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
+                return JsonConvert.DeserializeObject<TResult>(response);
+            }
+            catch (Exception ex)
+            {
+                var result = (TResult)Activator.CreateInstance(typeof(TResult));
+                if (result is ServiceResult)
+                {
+                    if (result is ServiceResult serviceResult)
+                    {
+                        serviceResult.Fail(ex, "ERRAPI");
+                        serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                    }
+                }
+                return result;
+            }
+        }
+        public static T PostURL<T, TEntity>(this string URL, ServiceObjectRequest<TEntity> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            var response = "";
+            try
+            {
+                response = URL.PostURL(request.ToJson(), "application/json", headers, PreAuthenticate);
+                return JsonConvert.DeserializeObject<T>(response);
+            }
+            catch (Exception ex)
+            {
+                var result = (T)Activator.CreateInstance(typeof(T));
+                if (result is ServiceResult)
+                {
+                    if (result is ServiceResult serviceResult)
+                    {
+                        serviceResult.Fail(ex, "ERRAPI");
+                        serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
+                    }
+                }
+                return result;
+            }
+        }
+        private static void SetParameters<T>(ServiceObjectRequest<T> request, dynamic parameters)
+        {
+            if (FilesToUploadBase64?.Count > 0)
+            {
+                foreach (var file in FilesToUploadBase64)
+                {
+                    request.Files.Add(file);
+                }
+            }
+            FilesToUploadBase64 = null;
+            if (parameters != null)
+            {
+                var jsonParams = Newtonsoft.Json.JsonConvert.DeserializeObject<IDictionary<string, string>>(Newtonsoft.Json.JsonConvert.SerializeObject(parameters));
+                foreach (var item in jsonParams.Keys)
+                {
+                    request.Parameters[item] = Convert.ToString(jsonParams[item]);
+                }
+            }
+        }
+
         public static PingReply Ping(string address, string data = "test")
         {
             var pingSender = new Ping();
