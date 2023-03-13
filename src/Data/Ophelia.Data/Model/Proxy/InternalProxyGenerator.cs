@@ -14,7 +14,10 @@ namespace Ophelia.Data.Model.Proxy
 
             object proxyEntity = null;
             if (!typeof(ITrackedEntity).IsAssignableFrom(type))
+            {
+                //TODO: Existing runtime type will be resolved and reused.
                 proxyEntity = instance.CreateClassProxy(type, new Type[] { typeof(ITrackedEntity) }, new TrackedEntityInterceptor(source));
+            }
             else
             {
                 proxyEntity = Activator.CreateInstance(type);

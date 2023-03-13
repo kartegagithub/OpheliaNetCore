@@ -9,9 +9,13 @@ namespace Ophelia.Web
     public class Client : IDisposable
     {
         [ThreadStatic]
-        protected static Client _Current;
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+        protected static Client? _Current;
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
-        protected int nCurrentLanguageID = 0;
+#pragma warning disable CA1051 // Do not declare visible instance fields
+        protected int nCurrentLanguageID;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public static Client Current
         {
@@ -157,8 +161,7 @@ namespace Ophelia.Web
                 if (this.Context != null)
                 {
                     this.SetCurrentLanguageCookie();
-                    if (this.Session != null)
-                        this.Session.SetInt32("CurrentLanguageID", value);
+                    this.Session?.SetInt32("CurrentLanguageID", value);
                 }
             }
         }
@@ -207,7 +210,7 @@ namespace Ophelia.Web
         protected virtual void Dispose(bool disposing)
         {
             this.Disconnect();
-            Debug.WriteLine("Client.Dispose ManagedThreadId: " + Thread.CurrentThread.ManagedThreadId);
+            Debug.WriteLine("Client.Dispose ManagedThreadId: " + Environment.CurrentManagedThreadId);
         }
 
         public Client()

@@ -49,10 +49,14 @@ namespace Ophelia
         }
         public static object Clone(object Original)
         {
-            byte[] bytes = null;
             object clonedObject = null;
             try
             {
+
+#if NETCOREAPP3_1
+                clonedObject = JsonSerializer.Deserialize(JsonSerializer.Serialize(Original), Original.GetType(), new JsonSerializerOptions() { MaxDepth = 10 });
+#else
+                byte[] bytes = null;
                 using (var stream = new MemoryStream())
                 {
                     JsonSerializer.Serialize(stream, Original);
@@ -64,6 +68,7 @@ namespace Ophelia
                     clonedObject = JsonSerializer.Deserialize(stream, Original.GetType(), new JsonSerializerOptions() { MaxDepth = 10 });
                     stream.Close();
                 }
+#endif
             }
             catch { return clonedObject; }
             return clonedObject;

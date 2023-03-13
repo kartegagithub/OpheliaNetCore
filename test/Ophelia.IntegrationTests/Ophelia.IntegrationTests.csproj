@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+		<PackageReference Include="coverlet.collector" Version="3.1.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Integration\Ophelia.Integration.Amazon\Ophelia.Integration.Amazon.csproj" />
+		<ProjectReference Include="..\..\src\Integration\Ophelia.Integration.Github\Ophelia.Integration.Github.csproj" />
+		<ProjectReference Include="..\..\src\Integration\Ophelia.Integration.I18NService\Ophelia.Integration.I18NService.csproj" />
+		<ProjectReference Include="..\..\src\Integration\Ophelia.Integration.LDAP\Ophelia.Integration.LDAP.csproj" />
+		<ProjectReference Include="..\..\src\Integration\Ophelia.Integration.Notification\Ophelia.Integration.Notification.csproj" />
+		<ProjectReference Include="..\..\src\Integration\Ophelia.Integration.Redis\Ophelia.Integration.Redis.csproj" />
+		<ProjectReference Include="..\..\src\Integration\Ophelia.Integration.Vimeo\Ophelia.Integration.CDN.Vimeo.csproj" />
+		<ProjectReference Include="..\..\src\Integration\Ophelia.Integration.Weather.WeatherAPI\Ophelia.Integration.Weather.WeatherAPI.csproj" />
+	</ItemGroup>
+
+</Project>
