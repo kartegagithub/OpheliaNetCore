@@ -1,4 +1,5 @@
-﻿using NJsonSchema.Annotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using NJsonSchema.Annotations;
 using NSwag.Annotations;
 using System.Collections.Generic;
 
@@ -8,7 +9,8 @@ namespace Ophelia.Web.Service
     {
         [OpenApiIgnore]
         [JsonSchemaIgnore]
-        public Data.Querying.Query.QueryData QueryData { get; set; }
+        [ValidateNever]
+        public Data.Querying.Query.QueryData? QueryData { get; set; }
 
         public new WebApiCollectionRequest<T> AddParam(string key, object value)
         {

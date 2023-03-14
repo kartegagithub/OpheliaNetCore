@@ -14,7 +14,7 @@
 		<PackAsTool>False</PackAsTool>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<Version>7.0.0.1</Version>
+		<Version>7.0.0.2</Version>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 		<PackageOutputPath>$(SolutionDir)packages\nuget\$(Configuration)\</PackageOutputPath>
 	</PropertyGroup>
