@@ -31,7 +31,14 @@ namespace Ophelia.Web
         {
             get
             {
-                return this.Context != null ? this.Context.Session : null;
+                try
+                {
+                    return this.Context != null ? this.Context.Session : null;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
             }
         }
 
@@ -39,7 +46,14 @@ namespace Ophelia.Web
         {
             get
             {
-                return this.Context != null ? this.Context.Response : null;
+                try
+                {
+                    return this.Context != null ? this.Context.Response : null;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
             }
         }
 
@@ -47,7 +61,14 @@ namespace Ophelia.Web
         {
             get
             {
-                return this.Context != null ? this.Context.Request : null;
+                try
+                {
+                    return this.Context != null ? this.Context.Request : null;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
             }
         }
 
