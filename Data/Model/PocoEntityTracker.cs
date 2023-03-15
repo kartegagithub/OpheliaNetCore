@@ -61,7 +61,6 @@ namespace Ophelia.Data.Model
         }
         internal virtual void OnAfterCreateEntity()
         {
-            ProxyEntity = Entity;
             if(ProxyEntity == null)
                 ProxyEntity = Entity;
             Entity = Activator.CreateInstance(ProxyEntity.GetType());
