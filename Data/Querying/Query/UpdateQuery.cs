@@ -1,8 +1,10 @@
-﻿using Ophelia.Data.Model;
+﻿using Newtonsoft.Json;
+using Ophelia.Data.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace Ophelia.Data.Querying.Query
@@ -54,7 +56,9 @@ namespace Ophelia.Data.Querying.Query
                             {
                                 if (i != 0)
                                     sb.Append(", ");
-                                sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(_prop.PropertyInfo.Name)));
+
+                                sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(_prop.PropertyInfo))));
+
                                 sb.Append(" = ");
                                 sb.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count());
                                 if (_prop.Value == null)
@@ -76,6 +80,8 @@ namespace Ophelia.Data.Querying.Query
                 {
                     if (counter > 0)
                         sb.Append(",");
+
+                    //TODO: Extensions.GetColumnName must be used
                     sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Updater.Expression.ParsePath())));
                     sb.Append(" = ");
                     sb.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count());
