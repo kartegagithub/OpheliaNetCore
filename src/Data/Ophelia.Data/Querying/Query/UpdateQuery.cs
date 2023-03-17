@@ -54,7 +54,7 @@ namespace Ophelia.Data.Querying.Query
                             {
                                 if (i != 0)
                                     sb.Append(", ");
-                                sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(_prop.PropertyInfo.Name)));
+                                sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(_prop.PropertyInfo))));
                                 sb.Append(" = ");
                                 sb.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
                                 if (_prop.Value == null)
@@ -76,6 +76,7 @@ namespace Ophelia.Data.Querying.Query
                 {
                     if (counter > 0)
                         sb.Append(",");
+                    //TODO: Extensions.GetColumnName must be used instead of pk.Name
                     sb.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Updater.Expression.ParsePath())));
                     sb.Append(" = ");
                     sb.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);

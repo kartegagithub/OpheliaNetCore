@@ -61,7 +61,7 @@ namespace Ophelia.Data.Querying.Query
                                     sbValues.Append(", ");
                                 }
 
-                                sbFields.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(_prop.PropertyInfo.Name)));
+                                sbFields.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(_prop.PropertyInfo))));
                                 sbValues.Append(this.Context.Connection.FormatParameterName("p") + i);
                                 this.Data.Parameters.Add(this.Context.Connection.FormatParameterValue(_prop.Value));
                                 i++;
@@ -77,7 +77,7 @@ namespace Ophelia.Data.Querying.Query
                         if (!Extensions.IsComputedProperty(pk))
                         {
                             sbFields.Append(",");
-                            sbFields.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(pk.Name)));
+                            sbFields.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(pk))));
                             sbValues.Append(",");
                             sbValues.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
                             if (Extensions.IsIdentityProperty(pk))
