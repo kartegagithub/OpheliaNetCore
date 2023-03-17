@@ -69,7 +69,7 @@ namespace Ophelia
             }
             return DateTime.MinValue;
         }
-        public static Boolean ToBoolean(this DataRow row, string ColumnName)
+        public static bool ToBoolean(this DataRow row, string ColumnName)
         {
             if (!string.IsNullOrEmpty(ColumnName) && row != null && row.Table.Columns.Contains(ColumnName) && row[ColumnName] != DBNull.Value)
             {

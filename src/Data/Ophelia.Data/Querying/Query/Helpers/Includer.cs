@@ -335,7 +335,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         {
                             referencedEntity = Activator.CreateInstance(this.PropertyInfo.PropertyType);
                             if (referencedEntity is Model.DataEntity)
-                                (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loading;
+                                (referencedEntity as Model.DataEntity).InternalTracker.State = EntityState.Loading;
                         }
                         if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
                         {
@@ -360,7 +360,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     {
                         this.PropertyInfo.SetValue(entity, referencedEntity);
                         if (referencedEntity is Model.DataEntity)
-                            (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loaded;
+                            (referencedEntity as Model.DataEntity).InternalTracker.State = EntityState.Loaded;
 
                         foreach (var subInc in this.SubIncluders)
                         {
@@ -380,9 +380,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
                 var types = new Type[] { this.EntityType };
 
-                if (entity.GetType().IsSubclassOf(typeof(Model.DataEntity)))
+                if (entity.GetType().IsDataEntity())
                 {
-                    (entity as Model.DataEntity).Tracker.LoadAnyway = true;
+                    (entity as Model.DataEntity).InternalTracker.LoadAnyway = true;
                 }
                 IEnumerable referencedCollection = null;
                 if (this.PropertyInfo.PropertyType.IsQueryableDataSet() || this.PropertyInfo.PropertyType.IsQueryable())
@@ -394,9 +394,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     referencedCollection = this.PropertyInfo.PropertyType.GenericTypeArguments[0].CreateList();
                     this.PropertyInfo.SetValue(entity, referencedCollection);
                 }
-                if (entity.GetType().IsSubclassOf(typeof(Model.DataEntity)))
+                if (entity.GetType().IsDataEntity())
                 {
-                    (entity as Model.DataEntity).Tracker.LoadAnyway = false;
+                    (entity as Model.DataEntity).InternalTracker.LoadAnyway = false;
                 }
 
                 var doc = new System.Xml.XmlDocument();
@@ -409,21 +409,21 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 {
                     object referencedEntity = null;
 
-                    if (referencedCollection is Model.QueryableDataSet)
+                    if (referencedCollection.GetType().IsQueryableDataSet())
                         (referencedCollection as Model.QueryableDataSet).TotalCount = dataSet.Tables[0].Rows.Count;
 
                     foreach (System.Data.DataRow item in dataSet.Tables[0].Rows)
                     {
                         referencedEntity = Activator.CreateInstance(this.EntityType);
-                        if (referencedCollection is Model.QueryableDataSet)
+                        if (referencedCollection.GetType().IsQueryableDataSet())
                             (referencedCollection as Model.QueryableDataSet).AddItem(referencedEntity);
                         else
                         {
                             referencedCollection.ExecuteMethod("Add", referencedEntity);
                         }
 
-                        if (referencedEntity is Model.DataEntity)
-                            (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loading;
+                        if (referencedEntity.GetType().IsDataEntity())
+                            (referencedEntity as Model.DataEntity).InternalTracker.State = EntityState.Loading;
 
                         var properties = this.EntityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(op => !op.PropertyType.IsDataEntity() && !op.PropertyType.IsQueryableDataSet());
                         foreach (var p in properties)
@@ -451,7 +451,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         }
 
                         if (referencedEntity is Model.DataEntity)
-                            (referencedEntity as Model.DataEntity).Tracker.State = EntityState.Loaded;
+                            (referencedEntity as Model.DataEntity).InternalTracker.State = EntityState.Loaded;
                     }
                 }
             }

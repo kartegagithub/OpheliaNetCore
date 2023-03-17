@@ -53,9 +53,9 @@ namespace Ophelia
                 var memberExpression = expression as MemberExpression;
                 if (memberExpression != null)
                 {
-                    if (memberExpression.Member is System.Reflection.PropertyInfo)
+                    if (memberExpression.Member is PropertyInfo)
                     {
-                        var property = memberExpression.Member as System.Reflection.PropertyInfo;
+                        var property = memberExpression.Member as PropertyInfo;
                         return property.PropertyType;
                     }
                 }
@@ -163,11 +163,11 @@ namespace Ophelia
             {
                 var thisPart = memberExpression.Member.Name;
                 string parentPart;
-                if (!TryParsePath(memberExpression.Expression, out parentPart))
+                if (!memberExpression.Expression.TryParsePath(out parentPart))
                 {
                     return false;
                 }
-                path = parentPart == null ? thisPart : (parentPart + "." + thisPart);
+                path = parentPart == null ? thisPart : parentPart + "." + thisPart;
             }
             else if (lambdaExpression != null)
             {
@@ -185,16 +185,16 @@ namespace Ophelia
                 {
                     var thisPart = memberExpression.Member.Name;
                     string parentPart;
-                    if (!TryParsePath(memberExpression.Expression, out parentPart))
+                    if (!memberExpression.Expression.TryParsePath(out parentPart))
                     {
                         return false;
                     }
-                    path = parentPart == null ? thisPart : (parentPart + "." + thisPart);
+                    path = parentPart == null ? thisPart : parentPart + "." + thisPart;
                 }
                 else if (unaryExpression != null)
                 {
                     string thisPart;
-                    if (!TryParsePath(unaryExpression.Operand, out thisPart))
+                    if (!unaryExpression.Operand.TryParsePath(out thisPart))
                     {
                         return false;
                     }
@@ -207,7 +207,7 @@ namespace Ophelia
                     && callExpression.Arguments.Count == 2)
                 {
                     string parentPart;
-                    if (!TryParsePath(callExpression.Arguments[0], out parentPart))
+                    if (!callExpression.Arguments[0].TryParsePath(out parentPart))
                     {
                         return false;
                     }
@@ -217,7 +217,7 @@ namespace Ophelia
                         if (subExpression != null)
                         {
                             string thisPart;
-                            if (!TryParsePath(subExpression.Body, out thisPart))
+                            if (!subExpression.Body.TryParsePath(out thisPart))
                             {
                                 return false;
                             }
@@ -232,7 +232,7 @@ namespace Ophelia
                         if (unaryExpression != null)
                         {
                             string thisPart;
-                            if (!TryParsePath((unaryExpression.Operand as LambdaExpression).Body, out thisPart))
+                            if (!(unaryExpression.Operand as LambdaExpression).Body.TryParsePath(out thisPart))
                             {
                                 return false;
                             }

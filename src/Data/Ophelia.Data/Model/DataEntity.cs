@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Ophelia.Data.Attributes;
+using Ophelia.Data.Model.Proxy;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,13 +8,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Ophelia.Data.Model
 {
     [Serializable]
-    public abstract class DataEntity : IDisposable
+    public abstract class DataEntity : IDisposable, ITrackedEntity
     {
         private DataEntityTracker _Tracker;
 
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore]
-        public DataEntityTracker Tracker
+        public PocoEntityTracker Tracker
         {
             get
             {
@@ -21,7 +22,13 @@ namespace Ophelia.Data.Model
                     this._Tracker = new DataEntityTracker(this);
                 return this._Tracker;
             }
+            set
+            {
+
+            }
         }
+
+        internal DataEntityTracker InternalTracker => (DataEntityTracker)this.Tracker;
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -37,6 +44,7 @@ namespace Ophelia.Data.Model
         public long UserCreatedID { get { return this.GetValue(op => op.UserCreatedID); } set { this.SetValue(op => op.UserCreatedID, value); } }
         public long UserModifiedID { get { return this.GetValue(op => op.UserModifiedID); } set { this.SetValue(op => op.UserModifiedID, value); } }
         public long StatusID { get { return this.GetValue(op => op.StatusID); } set { this.SetValue(op => op.StatusID, value); } }
+
         private void SetTracker(DataEntityTracker tracker)
         {
             this._Tracker = tracker;

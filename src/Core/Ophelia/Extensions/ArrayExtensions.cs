@@ -40,7 +40,7 @@ namespace Ophelia
 
         public static List<T> ToList<T>(this object[] items)
         {
-            return items.ToList<T>(o => { return (T)o; });
+            return items.ToList(o => { return (T)o; });
         }
 
         public static void ForEach(this Array array, Action<Array, int[]> action)

@@ -13,7 +13,7 @@ namespace Ophelia
             object[] configAttributes = Attribute.GetCustomAttributes(callingAssembly,
                 typeof(T), false);
 
-            if (!configAttributes.IsNullOrEmpty<object>())
+            if (!configAttributes.IsNullOrEmpty())
                 result = (T)configAttributes[0];
 
             return result;

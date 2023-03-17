@@ -20,11 +20,11 @@ namespace Ophelia.Data
         }
         public static bool IsQueryableDataSet(this Type type)
         {
-            return type.IsSubclassOf(typeof(Model.QueryableDataSet)) || type.IsAssignableFrom(typeof(Model.QueryableDataSet));
+            return type.IsSubclassOf(typeof(Model.QueryableDataSet)) || typeof(Model.QueryableDataSet).IsAssignableFrom(type);
         }
         public static bool IsQueryable(this Type type)
         {
-            return type.Name.ToLower() != "string" && (type.IsSubclassOf(typeof(IQueryable)) || typeof(IEnumerable).IsAssignableFrom(type));
+            return type.Name.ToLowerInvariant() != "string" && (type.IsSubclassOf(typeof(IQueryable)) || typeof(IEnumerable).IsAssignableFrom(type));
         }
         public static TResult GetValue<TEntity, TResult>(this TEntity entity, Expression<Func<TEntity, TResult>> property, object defaultValue = null)
             where TEntity : Model.DataEntity
@@ -40,13 +40,13 @@ namespace Ophelia.Data
             }
             if (typeof(TResult).IsGenericType && typeof(TResult).GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
             {
-                var value = entity.Tracker.GetValue(p, defaultValue);
+                var value = entity.InternalTracker.GetValue(p, defaultValue);
                 if (value == null)
                     return default(TResult);
 
                 return (TResult)Convert.ChangeType(value, Nullable.GetUnderlyingType(typeof(TResult)));
             }
-            return (TResult)Convert.ChangeType(entity.Tracker.GetValue(p, defaultValue), typeof(TResult));
+            return (TResult)Convert.ChangeType(entity.InternalTracker.GetValue(p, defaultValue), typeof(TResult));
         }
 
         public static Model.QueryableDataSet<TResult> GetValue<TEntity, TResult>(this TEntity entity, Expression<Func<TEntity, Model.QueryableDataSet<TResult>>> property)
@@ -60,37 +60,37 @@ namespace Ophelia.Data
             where TEntity : Model.DataEntity
             where TResult : class
         {
-            return entity.Tracker.GetDataSetValue((property.Body as MemberExpression).Member as PropertyInfo, predicate);
+            return entity.InternalTracker.GetDataSetValue((property.Body as MemberExpression).Member as PropertyInfo, predicate);
         }
 
         public static TResult GetEntityValue<TEntity, TResult>(this TEntity entity, Expression<Func<TEntity, TResult>> property) where TEntity : Model.DataEntity
         {
-            return entity.Tracker.GetEntityValue<TResult>((property.Body as MemberExpression).Member as PropertyInfo);
+            return entity.InternalTracker.GetEntityValue<TResult>((property.Body as MemberExpression).Member as PropertyInfo);
         }
         public static TResult GetCollectionValue<TEntity, TResult>(this TEntity entity, Expression<Func<TEntity, TResult>> property) where TEntity : Model.DataEntity
         {
-            return (TResult)entity.Tracker.GetCollectionValue<TResult>((property.Body as MemberExpression).Member as PropertyInfo);
+            return (TResult)entity.InternalTracker.GetCollectionValue<TResult>((property.Body as MemberExpression).Member as PropertyInfo);
         }
         public static void Load<TEntity, TProperty>(this TEntity entity, Expression<Func<TEntity, TProperty>> property) where TEntity : Model.DataEntity
         {
             var p = (property.Body as MemberExpression).Member as PropertyInfo;
-            entity.Tracker.LoadAnyway = true;
+            entity.InternalTracker.LoadAnyway = true;
             p.GetValue(entity);
-            entity.Tracker.LoadAnyway = false;
+            entity.InternalTracker.LoadAnyway = false;
         }
 
         public static void Load<TEntity, TResult>(this TEntity entity, Expression<Func<TEntity, Model.QueryableDataSet<TResult>>> property) where TEntity : Model.DataEntity
             where TResult : class
         {
             var p = (property.Body as MemberExpression).Member as PropertyInfo;
-            entity.Tracker.LoadAnyway = true;
+            entity.InternalTracker.LoadAnyway = true;
             p.GetValue(entity);
-            entity.Tracker.LoadAnyway = false;
+            entity.InternalTracker.LoadAnyway = false;
         }
 
         public static void SetValue<TEntity, TResult>(this TEntity entity, Expression<Func<TEntity, TResult>> property, object Value) where TEntity : Model.DataEntity
         {
-            entity.Tracker.SetValue((property.Body as MemberExpression).Member as PropertyInfo, Value);
+            entity.InternalTracker.SetValue((property.Body as MemberExpression).Member as PropertyInfo, Value);
         }
 
         public static IEnumerable CreateDataSet(this Type entityType)

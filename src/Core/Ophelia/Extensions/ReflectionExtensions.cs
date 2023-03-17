@@ -70,36 +70,36 @@ namespace Ophelia
             {
                 object convertedValue = null;
                 var isNull = value == null;
-                if (!isNull && string.IsNullOrEmpty(Convert.ToString(value)))
+                if (!isNull && string.IsNullOrEmpty(Convert.ToString(value, System.Globalization.CultureInfo.CurrentCulture)))
                     isNull = true;
 
-                if ((targetType == typeof(bool) || targetType == typeof(bool?)))
+                if (targetType == typeof(bool) || targetType == typeof(bool?))
                 {
-                    convertedValue = isNull ? default(bool) : Convert.ToInt64(value) != 0;
+                    convertedValue = isNull ? default : Convert.ToInt64(value, System.Globalization.CultureInfo.CurrentCulture) != 0;
                 }
-                else if ((targetType == typeof(byte) || targetType == typeof(byte?)))
+                else if (targetType == typeof(byte) || targetType == typeof(byte?))
                 {
-                    convertedValue = isNull ? default(byte) : Convert.ToByte(value);
+                    convertedValue = isNull ? default : Convert.ToByte(value, System.Globalization.CultureInfo.CurrentCulture);
                 }
-                else if ((targetType == typeof(Int32) || targetType == typeof(Int32?)))
+                else if (targetType == typeof(int) || targetType == typeof(int?))
                 {
-                    convertedValue = isNull ? default(Int32) : Convert.ToInt32(value);
+                    convertedValue = isNull ? default : Convert.ToInt32(value, System.Globalization.CultureInfo.CurrentCulture);
                 }
-                else if ((targetType == typeof(Int16) || targetType == typeof(Int16?)))
+                else if (targetType == typeof(short) || targetType == typeof(short?))
                 {
-                    convertedValue = isNull ? default(Int16) : Convert.ToInt16(value);
+                    convertedValue = isNull ? default : Convert.ToInt16(value, System.Globalization.CultureInfo.CurrentCulture);
                 }
-                else if ((targetType == typeof(Int64) || targetType == typeof(Int64?)))
+                else if (targetType == typeof(long) || targetType == typeof(long?))
                 {
-                    convertedValue = isNull ? default(Int64) : Convert.ToInt64(value);
+                    convertedValue = isNull ? default : Convert.ToInt64(value, System.Globalization.CultureInfo.CurrentCulture);
                 }
-                else if ((targetType == typeof(decimal) || targetType == typeof(decimal?)))
+                else if (targetType == typeof(decimal) || targetType == typeof(decimal?))
                 {
-                    convertedValue = isNull ? default(decimal) : Convert.ToDecimal(value);
+                    convertedValue = isNull ? default : Convert.ToDecimal(value, System.Globalization.CultureInfo.CurrentCulture);
                 }
-                else if ((targetType == typeof(double) || targetType == typeof(double?)))
+                else if (targetType == typeof(double) || targetType == typeof(double?))
                 {
-                    convertedValue = isNull ? default(double) : Convert.ToDouble(value);
+                    convertedValue = isNull ? default : Convert.ToDouble(value, System.Globalization.CultureInfo.CurrentCulture);
                 }
                 else if (value != null)
                 {
@@ -118,7 +118,7 @@ namespace Ophelia
                         }
                         else
                         {
-                            convertedValue = Convert.ChangeType(value, targetType); // this will throw for "1"
+                            convertedValue = Convert.ChangeType(value, targetType, System.Globalization.CultureInfo.CurrentCulture); // this will throw for "1"
                         }
                     }
                 }
@@ -169,15 +169,15 @@ namespace Ophelia
         }
         public static byte ToByte(this Type type, object value)
         {
-            return Convert.ToByte(ToInt64(type, value));
+            return Convert.ToByte(type.ToInt64(value));
         }
-        public static Int16 ToInt16(this Type type, object value)
+        public static short ToInt16(this Type type, object value)
         {
-            return Convert.ToInt16(ToInt64(type, value));
+            return Convert.ToInt16(type.ToInt64(value));
         }
-        public static Int32 ToInt32(this Type type, object value)
+        public static int ToInt32(this Type type, object value)
         {
-            return Convert.ToInt32(ToInt64(type, value));
+            return Convert.ToInt32(type.ToInt64(value));
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1806:Do not ignore method results", Justification = "<Pending>")]
         public static long ToInt64(this Type type, object value)
@@ -190,9 +190,9 @@ namespace Ophelia
                 case TypeCode.DBNull:
                     return 0;
                 case TypeCode.Boolean:
-                    return ((bool)value) ? 1 : 0;
+                    return (bool)value ? 1 : 0;
                 case TypeCode.Char:
-                    return Convert.ToInt64(Char.GetNumericValue((char)value));
+                    return Convert.ToInt64(char.GetNumericValue((char)value));
                 case TypeCode.SByte:
                     return Convert.ToInt64((sbyte)value);
                 case TypeCode.Byte:
@@ -280,7 +280,7 @@ namespace Ophelia
         {
             if (entity != null)
             {
-                var methods = entity.GetType().GetMethods().Where(op => op.Name.Equals(method, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                var methods = entity.GetType().GetMethods().Where(op => op.Name.Equals(method, StringComparison.OrdinalIgnoreCase)).ToList();
                 MethodInfo m = null;
                 if (parameters != null)
                     m = methods.Where(op => op.GetParameters().Length == parameters.Length).FirstOrDefault();
@@ -314,7 +314,7 @@ namespace Ophelia
         public static List<Type> GetAssignableClasses<T>(this T baseClass, string RootNamespace = "") where T : Type
         {
             var list = new List<Type>();
-            foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
             {
                 try
                 {
@@ -410,13 +410,13 @@ namespace Ophelia
         public static PropertyInfo GetPropertyInfo(this Type type, string property)
         {
             PropertyInfo prop = null;
-            if (property.IndexOf(".") > -1)
+            if (property.IndexOf('.') > -1)
             {
                 var splitted = property.Split('.');
                 var tmpType = type;
                 foreach (var item in splitted)
                 {
-                    prop = tmpType.GetProperties().Where(op => op.Name.Equals(item, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                    prop = tmpType.GetProperties().Where(op => op.Name.Equals(item, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                     if (prop != null)
                         tmpType = prop.PropertyType;
                     else if (tmpType.IsGenericType)
@@ -429,7 +429,7 @@ namespace Ophelia
             }
             if (prop == null)
             {
-                prop = type.GetProperties().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                prop = type.GetProperties().Where(op => op.Name.Equals(property, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                 if (prop == null && type.IsGenericType)
                     prop = type.GenericTypeArguments[0].GetPropertyInfo(property);
             }
@@ -438,11 +438,11 @@ namespace Ophelia
         public static PropertyInfo[] GetPropertyInfoTree(this Type type, string property)
         {
             var props = new List<PropertyInfo>();
-            if (property.IndexOf(".") > -1)
+            if (property.IndexOf('.') > -1)
             {
                 foreach (var p in property.Split('.'))
                 {
-                    var prop = type.GetProperties().FirstOrDefault(op => op.Name.Equals(p, StringComparison.InvariantCultureIgnoreCase));
+                    var prop = type.GetProperties().FirstOrDefault(op => op.Name.Equals(p, StringComparison.OrdinalIgnoreCase));
                     if (prop != null)
                     {
                         props.Add(prop);
@@ -455,14 +455,14 @@ namespace Ophelia
                 }
             }
             else
-                props.Add(type.GetProperties().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault());
+                props.Add(type.GetProperties().Where(op => op.Name.Equals(property, StringComparison.OrdinalIgnoreCase)).FirstOrDefault());
             return props.ToArray();
         }
         public static object GetPropertyValue<TResult>(this TResult source, string property) where TResult : class
         {
             if (source != null)
             {
-                if (property.IndexOf(".") > -1)
+                if (property.IndexOf('.') > -1)
                 {
                     object entity = source;
                     foreach (var item in property.Split('.'))
@@ -478,11 +478,11 @@ namespace Ophelia
                 }
                 else
                 {
-                    var props = source.GetType().GetProperties().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase));
+                    var props = source.GetType().GetProperties().Where(op => op.Name.Equals(property, StringComparison.OrdinalIgnoreCase));
                     PropertyInfo propInfo = null;
                     if (props.Count() > 1)
                         propInfo = props.Where(op => op.DeclaringType == source.GetType()).FirstOrDefault();
-                    if (props.Count() > 0)
+                    if (props.Any())
                         propInfo = props.FirstOrDefault();
                     if (propInfo != null)
                     {
@@ -493,10 +493,10 @@ namespace Ophelia
                     }
                     props = null;
 
-                    var fields = source.GetType().GetFields().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase));
+                    var fields = source.GetType().GetFields().Where(op => op.Name.Equals(property, StringComparison.OrdinalIgnoreCase));
                     if (fields.Count() > 1)
                         return fields.Where(op => op.DeclaringType == source.GetType()).FirstOrDefault()?.GetValue(source);
-                    if (fields.Count() > 0)
+                    if (fields.Any())
                         return fields.FirstOrDefault()?.GetValue(source);
                 }
             }
@@ -506,7 +506,7 @@ namespace Ophelia
         {
             if (source != null)
             {
-                var props = source.GetType().GetProperties().Where(op => op.Name.Equals(property, StringComparison.InvariantCultureIgnoreCase));
+                var props = source.GetType().GetProperties().Where(op => op.Name.Equals(property, StringComparison.OrdinalIgnoreCase));
                 PropertyInfo p = null;
                 if (props.Count() > 1)
                     p = props.Where(op => op.DeclaringType == source.GetType()).FirstOrDefault();
@@ -535,27 +535,22 @@ namespace Ophelia
             else
                 return null;
         }
-        public static List<Type> GetSimilarTypes(this string ObjectType, bool exactMatch = false)
+        public static List<Type> GetSimilarTypes(this string objectType, bool exactMatch = false)
         {
             var types = new List<Type>();
             try
             {
-                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     try
                     {
-                        var Types = a.GetTypes();
-                        if (Types != null)
-                        {
-                            if (exactMatch)
-                                Types = Types.Where(op => op.Name.Equals(ObjectType, StringComparison.InvariantCultureIgnoreCase) || op.FullName.Equals(ObjectType, StringComparison.InvariantCultureIgnoreCase)).ToArray();
-                            else
-                                Types = Types.Where(op => op.FullName.IndexOf(ObjectType, StringComparison.InvariantCultureIgnoreCase) > -1).ToArray();
-                            if (Types != null && Types.Length > 0)
-                            {
-                                types.Add(Types.FirstOrDefault());
-                            }
-                        }
+                        IEnumerable<Type> Types = null;
+                        if (exactMatch)
+                            Types = a.GetTypes().Where(op => op.Name.Equals(objectType, StringComparison.OrdinalIgnoreCase) || op.FullName.Equals(objectType, StringComparison.OrdinalIgnoreCase));
+                        else
+                            Types = a.GetTypes().Where(op => op.FullName.IndexOf(objectType, StringComparison.OrdinalIgnoreCase) > -1);
+                        if (Types.Any())
+                            types.AddRange(Types);
                     }
                     catch (Exception)
                     {
@@ -565,68 +560,34 @@ namespace Ophelia
             }
             catch (Exception)
             {
-                return types;
+
             }
             return types;
         }
-        public static Type GetRealType(this string baseType, bool baseTypeIsDefault = true)
+        private static Dictionary<Type, List<Type>> TypeCache { get; set; } = new Dictionary<Type, List<Type>>();
+        public static void RemoveTypeCache(Type type)
         {
-            try
-            {
-                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    try
-                    {
-                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
-                            continue;
-
-                        var Types = a.GetTypes();
-                        if (Types != null)
-                        {
-                            Types = Types.Where(op => !op.IsInterface && op.FullName.Equals(baseType, StringComparison.InvariantCultureIgnoreCase)).ToArray();
-                            if (Types != null && Types.Length > 0)
-                            {
-                                return Types.FirstOrDefault();
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        continue;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-            return null;
+            TypeCache.Remove(type);
         }
         public static List<Type> GetRealTypes(this Type baseType, bool baseTypeIsDefault = true)
         {
             var returnTypes = new List<Type>();
             try
             {
+                if (TypeCache.TryGetValue(baseType, out List<Type> existingTypes))
+                    return existingTypes;
 
-                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     try
                     {
-                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
-                            continue;
-
-                        var Types = a.GetTypes();
-                        if (Types != null)
+                        var Types = a.GetTypes().Where(op => !op.IsInterface && (op.IsSubclassOf(baseType) || baseType.IsAssignableFrom(op)));
+                        if (Types.Any())
                         {
-                            Types = Types.Where(op => !op.IsInterface && (op.IsSubclassOf(baseType) || baseType.IsAssignableFrom(op))).ToArray();
-                            if (Types != null && Types.Length > 0)
-                            {
-                                if (Types.FirstOrDefault() != baseType)
-                                {
-                                    returnTypes.AddRange(Types);
-                                }
-                            }
+                            if (!baseTypeIsDefault)
+                                returnTypes.AddRange(Types.Where(op => op != baseType));
+                            else
+                                returnTypes.AddRange(Types);
                         }
                     }
                     catch (Exception)
@@ -639,12 +600,13 @@ namespace Ophelia
             {
                 Console.WriteLine(ex);
             }
+            TypeCache[baseType] = returnTypes;
             return returnTypes;
         }
         public static Type GetRealType(this Type baseType, bool baseTypeIsDefault = true)
         {
             var types = baseType.GetRealTypes(baseTypeIsDefault);
-            var type = types.Where(op => op != baseType).FirstOrDefault();
+            var type = types.Where(op => op != baseType && !op.Assembly.IsDynamic).FirstOrDefault();
             if (type == null && baseTypeIsDefault && !baseType.IsInterface)
                 type = baseType;
             return type;
@@ -670,21 +632,14 @@ namespace Ophelia
             Type finalType = Type.GetType(typeName);
             try
             {
-                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     try
                     {
-                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
-                            continue;
-
-                        var Types = a.GetTypes();
-                        if (Types != null)
+                        var Types = a.GetTypes().Where(op => op.FullName.Equals(typeName, StringComparison.OrdinalIgnoreCase));
+                        if (Types.Any())
                         {
-                            Types = Types.Where(op => op.FullName.Equals(typeName, StringComparison.InvariantCultureIgnoreCase)).ToArray();
-                            if (Types != null && Types.Length > 0)
-                            {
-                                finalType = Types.FirstOrDefault();
-                            }
+                            return Types.FirstOrDefault();
                         }
                     }
                     catch (Exception)
@@ -695,13 +650,13 @@ namespace Ophelia
             }
             catch (Exception)
             {
-                return finalType;
+
             }
             return finalType;
         }
         public static string GetPropertyStringValue<TResult>(this TResult source, string property) where TResult : class
         {
-            return GetPropertyValue(source, property)?.ToString();
+            return source.GetPropertyValue(property)?.ToString();
         }
 
         public static bool IsStaticProperty(this PropertyInfo source)
@@ -736,7 +691,7 @@ namespace Ophelia
             var list = info.GetCustomAttributes(true);
             foreach (var op in list)
             {
-                if (op.GetType().IsAssignableFrom(attributeType) || (checkBase && op.GetType().UnderlyingSystemType.BaseType.Name != "Attribute" && op.GetType().UnderlyingSystemType.BaseType.IsAssignableFrom(attributeType)))
+                if (op.GetType().IsAssignableFrom(attributeType) || checkBase && op.GetType().UnderlyingSystemType.BaseType.Name != "Attribute" && op.GetType().UnderlyingSystemType.BaseType.IsAssignableFrom(attributeType))
                     yield return op;
             }
         }
@@ -755,31 +710,31 @@ namespace Ophelia
         }
 
 
-        private static readonly MethodInfo CloneMethod = typeof(Object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo CloneMethod = typeof(object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static bool IsPrimitive(this Type type)
         {
-            if (type == typeof(String)) return true;
-            return (type.IsValueType & type.IsPrimitive);
+            if (type == typeof(string)) return true;
+            return type.IsValueType & type.IsPrimitive;
         }
 
-        public static Object Clone(this Object originalObject)
+        public static object Clone(this object originalObject)
         {
-            return InternalCopy(originalObject, new Dictionary<Object, Object>(new ReferenceEqualityComparer()));
+            return InternalCopy(originalObject, new Dictionary<object, object>(new ReferenceEqualityComparer()));
         }
 
-        private static Object InternalCopy(Object originalObject, IDictionary<Object, Object> visited)
+        private static object InternalCopy(object originalObject, IDictionary<object, object> visited)
         {
             if (originalObject == null) return null;
             var typeToReflect = originalObject.GetType();
-            if (IsPrimitive(typeToReflect)) return originalObject;
-            if (visited.ContainsKey(originalObject)) return visited[originalObject];
+            if (typeToReflect.IsPrimitive()) return originalObject;
+            if (visited.TryGetValue(originalObject, out object value)) return value;
             if (typeof(Delegate).IsAssignableFrom(typeToReflect)) return null;
             var cloneObject = CloneMethod.Invoke(originalObject, null);
             if (typeToReflect.IsArray)
             {
                 var arrayType = typeToReflect.GetElementType();
-                if (IsPrimitive(arrayType) == false)
+                if (arrayType.IsPrimitive() == false)
                 {
                     Array clonedArray = (Array)cloneObject;
                     clonedArray.ForEach((array, indices) => array.SetValue(InternalCopy(clonedArray.GetValue(indices), visited), indices));
@@ -806,7 +761,7 @@ namespace Ophelia
             foreach (FieldInfo fieldInfo in typeToReflect.GetFields(bindingFlags))
             {
                 if (filter != null && filter(fieldInfo) == false) continue;
-                if (IsPrimitive(fieldInfo.FieldType)) continue;
+                if (fieldInfo.FieldType.IsPrimitive()) continue;
                 var originalFieldValue = fieldInfo.GetValue(originalObject);
                 var clonedFieldValue = InternalCopy(originalFieldValue, visited);
                 fieldInfo.SetValue(cloneObject, clonedFieldValue);
@@ -814,7 +769,7 @@ namespace Ophelia
         }
     }
 
-    public class ReferenceEqualityComparer : EqualityComparer<Object>
+    public class ReferenceEqualityComparer : EqualityComparer<object>
     {
         public override bool Equals(object x, object y)
         {

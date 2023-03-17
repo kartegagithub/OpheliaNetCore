@@ -10,8 +10,8 @@ namespace Ophelia
     {
         public static bool IsPrimitiveType(this Type type)
         {
-            if (type == typeof(String)) return true;
-            return (type.IsValueType || type.IsPrimitive);
+            if (type == typeof(string)) return true;
+            return type.IsValueType || type.IsPrimitive;
         }
         public static MethodInfo GetRuntimeMethod(this Type type, string name, Func<MethodInfo, bool> predicate, params Type[][] parameterTypes)
         {

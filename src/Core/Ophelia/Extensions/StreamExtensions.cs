@@ -7,7 +7,7 @@ namespace Ophelia
     {
         public static byte[] ReadFully(this Stream stream, long initialLength)
         {
-            stream.Seek(0, System.IO.SeekOrigin.Begin);
+            stream.Seek(0, SeekOrigin.Begin);
             if (initialLength < 1)
                 initialLength = 32768;
 

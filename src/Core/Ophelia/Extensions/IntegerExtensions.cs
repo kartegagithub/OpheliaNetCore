@@ -22,22 +22,22 @@ namespace Ophelia
 
         public static bool IsEvenNumber(this int number)
         {
-            return ((number % 2) == 0);
+            return number % 2 == 0;
         }
 
         public static bool IsOddNumber(this int number)
         {
-            return ((number % 2) == 1);
+            return number % 2 == 1;
         }
 
         public static string ToMonthString(this int value)
         {
-            return (value >= 1 && value <= 12) ? CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(value) : "";
+            return value >= 1 && value <= 12 ? CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(value) : "";
         }
 
         public static decimal ToPixel(this int point)
         {
-            return Decimal.Truncate((point * 4) / 5) + 1;
+            return decimal.Truncate(point * 4 / 5) + 1;
         }
 
         public static int Seconds(this int source)

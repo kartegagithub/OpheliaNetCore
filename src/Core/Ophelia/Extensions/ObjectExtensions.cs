@@ -13,9 +13,9 @@ namespace Ophelia
             return value != null ? value.GetType().ToInt16(value) : (short)0;
         }
 
-        public static Int32 ToInt32(this object value)
+        public static int ToInt32(this object value)
         {
-            return value != null ? value.GetType().ToInt32(value) : (int)0;
+            return value != null ? value.GetType().ToInt32(value) : 0;
         }
 
         public static long ToInt64(this object value)

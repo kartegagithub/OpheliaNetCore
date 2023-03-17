@@ -36,7 +36,7 @@ namespace Ophelia
             if (pageSize > 0 && page > 0)
             {
                 int skip = Math.Max(pageSize * (page - 1), 0);
-                return (IQueryable<TResult>)source.Skip(skip).Take(pageSize);
+                return source.Skip(skip).Take(pageSize);
             }
             return source;
         }

@@ -175,7 +175,7 @@ namespace Ophelia.Data.Model
                             object entity = Activator.CreateInstance(type);
                             var isDataEntity = entity.GetType().IsDataEntity();
                             if (isDataEntity)
-                                (entity as DataEntity).Tracker.State = EntityState.Loading;
+                                (entity as DataEntity).InternalTracker.State = EntityState.Loading;
 
                             if (query.Data.Selectors == null || !query.Data.Selectors.Any())
                             {
@@ -208,7 +208,7 @@ namespace Ophelia.Data.Model
                                 }
                             }
                             if (isDataEntity)
-                                (entity as DataEntity).Tracker.State = EntityState.Loaded;
+                                (entity as DataEntity).InternalTracker.State = EntityState.Loaded;
 
                             if (this.TrackChanges && !isDataEntity)
                             {

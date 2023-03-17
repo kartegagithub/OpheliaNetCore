@@ -10,7 +10,7 @@ namespace Ophelia
         /// </summary>
         public static string ToStringInvariant(this decimal value)
         {
-            return value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return value.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -18,7 +18,7 @@ namespace Ophelia
         /// </summary>
         public static string ToStringIntegral(this decimal value)
         {
-            var left = System.Math.Floor(value);
+            var left = Math.Floor(value);
             return string.Format("{0:0}", left);
         }
 
@@ -27,15 +27,15 @@ namespace Ophelia
         /// </summary>
         public static string ToStringFraction(this decimal value)
         {
-            var left = System.Math.Floor(value);
+            var left = Math.Floor(value);
             var right = value - left;
             return string.Format("{0:.##}", right);
         }
 
         public static string ToRoundedPriceString(this decimal value, int partOfString = -1)
         {
-            var roundedValue = System.Math.Round(value, 2, System.MidpointRounding.AwayFromZero);
-            string returnValue = string.Format("{0:.00}", roundedValue, System.Globalization.CultureInfo.GetCultureInfo("tr-TR"));
+            var roundedValue = Math.Round(value, 2, MidpointRounding.AwayFromZero);
+            string returnValue = string.Format("{0:.00}", roundedValue, CultureInfo.GetCultureInfo("tr-TR"));
             if (partOfString > -1 && partOfString < 2)
                 returnValue = returnValue.Split(new char[] { ',', '.' })[partOfString];
             if (string.IsNullOrEmpty(returnValue.Trim())) returnValue = "0";
@@ -67,7 +67,7 @@ namespace Ophelia
             return string.Empty;
         }
 
-        public static string ToFormattedString(this Nullable<decimal> value)
+        public static string ToFormattedString(this decimal? value)
         {
             if (value.HasValue)
                 return value.Value.ToFormattedString();
@@ -76,7 +76,7 @@ namespace Ophelia
 
         public static string ToFormattedString(this decimal value)
         {
-            return value.ToString("N2", System.Globalization.CultureInfo.InvariantCulture);
+            return value.ToString("N2", CultureInfo.InvariantCulture);
         }
     }
 }

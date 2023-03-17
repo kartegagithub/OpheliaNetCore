@@ -54,7 +54,7 @@ namespace Ophelia
                 if (dateString.IndexOf("/") > -1)
                     format = "MM/dd/yyyy";
 
-                var value = DateTime.ParseExact(dateString, format, System.Globalization.CultureInfo.InvariantCulture);
+                var value = DateTime.ParseExact(dateString, format, CultureInfo.InvariantCulture);
                 return value;
             }
             return DateTime.MinValue;
@@ -66,7 +66,7 @@ namespace Ophelia
         public static DateTime ValidateDate(this DateTime? datetime)
         {
             DateTime minValue = new DateTime(1753, 1, 1);
-            return (!datetime.HasValue || datetime.Value <= minValue) ? minValue : datetime.Value;
+            return !datetime.HasValue || datetime.Value <= minValue ? minValue : datetime.Value;
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Ophelia
 
             DateTime firstThursday = firstDay.AddDays(daysOffset);
             var calendar = System.Threading.Thread.CurrentThread.CurrentCulture.Calendar;
-            int firstWeek = calendar.GetWeekOfYear(firstThursday, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            int firstWeek = calendar.GetWeekOfYear(firstThursday, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
 
             var weekNumber = weekOfYear;
             if (firstWeek <= 1) weekNumber -= 1;
@@ -126,7 +126,7 @@ namespace Ophelia
 
         public static TimeSpan Round(this TimeSpan time, TimeSpan roundingInterval)
         {
-            return Round(time, roundingInterval, MidpointRounding.AwayFromZero);
+            return time.Round(roundingInterval, MidpointRounding.AwayFromZero);
         }
 
         public static DateTime Round(this DateTime datetime, TimeSpan roundingInterval)
@@ -240,32 +240,32 @@ namespace Ophelia
 
         public static DateTimeOffset StartOfMonth(this DateTimeOffset dt)
         {
-            return DateTimeOffset.ParseExact($"01.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year}", "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            return DateTimeOffset.ParseExact($"01.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year}", "dd.MM.yyyy", CultureInfo.InvariantCulture);
         }
 
         public static DateTimeOffset EndOfMonth(this DateTimeOffset dt)
         {
-            return DateTimeOffset.ParseExact($"{DateTime.DaysInMonth(dt.Year, dt.Month)}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year}", "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture).EndOfDay();
+            return DateTimeOffset.ParseExact($"{DateTime.DaysInMonth(dt.Year, dt.Month)}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year}", "dd.MM.yyyy", CultureInfo.InvariantCulture).EndOfDay();
         }
 
         public static DateTimeOffset StartOfYear(this DateTimeOffset dt)
         {
-            return DateTimeOffset.ParseExact($"01.01.{dt.Year}", "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            return DateTimeOffset.ParseExact($"01.01.{dt.Year}", "dd.MM.yyyy", CultureInfo.InvariantCulture);
         }
 
         public static DateTimeOffset EndOfYear(this DateTimeOffset dt)
         {
-            return DateTimeOffset.ParseExact($"31.12.{dt.Year}", "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture).EndOfDay();
+            return DateTimeOffset.ParseExact($"31.12.{dt.Year}", "dd.MM.yyyy", CultureInfo.InvariantCulture).EndOfDay();
         }
 
         public static DateTimeOffset StartOfDay(this DateTimeOffset dt)
         {
-            return DateTimeOffset.ParseExact($"{dt.Day.ToString().PadLeft(2, '0')}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year}", "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            return DateTimeOffset.ParseExact($"{dt.Day.ToString().PadLeft(2, '0')}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year}", "dd.MM.yyyy", CultureInfo.InvariantCulture);
         }
 
         public static DateTimeOffset EndOfDay(this DateTimeOffset dt)
         {
-            return DateTimeOffset.ParseExact($"{dt.Day.ToString().PadLeft(2, '0')}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year} {dt.Hour.ToString().PadLeft(2, '0')}:{dt.Minute.ToString().PadLeft(2, '0')}", "dd.MM.yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+            return DateTimeOffset.ParseExact($"{dt.Day.ToString().PadLeft(2, '0')}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year} {dt.Hour.ToString().PadLeft(2, '0')}:{dt.Minute.ToString().PadLeft(2, '0')}", "dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture);
         }
         public static bool IsDate(this object val)
         {

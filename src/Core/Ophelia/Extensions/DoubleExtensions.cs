@@ -10,7 +10,7 @@ namespace Ophelia
         /// </summary>
         public static string ToStringInvariant(this double value)
         {
-            return value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return value.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>

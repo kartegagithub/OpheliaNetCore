@@ -27,8 +27,8 @@ namespace Ophelia.Data
         public TEntity Create()
         {
             TEntity entity = (TEntity)Activator.CreateInstance(typeof(TEntity));
-            if (entity is Model.DataEntity)
-                (entity as Model.DataEntity).Tracker.State = EntityState.Loaded;
+            if (entity.GetType().IsDataEntity())
+                (entity as Model.DataEntity).InternalTracker.State = EntityState.Loaded;
             else
                 entity = this.Track(entity);
             return entity;

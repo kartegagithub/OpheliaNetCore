@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Ophelia;
 using Ophelia.Net.Http;
 using Ophelia.Service;
 using System;
@@ -102,8 +101,8 @@ namespace Ophelia
             }
 
             var factory = new RequestFactory()
-                .SetLogHandler(URLExtensions.RequestLogHandler)
-                .SetOnResponse(URLExtensions.OnResponseHandler)
+                .SetLogHandler(RequestLogHandler)
+                .SetOnResponse(OnResponseHandler)
                 .CreateClient()
                 .SetTimeout(timeout)
                 .SetCredentials(credential)

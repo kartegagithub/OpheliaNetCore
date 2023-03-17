@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using Ophelia;
 
 namespace Ophelia
 {
@@ -32,7 +33,7 @@ namespace Ophelia
                     target.Add(item.Key, item.Value);
         }
 
-        public static Nullable<DateTime> GetDateFromString<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+        public static DateTime? GetDateFromString<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
             TValue value;
             if (dictionary.TryGetValue(key, out value))

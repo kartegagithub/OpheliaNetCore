@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ophelia;
 
 namespace Ophelia
 {
     public static class EnumExtensions
     {
-        public static Int32 ToInt32(this Enum value)
+        public static int ToInt32(this Enum value)
         {
             return Convert.ToInt32(value);
         }
@@ -18,7 +19,7 @@ namespace Ophelia
 
         public static string GetValue<T>(this Enum value)
         {
-            return (Convert.ChangeType(value, typeof(T))).ToString();
+            return Convert.ChangeType(value, typeof(T)).ToString();
         }
         public static List<TEnum> ToList<TEnum>()
         {

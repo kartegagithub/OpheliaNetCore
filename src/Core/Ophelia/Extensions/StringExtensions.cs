@@ -214,7 +214,7 @@ namespace Ophelia
         /// </summary>
         public static byte[] ToByteArray(this string text)
         {
-            return System.Convert.FromBase64String(text);
+            return Convert.FromBase64String(text);
         }
 
         /// <summary>
@@ -222,13 +222,13 @@ namespace Ophelia
         /// </summary>
         public static string ToText(this byte[] buffer)
         {
-            return System.Convert.ToBase64String(buffer);
+            return Convert.ToBase64String(buffer);
         }
 
-        public static Nullable<T> ToNullable<T>(this string source) where T : struct
+        public static T? ToNullable<T>(this string source) where T : struct
         {
 
-            Nullable<T> result = new Nullable<T>();
+            T? result = new T?();
             try
             {
                 if (!string.IsNullOrEmpty(source) && source.Trim().Length > 0)
@@ -270,7 +270,7 @@ namespace Ophelia
 
         public static string ToPriceString(this string source, string cultureInfo)
         {
-            return source.ToString(System.Globalization.CultureInfo.GetCultureInfo(cultureInfo));
+            return source.ToString(CultureInfo.GetCultureInfo(cultureInfo));
         }
 
         /// <summary>
@@ -278,36 +278,36 @@ namespace Ophelia
         /// </summary>
         public static string ToRoundedValue(this string value)
         {
-            var left = System.Math.Round(value.ToDecimal());
+            var left = Math.Round(value.ToDecimal());
             return string.Format("{0:0}", left);
         }
 
-        public static Int16 ToInt16(this string value)
+        public static short ToInt16(this string value)
         {
-            Int16 result = 0;
+            short result = 0;
 
             if (!string.IsNullOrEmpty(value))
-                Int16.TryParse(value, out result);
+                short.TryParse(value, out result);
 
             return result;
         }
 
-        public static Int32 ToInt32(this string value)
+        public static int ToInt32(this string value)
         {
-            Int32 result = 0;
+            int result = 0;
 
             if (!string.IsNullOrEmpty(value))
-                Int32.TryParse(value, out result);
+                int.TryParse(value, out result);
 
             return result;
         }
 
         public static long ToInt64(this string value)
         {
-            Int64 result = 0;
+            long result = 0;
 
             if (!string.IsNullOrEmpty(value))
-                Int64.TryParse(value, out result);
+                long.TryParse(value, out result);
 
             return result;
         }
@@ -403,7 +403,7 @@ namespace Ophelia
         {
             if (Enum.IsDefined(typeof(T), name))
                 return (T)Enum.Parse(typeof(T), name, true);
-            else return default(T);
+            else return default;
         }
 
         public static string ToDashCase(this string input)
@@ -411,7 +411,7 @@ namespace Ophelia
             string pattern = "[A-Z]";
             string dash = "-";
             return Regex.Replace(input, pattern,
-                m => ((m.Index == 0) ? string.Empty : dash) + m.Value.ToLowerInvariant());
+                m => (m.Index == 0 ? string.Empty : dash) + m.Value.ToLowerInvariant());
         }
 
         public static string ToStringSlug(this string value)
@@ -420,7 +420,7 @@ namespace Ophelia
             if (string.IsNullOrWhiteSpace(value))
                 return string.Empty;
 
-            var str = String.Join("", value.Normalize(NormalizationForm.FormD)
+            var str = string.Join("", value.Normalize(NormalizationForm.FormD)
             .Where(c => char.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark));
 
             str = value.RemoveAccent().ToLowerInvariant();

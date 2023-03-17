@@ -11,12 +11,12 @@ namespace Ophelia
             int length = bytes.Length;
             for (int n = 0; n <= length - 1; n++)
             {
-                s.Append(String.Format("{0,2:x}", bytes[n]).Replace(" ", "0"));
+                s.Append(string.Format("{0,2:x}", bytes[n]).Replace(" ", "0"));
             }
             return s.ToString();
         }
 
-        public static byte[] StringToByteArray(this String hex)
+        public static byte[] StringToByteArray(this string hex)
         {
             int NumberChars = hex.Length;
             byte[] bytes = new byte[NumberChars / 2];

@@ -141,7 +141,7 @@ namespace Ophelia
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> target)
         {
             Random randomizer = new Random();
-            return target.OrderBy(x => (randomizer.Next()));
+            return target.OrderBy(x => randomizer.Next());
         }
 
         public static IEnumerable<T> TakeRandom<T>(
@@ -215,7 +215,7 @@ namespace Ophelia
                 propertyName = property.Replace(descParameter, string.Empty);
                 methodName = "ThenByDescending";
             }
-            return ApplyOrder<TSource>(source, propertyName, methodName);
+            return ApplyOrder(source, propertyName, methodName);
         }
 
         public static IEnumerable<TSource> OrderBy<TSource>(this IEnumerable<TSource> source, string property)
@@ -228,7 +228,7 @@ namespace Ophelia
                 propertyName = property.Replace(descParameter, string.Empty);
                 methodName = "OrderByDescending";
             }
-            return ApplyOrder<TSource>(source, propertyName, methodName);
+            return ApplyOrder(source, propertyName, methodName);
         }
 
         public static bool AggregateOr<TSource>(this IEnumerable<TSource> source, bool seed, Func<bool, TSource, bool> func)
@@ -280,7 +280,7 @@ namespace Ophelia
             return outer.LeftOuterJoin(inner, outerKeySelector, innerKeySelector, resultSelector).Concat(
                 inner.Where(innerItem =>
                     !outer.Select(outerItem => outerKeySelector(outerItem)).Contains(innerKeySelector(innerItem))
-                ).Select(innerItem => resultSelector(default(TOuter), innerItem))
+                ).Select(innerItem => resultSelector(default, innerItem))
             );
         }
 

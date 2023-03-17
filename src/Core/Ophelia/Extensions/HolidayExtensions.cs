@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+using Ophelia;
 
 namespace Ophelia
 {
@@ -111,11 +112,11 @@ namespace Ophelia
         /// <param name="englishName"></param>
         public PublicHoliday(int year, int month, int day, string localName, string englishName, int? launchYear = null, bool halfDay = false)
         {
-            this.Date = new DateTime(year, month, day);
-            this.LocalName = localName;
-            this.Name = englishName;
-            this.HalfDay = halfDay;
-            this.LaunchYear = launchYear;
+            Date = new DateTime(year, month, day);
+            LocalName = localName;
+            Name = englishName;
+            HalfDay = halfDay;
+            LaunchYear = launchYear;
         }
 
         /// <summary>
@@ -126,11 +127,11 @@ namespace Ophelia
         /// <param name="englishName"></param>
         public PublicHoliday(DateTime date, string localName, string englishName, int? launchYear = null, bool halfDay = false)
         {
-            this.Date = date;
-            this.LocalName = localName;
-            this.Name = englishName;
-            this.HalfDay = halfDay;
-            this.LaunchYear = launchYear;
+            Date = date;
+            LocalName = localName;
+            Name = englishName;
+            HalfDay = halfDay;
+            LaunchYear = launchYear;
         }
     }
 }
