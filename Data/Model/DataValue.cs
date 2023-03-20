@@ -16,7 +16,7 @@ namespace Ophelia.Data.Model
             }
             set
             {
-                this.HasChanged = (value == null && this._Value != null) || (value != null && this._Value == null) || (this._Value != null && !this._Value.Equals(value));
+                this.HasChanged = this.HasChanged || (value == null && this._Value != null) || (value != null && this._Value == null) || (this._Value != null && !this._Value.Equals(value));
                 this._Value = value;
             }
         }
