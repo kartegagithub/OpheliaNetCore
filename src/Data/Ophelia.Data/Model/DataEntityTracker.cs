@@ -224,7 +224,18 @@ namespace Ophelia.Data.Model
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
+        internal override void OnAfterCreateEntity()
+        {
+            
+        }
+        internal override void OnAfterUpdateEntity()
+        {
+            
+        }
+        internal override void OnAfterDeleteEntity()
+        {
+            
+        }
         internal override void OnBeforeInsertEntity()
         {
             base.OnBeforeInsertEntity();
