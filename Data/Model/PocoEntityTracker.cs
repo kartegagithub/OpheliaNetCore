@@ -29,13 +29,14 @@ namespace Ophelia.Data.Model
         }
         public virtual bool IsNewRecord()
         {
-            if (this.ProxyEntity == null)
-                return true;
+            var entity = this.ProxyEntity;
+            if (entity == null)
+                entity = this.Entity;
 
             var pks = Extensions.GetPrimaryKeyProperties(this.EntityType);
             foreach (var pk in pks)
             {
-                if (pk.PropertyType.GetDefaultValue().Equals(pk.GetValue(this.ProxyEntity)))
+                if (pk.PropertyType.GetDefaultValue().Equals(pk.GetValue(entity)))
                     return true;
             }
             return false;
