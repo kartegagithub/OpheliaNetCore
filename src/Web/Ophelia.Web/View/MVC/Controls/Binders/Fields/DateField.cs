@@ -33,7 +33,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             {
                 if (this.ExpressionValue != null)
                 {
-                    this.DataControl.Value = this.FormatValue(Convert.ToDateTime(this.ExpressionValue));
+                    if (this.ExpressionValue is DateTime)
+                        this.DataControl.Value = this.FormatValue(Convert.ToDateTime(this.ExpressionValue));
+                    else if (this.ExpressionValue is TimeSpan)
+                        this.DataControl.Value = this.FormatValue((TimeSpan)this.ExpressionValue);
                 }
                 if (this.Format == DateTimeFormatType.DateTimeWithHour)
                 {
@@ -116,6 +119,14 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 SecondDataControl.AddAttribute("placeholder", this.FieldContainer.Client.TranslateText("EndDate"));
                 this.DataControl.AddAttribute("placeholder", this.FieldContainer.Client.TranslateText("StartDate"));
             }
+        }
+        private string FormatValue(TimeSpan value)
+        {
+            if (this.Format == DateTimeFormatType.DateOnly)
+            {
+                return "";
+            }
+            return value.ToString(@"hh\:mm");
         }
         private string FormatValue(DateTime value)
         {
