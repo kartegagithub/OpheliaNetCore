@@ -697,7 +697,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                     this.DataSource.Items = (List<T>)response.GetPropertyValue("Data");
 
                                 this.DataSource.GroupPagination.ItemCount = response.TotalDataCount;
-
+                                
+                                this.OnRemoteDataSourceResponse(response);
                                 this.OnAfterQueryExecuted();
                             }
                         }
@@ -740,6 +741,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                                 this.DataSource.Pagination.ItemCount = response.TotalDataCount;
 
+                                this.OnRemoteDataSourceResponse(response);
                                 this.OnAfterQueryExecuted();
                             }
                         }
@@ -905,6 +907,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         protected virtual IQueryable<T> OnAfterProcessQuery()
         {
             return this.DataSource.Query;
+        }
+        protected virtual void OnRemoteDataSourceResponse(ServiceCollectionResult<T> response)
+        {
+
         }
         protected virtual void OnAfterQueryExecuted()
         {
