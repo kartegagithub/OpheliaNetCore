@@ -256,10 +256,14 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 var selectedMembers = new List<PropertyInfo>();
                 foreach (var selector in query.Data.Selectors)
                 {
-                    foreach (PropertyInfo member in selector.Members)
+                    // TODO : If selector members doesn't contains an included field (like selecting an id list) all fields are being selected.It may be a performance problem.
+                    if (selector.Members != null)
                     {
-                        if (member.DeclaringType == this.PropertyInfo.PropertyType)
-                            selectedMembers.Add(member);
+                        foreach (PropertyInfo member in selector.Members)
+                        {
+                            if (member.DeclaringType == this.PropertyInfo.PropertyType)
+                                selectedMembers.Add(member);
+                        }
                     }
                 }
                 if (!selectedMembers.Any())
