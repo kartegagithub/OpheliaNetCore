@@ -25,21 +25,34 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
         public string DataControlParentCssClass { get; set; }
         public string LabelCssClass { get; set; }
         public string TabPaneCssClass { get; set; }
+
         public string EditButtonText { get; set; }
+        public string EditButtonIcon { get; set; }
+        public string EditButtonClass { get; set; }
+
         public string BackButtonText { get; set; }
+
         public string SaveButtonText { get; set; }
         public string SaveButtonIcon { get; set; }
         public string SaveButtonClass { get; set; }
+
         public string DeleteButtonText { get; set; }
+        public string DeleteButtonIcon { get; set; }
+        public string DeleteButtonClass { get; set; }
+
         public string NewButtonText { get; set; }
+        public string NewButtonIcon { get; set; }
+        public string NewButtonClass { get; set; }
+
         public string SettingsButtonText { get; set; }
+        public string SettingsButtonIcon { get; set; }
+
         public string RollbackButtonText { get; set; }
+        public string RollbackButtonIcon { get; set; }
+        public string RollbackButtonClass { get; set; }
+
         public string HistoryButtonText { get; set; }
         public string HistoryButtonIcon { get; set; }
-        public void AddModeField(string Mode)
-        {
-
-        }
 
         public virtual void Dispose()
         {
@@ -65,6 +78,15 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.EntityBinder
             this.HistoryButtonIcon = "icon-history";
             this.SaveButtonIcon = "icon-floppy-disk";
             this.SaveButtonClass = "save-button";
+            this.DeleteButtonIcon = "icon-trash";
+            this.DeleteButtonClass = "delete-button";
+            this.SettingsButtonIcon = "icon-gear";
+            this.RollbackButtonClass = "roll-back-button";
+            this.RollbackButtonIcon = "icon-undo";
+            this.NewButtonIcon = "icon-plus2";
+            this.NewButtonClass = "new-button";
+            this.EditButtonIcon = "icon-pencil5";
+            this.EditButtonClass = "edit-button";
 
             this.Help = new HelpConfiguration();
             this.AllowDelete = true;
