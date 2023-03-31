@@ -1248,7 +1248,7 @@ namespace Ophelia
             ValidateToken(TokenId.RealLiteral);
             string text = token.text;
             object value = null;
-            char last = text[text.Length - 1];
+            char last = text[^1];
             if (last == 'F' || last == 'f')
             {
                 float f;

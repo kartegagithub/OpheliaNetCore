@@ -7,7 +7,7 @@ namespace Ophelia
     {
         public static DateTime SetTime(this DateTime date, string Time, string format = "dd.MM.yyyy")
         {
-            if (!string.IsNullOrEmpty(Time) && Time.IndexOf(":") > -1)
+            if (!string.IsNullOrEmpty(Time) && Time.Contains(':'))
             {
                 var TwentyfourTimeFormat = true;
                 var Morning = false;
@@ -25,11 +25,11 @@ namespace Ophelia
                 }
 
                 var parts = Time.Split(':');
-                var hour = Convert.ToInt32(parts[0]);
-                var Minute = Convert.ToInt32(parts[1]);
+                var hour = parts[0].ToInt32();
+                var Minute = parts[1].ToInt32();
                 var second = 0;
                 if (parts.Length > 2)
-                    second = Convert.ToInt32(parts[2]);
+                    second = parts[2].ToInt32();
 
                 if (!TwentyfourTimeFormat)
                 {
@@ -51,7 +51,7 @@ namespace Ophelia
         {
             if (!string.IsNullOrEmpty(dateString))
             {
-                if (dateString.IndexOf("/") > -1)
+                if (dateString.Contains('/'))
                     format = "MM/dd/yyyy";
 
                 var value = DateTime.ParseExact(dateString, format, CultureInfo.InvariantCulture);

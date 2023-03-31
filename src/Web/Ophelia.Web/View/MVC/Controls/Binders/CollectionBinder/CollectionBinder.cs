@@ -582,7 +582,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 var accessor = new Accessor();
                                 accessor.Item = this.DataSource;
                                 accessor.MemberName = path.Remove(path.Length - 2, 2);
-                                accessor.Value = this.GetReferencedEntity(modelProperty.PropertyType, (formattedValue != null ? formattedValue : value));
+                                accessor.Value = this.GetReferencedEntity(modelProperty.PropertyType, formattedValue ?? value);
                                 accessor = null;
                             }
                         }

@@ -93,10 +93,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
         }
         private string Build(BaseQuery query, string name, PropertyInfo propInfo)
         {
-            if (name.IndexOf(".") > -1)
+            if (name.Contains('.'))
             {
                 var props = query.Data.EntityType.GetPropertyInfoTree(name);
-                var p = props[props.Length - 2];
+                var p = props[^2];
                 var table = query.Data.MainTable.Joins.Where(op => op.JoinOn == Extensions.GetForeignKeyName(p) && op.EntityType == p.DeclaringType).FirstOrDefault();
                 if (table != null)
                 {
@@ -129,13 +129,17 @@ namespace Ophelia.Data.Querying.Query.Helpers
             {
                 if (bindingMember.BindingType == MemberBindingType.Assignment)
                 {
-                    if ((bindingMember as MemberAssignment).Expression is MemberExpression)
+                    var assignment = (bindingMember as MemberAssignment);
+                    if (assignment != null)
                     {
-                        this.SetData(bindingMember.Member, this.GetFieldName(query, bindingMember.Member, (bindingMember as MemberAssignment).Expression as MemberExpression), row, refEntity.GetType(), refEntity, new KeyValuePair<MemberInfo, Expression>(bindingMember.Member, (bindingMember as MemberAssignment).Expression));
-                    }
-                    else if ((bindingMember as MemberAssignment).Expression is MemberInitExpression)
-                    {
-                        this.SetData(query, refEntity, bindingMember.Member, (bindingMember as MemberAssignment).Expression as MemberInitExpression, refEntity.GetType(), row);
+                        if (assignment.Expression is MemberExpression)
+                        {
+                            this.SetData(bindingMember.Member, this.GetFieldName(query, bindingMember.Member, assignment.Expression as MemberExpression), row, refEntity.GetType(), refEntity, new KeyValuePair<MemberInfo, Expression>(bindingMember.Member, (bindingMember as MemberAssignment).Expression));
+                        }
+                        else if (assignment.Expression is MemberInitExpression)
+                        {
+                            this.SetData(query, refEntity, bindingMember.Member, assignment.Expression as MemberInitExpression, refEntity.GetType(), row);
+                        }
                     }
                 }
             }

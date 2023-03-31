@@ -96,7 +96,7 @@ namespace Ophelia.Reflection
                     }
                     else
                     {
-                        if (this.MemberName.IndexOf(".") > -1 || this.MemberName.IndexOf("(") > -1)
+                        if (this.MemberName.Contains('.') || this.MemberName.Contains('('))
                         {
                             string[] sArrReferences = this.MemberName.Split('.');
                             object TempValue = this.Item;
@@ -115,16 +115,17 @@ namespace Ophelia.Reflection
                                             this.oValueItem = TempValue;
                                             this.ValueMemberName = sArrReferences[n];
                                         }
-                                        if (TemporaryMemberName.IndexOf("(") > -1)
+                                        if (TemporaryMemberName.Contains('('))
                                         {
                                             Indexed = true;
-                                            Index = TemporaryMemberName.Substring(TemporaryMemberName.IndexOf("(") + 1, TemporaryMemberName.Length - TemporaryMemberName.IndexOf("(") - 2);
+                                            var tmpIndex = TemporaryMemberName.IndexOf('(');
+                                            Index = TemporaryMemberName.Substring(tmpIndex + 1, TemporaryMemberName.Length - tmpIndex - 2);
                                             TemporaryMemberName = TemporaryMemberName.Substring(0, TemporaryMemberName.Length - 2 - Index.ToString().Length);
                                         }
-                                        else if (TemporaryMemberName.IndexOf("[") > -1)
+                                        else if (TemporaryMemberName.Contains('['))
                                         {
-                                            var tmp = TemporaryMemberName.Left(TemporaryMemberName.IndexOf("["));
-                                            var index = Convert.ToInt32(TemporaryMemberName.Replace(tmp, "").Replace("[", "").Replace("]", ""));
+                                            var tmp = TemporaryMemberName.Left(TemporaryMemberName.IndexOf('['));
+                                            var index = TemporaryMemberName.Replace(tmp, "").Replace("[", "").Replace("]", "").ToInt32();
                                             TemporaryMemberName = tmp;
                                             tmp = "";
                                             TempValue = this.GetPropertyInfo(TempValue, TemporaryMemberName).GetValue(TempValue, null);
@@ -132,7 +133,7 @@ namespace Ophelia.Reflection
                                             MethodInfo method = null;
                                             if (TempValue.GetType().GetProperty("Length") != null)
                                             {
-                                                if (Convert.ToInt32(TempValue.GetPropertyValue("Length")) > 0)
+                                                if (TempValue.GetPropertyValue("Length").ToInt32() > 0)
                                                 {
                                                     method = TempValue.GetType().GetMethod("Get");
                                                     TempValue = method.Invoke(TempValue, new object[] { index });
@@ -142,7 +143,7 @@ namespace Ophelia.Reflection
                                             }
                                             else if (TempValue.GetType().GetProperty("Count") != null)
                                             {
-                                                if (Convert.ToInt32(TempValue.GetPropertyValue("Count")) > 0)
+                                                if (TempValue.GetPropertyValue("Count").ToInt32() > 0)
                                                 {
                                                     method = TempValue.GetType().GetMethod("Get");
                                                     TempValue = method.Invoke(TempValue, new object[] { index });
@@ -197,11 +198,11 @@ namespace Ophelia.Reflection
                                                         {
                                                             if (Parameters == null)
                                                             {
-                                                                TempValue = TempValue.GetType().InvokeMember(TemporaryMemberName, System.Reflection.BindingFlags.InvokeMethod, null, TempValue, null);
+                                                                TempValue = TempValue.GetType().InvokeMember(TemporaryMemberName, BindingFlags.InvokeMethod, null, TempValue, null);
                                                             }
                                                             else
                                                             {
-                                                                TempValue = TempValue.GetType().InvokeMember(TemporaryMemberName, System.Reflection.BindingFlags.InvokeMethod, null, TempValue, Parameters.ToArray());
+                                                                TempValue = TempValue.GetType().InvokeMember(TemporaryMemberName, BindingFlags.InvokeMethod, null, TempValue, Parameters.ToArray());
                                                             }
                                                         }
                                                     }
@@ -210,11 +211,11 @@ namespace Ophelia.Reflection
                                                 {
                                                     if ((TempValue == null))
                                                     {
-                                                        throw new Exception("Before " + TemporaryMemberName + " property binded, binding value became nothing.", ex);
+                                                        throw new Exception($"Before {TemporaryMemberName} property binded, binding value became nothing.", ex);
                                                     }
                                                     else
                                                     {
-                                                        throw new Exception(TemporaryMemberName + " property not found at the type of " + TempValue.GetType().FullName, ex);
+                                                        throw new Exception($"{TemporaryMemberName} property not found at the type of {TempValue.GetType().FullName}", ex);
                                                     }
                                                 }
                                             }
@@ -245,7 +246,7 @@ namespace Ophelia.Reflection
                             }
                             catch (Exception ex)
                             {
-                                throw new Exception("Exception occured while getting requested property. " + (!string.IsNullOrEmpty(this.ValueMemberName) ? "Value Member : " + this.ValueMemberName + "," : "") + " Member of Value Member : " + TemporaryMemberName, ex);
+                                throw new Exception($"Exception occured while getting requested property. {(!string.IsNullOrEmpty(this.ValueMemberName) ? "Value Member : " + this.ValueMemberName + "," : "")} Member of Value Member : {TemporaryMemberName}", ex);
                             }
                         }
                         else
@@ -257,7 +258,7 @@ namespace Ophelia.Reflection
                             }
                             catch (Exception ex)
                             {
-                                throw new Exception(this.ValueMemberName + " property not found at the type of " + this.Item.GetType().FullName, ex.InnerException);
+                                throw new Exception($"{this.ValueMemberName} property not found at the type of {this.Item.GetType().FullName}", ex.InnerException);
                             }
                         }
                         if (ValueInitiliazed != null)
@@ -298,10 +299,11 @@ namespace Ophelia.Reflection
                                 this.oValueItem = TempValue;
                                 this.ValueMemberName = sArrReferences[n];
                             }
-                            if (TemporaryMemberName.IndexOf("(") > -1)
+                            if (TemporaryMemberName.Contains('('))
                             {
                                 Indexed = true;
-                                Index = TemporaryMemberName.Substring(TemporaryMemberName.IndexOf("(") + 1, TemporaryMemberName.Length - TemporaryMemberName.IndexOf("(") - 2);
+                                var tmpIndex = TemporaryMemberName.IndexOf('(');
+                                Index = TemporaryMemberName.Substring(tmpIndex + 1, TemporaryMemberName.Length - tmpIndex - 2);
                                 TemporaryMemberName = TemporaryMemberName.Substring(0, TemporaryMemberName.Length - 2 - Index.ToString().Length);
                             }
                             try
@@ -319,22 +321,22 @@ namespace Ophelia.Reflection
                                         {
                                             if (Parameters != null)
                                             {
-                                                TempValue = TempValue.GetType().InvokeMember(TemporaryMemberName, System.Reflection.BindingFlags.InvokeMethod, null, TempValue, Parameters.ToArray());
+                                                TempValue = TempValue.GetType().InvokeMember(TemporaryMemberName, BindingFlags.InvokeMethod, null, TempValue, Parameters.ToArray());
                                             }
                                             else
                                             {
-                                                TempValue = TempValue.GetType().InvokeMember(TemporaryMemberName, System.Reflection.BindingFlags.InvokeMethod, null, TempValue, null);
+                                                TempValue = TempValue.GetType().InvokeMember(TemporaryMemberName, BindingFlags.InvokeMethod, null, TempValue, null);
                                             }
                                         }
                                         catch (Exception)
                                         {
                                             if ((TempValue == null))
                                             {
-                                                throw new Exception("Before " + TemporaryMemberName + " property binded, binding value became nothing.", ex);
+                                                throw new Exception($"Before {TemporaryMemberName} property binded, binding value became nothing.", ex);
                                             }
                                             else
                                             {
-                                                throw new Exception(TemporaryMemberName + " property not found at the type of " + TempValue.GetType().FullName, ex);
+                                                throw new Exception($"{TemporaryMemberName} property not found at the type of {TempValue.GetType().FullName}", ex);
                                             }
                                         }
                                     }
@@ -348,11 +350,11 @@ namespace Ophelia.Reflection
                             {
                                 if ((TempValue == null))
                                 {
-                                    throw new Exception("Before " + TemporaryMemberName + " property binded, binding value became nothing.", Ex);
+                                    throw new Exception($"Before {TemporaryMemberName} property binded, binding value became nothing.", Ex);
                                 }
                                 else
                                 {
-                                    throw new Exception(TemporaryMemberName + " property not found at the type of " + TempValue.GetType().FullName, Ex);
+                                    throw new Exception($"{TemporaryMemberName} property not found at the type of {TempValue.GetType().FullName}", Ex);
                                 }
                             }
                             Indexed = false;
@@ -364,15 +366,14 @@ namespace Ophelia.Reflection
                     }
                     if (n == sArrReferences.Length - 1)
                     {
-                        if (sArrReferences[n].IndexOf("(") > -1)
+                        if (sArrReferences[n].Contains('('))
                         {
-                            if (sArrReferences[n].IndexOf("(") > -1)
-                            {
-                                Indexed = true;
-                                TemporaryMemberName = sArrReferences[n];
-                                Index = TemporaryMemberName.Substring(TemporaryMemberName.IndexOf("(") + 1, TemporaryMemberName.Length - TemporaryMemberName.IndexOf("(") - 2);
-                                TemporaryMemberName = sArrReferences[n].Substring(0, sArrReferences[n].Length - 2 - Index.ToString().Length);
-                            }
+                            Indexed = true;
+                            var tmpIndex = TemporaryMemberName.IndexOf('(');
+                            TemporaryMemberName = sArrReferences[n];
+                            Index = TemporaryMemberName.Substring(tmpIndex + 1, TemporaryMemberName.Length - tmpIndex - 2);
+                            TemporaryMemberName = sArrReferences[n].Substring(0, sArrReferences[n].Length - 2 - Index.ToString().Length);
+
                             ArrayList Parameters = this.ReArrangeParameters(Index);
                             this.GetPropertyInfo(TempValue, TemporaryMemberName).SetValue(TempValue, this.oValue, Parameters.ToArray());
                         }
@@ -382,7 +383,7 @@ namespace Ophelia.Reflection
                             if ((this.oValue != null) && (this.oValue.GetType().GetInterface("IConvertible") != null))
                             {
                                 TypeCode TypeCode = Type.GetTypeCode(PropertyInfo.PropertyType);
-                                this.oValue = System.Convert.ChangeType(this.oValue, TypeCode);
+                                this.oValue = Convert.ChangeType(this.oValue, TypeCode);
                             }
                             PropertyInfo.SetValue(TempValue, this.oValue, null);
                         }
@@ -406,8 +407,14 @@ namespace Ophelia.Reflection
         }
         public PropertyInfo GetPropertyInfo(object Item, string MemberName)
         {
-            return Item.GetType().GetProperties().Where(Prop => Prop.Name.Equals(MemberName, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            return Item.GetType().GetProperties().Where(Prop => Prop.Name.Equals(MemberName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
         }
+
+        /// <summary>
+        /// TODO: In this code block parameters must be read from method definition and each parameter must be converted with parameter type.
+        /// </summary>
+        /// <param name="RawParameters"></param>
+        /// <returns></returns>
         private ArrayList ReArrangeParameters(string RawParameters)
         {
             string[] Parameters = RawParameters.Split(',');
@@ -423,7 +430,7 @@ namespace Ophelia.Reflection
                     }
                     else
                     {
-                        Array.Add(Convert.ToInt32(Parameters[n]));
+                        Array.Add(Parameters[n].ToInt32());
                     }
                 }
                 else if (Parameters[n].IsDate())
@@ -439,13 +446,5 @@ namespace Ophelia.Reflection
                 return null;
             return Array;
         }
-    }
-    public enum RefreshAction
-    {
-        None = 0,
-        RebindCell = 1,
-        RebindRow = 2,
-        RebindBinder = 3,
-        RefreshBinder = 4
     }
 }

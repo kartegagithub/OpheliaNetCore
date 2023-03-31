@@ -108,7 +108,7 @@ namespace Ophelia
         public static string CheckHTMLOnFuntions(this string value)
         {
             //If plain text, otherwise it is already sanitized
-            if (!string.IsNullOrEmpty(value) && value.IndexOf("<") == -1)
+            if (!string.IsNullOrEmpty(value) && !value.Contains('<'))
             {
                 //Check if it starts with " or ', then on[click,focus,etc...], then =, then " or ', then " or ' or empty
                 //test"onfocus="alert(111)"
@@ -145,7 +145,7 @@ namespace Ophelia
             if (!string.IsNullOrEmpty(value))
             {
                 value = value.Trim().Replace("-", "").Replace("+", "");
-                if (value.Equals("0"))
+                if (value.Equals("0", StringComparison.Ordinal))
                     return true;
 
                 decimal decValue = decimal.MinValue;
@@ -183,7 +183,7 @@ namespace Ophelia
         public static bool In(this string value, params string[] stringValues)
         {
             foreach (string comparedValue in stringValues)
-                if (string.Compare(value, comparedValue) == 0)
+                if (string.Equals(value, comparedValue, StringComparison.Ordinal))
                     return true;
 
             return false;
@@ -325,9 +325,9 @@ namespace Ophelia
         {
             if (value.IsNumeric())
                 return value.ToInt64() > 0;
-            else if (value.ToLowerInvariant().Equals("true"))
+            else if (value.ToLowerInvariant().Equals("true", StringComparison.Ordinal))
                 return true;
-            else if (value.ToLowerInvariant().Equals("yes"))
+            else if (value.ToLowerInvariant().Equals("yes", StringComparison.Ordinal))
                 return true;
             return false;
         }
@@ -340,7 +340,7 @@ namespace Ophelia
                 return new List<long>();
             try
             {
-                return value.ToString().Split(seperator, StringSplitOptions.RemoveEmptyEntries).Select(i => long.Parse(i)).ToList();
+                return value.ToString().Split(seperator, StringSplitOptions.RemoveEmptyEntries).Select(i => i.ToInt64()).ToList();
             }
             catch (Exception)
             {
@@ -364,7 +364,7 @@ namespace Ophelia
             if (string.IsNullOrEmpty(value))
                 return new List<int>();
 
-            return value.ToString().Split(seperator).Select(i => int.Parse(i)).ToList();
+            return value.ToString().Split(seperator).Select(i => i.ToInt32()).ToList();
         }
 
         public static List<byte> ToByteList(this string value, char seperator = ',')
@@ -372,7 +372,7 @@ namespace Ophelia
             if (string.IsNullOrEmpty(value))
                 return new List<byte>();
 
-            return value.ToString().Split(seperator).Select(i => byte.Parse(i)).ToList();
+            return value.ToString().Split(seperator).Select(i => i.ToByte()).ToList();
         }
 
         public static List<decimal> ToDecimalList(this string value, char seperator = ',')
@@ -380,7 +380,7 @@ namespace Ophelia
             if (string.IsNullOrEmpty(value))
                 return new List<decimal>();
 
-            return value.ToString().Split(seperator).Select(i => decimal.Parse(i)).ToList();
+            return value.ToString().Split(seperator).Select(i => i.ToDecimal()).ToList();
         }
         /// <summary>
         /// Ondalıklı sayı biçimindeki string ifadeyi kontrollü biçimde decimal değerine çevirir.
@@ -490,13 +490,13 @@ namespace Ophelia
         public static string AddLeadingZeros(this long value, int totalLength, string prefix)
         {
             totalLength = totalLength - prefix.Length;
-            return prefix + value.ToString().PadLeft(totalLength, '0');
+            return $"{prefix}{value.ToString().PadLeft(totalLength, '0')}";
         }
 
         public static string AddLeadingZeros(this string value, int totalLength, string prefix)
         {
             totalLength = totalLength - prefix.Length;
-            return prefix + value.ToString().PadLeft(totalLength, '0');
+            return $"{prefix}{value.ToString().PadLeft(totalLength, '0')}";
         }
 
         public static string AddLeadingZeros(this int value, int totalLength, string prefix)

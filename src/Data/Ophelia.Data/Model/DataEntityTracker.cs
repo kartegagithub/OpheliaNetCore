@@ -22,21 +22,24 @@ namespace Ophelia.Data.Model
             var key = property.Name;
             if (DataContext.Current.Configuration.EnableLazyLoading || this.LoadAnyway)
             {
-                bool canCreate = !this.Properties.Keys.Contains(key);
-                if (canCreate)
+                if (!this.Properties.ContainsKey(key))
                 {
                     var dataset = (QueryableDataSet<TEntity>)property.PropertyType.CreateDataSet();
                     var refProp = this.Entity.GetType().GetProperties().Where(op => op.Name == property.Name + "ID").FirstOrDefault();
                     var idProp = property.PropertyType.GetProperties().Where(op => op.Name == "ID").FirstOrDefault();
 
-                    this.Properties[key] = new DataValue { PropertyInfo = property, Value = dataset.Where(idProp, refProp.GetValue(this.Entity)).FirstOrDefault() };
-                    this.Properties[key].HasChanged = false;
+                    this.Properties[key] = new DataValue
+                    {
+                        PropertyInfo = property,
+                        Value = dataset.Where(idProp, refProp.GetValue(Entity)).FirstOrDefault(),
+                        HasChanged = false
+                    };
                 }
             }
-            if (this.Properties.Keys.Contains(key))
-                return (TEntity)this.Properties[key].Value;
+            if (Properties.TryGetValue(key, out DataValue value))
+                return (TEntity)value.Value;
             else
-                return default(TEntity);
+                return default;
         }
         internal System.Collections.IEnumerable GetCollectionValue<TEntity>(PropertyInfo property)
         {
@@ -44,17 +47,16 @@ namespace Ophelia.Data.Model
                 throw new Exception("Expressions are allowed only for ICollection subclasses");
 
             var key = property.Name;
-            bool canCreate = !this.Properties.Keys.Contains(key);
-            if (canCreate)
+            if (!Properties.ContainsKey(key))
             {
                 var list = property.PropertyType.GenericTypeArguments[0].CreateList();
                 this.Properties[key] = new DataValue { PropertyInfo = property, Value = list };
                 this.Properties[key].HasChanged = false;
             }
-            if (this.Properties.Keys.Contains(key))
-                return (System.Collections.IEnumerable)this.Properties[key].Value;
+            if (Properties.TryGetValue(key, out DataValue value))
+                return (System.Collections.IEnumerable)value.Value;
             else
-                return default(System.Collections.IEnumerable);
+                return default;
         }
         internal QueryableDataSet<TEntity> GetDataSetValue<TEntity>(PropertyInfo property, Expression<Func<TEntity, bool>> predicate)
             where TEntity : class
@@ -65,8 +67,7 @@ namespace Ophelia.Data.Model
             var key = property.Name;
             if (DataContext.Current.Configuration.EnableLazyLoading || this.LoadAnyway)
             {
-                bool canCreate = !this.Properties.Keys.Contains(key);
-                if (canCreate)
+                if (!Properties.ContainsKey(key))
                 {
                     var dataset = (QueryableDataSet<TEntity>)this.GetValue(property);
 
@@ -121,8 +122,8 @@ namespace Ophelia.Data.Model
                     this.Properties[key].HasChanged = false;
                 }
             }
-            if (this.Properties.Keys.Contains(key))
-                return (QueryableDataSet<TEntity>)this.Properties[key].Value;
+            if (Properties.TryGetValue(key, out DataValue value))
+                return (QueryableDataSet<TEntity>)value.Value;
             else
                 return null;
         }
@@ -171,7 +172,7 @@ namespace Ophelia.Data.Model
             var key = property.Name;
             try
             {
-                if (!this.Properties.Keys.Contains(key))
+                if (!this.Properties.ContainsKey(key))
                 {
                     object value = null;
                     if (defaultValue != null)

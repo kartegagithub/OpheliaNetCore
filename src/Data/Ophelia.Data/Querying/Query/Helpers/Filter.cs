@@ -381,7 +381,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             if (!this.Tables.Where(op => op.Alias == joinedTable.Alias).Any())
                                 this.Tables.Add(joinedTable);
 
-                            if (_prop.Equals(props[props.Length - 2]))
+                            if (_prop.Equals(props[^2]))
                             {
                                 isStringFilter = this.IsStringProperty(props.LastOrDefault(), null);
                                 if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)

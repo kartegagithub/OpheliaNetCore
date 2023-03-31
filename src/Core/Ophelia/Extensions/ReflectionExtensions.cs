@@ -273,7 +273,7 @@ namespace Ophelia
         public static string GetNamespace(this Type type)
         {
             var arr = type.FullName.Split('.');
-            var ns = arr[arr.Length - 2];
+            var ns = arr[^2];
             return ns;
         }
         public static object ExecuteMethod<T>(this T entity, string method, params object[] parameters) where T : class
@@ -734,7 +734,7 @@ namespace Ophelia
             if (typeToReflect.IsArray)
             {
                 var arrayType = typeToReflect.GetElementType();
-                if (arrayType.IsPrimitive() == false)
+                if (!arrayType.IsPrimitive())
                 {
                     Array clonedArray = (Array)cloneObject;
                     clonedArray.ForEach((array, indices) => array.SetValue(InternalCopy(clonedArray.GetValue(indices), visited), indices));
