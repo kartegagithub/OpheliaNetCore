@@ -83,7 +83,7 @@ namespace Ophelia.Data.Querying.Query
                             if (Extensions.IsIdentityProperty(pk))
                             {
                                 this.SequenceValue[pk.Name] = this.Context.Connection.GetSequenceNextVal(this.Entity.GetType(), pk, pks.Count == 1);
-                                this.Data.Parameters.Add(this.SequenceValue);
+                                this.Data.Parameters.Add(this.SequenceValue[pk.Name]);
                             }
                             else
                             {
