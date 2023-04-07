@@ -12,6 +12,9 @@ namespace Ophelia.Web.Service
         [ValidateNever]
         public Data.Querying.Query.QueryData? QueryData { get; set; }
 
+        [ValidateNever]
+        public override T Data { get => base.Data; set => base.Data = value; }
+
         public new WebApiCollectionRequest<T> AddParam(string key, object value)
         {
             return (WebApiCollectionRequest<T>)base.AddParam(key, value);

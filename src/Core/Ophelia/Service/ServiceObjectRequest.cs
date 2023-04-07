@@ -11,7 +11,7 @@ namespace Ophelia.Service
         public long ID { get; set; }
         public long LanguageID { get; set; }
         public string Name { get; set; }
-        public T Data { get; set; }
+        public virtual T Data { get; set; }
         public string TypeName { get; set; }
 
         [OpenApiIgnore]
