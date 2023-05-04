@@ -4,7 +4,8 @@ namespace Ophelia.Web
     {
         DateOnly = 0,
         TimeOnly = 1,
-        DateTimeWithHour = 2
+        DateTimeWithHour = 2,
+        MonthAndYear = 3
     }
     public enum DateTimeType
     {

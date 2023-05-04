@@ -27,7 +27,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             if (BinderConfiguration.UseHtml5DataTypes)
             {
                 this.DataControl.CssClass = this.DataControl.CssClass.Replace("date-field pickadate-selectors", "");
-                this.DataControl.Type = "date";
+                if (this.Format == DateTimeFormatType.MonthAndYear)
+                    this.DataControl.Type = "month";
+                else
+                    this.DataControl.Type = "date";
             }
             if (this.Mode == DateFieldMode.SingleSelection)
             {
@@ -75,7 +78,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
                 if (BinderConfiguration.UseHtml5DataTypes)
                 {
                     SecondDataControl.CssClass = "form-control";
-                    SecondDataControl.Type = "date";
+                    if (this.Format == DateTimeFormatType.MonthAndYear)
+                        SecondDataControl.Type = "month";
+                    else
+                        SecondDataControl.Type = "date";
                 }
                 this.DataControlParent.Controls.Add(SecondDataControl);
                 if (this.HighExpression != null && this.HighExpressionValue == null)
@@ -144,6 +150,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             else if (this.Format == DateTimeFormatType.TimeOnly)
             {
                 return value.ToString("HH:mm");
+            }
+            else if (this.Format == DateTimeFormatType.MonthAndYear)
+            {
+                return value.ToString("yyyy-MM");
             }
             if (BinderConfiguration.UseHtml5DataTypes)
                 return value.ToString("yyyy-MM-dd HH:mm");

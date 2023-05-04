@@ -24,6 +24,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
 
                     if (this.Format == DateTimeFormatType.DateOnly)
                         return dateValue.ToString("dd.MM.yyyy");
+                    if (this.Format == DateTimeFormatType.MonthAndYear)
+                        return dateValue.ToString("yyyy.MM");
                     if (this.Format == DateTimeFormatType.DateTimeWithHour)
                         return dateValue.ToString("dd.MM.yyyy HH:mm");
                     if (this.Format == DateTimeFormatType.TimeOnly)
@@ -41,7 +43,12 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                 panel.CssClass = "date-field-container";
 
                 if (BinderConfiguration.UseHtml5DataTypes)
-                    this.DateType = "date";
+                {
+                    if(this.Format == DateTimeFormatType.MonthAndYear)
+                        this.DateType = "month";
+                    else
+                        this.DateType = "date";
+                }
 
                 var DataControl = new Textbox();
                 DataControl.Name = this.FormatName() + "Low";
