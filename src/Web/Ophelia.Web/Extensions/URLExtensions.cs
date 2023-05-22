@@ -1,5 +1,6 @@
 ﻿using AngleSharp.Dom;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Ophelia.Service;
 using Ophelia.Web.Service;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -41,7 +43,7 @@ namespace Ophelia.Web
         {
             SetParameters();
             return Ophelia.URLExtensions.GetObjectByParam<T>(URL, parameters, headers, PreAuthenticate);
-        }        
+        }
         public static ServiceCollectionResult<T> GetCollection<T>(this string URL, int page, int pageSize, dynamic parameters = null, WebHeaderCollection headers = null, bool PreAuthenticate = false)
         {
             SetParameters();
@@ -61,7 +63,17 @@ namespace Ophelia.Web
         {
             SetParameters();
             return Ophelia.URLExtensions.GetCollection<T, TResult>(URL, page, pageSize, filterEntity, parameters, headers, PreAuthenticate);
-        }        
+        }
+        public static TResult GetObject<T, TResult>(this string URL, WebApiObjectRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            SetParameters();
+            return Ophelia.URLExtensions.GetObject<T, TResult>(URL, request, headers, PreAuthenticate);
+        }
+        public static TResult GetCollection<T, TResult>(this string URL, ServiceCollectionRequest<T> request, WebHeaderCollection headers = null, bool PreAuthenticate = false)
+        {
+            SetParameters();
+            return Ophelia.URLExtensions.GetCollection<T, TResult>(URL, request, headers, PreAuthenticate);
+        }
         private static void SetParameters()
         {
             if (FilesToUpload != null && FilesToUpload.Any())
