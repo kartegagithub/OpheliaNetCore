@@ -78,9 +78,11 @@ namespace Ophelia.Web
         {
             if (FilesToUpload != null && FilesToUpload.Any())
             {
+                if (Ophelia.URLExtensions.FilesToUploadBase64 == null)
+                    Ophelia.URLExtensions.FilesToUploadBase64 = new List<FileData>();
                 foreach (var file in FilesToUpload.Where(op => op.Value != null && op.Value.Length > 0))
                 {
-                    Ophelia.URLExtensions.FilesToUploadBase64?.Add(file.Value.ToFileData(file.Key));
+                    Ophelia.URLExtensions.FilesToUploadBase64.Add(file.Value.ToFileData(file.Key));
                 }
             }
             FilesToUpload = null;
