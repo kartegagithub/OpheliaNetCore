@@ -101,6 +101,10 @@ namespace Ophelia
                 {
                     convertedValue = isNull ? default : Convert.ToDouble(value, System.Globalization.CultureInfo.CurrentCulture);
                 }
+                else if (targetType.IsEnum)
+                {
+                    convertedValue = Enum.ToObject(targetType, Enum.GetUnderlyingType(targetType).ConvertData(value));
+                }
                 else if (value != null)
                 {
                     var valueType = value.GetType();
