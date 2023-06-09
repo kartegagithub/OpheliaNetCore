@@ -412,7 +412,10 @@ namespace Ophelia.Data
         {
             if (value != null && !isString && (value.ToString() == "True" || value.ToString() == "False"))
             {
-                return (value.ToString() == "True" ? 1 : 0);
+                if (this.Context.Configuration.QueryBooleanAsBinary)
+                    return (value.ToString() == "True" ? 1 : 0);
+                else if (value is bool || value is Nullable<bool>)
+                    return value;
             }
             return value;
         }

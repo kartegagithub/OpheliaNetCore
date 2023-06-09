@@ -21,7 +21,7 @@ namespace Ophelia.Data
         public string DatabaseVersion { get; set; }
         public int ObjectNameCharLimit { get; set; }
         public bool UseUppercaseObjectNames { get; set; }
-
+        public bool QueryBooleanAsBinary { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -46,6 +46,7 @@ namespace Ophelia.Data
             this.DefaultDecimalColumnPrecision = 38;
             this.EnableLazyLoading = false;
             this.LinkedDatabases = new Dictionary<Type, string>();
+            this.QueryBooleanAsBinary = true;
         }
     }
 }

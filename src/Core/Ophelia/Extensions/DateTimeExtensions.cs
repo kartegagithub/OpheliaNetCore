@@ -150,6 +150,12 @@ namespace Ophelia
             return timespan.TotalMilliseconds;
         }
 
+        public static DateTime ToDateTimeFromUnixTicks(this double unixTimeStamp)
+        {
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dateTime;
+        }
         public static DateTimeOffset StartOfWeek(this DateTimeOffset dt, DayOfWeek startOfWeek)
         {
             int diff = dt.DayOfWeek - startOfWeek;
