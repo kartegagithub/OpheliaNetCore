@@ -140,12 +140,11 @@ namespace Ophelia
             return value.Substring(0, Math.Min(length, value.Length));
         }
 
-        public static bool IsNumeric(this string value, bool isOnlyNumeric = false)
+        public static bool IsNumeric(this string value)
         {
             if (!string.IsNullOrEmpty(value))
             {
-                if (!isOnlyNumeric)
-                    value = value.Trim().Replace("-", "").Replace("+", "");
+                value = value.Trim().Replace("-", "").Replace("+", "");
                 if (value.Equals("0"))
                     return true;
 
