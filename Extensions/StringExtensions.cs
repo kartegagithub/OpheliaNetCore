@@ -153,6 +153,18 @@ namespace Ophelia
             }
             return false;
         }
+        public static bool IsFigure(this string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                if (value.Equals("0"))
+                    return true;
+
+                decimal decValue = decimal.MinValue;
+                return decimal.TryParse(value, out decValue);
+            }
+            return false;
+        }
         public static bool IsValidEmail(this string value)
         {
             try
