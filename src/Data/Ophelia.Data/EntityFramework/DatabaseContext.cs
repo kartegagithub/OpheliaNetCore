@@ -72,118 +72,133 @@ namespace Ophelia.Data.EntityFramework
             if (!this.EnableAuditLog)
                 return;
 
-            //changeSet method that examines changes
-            var changeSet = this.ChangeTracker.Entries();
-            //where the value is considered to be null. So even if there is no change in the context, it can be null.
-            if (changeSet != null)
+            try
             {
-                //The model to send to the log table in db.
-
-                //multiple classes may have changed. We will consider the unchanged and undeleted ones.
-                foreach (var entry in changeSet.Where(c => c.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged))
+                //changeSet method that examines changes
+                var changeSet = this.ChangeTracker.Entries();
+                //where the value is considered to be null. So even if there is no change in the context, it can be null.
+                if (changeSet != null)
                 {
-                    List<object> attributes = null;
-                    if (this.DataProtector != null)
+                    //The model to send to the log table in db.
+
+                    //multiple classes may have changed. We will consider the unchanged and undeleted ones.
+                    foreach (var entry in changeSet.Where(c => c.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged))
                     {
-                        attributes = entry.Entity.GetType().GetCustomAttributes(typeof(GDPClassAttribute));
-                        if (attributes != null && attributes.Count > 0)
-                            this.DataProtector.OnSave(entry.Entity);
-                    }
-
-                    var logs = new List<AuditLog>();
-                    attributes = entry.Entity.GetType().GetCustomAttributes(typeof(AuditLoggingAttribute));
-                    if (attributes == null || attributes.Count == 0 || !(attributes.FirstOrDefault() as AuditLoggingAttribute).Enable)
-                        continue;
-
-                    var auditLogModel = new AuditLog()
-                    {
-                        EntityName = entry.Entity.GetType().Name,
-                        EntityID = entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? 0 : Convert.ToInt64(entry.Entity.GetPropertyValue("ID")),
-                        UserID = Convert.ToInt64(entry.Entity.GetPropertyValue("UserCreatedID")),
-                        Date = DateTime.Now,
-                        State = entry.State
-                    };
-                    logs.Add(auditLogModel);
-
-                    var changes = new Dictionary<string, string>();
-                    foreach (var item in entry.CurrentValues.Properties)
-                    {
-                        //We find the name of the entity.
-                        string key = item.Name;
-
-                        //We find the value of entity
-                        var value = "";
-                        if (entry.CurrentValues[item] != null)
-                            value = entry.CurrentValues[item].ToString();
-
-                        if (key != null && value != null)
+                        List<object> attributes = null;
+                        if (this.DataProtector != null)
                         {
-                            changes.Add(key, value);
+                            attributes = entry.Entity.GetType().GetCustomAttributes(typeof(GDPClassAttribute));
+                            if (attributes != null && attributes.Count > 0)
+                                this.DataProtector.OnSave(entry.Entity);
                         }
-                    }
-                    var newValue = JsonConvert.SerializeObject(changes);
-                    auditLogModel.NewValue = newValue;
-                    auditLogModel.NewObject = entry.CurrentValues;
 
-                    if (entry.OriginalValues.Properties.Count > 0 && entry.State != Microsoft.EntityFrameworkCore.EntityState.Added)
-                    {
-                        changes = new Dictionary<string, string>();
-                        foreach (var item in entry.OriginalValues.Properties)
+                        var logs = new List<AuditLog>();
+                        attributes = entry.Entity.GetType().GetCustomAttributes(typeof(AuditLoggingAttribute));
+                        if (attributes == null || attributes.Count == 0 || !(attributes.FirstOrDefault() as AuditLoggingAttribute).Enable)
+                            continue;
+
+                        var auditLogModel = new AuditLog()
+                        {
+                            EntityName = entry.Entity.GetType().Name,
+                            EntityID = entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? 0 : Convert.ToInt64(entry.Entity.GetPropertyValue("ID")),
+                            UserID = Convert.ToInt64(entry.Entity.GetPropertyValue("UserCreatedID")),
+                            Date = DateTime.Now,
+                            State = entry.State
+                        };
+                        logs.Add(auditLogModel);
+
+                        var changes = new Dictionary<string, string>();
+                        foreach (var item in entry.CurrentValues.Properties)
                         {
                             //We find the name of the entity.
                             string key = item.Name;
 
                             //We find the value of entity
                             var value = "";
-                            if (entry.OriginalValues[item] != null)
-                                value = entry.OriginalValues[item].ToString();
+                            if (entry.CurrentValues[item] != null)
+                                value = entry.CurrentValues[item].ToString();
 
-                            if (key == "ID")
+                            if (key != null && value != null)
                             {
-                                auditLogModel.EntityID = long.Parse(value);
+                                changes.Add(key, value);
                             }
-
-                            if (key == "UserCreatedID")
-                            {
-                                auditLogModel.UserID = long.Parse(value);
-                            }
-
-                            changes.Add(key, value);
                         }
+                        var newValue = JsonConvert.SerializeObject(changes);
+                        auditLogModel.NewValue = newValue;
+                        auditLogModel.NewObject = entry.CurrentValues;
 
-                        var originalValue = JsonConvert.SerializeObject(changes);
-                        auditLogModel.OldValue = originalValue;
-                        auditLogModel.OldObject = entry.OriginalValues;
-                    }
-                    if (!string.IsNullOrEmpty((attributes.FirstOrDefault() as AuditLoggingAttribute).ParentPropertyName))
-                    {
-                        var parentName = (attributes.FirstOrDefault() as AuditLoggingAttribute).ParentPropertyName;
-                        var parentProperty = entry.Entity.GetType().GetProperty(parentName);
-                        if (parentProperty != null)
+                        if (entry.OriginalValues.Properties.Count > 0 && entry.State != Microsoft.EntityFrameworkCore.EntityState.Added)
                         {
-                            var id = entry.Entity.GetPropertyValue(parentName + "ID");
-                            if (id != null)
+                            changes = new Dictionary<string, string>();
+                            foreach (var item in entry.OriginalValues.Properties)
                             {
-                                long longID = 0;
-                                if (long.TryParse(id.ToString(), out longID))
+                                //We find the name of the entity.
+                                string key = item.Name;
+
+                                //We find the value of entity
+                                var value = "";
+                                if (entry.OriginalValues[item] != null)
+                                    value = entry.OriginalValues[item].ToString();
+
+                                if (key == "ID")
                                 {
-                                    if (this.PostActionAudits.ContainsKey($"{parentProperty.PropertyType.Name}_{longID}"))
+                                    long tmpLong = 0;
+                                    if (long.TryParse(value, out tmpLong))
+                                        auditLogModel.EntityID = tmpLong;
+                                }
+
+                                if (key == "UserCreatedID")
+                                {
+                                    long tmpLong = 0;
+                                    if (long.TryParse(value, out tmpLong))
+                                        auditLogModel.UserID = tmpLong;
+                                }
+
+                                changes.Add(key, value);
+                            }
+
+                            var originalValue = JsonConvert.SerializeObject(changes);
+                            auditLogModel.OldValue = originalValue;
+                            auditLogModel.OldObject = entry.OriginalValues;
+                        }
+                        if (!string.IsNullOrEmpty((attributes.FirstOrDefault() as AuditLoggingAttribute).ParentPropertyName))
+                        {
+                            var parentName = (attributes.FirstOrDefault() as AuditLoggingAttribute).ParentPropertyName;
+                            var parentProperty = entry.Entity.GetType().GetProperty(parentName);
+                            if (parentProperty != null)
+                            {
+                                var id = entry.Entity.GetPropertyValue(parentName + "ID");
+                                if (id != null)
+                                {
+                                    long longID = 0;
+                                    if (long.TryParse(id.ToString(), out longID))
                                     {
-                                        auditLogModel.ParentAuditLogID = this.PostActionAudits[$"{parentProperty.PropertyType.Name}_{longID}"];
+                                        if (this.PostActionAudits.ContainsKey($"{parentProperty.PropertyType.Name}_{longID}"))
+                                        {
+                                            auditLogModel.ParentAuditLogID = this.PostActionAudits[$"{parentProperty.PropertyType.Name}_{longID}"];
+                                        }
                                     }
                                 }
+
                             }
 
                         }
-
-                    }
-                    this.WriteAuditLogs(logs);
-                    if (attributes != null && (attributes.FirstOrDefault() as AuditLoggingAttribute).ParentOfPostActions)
-                    {
-                        this.PostActionAudits[$"{auditLogModel.EntityName}_{auditLogModel.EntityID}"] = auditLogModel.ID;
+                        this.WriteAuditLogs(logs);
+                        if (attributes != null && (attributes.FirstOrDefault() as AuditLoggingAttribute).ParentOfPostActions)
+                        {
+                            this.PostActionAudits[$"{auditLogModel.EntityName}_{auditLogModel.EntityID}"] = auditLogModel.ID;
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                this.OnAuditLogFailed(ex);
+            }
+        }
+        protected virtual void OnAuditLogFailed(Exception ex)
+        {
+
         }
         protected virtual void OnEntityChange(EntityEntry entity)
         {
