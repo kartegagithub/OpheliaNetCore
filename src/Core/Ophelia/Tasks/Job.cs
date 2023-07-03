@@ -64,7 +64,7 @@ namespace Ophelia.Tasks
                 var assembly = this.Manager.GetAssembly(this.AssemblyName);
                 if (assembly == null)
                     throw new Exception("Assembly could not be loaded " + this.AssemblyName);
-                var type = assembly.GetType(this.ClassName);
+                var type = assembly.GetTypes().Where(op => op.Name.Equals(this.ClassName)).FirstOrDefault();
                 if (type == null)
                     throw new Exception("Class " + this.ClassName + " could not be loaded from assembly " + this.AssemblyName);
 
