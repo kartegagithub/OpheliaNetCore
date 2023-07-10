@@ -224,7 +224,7 @@ namespace Ophelia.Service
     {
         [DataMember]
         [JsonProperty("quote")]
-        public StockInformationDetail quote { get; set; }
+        public StockInformationDetail Quote { get; set; }
     }
 
     [DataContract(IsReference = true)]

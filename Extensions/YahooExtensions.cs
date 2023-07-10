@@ -188,9 +188,9 @@ namespace Ophelia
                 if (stockDetailResult != null && stockDetailResult.QuoteResponse != null && stockDetailResult.QuoteResponse.Result?.Count > 0)
                 {
                     var detailResult = stockDetailResult.QuoteResponse.Result.FirstOrDefault();
-                    result.LastPrice = decimal.Round(detailResult.quote.RegularMarketPrice, 2);
-                    result.Date = detailResult.quote.FirstTradeDateMilliseconds.ConvertFromJSDate();
-                    result.PriceChange = decimal.Round(detailResult.quote.RegularMarketChangePercent, 2);
+                    result.LastPrice = decimal.Round(detailResult.Quote.RegularMarketPrice, 2);
+                    result.Date = detailResult.Quote.FirstTradeDateMilliseconds.ConvertFromJSDate();
+                    result.PriceChange = decimal.Round(detailResult.Quote.RegularMarketChangePercent, 2);
                 }
 
                 var stockChartResult = stockCode.GetStockChart(region, lang, interval, range);
