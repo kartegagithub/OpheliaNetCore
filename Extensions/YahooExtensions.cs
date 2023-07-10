@@ -157,7 +157,6 @@ namespace Ophelia
             var url = $"https://query2.finance.yahoo.com/v7/finance/options/{stockCode}";
 
             var response = url.DownloadURL();
-            var asd = response.Contains("quote");
             if (!string.IsNullOrEmpty(response))
             {
                 result = response.FromJson<StockInformationResult>();
