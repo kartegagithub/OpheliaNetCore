@@ -154,9 +154,10 @@ namespace Ophelia
         public static StockInformationResult GetStockInformation(this string stockCode)
         {
             StockInformationResult result = null;
-            var url = $"https://query1.finance.yahoo.com/v7/finance/quote?symbols={stockCode}";
+            var url = $"https://query2.finance.yahoo.com/v7/finance/options/{stockCode}";
 
             var response = url.DownloadURL();
+            var asd = response.Contains("quote");
             if (!string.IsNullOrEmpty(response))
             {
                 result = response.FromJson<StockInformationResult>();
@@ -188,9 +189,9 @@ namespace Ophelia
                 if (stockDetailResult != null && stockDetailResult.QuoteResponse != null && stockDetailResult.QuoteResponse.Result?.Count > 0)
                 {
                     var detailResult = stockDetailResult.QuoteResponse.Result.FirstOrDefault();
-                    result.LastPrice = decimal.Round(detailResult.RegularMarketPrice, 2);
-                    result.Date = detailResult.FirstTradeDateMilliseconds.ConvertFromJSDate();
-                    result.PriceChange = decimal.Round(detailResult.RegularMarketChangePercent, 2);
+                    result.LastPrice = decimal.Round(detailResult.quote.RegularMarketPrice, 2);
+                    result.Date = detailResult.quote.FirstTradeDateMilliseconds.ConvertFromJSDate();
+                    result.PriceChange = decimal.Round(detailResult.quote.RegularMarketChangePercent, 2);
                 }
 
                 var stockChartResult = stockCode.GetStockChart(region, lang, interval, range);
