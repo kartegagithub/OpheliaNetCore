@@ -203,7 +203,7 @@ namespace Ophelia.Service
     public class StockInformationResult
     {
         [DataMember]
-        [JsonProperty("quoteResponse")]
+        [JsonProperty("optionChain")]
         public StockInformation QuoteResponse { get; set; }
     }
 
@@ -212,11 +212,19 @@ namespace Ophelia.Service
     {
         [DataMember]
         [JsonProperty("result")]
-        public List<StockInformationDetail> Result { get; set; }
+        public List<StockInformationResultModel> Result { get; set; }
 
         [DataMember]
         [JsonProperty("error")]
         public string Error { get; set; }
+    }
+
+    [DataContract(IsReference = true)]
+    public class StockInformationResultModel
+    {
+        [DataMember]
+        [JsonProperty("quote")]
+        public StockInformationDetail Quote { get; set; }
     }
 
     [DataContract(IsReference = true)]
@@ -287,7 +295,7 @@ namespace Ophelia.Service
         public bool EsgPopulated { get; set; }
 
         [DataMember]
-        [JsonProperty("FirstTradeDateMilliseconds")]
+        [JsonProperty("firstTradeDateMilliseconds")]
         public long FirstTradeDateMilliseconds { get; set; }
 
         [DataMember]
