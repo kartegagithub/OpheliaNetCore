@@ -49,9 +49,10 @@ namespace Ophelia
         public static string GetEnumDisplayName(this Type typeToDrawEnum, object selectedValue, Client client)
         {
             var source = Enum.GetValues(typeToDrawEnum);
-
+            if (selectedValue.GetType().IsEnum)
+                selectedValue = Convert.ChangeType(selectedValue, Enum.GetUnderlyingType(typeToDrawEnum));
+            
             var displayAttributeType = typeof(DisplayAttribute);
-
             foreach (var value in source)
             {
                 FieldInfo field = value.GetType().GetField(value.ToString());

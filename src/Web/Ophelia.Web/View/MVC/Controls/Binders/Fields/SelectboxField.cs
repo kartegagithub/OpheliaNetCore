@@ -1,7 +1,8 @@
 ﻿using Ophelia.Web.UI.Controls;
 using System;
 using System.IO;
-
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
 {
@@ -38,7 +39,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.Fields
             }
 
             if (this.ExpressionValue != null)
-                this.DataControl.SelectedValue = Convert.ToString(this.ExpressionValue);
+            {
+                var value = this.Expression.GetUnderlyingEnumValue(this.FieldContainer.Entity, this.ExpressionValue);
+                this.DataControl.SelectedValue = value.ToString();
+            }
 
             if (this.AllowNew)
             {

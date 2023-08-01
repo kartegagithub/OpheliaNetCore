@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,6 +78,30 @@ namespace Ophelia
             return null;
         }
 
+        public static object GetUnderlyingEnumValue(this Expression expression, object item, object defaultValue = null)
+        {
+            var memberExp = expression as MemberExpression;
+            if (memberExp == null && expression is LambdaExpression)
+            {
+                var lambdaExp = (expression as LambdaExpression);
+                if (lambdaExp.Body is MemberExpression)
+                    memberExp = (lambdaExp.Body as MemberExpression);
+                if (memberExp == null && lambdaExp.Body is UnaryExpression)
+                {
+                    var unaryExp = (lambdaExp.Body as UnaryExpression);
+                    memberExp = unaryExp.Operand as MemberExpression;
+                }
+            }
+            if (memberExp != null)
+            {
+                var prop = (memberExp.Member as PropertyInfo);
+                if (prop != null && prop.PropertyType.IsEnum)
+                {
+                    return Convert.ChangeType(expression.GetValue(item), Enum.GetUnderlyingType(prop.PropertyType));
+                }
+            }
+            return defaultValue;
+        }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1806:Do not ignore method results", Justification = "<Pending>")]
         public static object GetValue(this Expression expression, object item, int languageID = 0, string[] excludedProps = null, Reflection.Accessor.NullReferenceEventDelegate nullReferenceEventDelegate = null)
         {
