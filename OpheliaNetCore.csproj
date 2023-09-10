@@ -24,6 +24,14 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="src\**" />
+    <Compile Remove="test\**" />
+    <EmbeddedResource Remove="src\**" />
+    <EmbeddedResource Remove="test\**" />
+    <None Remove="src\**" />
+    <None Remove="test\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.9.7" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.11.3" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
