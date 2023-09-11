@@ -36,6 +36,14 @@
 		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="src\**" />
+	  <Compile Remove="test\**" />
+	  <EmbeddedResource Remove="src\**" />
+	  <EmbeddedResource Remove="test\**" />
+	  <None Remove="src\**" />
+	  <None Remove="test\**" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="AWSSDK.S3" Version="3.7.101.44" />
 		<PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
 		<PackageReference Include="Castle.Core" Version="5.1.1" />
