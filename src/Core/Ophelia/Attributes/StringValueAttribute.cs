@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Ophelia.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class StringValueAttribute : Attribute
     {
         public string StringValue { get; protected set; }
