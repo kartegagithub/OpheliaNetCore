@@ -733,5 +733,52 @@ namespace Ophelia
         {
             return true;
         }
+
+        /// <summary>
+        /// allowedExtensions defaults: "png", "jpg", "jpeg", "bmp", "ico", "tiff", "gif", "webp", "doc", "docx", "pdf", "xls", "xlsx", "mp4"
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="allowedExtensions"></param>
+        /// <returns></returns>
+        public static bool HasValidFileExtension(this string fileName, params string[] allowedExtensions)
+        {
+            var extension = System.IO.Path.GetExtension(fileName);
+            if (string.IsNullOrEmpty(extension))
+            {
+                if (allowedExtensions == null || allowedExtensions.Length == 0)
+                    return true;
+
+                return false;
+            }
+
+            extension = extension.ToLowerInvariant().Replace(".", "").ClearTurkishChars();
+            var innerList = new List<string>();
+
+            if (allowedExtensions == null)
+                allowedExtensions = new string[] { "png", "jpg", "jpeg", "bmp", "ico", "tiff", "gif", "webp", "doc", "docx", "pdf", "xls", "xlsx", "mp4" };
+
+            foreach (var ext in allowedExtensions)
+            {
+                if (ext.Contains(',') || ext.Contains(';') || ext.Contains(' '))
+                    innerList.AddRange(from e in ext.Split(',', ';', ' ') select e.ToLowerInvariant().Replace(".", "").ClearTurkishChars());
+                else
+                    innerList.Add(ext.ToLowerInvariant().Replace(".", "").ClearTurkishChars());
+            }
+            return innerList.Contains(extension);
+        }
+
+        /// <summary>
+        /// allowedExtensions defaults: "png", "jpg", "jpeg", "bmp", "ico", "tiff", "gif", "webp"
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="allowedExtensions"></param>
+        /// <returns></returns>
+        public static bool HasImageFileExtension(this string fileName, params string[] allowedExtensions)
+        {
+            if (allowedExtensions == null || allowedExtensions.Length == 0)
+                allowedExtensions = new string[] { "png", "jpg", "jpeg", "bmp", "ico", "tiff", "gif", "webp" };
+
+            return HasValidFileExtension(fileName, allowedExtensions);
+        }
     }
 }
