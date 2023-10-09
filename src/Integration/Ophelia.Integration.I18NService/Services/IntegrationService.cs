@@ -11,6 +11,10 @@ namespace Ophelia.Integration.I18NService.Services
         {
             return this.GetCollection<TranslationPool>("GetUpdates", 1, int.MaxValue, null);
         }
+        public ServiceObjectResult<bool> ValidateTranslations(TranslationPoolValidatationModel entity)
+        {
+            return this.PostObject<TranslationPoolValidatationModel, ServiceObjectResult<bool>>("ValidateTranslations", entity, null);
+        }
         public ServiceObjectResult<TranslationAccessRequest> ProcessAccesses(List<TranslationAccess> accesses)
         {
             return this.GetObject<TranslationAccessRequest>("ProcessAccesses", new TranslationAccessRequest() { Accesses = accesses });

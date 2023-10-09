@@ -9,7 +9,7 @@ namespace Ophelia.Integration.I18NService.Models
         public string Name { get; set; }
 
         public string CategoryCode { get; set; }
-
+        public string ProjectCode { get; set; }
         public bool IsDeleted { get; set; }
 
         public virtual ICollection<TranslationPool_i18n> TranslationPool_i18n { get; set; }
