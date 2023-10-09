@@ -71,6 +71,29 @@ namespace Ophelia.Integration.I18NService
             }
             return result;
         }
+        public ServiceObjectResult<bool> ValidateTranslations(Models.TranslationPoolValidatationModel entity)
+        {
+            var result = new ServiceObjectResult<bool>();
+            try
+            {
+                if (string.IsNullOrEmpty(this.ServiceURL))
+                {
+                    result.Fail("Invalid service url");
+                    return result;
+                }
+                if (string.IsNullOrEmpty(this.AppKey))
+                {
+                    result.Fail("Invalid app key");
+                    return result;
+                }
+                result = this.Service.ValidateTranslations(entity);
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
         public ServiceObjectResult<Models.TranslationPool> GetTranslation(string name)
         {
             var result = new ServiceObjectResult<Models.TranslationPool>();
