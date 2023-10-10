@@ -8,6 +8,8 @@ namespace Ophelia
 {
     public static class ReflectionExtensions
     {
+        public static List<string> ExcludedAssemblies { get; private set; } = new List<string>();
+
         public static T2 CopyTo<T1, T2>(this T1 obj1, T2 obj2, params string[] excludedProps)
             where T1 : class
             where T2 : class
@@ -224,10 +226,14 @@ namespace Ophelia
             }
             return new List<MethodInfo>();
         }
+        internal static List<Assembly> GetValidAssemblies()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().Where(op => !ExcludedAssemblies.Contains(op.FullName)).ToList();
+        }
         public static List<Type> GetAssignableClasses<T>(this T baseClass, string RootNamespace = "") where T : Type
         {
             var list = new List<Type>();
-            foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly a in GetValidAssemblies())
             {
                 try
                 {
@@ -246,6 +252,7 @@ namespace Ophelia
                 }
                 catch (Exception)
                 {
+                    ExcludedAssemblies.Add(a.FullName);
                     continue;
                 }
             }
@@ -274,6 +281,7 @@ namespace Ophelia
                 }
                 catch (Exception)
                 {
+                    ExcludedAssemblies.Add(a.FullName);
                     return list;
                 }
                 a = null;
@@ -453,7 +461,7 @@ namespace Ophelia
             var types = new List<Type>();
             try
             {
-                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (Assembly a in GetValidAssemblies())
                 {
                     try
                     {
@@ -472,6 +480,7 @@ namespace Ophelia
                     }
                     catch (Exception)
                     {
+                        ExcludedAssemblies.Add(a.FullName);
                         continue;
                     }
                 }
@@ -486,13 +495,10 @@ namespace Ophelia
         {
             try
             {
-                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (Assembly a in GetValidAssemblies())
                 {
                     try
                     {
-                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
-                            continue;
-
                         var Types = a.GetTypes();
                         if (Types != null)
                         {
@@ -505,6 +511,7 @@ namespace Ophelia
                     }
                     catch (Exception)
                     {
+                        ExcludedAssemblies.Add(a.FullName);
                         continue;
                     }
                 }
@@ -522,13 +529,10 @@ namespace Ophelia
             try
             {
 
-                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (Assembly a in GetValidAssemblies())
                 {
                     try
                     {
-                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
-                            continue;
-
                         var Types = a.GetTypes();
                         if (Types != null)
                         {
@@ -544,6 +548,7 @@ namespace Ophelia
                     }
                     catch (Exception)
                     {
+                        ExcludedAssemblies.Add(a.FullName);
                         continue;
                     }
                 }
@@ -583,13 +588,10 @@ namespace Ophelia
             Type finalType = Type.GetType(typeName);
             try
             {
-                foreach (System.Reflection.Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (Assembly a in GetValidAssemblies())
                 {
                     try
                     {
-                        if (a.FullName.Contains(".Redis") || a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
-                            continue;
-
                         var Types = a.GetTypes();
                         if (Types != null)
                         {
@@ -602,6 +604,7 @@ namespace Ophelia
                     }
                     catch (Exception)
                     {
+                        ExcludedAssemblies.Add(a.FullName);
                         continue;
                     }
                 }

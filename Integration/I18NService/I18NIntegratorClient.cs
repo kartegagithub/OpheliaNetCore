@@ -10,6 +10,7 @@ namespace Ophelia.Integration.I18NService
 {
     public class I18NIntegratorClient : IDisposable
     {
+        public string InstanceID { get; private set; } = Guid.NewGuid().ToString();
         public string ServiceURL { get; set; }
         private Services.IntegrationService Service { get; set; }
         public string AppCode { get; set; }
@@ -56,12 +57,12 @@ namespace Ophelia.Integration.I18NService
                     this.Accesses.Clear();
             }
         }
-        public async void FlushAsynch()
+        public async Task FlushAsynch()
         {
             await Task.Run(() =>
             {
                 this.Flush();
-            });
+            }).ConfigureAwait(false);
         }
         public ServiceObjectResult<bool> UpdateTranslation(Models.TranslationPool pool)
         {
@@ -190,6 +191,10 @@ namespace Ophelia.Integration.I18NService
             this.AppName = "";
             this.ProjectCode = "";
             this.ProjectName = "";
+        }
+        public I18NIntegratorClient()
+        {
+
         }
     }
 }
