@@ -4,11 +4,13 @@ using System.Linq;
 using Ophelia.Integration.I18NService.Models;
 using Ophelia;
 using Ophelia.Service;
+using System.Threading.Tasks;
 
 namespace Ophelia.Integration.I18NService
 {
     public class I18NIntegratorClient : IDisposable
     {
+        public string InstanceID { get; private set; } = Guid.NewGuid().ToString();
         public string ServiceURL { get; set; }
         private Services.IntegrationService Service { get; set; }
         public string AppCode { get; set; }
@@ -30,21 +32,37 @@ namespace Ophelia.Integration.I18NService
         }
         public void Flush()
         {
-            if (string.IsNullOrEmpty(this.ServiceURL))
-                return;
-            if (string.IsNullOrEmpty(this.AppKey))
-                return;
-            if (this.Accesses != null && this.Accesses.Any() && this.Service != null && !string.IsNullOrEmpty(this.ServiceURL))
+            try
             {
-                var ts = new System.Threading.ThreadStart(FlushAsynch);
-                var t = new System.Threading.Thread(ts);
-                t.Start();
+                if (string.IsNullOrEmpty(this.ServiceURL))
+                    return;
+                if (string.IsNullOrEmpty(this.AppKey))
+                    return;
+                if (this.Accesses != null && this.Accesses.Any() && this.Service != null && !string.IsNullOrEmpty(this.ServiceURL))
+                {
+                    var clonedObjects = (List<TranslationAccess>)this.Accesses.Clone();
+                    this.Accesses.Clear();
+                    this.Service.ProcessAccesses(clonedObjects);
+                    clonedObjects.Clear();
+                    clonedObjects = null;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            finally
+            {
+                if (this.Accesses != null)
+                    this.Accesses.Clear();
             }
         }
-        private void FlushAsynch()
+        public async Task FlushAsynch()
         {
-            var result = this.Service.ProcessAccesses(this.Accesses);
-            this.Accesses.Clear();
+            await Task.Run(() =>
+            {
+                this.Flush();
+            }).ConfigureAwait(false);
         }
         public ServiceObjectResult<bool> UpdateTranslation(Models.TranslationPool pool)
         {
@@ -62,6 +80,29 @@ namespace Ophelia.Integration.I18NService
                     return result;
                 }
                 result = this.Service.UpdateTranslation(pool);
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+        public ServiceObjectResult<bool> ValidateTranslations(Models.TranslationPoolValidatationModel entity)
+        {
+            var result = new ServiceObjectResult<bool>();
+            try
+            {
+                if (string.IsNullOrEmpty(this.ServiceURL))
+                {
+                    result.Fail("Invalid service url");
+                    return result;
+                }
+                if (string.IsNullOrEmpty(this.AppKey))
+                {
+                    result.Fail("Invalid app key");
+                    return result;
+                }
+                result = this.Service.ValidateTranslations(entity);
             }
             catch (Exception ex)
             {
@@ -115,29 +156,6 @@ namespace Ophelia.Integration.I18NService
             }
             return result;
         }
-        public ServiceObjectResult<bool> ValidateTranslations(Models.TranslationPoolValidatationModel entity)
-        {
-            var result = new ServiceObjectResult<bool>();
-            try
-            {
-                if (string.IsNullOrEmpty(this.ServiceURL))
-                {
-                    result.Fail("Invalid service url");
-                    return result;
-                }
-                if (string.IsNullOrEmpty(this.AppKey))
-                {
-                    result.Fail("Invalid app key");
-                    return result;
-                }
-                result = this.Service.ValidateTranslations(entity);
-            }
-            catch (Exception ex)
-            {
-                result.Fail(ex);
-            }
-            return result;
-        }
         public void Init(string serviceURL, string appCode, string appName, string projectCode, string projectName, string appKey)
         {
             this.ServiceURL = serviceURL;
@@ -173,6 +191,10 @@ namespace Ophelia.Integration.I18NService
             this.AppName = "";
             this.ProjectCode = "";
             this.ProjectName = "";
+        }
+        public I18NIntegratorClient()
+        {
+
         }
     }
 }

@@ -14,7 +14,7 @@
 		<PackAsTool>False</PackAsTool>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<Version>7.0.0.18</Version>
+		<Version>7.0.0.19</Version>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\Ophelia\Ophelia.csproj" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F" />
