@@ -275,14 +275,13 @@ namespace Ophelia
         }
         public static bool IsDate(this object val)
         {
-            if (val == null)
+            if (val == null || val.GetType().IsNumeric())
                 return false;
 
             try
             {
-                DateTime dt = DateTime.Parse(Convert.ToString(val));
-                return true;
-
+                var date = DateTime.MinValue;
+                return DateTime.TryParse(Convert.ToString(val), out date);
             }
             catch
             {
