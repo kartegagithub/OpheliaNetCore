@@ -335,6 +335,7 @@ namespace Ophelia
             if (seperator == null || seperator.Length == 0)
                 seperator = new char[] { ',' };
 
+            value = value.RemoveJSNullables();
             if (string.IsNullOrEmpty(value))
                 return new List<long>();
             try
@@ -360,6 +361,7 @@ namespace Ophelia
 
         public static List<int> ToIntList(this string value, char seperator = ',')
         {
+            value = value.RemoveJSNullables();
             if (string.IsNullOrEmpty(value))
                 return new List<int>();
 
@@ -368,6 +370,7 @@ namespace Ophelia
 
         public static List<byte> ToByteList(this string value, char seperator = ',')
         {
+            value = value.RemoveJSNullables();
             if (string.IsNullOrEmpty(value))
                 return new List<byte>();
 
@@ -376,6 +379,7 @@ namespace Ophelia
 
         public static List<decimal> ToDecimalList(this string value, char seperator = ',')
         {
+            value = value.RemoveJSNullables();
             if (string.IsNullOrEmpty(value))
                 return new List<decimal>();
 
@@ -577,7 +581,15 @@ namespace Ophelia
 
             return sb.ToString();
         }
+        public static string RemoveJSNullables(this string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
 
+            text = text.Replace("null", "");
+            text = text.Replace("undefined", "");
+            return text;
+        }
         public static string EncodeTurkishChars(this string text)
         {
             text = text.Replace("İ", "\u0130");

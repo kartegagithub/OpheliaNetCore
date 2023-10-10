@@ -32,7 +32,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             }
             return value;
         }
-        public override WebControl GetEditableControl(T entity, object value)
+        public WebControl GetEditableControl(T entity, object value, object value2)
         {
             if (this.Mode == DateFieldMode.DoubleSelection)
             {
@@ -48,7 +48,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                 DataControl.ID = DataControl.Name;
                 DataControl.AddAttribute("data-column", this.FormatColumnName());
                 DataControl.CssClass = "form-control date-field pickadate-selectors";
-
+                if (value != null)
+                    DataControl.Value = this.FormatValue(Convert.ToDateTime(value));
+                
                 if (this.Format == DateTimeFormatType.TimeOnly)
                     DataControl.Type = this.TimeType;
                 else
@@ -64,6 +66,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                 SecondDataControl.ID = SecondDataControl.Name;
                 SecondDataControl.AddAttribute("data-column", this.FormatColumnName());
                 SecondDataControl.CssClass = "form-control date-field pickadate-selectors";
+                if (value2 != null)
+                    SecondDataControl.Value = this.FormatValue(Convert.ToDateTime(value2));
+
                 if (this.Format == DateTimeFormatType.TimeOnly)
                     SecondDataControl.Type = this.TimeType;
                 else
@@ -88,6 +93,28 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                 }
                 return control;
             }
+        }
+        private string FormatValue(DateTime value)
+        {
+            if (value == DateTime.MinValue)
+                return "";
+            
+            if (this.Format == DateTimeFormatType.DateOnly || this.Format == DateTimeFormatType.DateTimeWithHour)
+            {
+                if (BinderConfiguration.UseHtml5DataTypes)
+                    return value.ToString("yyyy-MM-dd");
+                else
+                    return value.ToString("dd.MM.yyyy");
+            }
+            else if (this.Format == DateTimeFormatType.TimeOnly)
+            {
+                return value.ToString("HH:mm");
+            }
+            return "";
+        }
+        public override WebControl GetEditableControl(T entity, object value)
+        {
+            return GetEditableControl(entity, value, null);
         }
         public DateColumn(CollectionBinder<TModel, T> binder, string Name) : base(binder, Name)
         {
