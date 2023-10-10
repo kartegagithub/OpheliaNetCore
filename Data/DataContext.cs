@@ -219,13 +219,10 @@ namespace Ophelia.Data
         }
         public static object CreateInstance(Type Type, params object[] parameters)
         {
-            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly a in ReflectionExtensions.GetValidAssemblies())
             {
                 try
                 {
-                    if (a.FullName.StartsWith("Microsoft.") || a.FullName.StartsWith("System.") || a.FullName.StartsWith("Newtonsoft."))
-                        continue;
-
                     var Types = a.GetTypes();
                     if (Types != null)
                     {
@@ -247,6 +244,7 @@ namespace Ophelia.Data
                 }
                 catch (Exception)
                 {
+                    ReflectionExtensions.ExcludedAssemblies.Add(a.FullName);
                     continue;
                 }
             }
