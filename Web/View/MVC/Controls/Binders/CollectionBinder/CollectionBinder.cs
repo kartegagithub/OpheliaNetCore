@@ -824,7 +824,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 var comparison = (Comparison)this.Request.GetValue(entityProp + "-Comparison").ToInt32();
                 if (isNumeric)
-                    return comparison != Comparison.Equal;
+                    return comparison != Comparison.Equal && comparison != Comparison.Contains;
                 else
                     return comparison != Comparison.Contains;
             }
@@ -1529,6 +1529,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             if (this.Configuration.EnableColumnFiltering && this.GroupedData == null)
             {
+                var entity = this.FiltersToEntity();
+
                 var tag = "th";
                 if (!this.Configuration.ColumnFiltersInHead)
                     tag = "td";
@@ -1552,15 +1554,32 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         {
                             if (column is Columns.BoolColumn<TModel, T>)
                             {
-                                this.Output.Write((this.OnBeforeDrawColumnFilter(column) as Columns.BoolColumn<TModel, T>).GetEditableControlAsSelect(null, null).Draw());
+                                this.Output.Write((this.OnBeforeDrawColumnFilter(column) as Columns.BoolColumn<TModel, T>).GetEditableControlAsSelect(entity, this.DataSource.GetPropertyValue($"Filters.{columnName}")).Draw());
+                            }
+                            else if (column is Columns.FilterboxColumn<TModel, T>)
+                            {
+                                var filterColumn = column as Columns.FilterboxColumn<TModel, T>;
+                                this.OnBeforeDrawColumnFilter(filterColumn);
+                                var id = this.DataSource.GetPropertyValue($"Filters.{columnName}");
+                                if (filterColumn.SelectedValueExpression != null)
+                                {
+                                    var propType = (filterColumn.SelectedValueExpression.Body as MemberExpression).Member.GetMemberInfoType();
+                                    entity.SetPropertyValue(filterColumn.SelectedValueExpression.ParsePath(), this.GetReferencedEntity(propType, id));
+                                }
+                                this.Output.Write(filterColumn.GetEditableControl(entity, id).Draw());
                             }
                             else
                             {
                                 if (column is Columns.DateColumn<TModel, T>)
                                 {
-                                    (column as Columns.DateColumn<TModel, T>).Mode = Fields.DateFieldMode.DoubleSelection;
+                                    var dateColumn = (column as Columns.DateColumn<TModel, T>);
+                                    dateColumn.Mode = Fields.DateFieldMode.DoubleSelection;
+                                    this.OnBeforeDrawColumnFilter(dateColumn);
+
+                                    this.Output.Write(this.RenderColumnFilter(column, dateColumn.GetEditableControl(entity, this.DataSource.GetPropertyValue($"Filters.{columnName}Low"), this.DataSource.GetPropertyValue($"Filters.{columnName}High"))));
                                 }
-                                this.Output.Write(this.RenderColumnFilter(column, this.OnBeforeDrawColumnFilter(column).GetEditableControl(null, null)));
+                                else
+                                    this.Output.Write(this.RenderColumnFilter(column, this.OnBeforeDrawColumnFilter(column).GetEditableControl(entity, this.DataSource.GetPropertyValue($"Filters.{columnName}"))));
                             }
                         }
                         this.Output.Write("</" + tag + ">");
