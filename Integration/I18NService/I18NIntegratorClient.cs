@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Ophelia.Integration.I18NService.Models;
 using Ophelia;
 using Ophelia.Service;
@@ -32,21 +31,37 @@ namespace Ophelia.Integration.I18NService
         }
         public void Flush()
         {
-            if (string.IsNullOrEmpty(this.ServiceURL))
-                return;
-            if (string.IsNullOrEmpty(this.AppKey))
-                return;
-            if (this.Accesses != null && this.Accesses.Any() && this.Service != null && !string.IsNullOrEmpty(this.ServiceURL))
+            try
             {
-                var ts = new System.Threading.ThreadStart(FlushAsynch);
-                var t = new System.Threading.Thread(ts);
-                t.Start();
+                if (string.IsNullOrEmpty(this.ServiceURL))
+                    return;
+                if (string.IsNullOrEmpty(this.AppKey))
+                    return;
+                if (this.Accesses != null && this.Accesses.Any() && this.Service != null && !string.IsNullOrEmpty(this.ServiceURL))
+                {
+                    var clonedObjects = (List<TranslationAccess>)this.Accesses.Clone();
+                    this.Accesses.Clear();
+                    this.Service.ProcessAccesses(clonedObjects);
+                    clonedObjects.Clear();
+                    clonedObjects = null;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            finally
+            {
+                if (this.Accesses != null)
+                    this.Accesses.Clear();
             }
         }
-        private void FlushAsynch()
+        public async void FlushAsynch()
         {
-            var result = this.Service.ProcessAccesses(this.Accesses);
-            this.Accesses.Clear();
+            await Task.Run(() =>
+            {
+                this.Flush();
+            });
         }
         public ServiceObjectResult<bool> UpdateTranslation(Models.TranslationPool pool)
         {
