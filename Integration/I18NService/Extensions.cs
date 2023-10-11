@@ -13,9 +13,9 @@ namespace Ophelia.Integration.I18NService
         {
             return builder.UseI18NService(null);
         }
-        public static void AccessedToTranslation(string name)
+        public static void AccessedToTranslation(string name, string projectCode = "")
         {
-            I18NMiddleware.I18NClient?.AccessedToTranslation(name);
+            I18NMiddleware.I18NClient?.AccessedToTranslation(name, projectCode);
         }
         public static List<TranslationAccess> GetAccesses()
         {

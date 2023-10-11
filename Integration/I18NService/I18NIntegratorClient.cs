@@ -19,14 +19,14 @@ namespace Ophelia.Integration.I18NService
         public string ProjectName { get; set; }
         public string AppKey { get; set; }
         public List<TranslationAccess> Accesses { get; set; }
-        public void AccessedToTranslation(string name)
+        public void AccessedToTranslation(string name, string projectCode = "")
         {
             if (this.Accesses == null)
                 this.Accesses = new List<TranslationAccess>();
 
             var access = this.Accesses.FirstOrDefault(op => op.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
             if (access == null)
-                this.Accesses.Add(new TranslationAccess() { Name = name, Count = 1 });
+                this.Accesses.Add(new TranslationAccess() { Name = name, Count = 1, ProjectCode = projectCode });
             else
                 access.Count += 1;
         }
