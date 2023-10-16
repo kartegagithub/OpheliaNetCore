@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using Ophelia.Data;
 using Ophelia.Data.Querying.Query;
 using Ophelia.Data.Querying.Query.Helpers;
@@ -405,6 +404,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         var propTree = typeof(T).GetPropertyInfoTree(entityProp);
                         var propInfo = propTree.LastOrDefault();
                         var propType = propInfo?.PropertyType;
+                        value = this.FormatFilterValue(propInfo, value);
+                        if (!string.IsNullOrEmpty(highValue))
+                            highValue = this.FormatFilterValue(propInfo, highValue);
+                        if (!string.IsNullOrEmpty(lowValue))
+                            lowValue = this.FormatFilterValue(propInfo, lowValue);
                         if (this.CanApplyFilter(propType, entityProp, doubleSelection, lowValue, highValue, path, defaultValue, value))
                         {
                             if (propType != null && propInfo.GetCustomAttribute(typeof(Data.Attributes.ManualFiltering)) == null)
@@ -830,6 +834,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             }
             return false;
         }
+        protected virtual string FormatFilterValue(PropertyInfo prop, string value)
+        {
+            return value;
+        }
         private void ApplyFilter(string entityProp, string value, Type propType, bool isQueryableDataSet, PropertyInfo[] propTree)
         {
             var comparison = Comparison.Contains;
@@ -929,13 +937,21 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 var props = filters.GetType().GetProperties();
                 foreach (var prop in props)
                 {
-                    var entityProp = entity.GetType().GetProperty(prop.Name);
                     try
                     {
+                        var entityProp = entity.GetType().GetProperty(prop.Name);
                         if (entityProp == null)
                             continue;
 
                         entityProp.SetValue(entity, prop.GetValue(filters));
+                        object value = null;
+                        var requestValue = this.Request.GetValue($"Filters.{prop.Name}");
+                        if (!string.IsNullOrEmpty(requestValue))
+                            value = Convert.ChangeType(this.FormatFilterValue(entityProp, requestValue), entityProp.PropertyType);
+                        else
+                            value = prop.GetValue(filters);
+
+                        entityProp.SetValue(entity, value);
                     }
                     catch (Exception)
                     {
