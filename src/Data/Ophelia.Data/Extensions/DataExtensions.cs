@@ -12,6 +12,7 @@ namespace Ophelia.Data
 {
     public static class Extensions
     {
+        private static string AutoFilterStringComparisonFunction { get; set; } = "ToLower";
         public static object GetExpressionValue(this MemberExpression memberExpression, BinaryExpression baseExpression)
         {
             if (memberExpression.Expression == null && baseExpression != null)
@@ -96,7 +97,10 @@ namespace Ophelia.Data
             }
             return source;
         }
-
+        public static void SetAutoFilterStringComparisonFunction(string functionName)
+        {
+            AutoFilterStringComparisonFunction = functionName;
+        }
         public static IQueryable<T> Apply<T>(this IQueryable<T> source, Filter data, bool inMemory = false)
         {
             if (data != null)
@@ -158,17 +162,27 @@ namespace Ophelia.Data
                         case Comparison.StartsWith:
                             if (data.Value != null)
                                 data.Value = Convert.ToString(data.Value).Trim();
-                            comparison = ".ToLower().StartsWith(@0.ToLower())";
+                            if (!string.IsNullOrEmpty(AutoFilterStringComparisonFunction))
+                                comparison = $".{AutoFilterStringComparisonFunction}().StartsWith(@0.{AutoFilterStringComparisonFunction}())";
+                            else
+                                comparison = ".StartsWith(@0)";
                             break;
                         case Comparison.EndsWith:
                             if (data.Value != null)
                                 data.Value = Convert.ToString(data.Value).Trim();
                             comparison = ".ToLower().EndsWith(@0.ToLower())";
+                            if (!string.IsNullOrEmpty(AutoFilterStringComparisonFunction))
+                                comparison = $".{AutoFilterStringComparisonFunction}().EndsWith(@0.{AutoFilterStringComparisonFunction}())";
+                            else
+                                comparison = ".EndsWith(@0)";
                             break;
                         case Comparison.Contains:
                             if (data.Value != null)
                                 data.Value = Convert.ToString(data.Value).Trim();
-                            comparison = ".ToLower().Contains(@0.ToLower())";
+                            if (!string.IsNullOrEmpty(AutoFilterStringComparisonFunction))
+                                comparison = $".{AutoFilterStringComparisonFunction}().Contains(@0.{AutoFilterStringComparisonFunction}())";
+                            else
+                                comparison = ".Contains(@0)";
                             break;
                         case Comparison.Exists:
                             break;
