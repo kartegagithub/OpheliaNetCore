@@ -140,8 +140,18 @@ namespace Ophelia.Data.Exporter
             var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell() { CellReference = cellReference, DataType = type };
             CellValue cellValue = new CellValue();
             cellValue.Text = cellStringValue;
-            if (!string.IsNullOrEmpty(cellValue.Text) && (cellValue.Text.StartsWith("=") || cellValue.Text.StartsWith("+") || cellValue.Text.StartsWith("-") || cellValue.Text.StartsWith("@")))
+            if (!string.IsNullOrEmpty(cellValue.Text) && (cellValue.Text.StartsWith("=") || cellValue.Text.StartsWith("@")))
                 cellValue.Text = $" ' {cellValue.Text}";
+
+            if (cellValue.Text.IsNumeric())
+            {
+                cellValue.Text = cellValue.Text.Trim().TrimStart('+');
+                cell.DataType = CellValues.Number;
+            }
+            if (cellValue.Text.IsDate())
+            {
+                cell.DataType = CellValues.Date;
+            }
 
             cell.Append(cellValue);
             excelRow.Append(cell);
