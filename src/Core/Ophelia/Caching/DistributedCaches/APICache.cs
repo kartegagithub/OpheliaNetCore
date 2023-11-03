@@ -14,7 +14,7 @@ namespace Ophelia.Caching.DistributedCaches
 
         public void Dispose()
         {
-            
+            GC.SuppressFinalize(this);
         }
 
         public virtual byte[] Get(string key)

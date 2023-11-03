@@ -11,7 +11,7 @@ namespace Ophelia.Integration.Health.Hes
         /// Sorgulanan HES Kodu
         /// </summary>
         [DataMember]
-        public string HesCode { get; set; }
+        public string HesCode { get; set; } = "";
 
         /// <summary>
         /// Oluşturulan HES Kodunun son kullanım tarihi
@@ -25,27 +25,27 @@ namespace Ophelia.Integration.Health.Hes
         /// </summary>
         [DataMember]
         [JsonProperty("current_health_status")]
-        public string HealthStatus { get; set; }
+        public string HealthStatus { get; set; } = "";
 
         /// <summary>
         /// Kişinin adının maskelenmiş halini belirtmektedir
         /// </summary>
         [DataMember]
         [JsonProperty("masked_firstname")]
-        public string MaskedFirstname { get; set; }
+        public string MaskedFirstname { get; set; } = "";
 
         /// <summary>
         /// Kişinin kimlik numarasının maskelenmiş halini belirtmektedir
         /// </summary>
         [DataMember]
         [JsonProperty("masked_identity_number")]
-        public string MaskedIdentityNumber { get; set; }
+        public string MaskedIdentityNumber { get; set; } = "";
 
         /// <summary>
         /// Kişinin soyadının maskelenmiş halini belirtmektedir
         /// </summary>
         [DataMember]
         [JsonProperty("masked_lastname")]
-        public string MaskedLastname { get; set; }
+        public string MaskedLastname { get; set; } = "";
     }
 }

@@ -12,13 +12,13 @@ namespace Ophelia.Integration.Health.Hes
         /// </summary>
         [DataMember]
         [JsonProperty("success_map")]
-        public Dictionary<string, HesCodeResult> SuccessMap { get; set; }
+        public Dictionary<string, HesCodeResult> SuccessMap { get; set; } = new Dictionary<string, HesCodeResult>();
 
         /// <summary>
         /// Sorgulanan hes kodlarından başarısız sonuç dönenler
         /// </summary>
         [DataMember]
         [JsonProperty("unsuccess_map")]
-        public Dictionary<string, string> UnSuccessMap { get; set; }
+        public Dictionary<string, string> UnSuccessMap { get; set; } = new Dictionary<string, string>();
     }
 }

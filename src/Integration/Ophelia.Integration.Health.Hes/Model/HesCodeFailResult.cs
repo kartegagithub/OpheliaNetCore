@@ -8,19 +8,19 @@ namespace Ophelia.Integration.Health.Hes
     {
         [DataMember]
         [JsonProperty("entityName")]
-        public string EntityName { get; set; }
+        public string EntityName { get; set; } = "";
 
         [DataMember]
         [JsonProperty("errorKey")]
-        public string ErrorKey { get; set; }
+        public string ErrorKey { get; set; } = "";
 
         [DataMember]
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = "";
 
         [DataMember]
         [JsonProperty("title")]
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
 
         [DataMember]
         [JsonProperty("status")]
@@ -28,14 +28,14 @@ namespace Ophelia.Integration.Health.Hes
 
         [DataMember]
         [JsonProperty("message")]
-        public string Message { get; set; }
+        public string Message { get; set; } = "";
 
         [DataMember]
         [JsonProperty("params")]
-        public string Params { get; set; }
+        public string Params { get; set; } = "";
 
         [DataMember]
         [JsonProperty("detail")]
-        public string Detail { get; set; }
+        public string Detail { get; set; } = "";
     }
 }

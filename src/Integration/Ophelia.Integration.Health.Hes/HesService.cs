@@ -16,13 +16,13 @@ namespace Ophelia.Integration.Health.Hes
 
         //Live: https://hesservis.turkiye.gov.tr/services/g2g/test/saglik/hes/
         //Test: https://hesservis.turkiye.gov.tr/services/g2g/saglik/hes/
-        public string ServiceURL { get; set; }
+        public string ServiceURL { get; set; } = "";
 
-        public string UserName { get; set; }
+        public string UserName { get; set; } = "";
 
-        public string Password { get; set; }
+        public string Password { get; set; } = "";
 
-        private string oAuthenticationToken;
+        private string oAuthenticationToken = "";
 
         private string AuthenticationToken
         {

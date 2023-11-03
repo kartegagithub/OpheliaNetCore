@@ -223,12 +223,12 @@ namespace Ophelia.Data
             return source;
         }
 
-        internal static (PropertyInfo, bool) GetForeignKeyProp(PropertyInfo prop)
+        internal static (PropertyInfo?, bool) GetForeignKeyProp(PropertyInfo prop)
         {
             return GetForeignKeyProp(prop.DeclaringType, prop.Name);
         }
 
-        internal static (PropertyInfo, bool) GetForeignKeyProp(Type type, string prop)
+        internal static (PropertyInfo?, bool) GetForeignKeyProp(Type type, string prop)
         {
             var idProps = type.GetProperties().Where(op => op.Name != prop && op.Name.StartsWith(prop, StringComparison.InvariantCultureIgnoreCase)).ToList();
             if (idProps.Count == 0)

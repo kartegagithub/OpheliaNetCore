@@ -321,7 +321,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                     sb.Append(")");
                 }
-                else if (this.Name.IndexOf(".") == -1)
+                else if (!Name.Contains('.', StringComparison.CurrentCulture))
                 {
                     isStringFilter = this.IsStringProperty(this.PropertyInfo, this.Value);
                     if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)

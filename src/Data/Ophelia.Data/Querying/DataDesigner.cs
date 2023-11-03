@@ -241,8 +241,8 @@ namespace Ophelia.Data.Querying
         }
         private void CreateField(Type tableType, PropertyInfo p)
         {
-            Attributes.DataProperty DataAttribute = null;
-            if (p.CustomAttributes.Count() > 0)
+            Attributes.DataProperty? DataAttribute = null;
+            if (p.CustomAttributes.Any())
             {
                 if (p.GetCustomAttributes(typeof(NotMappedAttribute)).Any())
                 {
@@ -250,6 +250,9 @@ namespace Ophelia.Data.Querying
                 }
                 DataAttribute = (Attributes.DataProperty)p.GetCustomAttributes(typeof(Attributes.DataProperty)).FirstOrDefault();
             }
+            if (DataAttribute == null)
+                return;
+
             var datatype = this.GetSQLDataType(p.PropertyType, DataAttribute);
             var tableName = this.Context.Connection.GetTableName(tableType);
             var primaryKeyName = this.Context.Connection.GetPrimaryKeyName(tableType);
@@ -266,11 +269,11 @@ namespace Ophelia.Data.Querying
             if (!string.IsNullOrEmpty(datatype))
             {
                 var collate = "";
-                if (this.Context.Connection.Type == DatabaseType.Oracle && !string.IsNullOrEmpty(this.Context.Configuration.OracleStringColumnCollation) && !string.IsNullOrEmpty(this.Context.Configuration.DatabaseVersion) && this.Context.Configuration.DatabaseVersion.IndexOf("11") == -1)
+                if (this.Context.Connection.Type == DatabaseType.Oracle && !string.IsNullOrEmpty(this.Context.Configuration.OracleStringColumnCollation) && !string.IsNullOrEmpty(this.Context.Configuration.DatabaseVersion) && !Context.Configuration.DatabaseVersion.Contains("11", StringComparison.CurrentCulture))
                     collate = " COLLATE " + this.Context.Configuration.OracleStringColumnCollation;
 
                 var defaultValue = this.GetDefaultValue(p.PropertyType);
-                if (defaultValue != null)
+                if (!string.IsNullOrEmpty(defaultValue))
                 {
                     this.AddSQL("ALTER TABLE " + tableName + " ADD " + fieldName + " " + datatype + collate + " DEFAULT " + defaultValue + (!nullable ? " NOT NULL " : ""));
                 }
@@ -281,13 +284,9 @@ namespace Ophelia.Data.Querying
         private string GetDefaultValue(Type type)
         {
             if (type == typeof(string))
-            {
-                return null;
-            }
+                return "";
             else if (type == typeof(char) || type == typeof(Nullable<char>))
-            {
-                return null;
-            }
+                return "";
             else if (type == typeof(byte) || type == typeof(Nullable<byte>))
             {
                 return "0";
@@ -309,10 +308,8 @@ namespace Ophelia.Data.Querying
                 return "0";
             }
             else if (type == typeof(DateTime) || type == typeof(Nullable<DateTime>))
-            {
-                return null;
-            }
-            return null;
+                return "";
+            return "";
         }
         private string GetSQLDataType(Type type, Attributes.DataProperty dataAttribute)
         {

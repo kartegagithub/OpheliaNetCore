@@ -87,7 +87,7 @@ namespace Ophelia
             if (ordering == null) throw new ArgumentNullException("ordering");
             ParameterExpression[] parameters = new ParameterExpression[] {
                 Expression.Parameter(source.ElementType, "") };
-            ExpressionParser parser = new ExpressionParser(parameters, ordering, values);
+            var parser = new ExpressionParser(parameters, ordering, values);
             IEnumerable<DynamicOrdering> orderings = parser.ParseOrdering();
             Expression queryExpr = source.Expression;
             string methodAsc = "OrderBy";
@@ -893,7 +893,6 @@ namespace Ophelia
             return expr;
         }
 
-#pragma warning disable 0219
         public IEnumerable<DynamicOrdering> ParseOrdering()
         {
             List<DynamicOrdering> orderings = new List<DynamicOrdering>();
@@ -917,7 +916,6 @@ namespace Ophelia
             ValidateToken(TokenId.End, Res.SyntaxError);
             return orderings;
         }
-#pragma warning restore 0219
 
         // ?: operator
         Expression ParseExpression()

@@ -358,15 +358,15 @@ namespace Ophelia.Data
         }
         public DataTable GetData(DbCommand cmd, string sqlSelect, int startRecord, int maxCount, DbParameter[] sqlParameters)
         {
-            Model.SQLLog log = null;
+            Model.SQLLog? log = null;
             try
             {
                 bool canApplyDBLevelPaging = maxCount > 0 && this.Type != DatabaseType.Oracle && this.Type != DatabaseType.MySQL;
                 if (canApplyDBLevelPaging)
                 {
-                    canApplyDBLevelPaging = sqlSelect.IndexOf(" TOP ", StringComparison.InvariantCultureIgnoreCase) == -1 &&
+                    canApplyDBLevelPaging = !sqlSelect.Contains(" TOP ", StringComparison.InvariantCultureIgnoreCase) &&
                         sqlSelect.IndexOf(" ORDER BY ", StringComparison.InvariantCultureIgnoreCase) > -1 &&
-                        sqlSelect.IndexOf("ROWS FETCH NEXT", StringComparison.InvariantCultureIgnoreCase) == -1;
+                        !sqlSelect.Contains("ROWS FETCH NEXT", StringComparison.InvariantCultureIgnoreCase);
                     if (canApplyDBLevelPaging)
                         sqlSelect += " OFFSET " + startRecord + " ROWS FETCH NEXT " + maxCount + " ROWS ONLY";
                 }
@@ -402,7 +402,7 @@ namespace Ophelia.Data
             }
             finally
             {
-                if (this.Context.Configuration.LogSQL)
+                if (log != null && this.Context.Configuration.LogSQL)
                     log.Finish();
                 if (this.CloseAfterExecution)
                     this.Close();
