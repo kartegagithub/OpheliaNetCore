@@ -28,9 +28,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\Ophelia\Ophelia.csproj" />
 	</ItemGroup>
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(BuildingInsideVisualStudio)' == '' Or '$(BuildingInsideVisualStudio)' == true">
-		<Exec Command="xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F&#xD;&#xA;xcopy &quot;$(ProjectDir)bin\*.*&quot; &quot;$(SolutionDir)packages\nuget\&quot; /Y /E /F" />
-	</Target>
 	<ItemGroup>
 		<GlobalAnalyzerConfigFiles Include="$(SolutionDir)\.globalconfig" />
 	</ItemGroup>
