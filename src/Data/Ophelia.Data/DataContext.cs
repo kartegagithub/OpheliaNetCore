@@ -1,4 +1,5 @@
-﻿using Ophelia.Data.Querying.Query;
+﻿using AngleSharp.Dom;
+using Ophelia.Data.Querying.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,6 +62,11 @@ namespace Ophelia.Data
         {
             var repository = this.GetRepository<T>();
             return repository.Create();
+        }
+        public Model.QueryableDataSet<T> GetQuery<T>() where T : class
+        {
+            var repository = this.GetRepository<T>();
+            return repository.GetQuery();
         }
         internal SelectQuery CreateSelectQuery(Type entityType)
         {
