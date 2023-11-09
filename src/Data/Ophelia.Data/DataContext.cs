@@ -58,6 +58,10 @@ namespace Ophelia.Data
             var repository = this.GetRepository<T>();
             return repository.SaveChanges(entity);
         }
+        public virtual void OnBeforeSaveChanges(object entity)
+        {
+            
+        }
         public T Create<T>() where T : class
         {
             var repository = this.GetRepository<T>();

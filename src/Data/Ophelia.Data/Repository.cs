@@ -20,6 +20,7 @@ namespace Ophelia.Data
             if (tracker != null && (tracker.HasChanged || tracker.IsNewRecord()))
             {
                 int effectedRowCount = 0;
+                this.Context.OnBeforeSaveChanges(entity);
                 if (!tracker.IsNewRecord())
                 {
                     tracker?.OnBeforeUpdateEntity();
