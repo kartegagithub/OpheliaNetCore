@@ -218,6 +218,9 @@ namespace Ophelia.Data.Querying.Query
                 var sb = new StringBuilder();
                 foreach (var sorter in this.Data.Sorters)
                 {
+                    if (this.Data.DistinctEnabled && this.Data.Selectors.Any() && !string.IsNullOrEmpty(sorter.Name) && !this.Data.Selectors.Any(op => !string.IsNullOrEmpty(op.Name) && op.Name.Equals(sorter.Name, StringComparison.InvariantCultureIgnoreCase)))
+                        continue;
+
                     var tmp2 = sorter.Build(this);
                     if (!string.IsNullOrEmpty(tmp2))
                     {
