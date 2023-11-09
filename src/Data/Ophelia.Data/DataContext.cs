@@ -17,6 +17,7 @@ namespace Ophelia.Data
         public Dictionary<string, string> TableMap { get; set; }
         public Dictionary<string, string> FieldMap { get; set; }
         public List<Type> ContextEntities { get; set; }
+        private Dictionary<Type, Repository> RepositoryCache { get; set; } = new Dictionary<Type, Repository>();
         public static DataContext Current
         {
             get
@@ -44,9 +45,23 @@ namespace Ophelia.Data
 
         public Repository<T> GetRepository<T>() where T : class
         {
-            return new Repository<T>(this);
-        }
+            if (this.RepositoryCache.ContainsKey(typeof(T)))
+                return (Repository<T>)this.RepositoryCache[typeof(T)];
 
+            var repository = new Repository<T>(this);
+            this.RepositoryCache.Add(typeof(T), repository);
+            return repository;
+        }
+        public bool SaveChanges<T>(T entity) where T : class
+        {
+            var repository = this.GetRepository<T>();
+            return repository.SaveChanges(entity);
+        }
+        public T Create<T>() where T : class
+        {
+            var repository = this.GetRepository<T>();
+            return repository.Create();
+        }
         internal SelectQuery CreateSelectQuery(Type entityType)
         {
             return new SelectQuery(this, entityType);
@@ -188,6 +203,8 @@ namespace Ophelia.Data
             this.TableMap = null;
             this.NamespaceMap = null;
             this.ContextEntities = null;
+            this.RepositoryCache.Clear();
+            this.RepositoryCache = null;
             this.Connection.Close();
             this.Connection.Dispose();
         }
