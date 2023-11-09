@@ -332,7 +332,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     else
                         sb.Append(subqueryTable.Alias);
                     sb.Append(".");
-                    sb.Append(query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(this.Name)));
+                    sb.Append(query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(this.PropertyInfo))));
 
                     if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
                         sb.Append(")");
