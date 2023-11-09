@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Dom;
+using Ophelia.Data.Model;
 using Ophelia.Data.Querying.Query;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Ophelia.Data
         private Connection _Connection;
         [ThreadStatic]
         protected static Dictionary<Type, DataContext> _Currents;
+
         public int ExecutionTimeout { get; set; }
         public Dictionary<string, string> NamespaceMap { get; set; }
         public Dictionary<string, string> TableMap { get; set; }
@@ -23,16 +25,20 @@ namespace Ophelia.Data
         {
             get
             {
-                if (_Currents == null)
-                    _Currents = new Dictionary<Type, DataContext>();
-
                 var type = MethodBase.GetCurrentMethod().ReflectedType;
-                if (!_Currents.ContainsKey(type))
+                if (!GetCurrents().ContainsKey(type))
                 {
                     _Currents[type] = (DataContext)CreateInstance(MethodBase.GetCurrentMethod().ReflectedType);
                 }
                 return _Currents[type];
             }
+        }
+
+        private static Dictionary<Type, DataContext> GetCurrents()
+        {
+            if (_Currents == null)
+                _Currents = new Dictionary<Type, DataContext>();
+            return _Currents;
         }
 
         public Connection Connection
@@ -60,7 +66,7 @@ namespace Ophelia.Data
         }
         public virtual void OnBeforeSaveChanges(object entity)
         {
-            
+
         }
         public T Create<T>() where T : class
         {
@@ -71,6 +77,12 @@ namespace Ophelia.Data
         {
             var repository = this.GetRepository<T>();
             return repository.GetQuery();
+        }
+        public T Track<T>(T entity) where T : class
+        {
+            var repository = this.GetRepository<T>();
+            var trackedEntity = repository.Track(entity);
+            return trackedEntity;
         }
         internal SelectQuery CreateSelectQuery(Type entityType)
         {
@@ -172,7 +184,7 @@ namespace Ophelia.Data
         internal DataContext GetContext(Type type)
         {
             DataContext defaultContext = this;
-            foreach (var context in _Currents)
+            foreach (var context in GetCurrents())
             {
                 if (context.Value.ContextEntities.Count > 0 && context.Value.ContextEntities.Contains(type))
                     return context.Value;
@@ -183,13 +195,13 @@ namespace Ophelia.Data
         }
         internal bool ContainsEntityType(Type type)
         {
-            if (_Currents.Count == 1)
+            if (GetCurrents().Count == 1)
                 return true;
 
             if (this.ContextEntities.Count > 0 && this.ContextEntities.Contains(type))
                 return true;
 
-            foreach (var context in _Currents)
+            foreach (var context in GetCurrents())
             {
                 if (context.Value != this)
                 {
