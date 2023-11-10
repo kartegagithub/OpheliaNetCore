@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace Ophelia.Data.Querying.Query.Helpers
@@ -10,6 +11,8 @@ namespace Ophelia.Data.Querying.Query.Helpers
     {
         [DataMember]
         public string Name { get; set; }
+
+        public PropertyInfo PropertyInfo { get; set; }
 
         [DataMember]
         public bool Ascending { get; set; }
@@ -32,6 +35,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
             if (query.Data.Groupers.Any())
                 this.Name = this.Name.Replace("Key.", "");
 
+            var columnName = this.Name;
+            if (this.PropertyInfo != null)
+                columnName = Extensions.GetColumnName(this.PropertyInfo);
+
             //TODO: GroupBy(op => new { PName = op.Product.Name }).OrderBy(op => op.Key.PName) is not working
             if (this.Name.IndexOf(".") > -1)
             {
@@ -51,11 +58,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                 }
             }
-            else if (!string.IsNullOrEmpty(this.Name))
+            else if (!string.IsNullOrEmpty(columnName))
             {
                 if (query.Data.Groupers.Count == 0 || query.Data.Groupers.Where(op => op.Name == this.Name).Any())
                 {
-                    return query.Data.MainTable.Alias + "." + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(this.Name)) + (this.Ascending ? " ASC" : " DESC");
+                    return query.Data.MainTable.Alias + "." + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(columnName)) + (this.Ascending ? " ASC" : " DESC");
                 }
             }
             return "";

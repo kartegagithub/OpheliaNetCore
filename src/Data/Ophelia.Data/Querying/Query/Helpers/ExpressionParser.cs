@@ -686,6 +686,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
         {
             var sorter = new Sorter();
             sorter.Name = this.Name;
+            sorter.PropertyInfo = this.PropertyInfo;
             sorter.Ascending = Ascending;
             if (this.SubExpression != null)
                 sorter.SubSorter = this.SubExpression.ToSorter(Ascending);
