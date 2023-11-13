@@ -410,13 +410,31 @@ namespace Ophelia.Data
         }
         public object FormatParameterValue(object value, bool isString = false)
         {
-            if (value != null && !isString && (value.ToString() == "True" || value.ToString() == "False"))
+            if (value != null && !isString)
             {
-                if (this.Context.Configuration.QueryBooleanAsBinary)
-                    return (value.ToString() == "True" ? 1 : 0);
-                else if (value is bool || value is Nullable<bool>)
+                if (value.ToString() == "True" || value.ToString() == "False")
+                {
+                    if (this.Context.Configuration.QueryBooleanAsBinary)
+                        return (value.ToString() == "True" ? 1 : 0);
+                    else if (value is bool || value is Nullable<bool>)
+                        return value;
+                }
+                else if (value is DateTime || value is Nullable<DateTime>)
+                {
+                    DateTime val = DateTime.MinValue;
+                    if (value is DateTime)
+                        val = (DateTime)value;
+                    else if (value is Nullable<DateTime>)
+                        val = ((DateTime?)value).GetValueOrDefault(DateTime.MinValue);
+
+                    if (val < this.Context.Configuration.MinDateTime)
+                        return this.Context.Configuration.MinDateTime;
+                    else if (val > this.Context.Configuration.MaxDateTime)
+                        return this.Context.Configuration.MaxDateTime;
                     return value;
+                }
             }
+
             return value;
         }
         public string FormatParameterName(string Name)

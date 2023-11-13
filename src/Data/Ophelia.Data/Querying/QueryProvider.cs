@@ -115,7 +115,7 @@ namespace Ophelia.Data.Querying
                             entity = data.GetItem(data.Count - 1);
                         if (entity.GetType().IsSubclassOf(typeof(TResult)))
                             return (TResult)entity;
-                        return (TResult)Convert.ChangeType(entity, typeof(TResult));
+                        return (TResult)typeof(TResult).ConvertData(entity);
                     }
                     return default(TResult);
             }

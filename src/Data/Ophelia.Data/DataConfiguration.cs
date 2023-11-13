@@ -23,6 +23,8 @@ namespace Ophelia.Data
         public int ObjectNameCharLimit { get; set; }
         public bool UseUppercaseObjectNames { get; set; }
         public bool QueryBooleanAsBinary { get; set; }
+        public DateTime MinDateTime { get; set; } = DateTime.MinValue;
+        public DateTime MaxDateTime { get; set; } = DateTime.MaxValue;
         /// <summary>
         /// 
         /// </summary>
