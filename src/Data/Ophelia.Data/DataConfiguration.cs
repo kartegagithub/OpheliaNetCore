@@ -6,6 +6,7 @@ namespace Ophelia.Data
     public class DataConfiguration : IDisposable
     {
         public List<string> NamespacesToIgnore { get; set; }
+        public bool UseDBLevelPaging { get; set; }
         public bool UseNamespaceAsSchema { get; set; }
         public bool PrimaryKeyContainsEntityName { get; set; }
         public bool AllowStructureAutoCreation { get; set; }
@@ -47,6 +48,7 @@ namespace Ophelia.Data
             this.EnableLazyLoading = false;
             this.LinkedDatabases = new Dictionary<Type, string>();
             this.QueryBooleanAsBinary = true;
+            this.UseDBLevelPaging = true;
         }
     }
 }

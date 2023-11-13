@@ -361,7 +361,7 @@ namespace Ophelia.Data
             Model.SQLLog? log = null;
             try
             {
-                bool canApplyDBLevelPaging = maxCount > 0 && this.Type != DatabaseType.Oracle && this.Type != DatabaseType.MySQL;
+                bool canApplyDBLevelPaging = this.Context.Configuration.UseDBLevelPaging && maxCount > 0 && this.Type != DatabaseType.Oracle && this.Type != DatabaseType.MySQL;
                 if (canApplyDBLevelPaging)
                 {
                     canApplyDBLevelPaging = !sqlSelect.Contains(" TOP ", StringComparison.InvariantCultureIgnoreCase) &&
