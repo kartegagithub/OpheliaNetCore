@@ -434,7 +434,10 @@ namespace Ophelia.Data
                     return value;
                 }
             }
-
+            else if (value != null && isString && this.Context.Configuration.StringParameterFormatter != null)
+            {
+                value = this.Context.Configuration.StringParameterFormatter(value.ToString());
+            }
             return value;
         }
         public string FormatParameterName(string Name)

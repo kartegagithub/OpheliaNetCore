@@ -25,6 +25,7 @@ namespace Ophelia.Data
         public bool QueryBooleanAsBinary { get; set; }
         public DateTime MinDateTime { get; set; } = DateTime.MinValue;
         public DateTime MaxDateTime { get; set; } = DateTime.MaxValue;
+        public Func<string, string> StringParameterFormatter { get; set; }
         /// <summary>
         /// 
         /// </summary>
