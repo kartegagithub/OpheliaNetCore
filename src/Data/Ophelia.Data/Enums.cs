@@ -36,7 +36,8 @@
         EndsWith = 9,
         Contains = 10,
         Exists = 11,
-        ContainsFTS = 12
+        ContainsFTS = 12,
+        None = 999
     }
 
     public enum DatabaseType

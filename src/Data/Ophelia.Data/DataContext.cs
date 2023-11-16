@@ -68,17 +68,17 @@ namespace Ophelia.Data
         {
 
         }
-        public T Create<T>() where T : class
+        public virtual T Create<T>() where T : class
         {
             var repository = this.GetRepository<T>();
             return repository.Create();
         }
-        public Model.QueryableDataSet<T> GetQuery<T>() where T : class
+        public virtual Model.QueryableDataSet<T> GetQuery<T>() where T : class
         {
             var repository = this.GetRepository<T>();
             return repository.GetQuery();
         }
-        public T Track<T>(T entity) where T : class
+        public virtual T Track<T>(T entity) where T : class
         {
             var repository = this.GetRepository<T>();
             var trackedEntity = repository.Track(entity);
