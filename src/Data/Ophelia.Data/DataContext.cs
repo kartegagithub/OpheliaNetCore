@@ -3,6 +3,7 @@ using Ophelia.Data.Model;
 using Ophelia.Data.Querying.Query;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;

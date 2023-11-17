@@ -88,9 +88,24 @@ namespace Ophelia.Data
         {
             this.internalConnection.Open();
         }
-
+        public new DbTransaction BeginTransaction()
+        {
+            this.CheckConnection();
+            this.CloseAfterExecution = false;
+            var transaction = this.internalConnection.BeginTransaction();
+            return transaction;
+        }
+        public new DbTransaction BeginTransaction(IsolationLevel isolationLevel)
+        {
+            this.CheckConnection();
+            this.CloseAfterExecution = false;
+            var transaction = this.internalConnection.BeginTransaction(isolationLevel);
+            return transaction;
+        }
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
+            this.CheckConnection();
+            this.CloseAfterExecution = false;
             return this.internalConnection.BeginTransaction(isolationLevel);
         }
 
@@ -99,20 +114,6 @@ namespace Ophelia.Data
             var command = System.Data.Common.DbProviderFactories.GetFactory(this.internalConnection).CreateCommand();
             command.Connection = this.internalConnection;
             return command;
-            //switch (this.Type)
-            //{
-            //    case DatabaseType.SQLServer:
-            //        return new SqlCommand("", (SqlConnection)this.internalConnection);
-            //    case DatabaseType.PostgreSQL:
-            //        return new Npgsql.NpgsqlCommand("", (Npgsql.NpgsqlConnection)this.internalConnection);
-            //    case DatabaseType.Oracle:
-            //        return new Oracle.ManagedDataAccess.Client.OracleCommand("", (Oracle.ManagedDataAccess.Client.OracleConnection)this.internalConnection);
-            //    case DatabaseType.MySQL:
-            //        break;
-            //    default:
-            //        break;
-            //}
-            //return null;
         }
 
         protected virtual DbDataAdapter CreateDataAdapter()
