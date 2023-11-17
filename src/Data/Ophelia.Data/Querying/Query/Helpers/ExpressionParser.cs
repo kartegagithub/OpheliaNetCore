@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Ophelia.Data.Querying.Query.Helpers
 {
@@ -15,6 +16,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public object? Value { get; set; }
         public object? Value2 { get; set; }
         public string Name { get; set; } = "";
+        public bool IsLogicalExpression { get; set; }
         public Constraint Constraint { get; set; }
         public Comparison Comparison { get; set; }
         public bool Exclude { get; set; }
@@ -86,6 +88,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
             {
                 exp = ExpressionParser.Parse(expression as Expressions.InExpression);
             }
+            else if (expression is ConstantExpression)
+            {
+                exp = ExpressionParser.Parse(expression as ConstantExpression);
+            }
             return exp;
         }
         public static ExpressionParser Parse(MemberInitExpression expression)
@@ -128,6 +134,12 @@ namespace Ophelia.Data.Querying.Query.Helpers
             }
             return parser;
         }
+        public static ExpressionParser Parse(ConstantExpression expression)
+        {
+            var parser = new ExpressionParser();
+            parser.Value = expression.Value;
+            return parser;
+        }
         public static ExpressionParser Parse(Expressions.InExpression expression)
         {
             var parser = new ExpressionParser();
@@ -156,122 +168,163 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public static ExpressionParser Parse(BinaryExpression expression)
         {
             var parser = new ExpressionParser();
-            if (!(expression.Left is MemberExpression))
+            if (expression.GetType().Name.Contains("SimpleBinary", StringComparison.InvariantCultureIgnoreCase))
+                parser.IsLogicalExpression = true;
+            if (parser.IsLogicalExpression)
             {
-                if (expression.Left is UnaryExpression)
+                if (expression.Left != null)
                 {
-                    if ((expression.Left as UnaryExpression).Operand is MemberExpression)
+                    parser.Left = ExpressionParser.Create(expression.Left);
+                    parser.Left.Comparison = Comparison.None;
+                    parser.Left.IsLogicalExpression = parser.IsLogicalExpression;
+                    if ((expression.Left is UnaryExpression))
+                        parser.Left.Exclude = (expression.Left as UnaryExpression).NodeType == ExpressionType.Not;
+                    if (parser.Left.Value != null)
                     {
-                        var memberExpression = (expression.Left as UnaryExpression).Operand as MemberExpression;
-                        parser.Name = memberExpression.ParsePath();
+                        parser.Left.Name = "";
+                        parser.Left.PropertyInfo = null;
+                    }
+                }
+                if (expression.Right != null)
+                {
+                    parser.Right = ExpressionParser.Create(expression.Right);
+                    parser.Right.Comparison = Comparison.None;
+                    parser.Right.IsLogicalExpression = parser.IsLogicalExpression;
+                    if (parser.Right.Value != null)
+                    {
+                        parser.Right.Name = "";
+                        parser.Right.PropertyInfo = null;
+                    }
+                }
+            }
+            else
+            {
+                if (!(expression.Left is MemberExpression))
+                {
+                    if (expression.Left is UnaryExpression)
+                    {
+                        if ((expression.Left as UnaryExpression).Operand is MemberExpression)
+                        {
+                            var memberExpression = (expression.Left as UnaryExpression).Operand as MemberExpression;
+                            parser.Name = memberExpression.ParsePath();
+                        }
+                        else
+                        {
+                            parser.Left = ExpressionParser.Create((expression.Left as UnaryExpression).Operand);
+                            parser.Left.Exclude = (expression.Left as UnaryExpression).NodeType == ExpressionType.Not;
+                        }
                     }
                     else
                     {
-                        parser.Left = ExpressionParser.Create((expression.Left as UnaryExpression).Operand);
-                        parser.Left.Exclude = (expression.Left as UnaryExpression).NodeType == ExpressionType.Not;
+                        parser.Left = ExpressionParser.Create(expression.Left);
+                        if (parser.Left == null)
+                            throw new Exception("Left Expression is null");
                     }
                 }
                 else
                 {
-                    parser.Left = ExpressionParser.Create(expression.Left);
-                    if (parser.Left == null)
-                        throw new Exception("Left Expression is null");
+                    var memberExpression = expression.Left as MemberExpression;
+                    parser.Name = memberExpression.ParsePath();
                 }
-            }
-            else
-            {
-                var memberExpression = expression.Left as MemberExpression;
-                parser.Name = memberExpression.ParsePath();
-            }
-            if (expression.Right is MemberExpression && (expression.Right as MemberExpression).Expression is ConstantExpression)
-            {
-                var memberExpression = (expression.Right as MemberExpression);
-                if (memberExpression.Member is System.Reflection.FieldInfo)
+                if (expression.Right is MemberExpression && (expression.Right as MemberExpression).Expression is ConstantExpression)
                 {
-                    var field = memberExpression.Member as System.Reflection.FieldInfo;
-                    if (field.FieldType.IsQueryableDataSet() || field.FieldType.IsQueryable())
+                    var memberExpression = (expression.Right as MemberExpression);
+                    if (memberExpression.Member is System.Reflection.FieldInfo)
                     {
-                        parser.Value = field.FieldType;
-                        parser.IsQueryableDataSet = true;
-                        parser.EntityType = field.FieldType.GetGenericArguments()[0];
-                        parser.Comparison = Comparison.Exists;
+                        var field = memberExpression.Member as System.Reflection.FieldInfo;
+                        if (field.FieldType.IsQueryableDataSet() || field.FieldType.IsQueryable())
+                        {
+                            parser.Value = field.FieldType;
+                            parser.IsQueryableDataSet = true;
+                            parser.EntityType = field.FieldType.GetGenericArguments()[0];
+                            parser.Comparison = Comparison.Exists;
+                        }
+                        else if (field.FieldType.IsDataEntity() || field.FieldType.IsPOCOEntity())
+                        {
+                            parser.IsDataEntity = true;
+                            parser.EntityType = field.FieldType;
+                        }
+                        else
+                        {
+                            parser.Value = field.GetValue((memberExpression.Expression as ConstantExpression).Value);
+                        }
                     }
-                    else if (field.FieldType.IsDataEntity() || field.FieldType.IsPOCOEntity())
+                    else if (memberExpression.Member is System.Reflection.PropertyInfo)
                     {
-                        parser.IsDataEntity = true;
-                        parser.EntityType = field.FieldType;
-                    }
-                    else
-                    {
-                        parser.Value = field.GetValue((memberExpression.Expression as ConstantExpression).Value);
-                    }
-                }
-                else if (memberExpression.Member is System.Reflection.PropertyInfo)
-                {
-                    var property = memberExpression.Member as System.Reflection.PropertyInfo;
-                    if (property.PropertyType.IsQueryableDataSet() || property.PropertyType.IsQueryable())
-                    {
-                        parser.Value = property.PropertyType;
-                        parser.IsQueryableDataSet = true;
-                        parser.EntityType = property.PropertyType.GetGenericArguments()[0];
-                        parser.Comparison = Comparison.Exists;
-                    }
-                    else if (property.PropertyType.IsDataEntity() || property.PropertyType.IsPOCOEntity())
-                    {
-                        parser.IsDataEntity = true;
-                        parser.EntityType = property.PropertyType;
-                    }
-                    else
-                    {
-                        parser.Value = property.GetValue((memberExpression.Expression as ConstantExpression).Value);
+                        var property = memberExpression.Member as System.Reflection.PropertyInfo;
+                        if (property.PropertyType.IsQueryableDataSet() || property.PropertyType.IsQueryable())
+                        {
+                            parser.Value = property.PropertyType;
+                            parser.IsQueryableDataSet = true;
+                            parser.EntityType = property.PropertyType.GetGenericArguments()[0];
+                            parser.Comparison = Comparison.Exists;
+                        }
+                        else if (property.PropertyType.IsDataEntity() || property.PropertyType.IsPOCOEntity())
+                        {
+                            parser.IsDataEntity = true;
+                            parser.EntityType = property.PropertyType;
+                        }
+                        else
+                        {
+                            parser.Value = property.GetValue((memberExpression.Expression as ConstantExpression).Value);
+                        }
                     }
                 }
-            }
-            else if (expression.Right is MemberExpression && (expression.Right as MemberExpression).Expression is MemberExpression && ((expression.Right as MemberExpression).Expression as MemberExpression).Expression is ConstantExpression)
-            {
-                parser.Value = Expression.Lambda(expression.Right).Compile().DynamicInvoke();
-            }
-            else if (expression.Right is UnaryExpression && expression.Right.NodeType == ExpressionType.Convert)
-            {
-                var memberExpression = (expression.Right as UnaryExpression).Operand as MemberExpression;
-                if (memberExpression != null)
+                else if (expression.Right is MemberExpression && (expression.Right as MemberExpression).Expression is MemberExpression && ((expression.Right as MemberExpression).Expression as MemberExpression).Expression is ConstantExpression)
                 {
-                    parser.Value = memberExpression.GetExpressionValue(expression);
+                    parser.Value = Expression.Lambda(expression.Right).Compile().DynamicInvoke();
                 }
-                var constantExpression = (expression.Right as UnaryExpression).Operand as ConstantExpression;
-                if (constantExpression != null)
+                else if (expression.Right is UnaryExpression && expression.Right.NodeType == ExpressionType.Convert)
                 {
-                    parser.Value = constantExpression.Value;
-                }
-                var unaryExpression = (expression.Right as UnaryExpression).Operand as UnaryExpression;
-                if (unaryExpression != null)
-                {
-                    memberExpression = unaryExpression.Operand as MemberExpression;
+                    var memberExpression = (expression.Right as UnaryExpression).Operand as MemberExpression;
                     if (memberExpression != null)
                     {
                         parser.Value = memberExpression.GetExpressionValue(expression);
                     }
+                    var constantExpression = (expression.Right as UnaryExpression).Operand as ConstantExpression;
+                    if (constantExpression != null)
+                    {
+                        parser.Value = constantExpression.Value;
+                    }
+                    var unaryExpression = (expression.Right as UnaryExpression).Operand as UnaryExpression;
+                    if (unaryExpression != null)
+                    {
+                        memberExpression = unaryExpression.Operand as MemberExpression;
+                        if (memberExpression != null)
+                        {
+                            parser.Value = memberExpression.GetExpressionValue(expression);
+                        }
+                    }
                 }
-            }
-            else if (!(expression.Right is ConstantExpression))
-            {
-                bool foundValue = false;
-                if (expression.Right is MemberExpression)
+                else if (!(expression.Right is ConstantExpression))
                 {
-                    parser.Value = (expression.Right as MemberExpression).GetExpressionValue(expression);
-                    foundValue = true;
+                    bool foundValue = false;
+                    if (expression.Right is MemberExpression)
+                    {
+                        parser.Value = (expression.Right as MemberExpression).GetExpressionValue(expression);
+                        foundValue = true;
+                    }
+                    if (!foundValue)
+                    {
+                        parser.Right = ExpressionParser.Create(expression.Right);
+                        if (parser.Right == null)
+                            throw new Exception("Right Expression is null");
+                    }
                 }
-                if (!foundValue)
+                else
                 {
-                    parser.Right = ExpressionParser.Create(expression.Right);
-                    if (parser.Right == null)
-                        throw new Exception("Right Expression is null");
+                    if (!(expression.Right is ConstantExpression) || (parser.Left != null && parser.Left.IsLogicalExpression))
+                    {
+                        parser.Right = ExpressionParser.Create(expression.Right);
+                        if ((parser.Left != null && parser.Left.IsLogicalExpression))
+                            parser.Right.Comparison = Comparison.None;
+                    }
+                    else
+                    {
+                        var consExpression = expression.Right as ConstantExpression;
+                        parser.Value = consExpression.Value;
+                    }
                 }
-            }
-            else
-            {
-                var consExpression = expression.Right as ConstantExpression;
-                parser.Value = consExpression.Value;
             }
 
             if (expression.NodeType == ExpressionType.And || expression.NodeType == ExpressionType.AndAlso)
@@ -310,6 +363,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
             {
                 parser.Exclude = true;
             }
+            if (parser.IsLogicalExpression)
+                parser.Comparison = Comparison.None;
+
             return parser;
         }
         public static ExpressionParser Parse(MemberExpression expression)
@@ -317,6 +373,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             var parser = new ExpressionParser();
             parser.Name = expression.ParsePath();
             var propInfo = expression.Member as System.Reflection.PropertyInfo;
+            var field = expression.Member as System.Reflection.FieldInfo;
             if (propInfo != null)
             {
                 parser.PropertyInfo = propInfo;
@@ -337,14 +394,58 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     if (propInfo.IsStaticProperty())
                         parser.Value = propInfo.GetStaticPropertyValue();
                     else if (propInfo.PropertyType.IsAssignableFrom(typeof(bool)))
-                    {
                         parser.Value = true;
+                    else if (expression.Expression is ConstantExpression)
+                        parser.Value = propInfo.GetValue((expression.Expression as ConstantExpression).Value);
+                    else if (expression.Expression is MemberExpression)
+                    {
+                        var memberExp = expression.Expression as MemberExpression;
+
+                        var propInfo1 = memberExp.Member as System.Reflection.PropertyInfo;
+                        var field1 = memberExp.Member as System.Reflection.FieldInfo;
+                        object value = null;
+                        if (memberExp.Expression is ConstantExpression)
+                        {
+                            if (propInfo1 != null)
+                                value = propInfo1.GetValue((memberExp.Expression as ConstantExpression).Value);
+                            if (field1 != null)
+                                value = field1.GetValue((memberExp.Expression as ConstantExpression).Value);
+                        }
+                        else if (memberExp.Expression is MemberExpression)
+                        {
+                            memberExp = memberExp.Expression as MemberExpression;
+
+                            var propInfo2 = memberExp.Member as System.Reflection.PropertyInfo;
+                            var field2 = memberExp.Member as System.Reflection.FieldInfo;
+                            if (memberExp.Expression is ConstantExpression)
+                            {
+                                if (propInfo2 != null)
+                                    value = propInfo2.GetValue((memberExp.Expression as ConstantExpression).Value);
+                                if (field2 != null)
+                                    value = field2.GetValue((memberExp.Expression as ConstantExpression).Value);
+                            }
+
+                            if (value != null)
+                            {
+                                if (propInfo1 != null)
+                                    value = propInfo1.GetValue(value);
+                                if (field1 != null)
+                                    value = field1.GetValue(value);
+                            }
+                        }
+
+                        if (value != null)
+                        {
+                            if (propInfo != null)
+                                parser.Value = propInfo.GetValue(value);
+                            if (field != null)
+                                parser.Value = field.GetValue(value);
+                        }
                     }
                 }
             }
             else
             {
-                var field = expression.Member as System.Reflection.FieldInfo;
                 if (field.FieldType.IsQueryableDataSet() || field.FieldType.IsQueryable())
                 {
                     parser.Value = field.FieldType;
@@ -357,13 +458,91 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     parser.IsDataEntity = true;
                     parser.EntityType = field.FieldType;
                 }
-                else
+                else if (expression.Expression is ConstantExpression)
                 {
                     parser.Value = field.GetValue((expression.Expression as ConstantExpression).Value);
                 }
             }
             return parser;
         }
+        //private static object GetFieldValue(ExpressionParser parser, MemberExpression expression, bool setPropInfo = true)
+        //{
+        //    var propInfo = expression.Member as PropertyInfo;
+        //    var field = expression.Member as FieldInfo;
+        //    if (setPropInfo)
+        //        parser.PropertyInfo = propInfo;
+
+        //    if (expression.Expression != null)
+        //    {
+        //        if (expression.Expression is ConstantExpression)
+        //        {
+        //            if (propInfo != null)
+        //                return propInfo.GetValue((expression.Expression as ConstantExpression).Value);
+        //            else if(field != null)
+        //                return field.GetValue((expression.Expression as ConstantExpression).Value);
+        //        }
+        //        else if (expression.Expression is MemberExpression)
+        //        {
+        //            var parentExp = expression.Expression as MemberExpression;
+        //            if (parentExp.Member is PropertyInfo)
+        //                parser.ParentPropertyInfo = parentExp.Member as PropertyInfo;
+
+        //            var value = GetFieldValue(parser, parentExp);
+        //            if(propInfo != null)
+        //                return propInfo.GetValue(value);
+        //            else if (field != null)
+        //                return field.GetValue(value);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (propInfo != null)
+        //        {
+        //            if (propInfo.PropertyType.IsQueryableDataSet() || propInfo.PropertyType.IsQueryable())
+        //            {
+        //                parser.Value = propInfo.PropertyType;
+        //                parser.IsQueryableDataSet = true;
+        //                parser.EntityType = propInfo.PropertyType.GetGenericArguments()[0];
+        //                parser.Comparison = Comparison.Exists;
+        //            }
+        //            else if (propInfo.PropertyType.IsDataEntity() || propInfo.PropertyType.IsPOCOEntity())
+        //            {
+        //                parser.IsDataEntity = true;
+        //                parser.EntityType = propInfo.PropertyType;
+        //            }
+        //            else
+        //            {
+        //                if (propInfo.IsStaticProperty())
+        //                    parser.Value = propInfo.GetStaticPropertyValue();
+        //                else if (propInfo.PropertyType.IsAssignableFrom(typeof(bool)))
+        //                    parser.Value = true;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (field == null)
+        //                return null;
+
+        //            if (field.FieldType.IsQueryableDataSet() || field.FieldType.IsQueryable())
+        //            {
+        //                parser.Value = field.FieldType;
+        //                parser.IsQueryableDataSet = true;
+        //                parser.EntityType = field.FieldType.GetGenericArguments()[0];
+        //                parser.Comparison = Comparison.Exists;
+        //            }
+        //            else if (field.FieldType.IsDataEntity() || field.FieldType.IsPOCOEntity())
+        //            {
+        //                parser.IsDataEntity = true;
+        //                parser.EntityType = field.FieldType;
+        //            }
+        //            else
+        //            {
+        //                parser.Value = field.GetValue((expression.Expression as ConstantExpression).Value);
+        //            }
+        //        }
+        //    }
+        //    return null;
+        //}
         public static ExpressionParser Parse(UnaryExpression expression)
         {
             var parser = new ExpressionParser();
@@ -555,6 +734,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             filter.IsDataEntity = this.IsDataEntity;
             filter.IsQueryableDataSet = this.IsQueryableDataSet;
             filter.EntityType = this.EntityType;
+            filter.IsLogicalExpression = this.IsLogicalExpression;
             filter.Members = this.Members;
             filter.MemberExpressions = this.MemberExpressions;
             if (this.EntityType != null)

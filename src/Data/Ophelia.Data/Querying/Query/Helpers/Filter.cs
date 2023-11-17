@@ -13,6 +13,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
     public class Filter : IDisposable
     {
         [DataMember]
+        public bool IsLogicalExpression { get; set; }
+
+        [DataMember]
         public string Name { get; set; }
 
         [DataMember]
@@ -158,7 +161,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
                         if (!string.IsNullOrEmpty(keywordResult))
                             keywordResult += " AND ";
-                        if (item.Contains("-"))
+                        if (item.Contains('-'))
                         {
                             keywordResult += "\"" + item.Replace("-", "*") + "\"";
                         }
@@ -197,23 +200,68 @@ namespace Ophelia.Data.Querying.Query.Helpers
             }
             else if (string.IsNullOrEmpty(this.Name) && this.Left == null && this.Right == null && !this.IsQueryableDataSet)
             {
-                return "";
+                if (this.Value != null)
+                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                else
+                    return "";
             }
             if (this.Left != null && this.Right != null)
             {
-                var leftStr = this.Left.Build(query, subqueryTable);
-                var rightStr = this.Right.Build(query, subqueryTable);
+                var leftStr = "";
+                if (this.Left != null)
+                    leftStr = this.Left.Build(query, subqueryTable);
+                var rightStr = "";
+                if (this.Right != null)
+                    rightStr = this.Right.Build(query, subqueryTable);
 
                 if (!string.IsNullOrEmpty(leftStr) || !string.IsNullOrEmpty(rightStr))
                 {
                     sb.Append("(");
                     sb.Append(leftStr);
-                    if (!string.IsNullOrEmpty(leftStr))
+                    if (!(this.Left?.IsLogicalExpression).GetValueOrDefault(false) && !(this.Right?.IsLogicalExpression).GetValueOrDefault(false))
                     {
-                        if (this.Constraint == Constraint.And)
-                            sb.Append(" AND ");
-                        else
-                            sb.Append(" OR ");
+                        if (!string.IsNullOrEmpty(leftStr))
+                        {
+                            if (this.Constraint == Constraint.And)
+                                sb.Append(" AND ");
+                            else
+                                sb.Append(" OR ");
+                        }
+                    }
+                    else
+                    {
+                        switch (this.Comparison)
+                        {
+                            case Comparison.Equal:
+                                sb.Append(" = ");
+                                break;
+                            case Comparison.Different:
+                                if (query.Context.Connection.Type == DatabaseType.Oracle)
+                                    sb.Append(" != ");
+                                else
+                                    sb.Append(" <> ");
+                                break;
+                            case Comparison.Greater:
+                                sb.Append(" > ");
+                                break;
+                            case Comparison.Less:
+                                sb.Append(" < ");
+                                break;
+                            case Comparison.GreaterAndEqual:
+                                sb.Append(" >= ");
+                                break;
+                            case Comparison.LessAndEqual:
+                                sb.Append(" <= ");
+                                break;
+                            case Comparison.None:
+                                if (this.Constraint == Constraint.And)
+                                    sb.Append(" & ");
+                                else
+                                    sb.Append(" | ");
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     sb.Append(rightStr);
                     sb.Append(")");
@@ -321,7 +369,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                     sb.Append(")");
                 }
-                else if (!Name.Contains('.', StringComparison.CurrentCulture))
+                else if (!string.IsNullOrEmpty(this.Name) && this.PropertyInfo != null && !this.Name.Contains('.', StringComparison.CurrentCulture))
                 {
                     isStringFilter = this.IsStringProperty(this.PropertyInfo, this.Value);
                     if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
@@ -337,7 +385,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
                         sb.Append(")");
                 }
-                else
+                else if (!string.IsNullOrEmpty(this.Name))
                 {
                     var name = "";
                     //var props = this.Name.Split('.');

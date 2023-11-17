@@ -14,7 +14,7 @@
 		<PackAsTool>False</PackAsTool>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<Version>7.0.0.40</Version>
+		<Version>7.0.0.57</Version>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
