@@ -13,9 +13,10 @@ namespace Ophelia.Data
     {
         public static Dictionary<string, Type> ConnectionProviders { get; private set; } = new Dictionary<string, Type>();
         public QueryLogger Logger { get; set; }
-        private DbConnection internalConnection;
+        internal DbConnection InternalConnection;
         private DatabaseType _Type;
         private DataContext Context;
+        public DatabaseTransaction? CurrentTransaction { get; private set; }
         public DatabaseType Type
         {
             get
@@ -33,12 +34,11 @@ namespace Ophelia.Data
         {
             get
             {
-                return this.internalConnection.ConnectionString;
+                return this.InternalConnection.ConnectionString;
             }
-
             set
             {
-                this.internalConnection.ConnectionString = value;
+                this.InternalConnection.ConnectionString = value;
             }
         }
 
@@ -46,7 +46,7 @@ namespace Ophelia.Data
         {
             get
             {
-                return this.internalConnection.Database;
+                return this.InternalConnection.Database;
             }
         }
 
@@ -54,7 +54,7 @@ namespace Ophelia.Data
         {
             get
             {
-                return this.internalConnection.DataSource;
+                return this.InternalConnection.DataSource;
             }
         }
 
@@ -62,7 +62,7 @@ namespace Ophelia.Data
         {
             get
             {
-                return this.internalConnection.ServerVersion;
+                return this.InternalConnection.ServerVersion;
             }
         }
 
@@ -70,55 +70,57 @@ namespace Ophelia.Data
         {
             get
             {
-                return this.internalConnection.State;
+                return this.InternalConnection.State;
             }
         }
 
         public override void ChangeDatabase(string databaseName)
         {
-            this.internalConnection.ChangeDatabase(databaseName);
+            this.InternalConnection.ChangeDatabase(databaseName);
         }
 
         public override void Close()
         {
-            this.internalConnection.Close();
+            this.InternalConnection.Close();
         }
 
         public override void Open()
         {
-            this.internalConnection.Open();
+            this.InternalConnection.Open();
         }
         public new DbTransaction BeginTransaction()
         {
             this.CheckConnection();
             this.CloseAfterExecution = false;
-            var transaction = this.internalConnection.BeginTransaction();
-            return transaction;
+            this.CurrentTransaction = DatabaseTransaction.Create(this, IsolationLevel.ReadUncommitted);
+            return this.CurrentTransaction;
         }
         public new DbTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             this.CheckConnection();
             this.CloseAfterExecution = false;
-            var transaction = this.internalConnection.BeginTransaction(isolationLevel);
-            return transaction;
+            this.CurrentTransaction = DatabaseTransaction.Create(this, IsolationLevel.ReadUncommitted);
+            return this.CurrentTransaction;
         }
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
             this.CheckConnection();
             this.CloseAfterExecution = false;
-            return this.internalConnection.BeginTransaction(isolationLevel);
+            this.CurrentTransaction = DatabaseTransaction.Create(this, IsolationLevel.ReadUncommitted);
+            return this.CurrentTransaction;
         }
-
+        
         protected override DbCommand CreateDbCommand()
         {
-            var command = System.Data.Common.DbProviderFactories.GetFactory(this.internalConnection).CreateCommand();
-            command.Connection = this.internalConnection;
+            var command = DbProviderFactories.GetFactory(this.InternalConnection).CreateCommand();
+            command.Connection = this.InternalConnection;
+            this.ValidateCurrentTransaction(command);
             return command;
         }
 
         protected virtual DbDataAdapter CreateDataAdapter()
         {
-            return System.Data.Common.DbProviderFactories.GetFactory(this.internalConnection).CreateDataAdapter();
+            return System.Data.Common.DbProviderFactories.GetFactory(this.InternalConnection).CreateDataAdapter();
         }
 
         public virtual DbParameter CreateParameter(DbCommand cmd, string name, object value)
@@ -137,7 +139,16 @@ namespace Ophelia.Data
             param.DbType = type;
             return param;
         }
+        private void ValidateCurrentTransaction(DbCommand cmd)
+        {
+            if (this.CurrentTransaction == null)
+                return;
 
+            if (this.CurrentTransaction.Status != DatabaseTransactionStatus.Created && this.CurrentTransaction.Status != DatabaseTransactionStatus.Saved && this.CurrentTransaction.Status != DatabaseTransactionStatus.Released)
+                return;
+
+            cmd.Transaction = this.CurrentTransaction.InternalTransaction;
+        }
         public Connection(DataContext context, DatabaseType type, string ConnectionString)
         {
             this.Context = context;
@@ -146,20 +157,20 @@ namespace Ophelia.Data
             switch (this.Type)
             {
                 case DatabaseType.SQLServer:
-                    this.internalConnection = (DbConnection)Activator.CreateInstance(ConnectionProviders["SQLServer"], ConnectionString);
+                    this.InternalConnection = (DbConnection)Activator.CreateInstance(ConnectionProviders["SQLServer"], ConnectionString);
                     break;
                 case DatabaseType.PostgreSQL:
-                    this.internalConnection = (DbConnection)Activator.CreateInstance(ConnectionProviders["Npgsql"], ConnectionString);
+                    this.InternalConnection = (DbConnection)Activator.CreateInstance(ConnectionProviders["Npgsql"], ConnectionString);
                     break;
                 case DatabaseType.Oracle:
-                    this.internalConnection = (DbConnection)Activator.CreateInstance(ConnectionProviders["Oracle"], ConnectionString);
+                    this.InternalConnection = (DbConnection)Activator.CreateInstance(ConnectionProviders["Oracle"], ConnectionString);
                     this.Context.Configuration.UseNamespaceAsSchema = false;
                     this.Context.Configuration.UseUppercaseObjectNames = true;
                     this.Context.Configuration.ObjectNameCharLimit = 30;
                     break;
                 case DatabaseType.MySQL:
                     this.Context.Configuration.UseNamespaceAsSchema = false;
-                    this.internalConnection = (DbConnection)Activator.CreateInstance(ConnectionProviders["MySQL"], ConnectionString);
+                    this.InternalConnection = (DbConnection)Activator.CreateInstance(ConnectionProviders["MySQL"], ConnectionString);
                     break;
             }
 
@@ -688,6 +699,11 @@ namespace Ophelia.Data
                     return "`";
             }
             return "";
+        }
+        internal void ReleaseCurrentTransaction()
+        {
+            this.CurrentTransaction = null;
+            this.CloseAfterExecution = true;
         }
         private string GetClosingBracket()
         {
