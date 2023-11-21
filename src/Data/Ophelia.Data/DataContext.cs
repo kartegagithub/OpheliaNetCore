@@ -90,29 +90,41 @@ namespace Ophelia.Data
             return new SelectQuery(this, entityType);
         }
 
-        internal SelectQuery CreateSelectQuery(MethodCallExpression expression, Model.QueryableDataSet data)
+        internal SelectQuery CreateSelectQuery(Expression expression, Model.QueryableDataSet data)
         {
             var tmpType = this.GetInnerType(expression, data);
             if (tmpType != data.ElementType)
                 data.InnerType = tmpType;
             return new SelectQuery(this, data, expression);
         }
-        private Type GetInnerType(MethodCallExpression expression, Model.QueryableDataSet data)
+        private Type GetInnerType(Expression expression, Model.QueryableDataSet data)
         {
             if (expression == null)
                 return null;
 
-            var type = expression.Arguments[0].Type.GenericTypeArguments.FirstOrDefault();
-            if (type != null)
+            if(expression is MethodCallExpression)
             {
-                var tmpType = GetInnerType(expression.Arguments[0] as MethodCallExpression, data);
-                if (tmpType == null)
-                    return type;
+                var type = (expression as MethodCallExpression).Arguments[0].Type.GenericTypeArguments.FirstOrDefault();
+                if (type != null)
+                {
+                    var tmpType = GetInnerType((expression as MethodCallExpression).Arguments[0] as MethodCallExpression, data);
+                    if (tmpType == null)
+                        return type;
+                    else
+                        return tmpType;
+                }
                 else
-                    return tmpType;
+                    return type;
             }
-            else
-                return type;
+            else if(expression is UnaryExpression)
+            {
+                var lmbExp = ((expression as UnaryExpression).Operand as LambdaExpression);
+                if(lmbExp != null && lmbExp.Parameters.Any())
+                {
+                    return lmbExp.Parameters.LastOrDefault().Type;
+                }
+            }
+            return null;
         }
         public virtual QueryLogger CreateLogger()
         {

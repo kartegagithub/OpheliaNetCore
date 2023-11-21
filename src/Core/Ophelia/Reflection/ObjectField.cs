@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Reflection;
 
 namespace Ophelia.Reflection
 {
     public class ObjectField
     {
-        public string FieldName { get; set; }
-        public Type FieldType { get; set; }
+        public PropertyInfo FieldProperty { get; set; }
+        public PropertyInfo MappedProperty { get; set; }
     }
 }

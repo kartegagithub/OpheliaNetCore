@@ -12,7 +12,7 @@ namespace Ophelia.Data.Querying.Query
             this.Entity = Entity;
         }
 
-        public DeleteQuery(DataContext Context, Model.QueryableDataSet source, MethodCallExpression expression) : base(Context, source, expression)
+        public DeleteQuery(DataContext Context, Model.QueryableDataSet source, Expression expression) : base(Context, source, expression)
         {
 
         }

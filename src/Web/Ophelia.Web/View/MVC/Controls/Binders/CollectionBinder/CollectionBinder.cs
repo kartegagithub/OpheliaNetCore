@@ -692,8 +692,38 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                     {
                                         groupers.AddRange(item.Serialize());
                                     }
-                                    var dynamicObjectFields = (from grouper in groupers where !string.IsNullOrEmpty(grouper.Name) && !string.IsNullOrEmpty(grouper.TypeName) select new Ophelia.Reflection.ObjectField() { FieldName = grouper.Name, FieldType = Type.GetType(grouper.TypeName) }).ToList();
-                                    var dynamicObject = Ophelia.Reflection.ObjectBuilder.CreateNewObject(dynamicObjectFields);
+
+                                    var entityType = typeof(T);
+                                    var dynamicObjectFields = new List<Reflection.ObjectField>();
+                                    foreach (var grouper in queryData.Groupers)
+                                    {
+                                        if (!string.IsNullOrEmpty(grouper.Name) && !string.IsNullOrEmpty(grouper.TypeName))
+                                        {
+                                            if (!dynamicObjectFields.Any(op => op.FieldProperty.Name == grouper.Name))
+                                                dynamicObjectFields.Add(new Reflection.ObjectField()
+                                                {
+                                                    FieldProperty = entityType.GetProperty(grouper.Name),
+                                                    MappedProperty = entityType.GetProperty(grouper.Name)
+                                                });
+                                        }
+                                        if (grouper.BindingMembers != null && grouper.BindingMembers.Any())
+                                        {
+                                            var memberCounter = 0;
+                                            foreach (var item in grouper.BindingMembers)
+                                            {
+                                                var field = new Reflection.ObjectField()
+                                                {
+                                                    FieldProperty = grouper.Members[memberCounter] as PropertyInfo,
+                                                    MappedProperty = item.Key as PropertyInfo
+                                                };
+                                                if (!dynamicObjectFields.Any(op => op.FieldProperty.Name == field.FieldProperty.Name))
+                                                    dynamicObjectFields.Add(field);
+
+                                                memberCounter++;
+                                            }
+                                        }
+                                    }
+                                    var dynamicObject = ObjectBuilder.CreateNewObject(dynamicObjectFields);
                                     var groupingType = typeof(Data.Model.OGrouping<,>).MakeGenericType(dynamicObject.GetType(), typeof(T));
                                     var listType = typeof(List<>).MakeGenericType(groupingType);
                                     this.GroupedData = (IQueryable<IGrouping<object, T>>)((response.RawData as Newtonsoft.Json.Linq.JArray).ToObject(listType) as IList).AsQueryable();

@@ -230,13 +230,44 @@ namespace Ophelia.Data.Model
                 }
                 else
                 {
-                    var dynamicObjectFields = (from grouper in query.Data.Groupers where !string.IsNullOrEmpty(grouper.Name) && !string.IsNullOrEmpty(grouper.TypeName) select new Ophelia.Reflection.ObjectField() { FieldName = grouper.Name, FieldType = Type.GetType(grouper.TypeName) }).ToList();
-                    var dynamicObject = Ophelia.Reflection.ObjectBuilder.CreateNewObject(dynamicObjectFields);
                     var useDynamic = !this.ElementType.GenericTypeArguments.Any();
-                    var types = new List<Type>();
                     var entityType = !useDynamic ? this.ElementType.GenericTypeArguments.LastOrDefault() : query.Data.EntityType;
+                    var types = new List<Type>();
                     var queryableType = typeof(QueryableDataSet<>).MakeGenericType(entityType);
+
+                    var dynamicObjectFields = new List<Reflection.ObjectField>();
+                    foreach (var grouper in query.Data.Groupers)
+                    {
+                        if (!string.IsNullOrEmpty(grouper.Name))
+                        {
+                            if (!dynamicObjectFields.Any(op => op.FieldProperty.Name == grouper.Name))
+                                dynamicObjectFields.Add(new Reflection.ObjectField()
+                                {
+                                    FieldProperty = entityType.GetProperty(grouper.Name),
+                                    MappedProperty = entityType.GetProperty(grouper.Name)
+                                });
+                        }
+                        else if (grouper.BindingMembers != null && grouper.BindingMembers.Any())
+                        {
+                            var memberCounter = 0;
+                            foreach (var item in grouper.BindingMembers)
+                            {
+                                var field = new Reflection.ObjectField()
+                                {
+                                    FieldProperty = grouper.Members[memberCounter] as PropertyInfo,
+                                    MappedProperty = item.Key as PropertyInfo
+                                };
+                                if (!dynamicObjectFields.Any(op => op.FieldProperty.Name == field.FieldProperty.Name))
+                                    dynamicObjectFields.Add(field);
+
+                                memberCounter++;
+                            }
+                        }
+                    }
+
+                    var dynamicObject = Ophelia.Reflection.ObjectBuilder.CreateNewObject(dynamicObjectFields);
                     var groupingType = typeof(OGrouping<,>).MakeGenericType(!useDynamic ? this.ElementType.GenericTypeArguments[0] : dynamicObject.GetType(), entityType);
+
                     var clonedData = query.Data.Serialize();
                     clonedData.Groupers.Clear();
                     clonedData.Sorters.RemoveAll(op => op.Name == "Key");
@@ -255,17 +286,19 @@ namespace Ophelia.Data.Model
                             var count = Convert.ToInt64(row[query.Context.Connection.GetMappedFieldName("Counted")]);
                             foreach (var item in dynamicObjectFields)
                             {
-                                var p = entityType.GetProperty(item.FieldName);
-                                var fieldName = query.Context.Connection.GetMappedFieldName(p.Name);
-                                var value = p.PropertyType.ConvertData(row[fieldName]);
+                                var fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(item.FieldProperty));
+                                if(!data.Columns.Contains(fieldName))
+                                    fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(item.MappedProperty));
+
+                                var value = item.MappedProperty.PropertyType.ConvertData(row[fieldName]);
                                 if (value == DBNull.Value)
                                 {
-                                    if (p.PropertyType.Name.StartsWith("String"))
+                                    if (item.MappedProperty.PropertyType.Name.StartsWith("String"))
                                         value = "";
                                 }
 
-                                queryable = queryable.Where(p, value);
-                                dynamicObject.SetPropertyValue(item.FieldName, value);
+                                queryable = queryable.Where(item.FieldProperty, value);
+                                dynamicObject.SetPropertyValue(item.MappedProperty.Name, value);
                             }
                             queryable.ExtendData(clonedData);
                             if (query.Data.GroupPageSize == 0)
@@ -275,7 +308,7 @@ namespace Ophelia.Data.Model
                             if (clonedData.GroupPagination.ContainsKey(counter))
                                 page = clonedData.GroupPagination[counter];
                             var ctor = groupingType.GetConstructors().FirstOrDefault();
-                            var oGrouping = ctor.Invoke(new object[] { dynamicObject, queryable.Paginate(page, query.Data.GroupPageSize).ToList(), count });
+                            var oGrouping = ctor.Invoke(new object[] { dynamicObject, queryable.Paginate(page, query.Data.GroupPageSize), count });
                             //var oGrouping = Activator.CreateInstance(groupingType, );
                             this.GroupedData.Add(oGrouping);
                         }

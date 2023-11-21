@@ -23,7 +23,7 @@ namespace Ophelia.Reflection
 
             // NOTE: assuming your list contains Field objects with fields FieldName(string) and FieldType(Type)
             foreach (var field in fields)
-                CreateProperty(tb, field.FieldName, field.FieldType);
+                CreateProperty(tb, field.MappedProperty.Name, field.MappedProperty.PropertyType);
 
             Type objectType = tb.CreateType();
             return objectType;

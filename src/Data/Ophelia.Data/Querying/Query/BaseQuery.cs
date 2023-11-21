@@ -12,7 +12,7 @@ namespace Ophelia.Data.Querying.Query
         public QueryData Data { get; set; }
         internal bool DesignMode { get; set; }
         private int TableJoinIndex = 0;
-        protected MethodCallExpression Expression = null;
+        protected Expression? Expression { get; set; }
         private QueryData dataToExtend { get; set; }
         public DataContext Context
         {
@@ -111,7 +111,7 @@ namespace Ophelia.Data.Querying.Query
                 this.Data.EntityType = EntityType;
         }
 
-        public BaseQuery(DataContext Context, Model.QueryableDataSet source, MethodCallExpression expression) : this(Context, source.InnerType != null ? source.InnerType : source.ElementType)
+        public BaseQuery(DataContext Context, Model.QueryableDataSet source, Expression expression) : this(Context, source.InnerType != null ? source.InnerType : source.ElementType)
         {
             this.Expression = expression;
             this.dataToExtend = source.ExtendedData;

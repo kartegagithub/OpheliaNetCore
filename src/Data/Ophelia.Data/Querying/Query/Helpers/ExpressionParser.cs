@@ -869,6 +869,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 if (this.PropertyInfo != null && (this.PropertyInfo.PropertyType.IsPOCOEntity() || this.PropertyInfo.PropertyType.IsDataEntity()))
                     grouper.Name += "ID";
             }
+            grouper.PropertyInfo = this.PropertyInfo;
             grouper.Members = this.Members;
             grouper.BindingMembers = this.BindingMembers;
             if (this.SubExpression != null)

@@ -70,7 +70,7 @@ namespace Ophelia.Data.Querying
         }
         internal void LoadData(Model.QueryableDataSet data)
         {
-            using (var query = this._Context.CreateSelectQuery(data.Expression as MethodCallExpression, data))
+            using (var query = this._Context.CreateSelectQuery(data.Expression, data))
             {
                 data.Load(query, query.GetData());
             }
@@ -104,7 +104,11 @@ namespace Ophelia.Data.Querying
                 case "Last":
                 case "LastOrDefault":
                     if (data.Count == -1)
+                    {
+                        if (expression != null && expression != data.Expression && expression.Arguments.Count > 1)
+                            data = data.Where(expression.Arguments.LastOrDefault());
                         this.LoadData(data);
+                    }
 
                     if (data.Count > 0)
                     {

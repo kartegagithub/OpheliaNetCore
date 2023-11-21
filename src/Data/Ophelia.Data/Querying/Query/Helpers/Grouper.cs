@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Ophelia.Data.Querying.Query.Helpers
 {
@@ -13,15 +14,18 @@ namespace Ophelia.Data.Querying.Query.Helpers
     public class Grouper : IDisposable
     {
         [DataMember]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         [DataMember]
-        public string TypeName { get; set; }
+        public string TypeName { get; set; } = "";
+
+        [XmlIgnore]
+        public PropertyInfo? PropertyInfo { get; set; }
 
         [DataMember]
-        public Grouper SubGrouper { get; set; }
-        public List<MemberInfo> Members { get; set; }
-        public Dictionary<MemberInfo, Expression> BindingMembers { get; set; }
+        public Grouper? SubGrouper { get; set; }
+        public List<MemberInfo>? Members { get; set; }
+        public Dictionary<MemberInfo, Expression>? BindingMembers { get; set; }
         public static Grouper Create(Expression expression)
         {
             return ExpressionParser.Create(expression).ToGrouper();
@@ -30,7 +34,12 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public string Build(BaseQuery query, bool selecting = false)
         {
             if (!string.IsNullOrEmpty(this.Name))
-                return query.Data.MainTable.Alias + "." + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(this.Name));
+            {
+                if (this.PropertyInfo != null)
+                    return query.Data.MainTable.Alias + "." + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(this.PropertyInfo)));
+                else
+                    return query.Data.MainTable.Alias + "." + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(this.Name));
+            }
             else if (this.BindingMembers != null && this.BindingMembers.Any())
             {
                 var sb = new StringBuilder();
@@ -49,9 +58,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     if (includer != null)
                         table = includer.Table;
 
-                    sb.Append(table.Alias + "." + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(member.Name)));
-                    if(selecting)
-                        sb.Append(" AS " + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(item.Key.Name)));
+                    sb.Append(table.Alias + "." + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(member))));
+                    if (selecting)
+                        sb.Append(" AS " + query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(item.Key))));
                     counter++;
                 }
                 return sb.ToString();

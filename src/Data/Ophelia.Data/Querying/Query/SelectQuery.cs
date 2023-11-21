@@ -12,7 +12,7 @@ namespace Ophelia.Data.Querying.Query
 
         }
 
-        public SelectQuery(DataContext Context, Model.QueryableDataSet source, MethodCallExpression expression) : base(Context, source, expression)
+        public SelectQuery(DataContext Context, Model.QueryableDataSet source, Expression expression) : base(Context, source, expression)
         {
 
         }

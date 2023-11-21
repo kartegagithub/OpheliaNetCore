@@ -30,7 +30,7 @@ namespace Ophelia.Data.Querying.Query
             this.Entity = Entity;
         }
 
-        public InsertQuery(DataContext Context, Model.QueryableDataSet source, MethodCallExpression expression) : base(Context, source, expression)
+        public InsertQuery(DataContext Context, Model.QueryableDataSet source, Expression expression) : base(Context, source, expression)
         {
 
         }

@@ -16,16 +16,16 @@ namespace Ophelia.Data.Querying.Query
             this.Entity = Entity;
         }
 
-        public UpdateQuery(DataContext Context, Model.QueryableDataSet source, MethodCallExpression expression) : base(Context, source, expression)
+        public UpdateQuery(DataContext Context, Model.QueryableDataSet source, Expression expression) : base(Context, source, expression)
         {
 
         }
 
-        public UpdateQuery(DataContext Context, Model.QueryableDataSet source, MethodCallExpression expression, Expressions.UpdateExpression updater) : base(Context, source, expression)
+        public UpdateQuery(DataContext Context, Model.QueryableDataSet source, Expression expression, Expressions.UpdateExpression updater) : base(Context, source, expression)
         {
             this.Updaters = new Expressions.UpdateExpression[] { updater };
         }
-        public UpdateQuery(DataContext Context, Model.QueryableDataSet source, MethodCallExpression expression, Expressions.UpdateExpression[] updaters) : base(Context, source, expression)
+        public UpdateQuery(DataContext Context, Model.QueryableDataSet source, Expression expression, Expressions.UpdateExpression[] updaters) : base(Context, source, expression)
         {
             this.Updaters = updaters;
         }
