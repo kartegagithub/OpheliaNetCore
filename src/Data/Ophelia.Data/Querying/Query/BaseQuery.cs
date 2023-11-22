@@ -192,7 +192,7 @@ namespace Ophelia.Data.Querying.Query
                     sb.Append(grouper.Build(this, true));
                     sb.Append(",");
                 }
-                sb.Append("COUNT(1) As " + this.Context.Connection.FormatDataElement("Counted"));
+                sb.Append("COUNT(1) As " + this.Context.Connection.FormatDataElement("Count"));
                 return sb.ToString().Trim(',');
             }
             return "";

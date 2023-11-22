@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Ophelia.Data.Querying.Query;
 using System;
 using System.Collections;
@@ -8,6 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Ophelia.Data.Model
 {
@@ -18,14 +20,13 @@ namespace Ophelia.Data.Model
         private DataContext _Context;
         private int _Count = -1;
         private long _TotalCount = -1;
-        protected Expression _Expression;
+        private Expression? _Expression;
         private IQueryProvider _Provider;
-        protected IList _list;
+        protected IList? _list;
         internal QueryData ExtendedData { get; set; }
         internal bool HasChanged { get; set; }
-        public bool TrackChanges { get; set; } = false;
+        public bool TrackChanges { get; set; }
         internal bool DistinctEnabled { get; set; }
-        public IList GroupedData { get; set; }
 
         internal int Count
         {
@@ -146,17 +147,24 @@ namespace Ophelia.Data.Model
             {
                 this.Count = data.Rows.Count;
                 loadLog.Count = data.Rows.Count;
-                if (query.Data.Groupers.Count == 0)
+
+                var thisType = this.GetType();
+                Type type = null;
+                if ((query.Data.Selectors == null || query.Data.Selectors.Count == 0) && (query.Data.Groupers == null || query.Data.Groupers.Count == 0))
+                    type = this.InnerType != null ? this.InnerType : this.ElementType;
+                else
+                    type = this.ElementType;
+
+                if (type.GenericTypeArguments.Any() && !type.IsAnonymousType())
+                    type = type.GenericTypeArguments.FirstOrDefault();
+
+                var selectedFields = this.GetSelectedFields(query, type);
+
+                if (!thisType.IsGenericType || !thisType.GenericTypeArguments.FirstOrDefault().Name.Contains("OGrouping"))
                 {
                     foreach (DataRow row in data.Rows)
                     {
                         var entLoadLoad = DateTime.Now;
-
-                        Type type = null;
-                        if (query.Data.Selectors == null || query.Data.Selectors.Count == 0)
-                            type = this.InnerType != null ? this.InnerType : this.ElementType;
-                        else
-                            type = this.ElementType;
 
                         if (type.IsPrimitiveType())
                             this._list.Add(this.ElementType.ConvertData(row[0]));
@@ -230,49 +238,13 @@ namespace Ophelia.Data.Model
                 }
                 else
                 {
-                    var useDynamic = !this.ElementType.GenericTypeArguments.Any();
-                    var entityType = !useDynamic ? this.ElementType.GenericTypeArguments.LastOrDefault() : query.Data.EntityType;
                     var types = new List<Type>();
-                    var queryableType = typeof(QueryableDataSet<>).MakeGenericType(entityType);
-
-                    var dynamicObjectFields = new List<Reflection.ObjectField>();
-                    foreach (var grouper in query.Data.Groupers)
-                    {
-                        if (!string.IsNullOrEmpty(grouper.Name))
-                        {
-                            if (!dynamicObjectFields.Any(op => op.FieldProperty.Name == grouper.Name))
-                                dynamicObjectFields.Add(new Reflection.ObjectField()
-                                {
-                                    FieldProperty = entityType.GetProperty(grouper.Name),
-                                    MappedProperty = entityType.GetProperty(grouper.Name)
-                                });
-                        }
-                        else if (grouper.BindingMembers != null && grouper.BindingMembers.Any())
-                        {
-                            var memberCounter = 0;
-                            foreach (var item in grouper.BindingMembers)
-                            {
-                                var field = new Reflection.ObjectField()
-                                {
-                                    FieldProperty = grouper.Members[memberCounter] as PropertyInfo,
-                                    MappedProperty = item.Key as PropertyInfo
-                                };
-                                if (!dynamicObjectFields.Any(op => op.FieldProperty.Name == field.FieldProperty.Name))
-                                    dynamicObjectFields.Add(field);
-
-                                memberCounter++;
-                            }
-                        }
-                    }
-
-                    var dynamicObject = Ophelia.Reflection.ObjectBuilder.CreateNewObject(dynamicObjectFields);
-                    var groupingType = typeof(OGrouping<,>).MakeGenericType(!useDynamic ? this.ElementType.GenericTypeArguments[0] : dynamicObject.GetType(), entityType);
+                    var queryableType = typeof(QueryableDataSet<>).MakeGenericType(this.InnerType);
+                    var groupingType = typeof(OGrouping<,>).MakeGenericType(type, this.InnerType);
 
                     var clonedData = query.Data.Serialize();
                     clonedData.Groupers.Clear();
                     clonedData.Sorters.RemoveAll(op => op.Name == "Key");
-                    if (useDynamic)
-                        this.GroupedData = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(groupingType));
 
                     var counter = -1;
                     foreach (DataRow row in data.Rows)
@@ -280,87 +252,66 @@ namespace Ophelia.Data.Model
                         var queryable = (QueryableDataSet)Activator.CreateInstance(queryableType, query.Context);
                         queryable.ExtendData(clonedData);
                         counter++;
-                        if (useDynamic)
+                        var count = Convert.ToInt64(row[query.Context.Connection.GetMappedFieldName("Count")]);
+
+                        object aEntity = null;
+                        if (type.IsPrimitiveType())
                         {
-                            dynamicObject = Activator.CreateInstance(dynamicObject.GetType());
-                            var count = Convert.ToInt64(row[query.Context.Connection.GetMappedFieldName("Counted")]);
-                            foreach (var item in dynamicObjectFields)
+                            aEntity = this.ElementType.ConvertData(row[0]);
+                        }
+                        else if (type.IsAnonymousType())
+                        {
+                            var parameters = new List<object>();
+                            foreach (var item in selectedFields)
                             {
                                 var fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(item.FieldProperty));
-                                if(!data.Columns.Contains(fieldName))
+                                if (!data.Columns.Contains(fieldName))
                                     fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(item.MappedProperty));
 
-                                var value = item.MappedProperty.PropertyType.ConvertData(row[fieldName]);
-                                if (value == DBNull.Value)
+                                if (row.Table.Columns.Contains(fieldName))
                                 {
-                                    if (item.MappedProperty.PropertyType.Name.StartsWith("String"))
-                                        value = "";
-                                }
-
-                                queryable = queryable.Where(item.FieldProperty, value);
-                                dynamicObject.SetPropertyValue(item.MappedProperty.Name, value);
-                            }
-                            queryable.ExtendData(clonedData);
-                            if (query.Data.GroupPageSize == 0)
-                                query.Data.GroupPageSize = 25;
-
-                            var page = 1;
-                            if (clonedData.GroupPagination.ContainsKey(counter))
-                                page = clonedData.GroupPagination[counter];
-                            var ctor = groupingType.GetConstructors().FirstOrDefault();
-                            var oGrouping = ctor.Invoke(new object[] { dynamicObject, queryable.Paginate(page, query.Data.GroupPageSize), count });
-                            //var oGrouping = Activator.CreateInstance(groupingType, );
-                            this.GroupedData.Add(oGrouping);
-                        }
-                        else
-                        {
-                            foreach (var item in query.Data.Groupers)
-                            {
-                                var count = Convert.ToInt64(row[query.Context.Connection.GetMappedFieldName("Counted")]);
-                                var name = item.Name;
-                                if (string.IsNullOrEmpty(name) && item.SubGrouper != null && !string.IsNullOrEmpty(item.SubGrouper.Name))
-                                    name = item.SubGrouper.Name;
-                                if (!string.IsNullOrEmpty(name))
-                                {
-                                    var p = entityType.GetProperty(name);
-                                    var fieldName = query.Context.Connection.GetMappedFieldName(name);
-                                    var value = p.PropertyType.ConvertData(row[fieldName]);
+                                    var value = item.MappedProperty.PropertyType.ConvertData(row[fieldName]);
                                     if (value == DBNull.Value)
                                     {
-                                        if (p.PropertyType.Name.StartsWith("String"))
+                                        if (item.MappedProperty.PropertyType.Name.StartsWith("String"))
                                             value = "";
                                     }
-
-                                    queryable = queryable.Where(p, value);
-                                    queryable.ExtendData(clonedData);
-                                    var ctor = groupingType.GetConstructors().FirstOrDefault();
-                                    var oGrouping = ctor.Invoke(new object[] { value, queryable, count });
-                                    //var oGrouping = Activator.CreateInstance(groupingType, );
-                                    this._list.Add(oGrouping);
-                                }
-                                else
-                                {
-                                    var members = item.BindingMembers;
-                                    if (members == null && item.SubGrouper != null)
-                                        members = item.SubGrouper.BindingMembers;
-                                    if (members != null && members.Count > 0)
-                                    {
-                                        var parameters = new List<object>();
-                                        foreach (var member in members)
-                                        {
-                                            var fieldName = query.Context.Connection.GetMappedFieldName(member.Key.Name);
-                                            Type memberType = member.Key.GetMemberInfoType();
-                                            object value = memberType.ConvertData(row[fieldName]);
-                                            queryable = queryable.Where(Expression.Equal(member.Value, Expression.Constant(value)));
-                                            parameters.Add(value);
-                                        }
-                                        queryable.ExtendData(clonedData);
-                                        var oGrouping = Activator.CreateInstance(groupingType, Activator.CreateInstance(this.ElementType.GenericTypeArguments[0], parameters.ToArray()), queryable, count);
-                                        this._list.Add(oGrouping);
-                                    }
+                                    parameters.Add(value);
                                 }
                             }
+                            aEntity = TypeExtensions.CreateAnonymous(type, parameters.ToArray());
                         }
+                        else
+                            aEntity = Activator.CreateInstance(type);
+
+                        foreach (var item in selectedFields)
+                        {
+                            var fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(item.FieldProperty));
+                            if (!data.Columns.Contains(fieldName))
+                                fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(item.MappedProperty));
+
+                            var value = item.MappedProperty.PropertyType.ConvertData(row[fieldName]);
+                            if (value == DBNull.Value)
+                            {
+                                if (item.MappedProperty.PropertyType.Name.StartsWith("String"))
+                                    value = "";
+                            }
+
+                            queryable = queryable.Where(item.FieldProperty, value);
+                            if (!type.IsPrimitiveType() && !type.IsAnonymousType())
+                                aEntity.SetPropertyValue(item.MappedProperty.Name, value);
+                        }
+
+                        queryable.ExtendData(clonedData);
+                        if (query.Data.GroupPageSize == 0)
+                            query.Data.GroupPageSize = 25;
+
+                        var page = 1;
+                        if (clonedData.GroupPagination.ContainsKey(counter))
+                            page = clonedData.GroupPagination[counter];
+                        var ctor = groupingType.GetConstructors().FirstOrDefault();
+                        var oGrouping = ctor.Invoke(new object[] { aEntity, queryable.Paginate(page, query.Data.GroupPageSize), count });
+                        this._list.Add(oGrouping);
                     }
                 }
             }
@@ -374,6 +325,132 @@ namespace Ophelia.Data.Model
                 if (query.Context.Configuration.LogEntityLoads)
                     query.Context.Connection.Logger.LogLoad(loadLog);
             }
+        }
+
+        private List<Reflection.ObjectField> GetSelectedFields(BaseQuery query, Type type)
+        {
+            var selectedFields = new List<Reflection.ObjectField>();
+            if (query.Data.Selectors != null && query.Data.Selectors.Any())
+            {
+                foreach (var selector in query.Data.Selectors)
+                {
+                    if (!string.IsNullOrEmpty(selector.Name))
+                    {
+                        if (!selectedFields.Any(op => op.FieldProperty.Name == selector.Name))
+                        {
+                            selectedFields.Add(new Reflection.ObjectField()
+                            {
+                                FieldProperty = type.GetProperty(selector.Name),
+                                MappedProperty = type.GetProperty(selector.Name)
+                            });
+                        }
+                    }
+                    else if (selector.SubSelector != null && !string.IsNullOrEmpty(selector.SubSelector.Name))
+                    {
+                        if (!selectedFields.Any(op => op.FieldProperty.Name == selector.SubSelector.Name))
+                        {
+                            selectedFields.Add(new Reflection.ObjectField()
+                            {
+                                FieldProperty = type.GetProperty(selector.SubSelector.Name),
+                                MappedProperty = type.GetProperty(selector.SubSelector.Name)
+                            });
+                        }
+                    }
+                    else if (selector.SubSelector != null && selector.SubSelector.BindingMembers != null && selector.SubSelector.BindingMembers.Any())
+                    {
+                        var memberCounter = 0;
+                        foreach (var item in selector.SubSelector.BindingMembers)
+                        {
+                            var field = new Reflection.ObjectField()
+                            {
+                                FieldProperty = selector.Members[memberCounter] as PropertyInfo,
+                                MappedProperty = item.Key as PropertyInfo
+                            };
+                            if (!selectedFields.Any(op => op.FieldProperty.Name == field.FieldProperty.Name))
+                                selectedFields.Add(field);
+
+                            memberCounter++;
+                        }
+                    }
+                    else if (selector.BindingMembers != null && selector.BindingMembers.Any())
+                    {
+                        var memberCounter = 0;
+                        foreach (var item in selector.BindingMembers)
+                        {
+                            var field = new Reflection.ObjectField()
+                            {
+                                FieldProperty = selector.Members[memberCounter] as PropertyInfo,
+                                MappedProperty = item.Key as PropertyInfo
+                            };
+                            if (!selectedFields.Any(op => op.FieldProperty.Name == field.FieldProperty.Name))
+                                selectedFields.Add(field);
+
+                            memberCounter++;
+                        }
+                    }
+                }
+            }
+            else if (query.Data.Groupers != null && query.Data.Groupers.Any())
+            {
+                foreach (var grouper in query.Data.Groupers)
+                {
+                    if (!string.IsNullOrEmpty(grouper.Name))
+                    {
+                        if (!selectedFields.Any(op => op.FieldProperty.Name == grouper.Name))
+                        {
+                            selectedFields.Add(new Reflection.ObjectField()
+                            {
+                                FieldProperty = type.GetProperty(grouper.Name),
+                                MappedProperty = type.GetProperty(grouper.Name)
+                            });
+                        }
+                    }
+                    else if (grouper.SubGrouper != null && !string.IsNullOrEmpty(grouper.SubGrouper.Name))
+                    {
+                        if (!selectedFields.Any(op => op.FieldProperty.Name == grouper.SubGrouper.Name))
+                        {
+                            selectedFields.Add(new Reflection.ObjectField()
+                            {
+                                FieldProperty = type.GetProperty(grouper.SubGrouper.Name),
+                                MappedProperty = type.GetProperty(grouper.SubGrouper.Name)
+                            });
+                        }
+                    }
+                    else if (grouper.SubGrouper != null && grouper.SubGrouper.BindingMembers != null && grouper.SubGrouper.BindingMembers.Any())
+                    {
+                        var memberCounter = 0;
+                        foreach (var item in grouper.SubGrouper.BindingMembers)
+                        {
+                            var field = new Reflection.ObjectField()
+                            {
+                                FieldProperty = grouper.Members[memberCounter] as PropertyInfo,
+                                MappedProperty = item.Key as PropertyInfo
+                            };
+                            if (!selectedFields.Any(op => op.FieldProperty.Name == field.FieldProperty.Name))
+                                selectedFields.Add(field);
+
+                            memberCounter++;
+                        }
+                    }
+                    else if (grouper.BindingMembers != null && grouper.BindingMembers.Any())
+                    {
+                        var memberCounter = 0;
+                        foreach (var item in grouper.BindingMembers)
+                        {
+                            var field = new Reflection.ObjectField()
+                            {
+                                FieldProperty = grouper.Members[memberCounter] as PropertyInfo,
+                                MappedProperty = item.Key as PropertyInfo
+                            };
+                            if (!selectedFields.Any(op => op.FieldProperty.Name == field.FieldProperty.Name))
+                                selectedFields.Add(field);
+
+                            memberCounter++;
+                        }
+                    }
+                }
+            }
+            return selectedFields;
         }
         public void Add(object entity)
         {
@@ -445,8 +522,6 @@ namespace Ophelia.Data.Model
         public virtual IList ToList()
         {
             this.EnsureLoad();
-            if (this.GroupedData != null)
-                return this.GroupedData;
             return this.GetList();
         }
         public IEnumerator GetEnumerator()

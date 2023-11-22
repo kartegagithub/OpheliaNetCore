@@ -93,6 +93,8 @@ namespace Ophelia.Data.Querying.Query.Helpers
         }
         private string Build(BaseQuery query, string name, PropertyInfo propInfo)
         {
+            if (propInfo.ReflectedType.IsAnonymousType() && name.Contains('.'))
+                name = name.Right(name.Length - name.IndexOf('.') - 1);
             if (name.Contains('.'))
             {
                 var props = query.Data.EntityType.GetPropertyInfoTree(name);
@@ -204,7 +206,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             }
                         }
                         if (string.IsNullOrEmpty(fieldName))
-                            fieldName = Extensions.GetColumnName(member);
+                        {
+                            fieldName = Extensions.GetColumnName(bindingMember.Key);
+                            if (!row.Table.Columns.Contains(fieldName))
+                                fieldName = Extensions.GetColumnName(member);
+                        }
                     }
                 }
                 else
@@ -245,11 +251,17 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             continue;
                         }
                         else
-                            fieldName = this.GetFieldName(query, member, bindingMember.Value);
+                        {
+                            fieldName = this.GetFieldName(query, bindingMember.Key, bindingMember.Value);
+                            if (!row.Table.Columns.Contains(fieldName))
+                                fieldName = this.GetFieldName(query, member, bindingMember.Value);
+                        }
                     }
                     else
                     {
-                        fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(member));
+                        fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(bindingMember.Key));
+                        if (!row.Table.Columns.Contains(fieldName))
+                            fieldName = query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(member));
                     }
                 }
                 this.SetData(member, fieldName, row, type, entity, bindingMember);
@@ -262,7 +274,10 @@ namespace Ophelia.Data.Querying.Query.Helpers
             if (bindingMember.Key == null)
                 return;
 
-            var p = type.GetProperty(bindingMember.Key.Name);
+            var p = type.GetProperty(member.Name);
+            if(p == null)
+                p = type.GetProperty(bindingMember.Key.Name);
+
             if (bindingMember.Value != null)
             {
                 if (bindingMember.Value is ConstantExpression)

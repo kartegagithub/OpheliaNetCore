@@ -129,6 +129,19 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             parser.Members.Add(item.Member);
                             parser.BindingMembers.Add(item.Member, memberAssignment.Expression);
                         }
+                        else if (memberAssignment.Expression is UnaryExpression)
+                        {
+                            var unary = memberAssignment.Expression as UnaryExpression;
+                            if(unary.Operand is MemberExpression)
+                            {
+                                var memberExp = unary.Operand as MemberExpression;
+                                if (memberAssignment != null)
+                                    parser.Members.Add(memberAssignment.Member);
+                                else
+                                    parser.Members.Add(memberExp.Member);
+                                parser.BindingMembers.Add(memberExp.Member, unary.Operand);
+                            }
+                        }
                     }
                 }
             }

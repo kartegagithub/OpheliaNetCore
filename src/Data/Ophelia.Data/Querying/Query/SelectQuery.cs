@@ -84,7 +84,7 @@ namespace Ophelia.Data.Querying.Query
             sb.Append("SELECT ");
             if (cmdType == CommandType.Count)
             {
-                sb.Append(this.BuildCountString() + " As " + this.Context.Connection.FormatDataElement("Counted"));
+                sb.Append(this.BuildCountString() + " As " + this.Context.Connection.FormatDataElement("Count"));
             }
             else
             {
@@ -145,11 +145,11 @@ namespace Ophelia.Data.Querying.Query
             }
             if (this.Data.Grouping && string.IsNullOrEmpty(strOrder))
             {
-                sb.Append(" ORDER BY Counted DESC");
+                sb.Append($" ORDER BY {this.Context.Connection.FormatDataElement("Count")} DESC");
             }
             if (this.Data.Grouping && cmdType == CommandType.Count)
             {
-                return $"SELECT Count(1) AS {this.Context.Connection.FormatDataElement("Counted")} FROM ({sb.ToString()}) GroupedTable";
+                return $"SELECT Count(1) AS {this.Context.Connection.FormatDataElement("Count")} FROM ({sb.ToString()}) GroupedTable";
             }
             else
                 return sb.ToString();
