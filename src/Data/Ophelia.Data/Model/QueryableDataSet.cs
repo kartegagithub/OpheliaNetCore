@@ -158,7 +158,7 @@ namespace Ophelia.Data.Model
                 if (type.GenericTypeArguments.Any() && !type.IsAnonymousType())
                     type = type.GenericTypeArguments.FirstOrDefault();
 
-                var selectedFields = this.GetSelectedFields(query, type);
+                var selectedFields = this.GetSelectedFields(query, type.IsPrimitiveType() ? this.InnerType : type);
 
                 if (!thisType.IsGenericType || !thisType.GenericTypeArguments.FirstOrDefault().Name.Contains("OGrouping"))
                 {
@@ -167,7 +167,7 @@ namespace Ophelia.Data.Model
                         var entLoadLoad = DateTime.Now;
 
                         if (type.IsPrimitiveType())
-                            this._list.Add(this.ElementType.ConvertData(row[0]));
+                            this._list.Add(type.ConvertData(row[0]));
                         else if (type.IsAnonymousType())
                         {
                             var parameters = new List<object>();
@@ -257,7 +257,7 @@ namespace Ophelia.Data.Model
                         object aEntity = null;
                         if (type.IsPrimitiveType())
                         {
-                            aEntity = this.ElementType.ConvertData(row[0]);
+                            aEntity = type.ConvertData(row[0]);
                         }
                         else if (type.IsAnonymousType())
                         {
