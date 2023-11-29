@@ -7,9 +7,18 @@ namespace Ophelia
 {
     public static class ReflectionExtensions
     {
+        private static List<string> IncludedAssemblies { get; set; } = new List<string>();
         public static List<string> ExcludedAssemblies { get; private set; } = new List<string>();
+
+        public static void AddNamespaceToSearch(params string[] namespaces)
+        {
+            if (namespaces != null && namespaces.Length > 0)
+                IncludedAssemblies.AddRange(namespaces);
+        }
         public static List<Assembly> GetValidAssemblies()
         {
+            if (IncludedAssemblies.Count > 0)
+                return AppDomain.CurrentDomain.GetAssemblies().Where(op => !ExcludedAssemblies.Contains(op.FullName) && IncludedAssemblies.Any(op2 => op.FullName.Contains(op2, StringComparison.InvariantCultureIgnoreCase))).ToList();
             return AppDomain.CurrentDomain.GetAssemblies().Where(op => !ExcludedAssemblies.Contains(op.FullName)).ToList();
         }
         public static T2 CopyTo<T1, T2>(this T1 obj1, T2 obj2, params string[] excludedProps)
