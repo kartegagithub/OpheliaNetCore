@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,6 +15,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
     {
         [DataMember]
         public bool IsLogicalExpression { get; set; }
+
+        [DataMember]
+        public bool ParameterValueIsInLeftSide { get; set; }
 
         [DataMember]
         public string Name { get; set; }
@@ -369,98 +373,98 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                     sb.Append(")");
                 }
-                else if (!string.IsNullOrEmpty(this.Name) && this.PropertyInfo != null && !this.Name.Contains('.', StringComparison.CurrentCulture))
+                else
                 {
-                    isStringFilter = this.IsStringProperty(this.PropertyInfo, this.Value);
-                    if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
-                        sb.Append("UPPER(");
-
-                    if (subqueryTable == null)
-                        sb.Append(query.Data.MainTable.Alias);
-                    else
-                        sb.Append(subqueryTable.Alias);
-                    sb.Append(".");
-                    sb.Append(query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(this.PropertyInfo))));
-
-                    if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
-                        sb.Append(")");
-                }
-                else if (!string.IsNullOrEmpty(this.Name))
-                {
-                    var name = "";
-                    //var props = this.Name.Split('.');
-                    Type lastType = query.Data.EntityType;
-                    var props = query.Data.EntityType.GetPropertyInfoTree(this.Name);
-                    var baseTableToJoin = query.Data.MainTable;
-                    if (this.ParentFilter != null && subqueryTable != null)
+                    var fieldName = new StringBuilder();
+                    if (!string.IsNullOrEmpty(this.Name) && this.PropertyInfo != null && !this.Name.Contains('.', StringComparison.CurrentCulture))
                     {
-                        var tmpProps = subqueryTable.EntityType.GetPropertyInfoTree(this.Name);
-                        if (tmpProps != null)
-                        {
-                            props = tmpProps;
-                            baseTableToJoin = subqueryTable;
-                        }
-                    }
-                    isStringFilter = false;
-                    foreach (var _prop in props)
-                    {
-                        lastType = _prop.PropertyType;
-                        if (lastType.IsDataEntity() || lastType.IsPOCOEntity())
-                        {
-                            var table = query.Data.MainTable;
-                            if (subqueryTable != null)
-                                table = subqueryTable;
+                        isStringFilter = this.IsStringProperty(this.PropertyInfo, this.Value);
+                        if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
+                            fieldName.Append("UPPER(");
 
-                            Table joinedTable = null;
-                            var propInfo = Extensions.GetForeignKeyProp(_prop).Item1;
-                            var fkName = Extensions.GetForeignKeyName(_prop);
-                            joinedTable = table.Joins.Where(op => op.JoinOn == fkName).FirstOrDefault();
-                            if (joinedTable == null)
-                            {
-                                var toJoinTable = table.Joins.LastOrDefault();
-                                if (toJoinTable == null)
-                                    toJoinTable = baseTableToJoin;
-                                else if (toJoinTable.EntityType.GetProperty(propInfo.Name) == null)
-                                    toJoinTable = baseTableToJoin;
 
-                                joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(fkName), JoinedTable = toJoinTable });
-                            }
-
-                            if (!this.Tables.Where(op => op.Alias == joinedTable.Alias).Any())
-                                this.Tables.Add(joinedTable);
-
-                            if (_prop.Equals(props[^2]))
-                            {
-                                isStringFilter = this.IsStringProperty(props.LastOrDefault(), null);
-                                if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
-                                    name += "UPPER(";
-
-                                name += joinedTable.Alias;
-                                name += ".";
-                            }
-                            if (_prop == props.LastOrDefault())
-                                name += query.Context.Connection.GetPrimaryKeyName(lastType);
-                        }
-                        else if (lastType.IsQueryableDataSet())
-                        {
-
-                        }
+                        if (subqueryTable == null)
+                            fieldName.Append(query.Data.MainTable.Alias);
                         else
+                            fieldName.Append(subqueryTable.Alias);
+                        fieldName.Append(".");
+                        fieldName.Append(query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(this.PropertyInfo))));
+                        if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
+                            fieldName.Append(")");
+                    }
+                    else if (!string.IsNullOrEmpty(this.Name))
+                    {
+                        Type lastType = query.Data.EntityType;
+                        var props = query.Data.EntityType.GetPropertyInfoTree(this.Name);
+                        var baseTableToJoin = query.Data.MainTable;
+                        if (this.ParentFilter != null && subqueryTable != null)
                         {
-                            name += query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(_prop)));
+                            var tmpProps = subqueryTable.EntityType.GetPropertyInfoTree(this.Name);
+                            if (tmpProps != null)
+                            {
+                                props = tmpProps;
+                                baseTableToJoin = subqueryTable;
+                            }
+                        }
+                        isStringFilter = false;
+                        foreach (var _prop in props)
+                        {
+                            lastType = _prop.PropertyType;
+                            if (lastType.IsDataEntity() || lastType.IsPOCOEntity())
+                            {
+                                var table = query.Data.MainTable;
+                                if (subqueryTable != null)
+                                    table = subqueryTable;
 
-                            if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
-                                name += ")";
+                                Table joinedTable = null;
+                                var propInfo = Extensions.GetForeignKeyProp(_prop).Item1;
+                                var fkName = Extensions.GetForeignKeyName(_prop);
+                                joinedTable = table.Joins.Where(op => op.JoinOn == fkName).FirstOrDefault();
+                                if (joinedTable == null)
+                                {
+                                    var toJoinTable = table.Joins.LastOrDefault();
+                                    if (toJoinTable == null)
+                                        toJoinTable = baseTableToJoin;
+                                    else if (toJoinTable.EntityType.GetProperty(propInfo.Name) == null)
+                                        toJoinTable = baseTableToJoin;
+
+                                    joinedTable = table.AddJoin(new Table(query, lastType, JoinType.Left, table.Joins.Count.ToString()) { JoinOn = query.Context.Connection.GetMappedFieldName(fkName), JoinedTable = toJoinTable });
+                                }
+
+                                if (!this.Tables.Where(op => op.Alias == joinedTable.Alias).Any())
+                                    this.Tables.Add(joinedTable);
+
+                                if (_prop.Equals(props[^2]))
+                                {
+                                    isStringFilter = this.IsStringProperty(props.LastOrDefault(), null);
+                                    if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
+                                        fieldName.Append("UPPER(");
+
+                                    fieldName.Append(joinedTable.Alias);
+                                    fieldName.Append(".");
+                                }
+                                if (_prop == props.LastOrDefault())
+                                    fieldName.Append(query.Context.Connection.GetPrimaryKeyName(lastType));
+                            }
+                            else if (lastType.IsQueryableDataSet())
+                            {
+
+                            }
+                            else
+                            {
+                                fieldName.Append(query.Context.Connection.FormatDataElement(query.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(_prop))));
+
+                                if (query.Context.Connection.Type == DatabaseType.Oracle && isStringFilter)
+                                    fieldName.Append(")");
+                            }
                         }
                     }
-                    sb.Append(name);
+                    this.AddParameter(sb, query, this.Value, this.Value2, this.Comparison, this.Exclude, isStringFilter, fieldName.ToString());
                 }
-
-                this.AddParameter(sb, query, this.Value, this.Value2, this.Comparison, this.Exclude, isStringFilter);
             }
             return sb.ToString();
         }
-        protected void AddParameter(StringBuilder sb, Query.BaseQuery query, object value, object value2, Comparison comparison, bool exclude, bool isStringFilter)
+        protected void AddParameter(StringBuilder sb, Query.BaseQuery query, object value, object value2, Comparison comparison, bool exclude, bool isStringFilter, string fieldName = "")
         {
             var oracleNull = false;
             if (query.Context.Connection.Type == DatabaseType.Oracle)
@@ -473,11 +477,15 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                 }
             }
+            var paramName = query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count;
             switch (comparison)
             {
+                case Comparison.Exists:
+                    break;
                 case Comparison.Equal:
                     if (value == null)
                     {
+                        sb.Append(fieldName);
                         if (exclude)
                             sb.Append(" IS NOT NULL ");
                         else
@@ -485,6 +493,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                     else
                     {
+                        sb.Append(this.GetLeftSideValue(paramName, fieldName));
                         if (exclude)
                         {
                             if (query.Context.Connection.Type == DatabaseType.Oracle)
@@ -495,15 +504,13 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         else
                             sb.Append(" = ");
 
-                        if (!oracleNull)
-                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        else
-                            sb.Append("''");
+                        sb.Append(this.GetRightSideValue(paramName, fieldName));
                     }
                     break;
                 case Comparison.Different:
                     if (value == null)
                     {
+                        sb.Append(fieldName);
                         if (exclude)
                             sb.Append(" IS NULL ");
                         else
@@ -513,6 +520,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                     else
                     {
+                        sb.Append(this.GetLeftSideValue(paramName, fieldName));
                         if (exclude)
                             sb.Append(" = ");
                         else
@@ -522,29 +530,31 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             else
                                 sb.Append(" <> ");
                         }
-                        if (!oracleNull)
-                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
-                        else
-                            sb.Append("''");
+                        sb.Append(this.GetRightSideValue(paramName, fieldName));
                     }
                     break;
                 case Comparison.Greater:
+                    sb.Append(this.GetLeftSideValue(paramName, fieldName));
                     sb.Append(" > ");
-                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    sb.Append(this.GetRightSideValue(paramName, fieldName));
                     break;
                 case Comparison.Less:
+                    sb.Append(this.GetLeftSideValue(paramName, fieldName));
                     sb.Append(" < ");
-                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    sb.Append(this.GetRightSideValue(paramName, fieldName));
                     break;
                 case Comparison.GreaterAndEqual:
+                    sb.Append(this.GetLeftSideValue(paramName, fieldName));
                     sb.Append(" >= ");
-                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    sb.Append(this.GetRightSideValue(paramName, fieldName));
                     break;
                 case Comparison.LessAndEqual:
+                    sb.Append(this.GetLeftSideValue(paramName, fieldName));
                     sb.Append(" <= ");
-                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    sb.Append(this.GetRightSideValue(paramName, fieldName));
                     break;
                 case Comparison.In:
+                    sb.Append(fieldName);
                     sb.Append(" IN (");
                     if (value != null && value.GetType().IsEnumarable())
                     {
@@ -572,18 +582,20 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     sb.Append(")");
                     break;
                 case Comparison.Between:
+                    sb.Append(fieldName);
                     sb.Append(" BETWEEN ");
-                    sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                    sb.Append(paramName);
                     query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(value));
                     sb.Append(" AND ");
                     sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
                     query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(value2));
                     break;
                 case Comparison.StartsWith:
+                    sb.Append(this.GetLeftSideValue(paramName, fieldName));
                     if (query.Context.Connection.Type == DatabaseType.MySQL)
                     {
                         sb.Append(" LIKE CONCAT(");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        sb.Append(this.GetRightSideValue(paramName, fieldName));
                         sb.Append(",'%')");
                     }
                     else
@@ -594,7 +606,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             sb.Append(query.Context.Connection.FormatStringConcat(" LIKE "));
                         if (!oracleNull)
                         {
-                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                            sb.Append(this.GetRightSideValue(paramName, fieldName));
                             sb.Append(query.Context.Connection.FormatStringConcat("+ '%'"));
                         }
                         else
@@ -602,10 +614,11 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                     break;
                 case Comparison.EndsWith:
+                    sb.Append(this.GetLeftSideValue(paramName, fieldName));
                     if (query.Context.Connection.Type == DatabaseType.MySQL)
                     {
                         sb.Append(" LIKE CONCAT('%',");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        sb.Append(this.GetRightSideValue(paramName, fieldName));
                         sb.Append(")");
                     }
                     else
@@ -617,17 +630,18 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         if (!oracleNull)
                         {
                             sb.Append(query.Context.Connection.FormatStringConcat("'%' + "));
-                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                            sb.Append(this.GetRightSideValue(paramName, fieldName));
                         }
                         else
                             sb.Append(query.Context.Connection.FormatStringConcat("'%'"));
                     }
                     break;
                 case Comparison.Contains:
+                    sb.Append(this.GetLeftSideValue(paramName, fieldName));
                     if (query.Context.Connection.Type == DatabaseType.MySQL)
                     {
                         sb.Append(" LIKE CONCAT('%',");
-                        sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                        sb.Append(this.GetRightSideValue(paramName, fieldName));
                         sb.Append(",'%')");
                     }
                     else
@@ -646,7 +660,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
                         if (!oracleNull)
                         {
-                            sb.Append(query.Context.Connection.FormatParameterName("p") + query.Data.Parameters.Count);
+                            sb.Append(this.GetRightSideValue(paramName, fieldName));
                             sb.Append(query.Context.Connection.FormatStringConcat(" + '%'"));
                         }
                     }
@@ -662,6 +676,20 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(value, isStringFilter));
                 }
             }
+        }
+        private string GetLeftSideValue(string paramName, string fieldName)
+        {
+            if (this.ParameterValueIsInLeftSide)
+                return paramName;
+            else
+                return fieldName;
+        }
+        private string GetRightSideValue(string paramName, string fieldName)
+        {
+            if (!this.ParameterValueIsInLeftSide)
+                return paramName;
+            else
+                return fieldName;
         }
         protected bool IsStringProperty(PropertyInfo info, object value)
         {

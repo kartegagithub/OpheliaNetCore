@@ -10,11 +10,19 @@ namespace Ophelia.Data
         internal DbTransaction InternalTransaction { get; set; }
         private Connection DatabaseConnection { get; set; }
         public bool IsDisposed { get; set; }
-        internal DatabaseTransactionStatus Status { get; set; }   
+        internal DatabaseTransactionStatus Status { get; set; }
 
         public override IsolationLevel IsolationLevel { get { return this.InternalTransaction.IsolationLevel; } }
         protected override DbConnection? DbConnection { get { return this.InternalTransaction.Connection; } }
 
+        public void SetTransaction(DbCommand cmd)
+        {
+            if (cmd == null)
+                return;
+
+            if (this.InternalTransaction != null)
+                cmd.Transaction = this.InternalTransaction;
+        }
         protected override void Dispose(bool disposing)
         {
             this.IsDisposed = true;

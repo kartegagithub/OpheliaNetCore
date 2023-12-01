@@ -13,8 +13,29 @@ namespace Ophelia.Data
     public static class Extensions
     {
         private static string AutoFilterStringComparisonFunction { get; set; } = "ToLower";
+        public static bool CanGetExpressionValue(this MemberExpression memberExpression, BinaryExpression baseExpression)
+        {
+            if (memberExpression.Expression != null && memberExpression.Expression.NodeType == ExpressionType.Parameter)
+                return false;
+            if (memberExpression.Expression == null && baseExpression != null)
+                return true;
+            else if (memberExpression.Expression is ConstantExpression)
+                return true;
+            else if (memberExpression.Expression is MemberExpression)
+                return (memberExpression.Expression as MemberExpression).CanGetExpressionValue(baseExpression);
+            
+            var propInfo = memberExpression.Member as PropertyInfo;
+            if (propInfo != null && propInfo.IsStaticProperty())
+                return true;
+
+            return true;
+
+        }
         public static object GetExpressionValue(this MemberExpression memberExpression, BinaryExpression baseExpression)
         {
+            if (memberExpression.Expression != null && memberExpression.Expression.NodeType == ExpressionType.Parameter)
+                throw new ArgumentException("Can not get expression parameter value. Expression is ParameterExpression, ParameterExpression are not valid to get drect value");
+
             if (memberExpression.Expression == null && baseExpression != null)
                 return Expression.Lambda(baseExpression.Right).Compile().DynamicInvoke();
             else if (memberExpression.Expression is ConstantExpression)

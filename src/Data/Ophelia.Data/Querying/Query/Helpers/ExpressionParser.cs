@@ -25,6 +25,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public bool IsDataEntity { get; set; }
         public int Take { get; set; }
         public int Skip { get; set; }
+        public bool ParameterValueIsInLeftSide { get; set; }
         public bool IsIncluder { get; set; }
         public bool IsSubInclude { get; set; }
         public List<MemberInfo> Members { get; set; } = new List<MemberInfo>();
@@ -132,7 +133,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         else if (memberAssignment.Expression is UnaryExpression)
                         {
                             var unary = memberAssignment.Expression as UnaryExpression;
-                            if(unary.Operand is MemberExpression)
+                            if (unary.Operand is MemberExpression)
                             {
                                 var memberExp = unary.Operand as MemberExpression;
                                 if (memberAssignment != null)
@@ -234,10 +235,14 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             throw new Exception("Left Expression is null");
                     }
                 }
+                else if ((expression.Left as MemberExpression).CanGetExpressionValue(expression))
+                {
+                    parser.Value = (expression.Left as MemberExpression).GetExpressionValue(expression);
+                    parser.ParameterValueIsInLeftSide = true;
+                }
                 else
                 {
-                    var memberExpression = expression.Left as MemberExpression;
-                    parser.Name = memberExpression.ParsePath();
+                    parser.Name = expression.Left.ParsePath();
                 }
                 if (expression.Right is MemberExpression && (expression.Right as MemberExpression).Expression is ConstantExpression)
                 {
@@ -314,14 +319,25 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     bool foundValue = false;
                     if (expression.Right is MemberExpression)
                     {
-                        parser.Value = (expression.Right as MemberExpression).GetExpressionValue(expression);
-                        foundValue = true;
+                        var memberExp = (expression.Right as MemberExpression);
+                        if (memberExp.Expression == null || memberExp.Expression.NodeType != ExpressionType.Parameter)
+                        {
+                            parser.Value = memberExp.GetExpressionValue(expression);
+                            foundValue = true;
+                        }
                     }
                     if (!foundValue)
                     {
-                        parser.Right = ExpressionParser.Create(expression.Right);
-                        if (parser.Right == null)
-                            throw new Exception("Right Expression is null");
+                        if (parser.ParameterValueIsInLeftSide)
+                        {
+                            parser.Name = expression.Right.ParsePath();
+                        }
+                        else
+                        {
+                            parser.Right = ExpressionParser.Create(expression.Right);
+                            if (parser.Right == null)
+                                throw new Exception("Right Expression is null");
+                        }
                     }
                 }
                 else
@@ -630,19 +646,30 @@ namespace Ophelia.Data.Querying.Query.Helpers
             {
                 if (expression.Object is MemberExpression && !(expression.Object as MemberExpression).Type.IsPrimitiveType() && (expression.Object.GetType().Name.IndexOf("Field") > -1 || expression.Object.GetType().Name.IndexOf("Property") > -1))
                 {
-                    // idList.Contains(op.Name)
+                    //idList.Contains(op.Name)
                     parser.Name = expression.Arguments[0].ParsePath();
                     parser.Comparison = Comparison.In;
                     parser.Value = (expression.Object as MemberExpression).GetExpressionValue(null);
                 }
                 else
                 {
-                    // op.Name.Contains("text")
-                    parser.Name = expression.Object.ParsePath();
-                    if ((expression.Arguments[0] is ConstantExpression))
-                        parser.Value = (expression.Arguments[0] as ConstantExpression).Value;
-                    else if ((expression.Arguments[0] is MemberExpression))
-                        parser.Value = (expression.Arguments[0] as MemberExpression).GetExpressionValue(null);
+                    if (expression.Object is ConstantExpression)
+                    {
+                        //text.Contains(op.Name)
+                        parser.Value = (expression.Object as ConstantExpression).Value;
+                        parser.ParameterValueIsInLeftSide = true;
+                        if (expression.Arguments[0] is MemberExpression)
+                            parser.Name = expression.Arguments[0].ParsePath();
+                    }
+                    else
+                    {
+                        // op.Name.Contains("text")
+                        parser.Name = expression.Object.ParsePath();
+                        if ((expression.Arguments[0] is ConstantExpression))
+                            parser.Value = (expression.Arguments[0] as ConstantExpression).Value;
+                        else if ((expression.Arguments[0] is MemberExpression))
+                            parser.Value = (expression.Arguments[0] as MemberExpression).GetExpressionValue(null);
+                    }
                 }
             }
             else
@@ -750,6 +777,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             filter.IsLogicalExpression = this.IsLogicalExpression;
             filter.Members = this.Members;
             filter.MemberExpressions = this.MemberExpressions;
+            filter.ParameterValueIsInLeftSide = this.ParameterValueIsInLeftSide;
             if (this.EntityType != null)
                 filter.EntityTypeName = this.EntityType.FullName;
 
