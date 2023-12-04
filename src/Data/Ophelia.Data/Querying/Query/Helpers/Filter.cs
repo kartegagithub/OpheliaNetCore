@@ -668,7 +668,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
             }
             if (!oracleNull && comparison != Comparison.Exists && comparison != Comparison.In && comparison != Comparison.Between)
             {
-                if (value != null)
+                if (value != null || this.ParameterValueIsInLeftSide)
                 {
                     if (isStringFilter && query.Context.Connection.Type == DatabaseType.Oracle)
                         query.Data.Parameters.Add(query.Context.Connection.FormatParameterValue(Convert.ToString(value).ToUpper()));
