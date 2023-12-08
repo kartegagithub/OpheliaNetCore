@@ -1318,6 +1318,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                         this.OnBeforeGetCellValue(item, column);
                         var value = column.GetValue(item);
+                        link.Text = Convert.ToString(value);
                         if (column.MaxTextLength > 0)
                         {
                             if (!string.IsNullOrEmpty(link.Text) && link.Text.Length > column.MaxTextLength)
@@ -1325,7 +1326,6 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 link.Text = link.Text.Left(column.MaxTextLength) + "...";
                             }
                         }
-                        link.Text = Convert.ToString(value);
                         if (!column.KeepHtml)
                         {
                             if (!string.IsNullOrEmpty(link.Text))

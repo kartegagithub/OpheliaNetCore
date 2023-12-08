@@ -481,7 +481,7 @@ namespace Ophelia.Data
             }
             return "";
         }
-
+        
         private void CheckConnection()
         {
             if (this.State == ConnectionState.Closed)

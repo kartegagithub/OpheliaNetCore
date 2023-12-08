@@ -665,6 +665,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         }
                     }
                     break;
+                case Comparison.None:
+                    sb.Append(fieldName);
+                    break;
             }
             if (!oracleNull && comparison != Comparison.Exists && comparison != Comparison.In && comparison != Comparison.Between)
             {
