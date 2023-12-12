@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace Ophelia
 {
@@ -310,5 +312,33 @@ namespace Ophelia
         {
             return _jan1st1970.AddMilliseconds(from);
         }
-    }
+
+		/// <summary>
+		/// Başlangıç tarihinden bitiş tarihine kaç iş günü geçtiğini belirtir.
+		/// </summary>
+		/// <param name="startDate">Başlangıç kontrol tarihi</param>
+		/// <param name="endDate">Bitiş kontrol tarihi</param>
+		/// <param name="publicHolidays">(optional)Resmi Tatiller : İlk değer tatil başlangıç tarihi , ikinci değer tatil bitiş tarihini alır.</param>
+		/// <returns></returns>
+		public static int WorkDaysFrom(this DateTime endDate, DateTime startDate, List<(DateTime Start, DateTime End)> publicHolidays = null)
+		{
+			int daysPassed = 0, workDaysPassed = 0;
+			while (startDate.Date.AddDays(daysPassed).Date < endDate.Date)
+			{
+				var currentDate = startDate.AddDays(daysPassed);
+				if (!currentDate.IsWeekend())
+				{
+					if (publicHolidays != null)
+					{
+						if (!publicHolidays.Any(op => op.Start.Date <= currentDate.Date && op.End.Date >= currentDate.Date))
+							workDaysPassed++;
+					}
+					else
+						workDaysPassed++;
+				}
+				daysPassed++;
+			}
+			return workDaysPassed;
+		}
+	}
 }
