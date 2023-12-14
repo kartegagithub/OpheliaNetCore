@@ -433,16 +433,16 @@ namespace Ophelia.Data
                 }
                 else if (value is DateTime || value is Nullable<DateTime>)
                 {
-                    DateTime val = DateTime.MinValue;
+                    var val = DateTime.MinValue;
                     if (value is DateTime)
-                        val = (DateTime)value;
-                    else if (value is Nullable<DateTime>)
-                        val = ((DateTime?)value).GetValueOrDefault(DateTime.MinValue);
+                        val = ((DateTime)value).SetKind(this.Context.Configuration.DateTimeKind);
+                    else if (value is DateTime?)
+                        val = ((DateTime?)value).GetValueOrDefault(DateTime.MinValue).SetKind(this.Context.Configuration.DateTimeKind);
 
                     if (val < this.Context.Configuration.MinDateTime)
-                        return this.Context.Configuration.MinDateTime;
+                        return this.Context.Configuration.MinDateTime.SetKind(this.Context.Configuration.DateTimeKind);
                     else if (val > this.Context.Configuration.MaxDateTime)
-                        return this.Context.Configuration.MaxDateTime;
+                        return this.Context.Configuration.MaxDateTime.SetKind(this.Context.Configuration.DateTimeKind);
                     return value;
                 }
             }

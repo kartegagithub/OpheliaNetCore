@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ophelia.Data
 {
-    public class DataConfiguration : IDisposable
+    public class DataConfiguration : EntityFramework.DataConfiguration
     {
         public List<string> NamespacesToIgnore { get; set; }
         public bool UseDBLevelPaging { get; set; }
@@ -17,28 +17,19 @@ namespace Ophelia.Data
         public bool EnableLazyLoading { get; set; }
         public bool LogSQL { get; set; }
         public bool LogEntityLoads { get; set; }
-        public string OracleStringColumnCollation { get; set; }
+        public string OracleStringColumnCollation { get; set; } = "";
         public Dictionary<Type, string> LinkedDatabases { get; set; }
-        public string DatabaseVersion { get; set; }
+        public string DatabaseVersion { get; set; } = "";
         public int ObjectNameCharLimit { get; set; }
         public bool UseUppercaseObjectNames { get; set; }
         public bool QueryBooleanAsBinary { get; set; }
-        public DateTime MinDateTime { get; set; } = DateTime.MinValue;
-        public DateTime MaxDateTime { get; set; } = DateTime.MaxValue;
         public Func<string, string> StringParameterFormatter { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Dispose()
+
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            base.Dispose(disposing);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            //Cleanup
-        }
         public DataConfiguration()
         {
             this.NamespacesToIgnore = new List<string>();

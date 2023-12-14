@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Ophelia.Data.Attributes;
@@ -15,6 +16,7 @@ namespace Ophelia.Data.EntityFramework
     {
         private bool _IsDisposed;
         public DataProtector DataProtector { get; set; }
+        public DataConfiguration DataConfiguration { get; set; } = new DataConfiguration();
         public override void Dispose()
         {
             this._IsDisposed = true;
@@ -64,6 +66,7 @@ namespace Ophelia.Data.EntityFramework
                 foreach (var entry in changeSet.Where(c => c.State != Microsoft.EntityFrameworkCore.EntityState.Unchanged))
                 {
                     this.OnEntityChange(entry);
+                    this.ValidateData(entry);
                 }
             }
         }
@@ -194,6 +197,25 @@ namespace Ophelia.Data.EntityFramework
             catch (Exception ex)
             {
                 this.OnAuditLogFailed(ex);
+            }
+        }
+        protected virtual void ValidateData(EntityEntry entry)
+        {
+            if (this.DataConfiguration != null & this.DataConfiguration.DateTimeKind != DateTimeKind.Unspecified)
+            {
+                var dateProps = entry.Entity.GetType().GetProperties().Where(op => op.CanWrite && op.CanRead && (Type.GetTypeCode(op.PropertyType) == TypeCode.DateTime || (op.PropertyType.IsGenericType && op.PropertyType.GenericTypeArguments.Any(op2 => Type.GetTypeCode(op2) == TypeCode.DateTime)))).ToList();
+                foreach (var prop in dateProps)
+                {
+                    var val = prop.GetValue(entry.Entity);
+                    if (val is DateTime)
+                    {
+                        prop.SetValue(entry.Entity, ((DateTime)val).SetKind(this.DataConfiguration.DateTimeKind));
+                    }
+                    else if (val is DateTime?)
+                    {
+                        prop.SetValue(entry.Entity, ((DateTime?)val).SetKind(this.DataConfiguration.DateTimeKind));
+                    }
+                }
             }
         }
         protected virtual void OnAuditLogFailed(Exception ex)
