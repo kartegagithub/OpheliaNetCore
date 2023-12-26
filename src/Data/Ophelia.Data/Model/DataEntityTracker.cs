@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -212,6 +213,9 @@ namespace Ophelia.Data.Model
                 this.Changes = this.Properties.Where(op => op.Value.HasChanged && !Extensions.IsIdentityProperty(op.Value.PropertyInfo)).Select(op => op.Value).ToList();
             else
                 this.Changes = this.Properties.Where(op => !Extensions.IsIdentityProperty(op.Value.PropertyInfo)).Select(op => op.Value).ToList();
+
+            this.Changes.RemoveAll(op => op.PropertyInfo.GetCustomAttributes(typeof(NotMappedAttribute)).Any());
+
             return this.Changes;
         }
 

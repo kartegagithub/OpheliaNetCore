@@ -1415,7 +1415,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     {
                         if (string.IsNullOrEmpty(column.Name))
                             column.Name = column.FormatName();
-
+                        
                         var sortingFieldName = this.GetSortingFieldName(column);
                         qs.Update("OrderBy", sortingFieldName);
                         if (this.Request.GetValue("OrderBy") == sortingFieldName)

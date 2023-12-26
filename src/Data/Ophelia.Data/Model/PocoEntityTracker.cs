@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
@@ -42,6 +43,10 @@ namespace Ophelia.Data.Model
             var list = new List<DataValue>();
             foreach (var item in this.OriginalValues)
             {
+                var isNotMapped = item.Key.GetCustomAttributes(typeof(NotMappedAttribute)).Any();
+                if (isNotMapped)
+                    continue;
+
                 var value = item.Key.GetValue(this.ProxyEntity);
                 if (value == null && item.Value == null)
                     continue;
@@ -49,7 +54,16 @@ namespace Ophelia.Data.Model
                 if (Extensions.IsIdentityProperty(item.Key))
                     continue;
 
-                if ((value != null && item.Value == null) || (value == null && item.Value != null) || (!value.Equals(item.Value)))
+                if (!item.Key.PropertyType.IsNullable() && value == null)
+                    value = item.Key.PropertyType.GetDefaultValue();
+
+                if (!this.IsNewRecord())
+                {
+                    if ((value != null && item.Value == null) || (value == null && item.Value != null) || (!value.Equals(item.Value)))
+                        list.Add(new DataValue() { PropertyInfo = item.Key, Value = value });
+
+                }
+                else
                     list.Add(new DataValue() { PropertyInfo = item.Key, Value = value });
             }
             this.Changes = list;
@@ -58,7 +72,7 @@ namespace Ophelia.Data.Model
         }
         internal virtual void OnAfterCreateEntity()
         {
-            if(ProxyEntity == null)
+            if (ProxyEntity == null)
                 ProxyEntity = Entity;
             Entity = Activator.CreateInstance(ProxyEntity.GetType());
             ProxyEntity.CopyTo(Entity, "Tracker");
@@ -75,7 +89,7 @@ namespace Ophelia.Data.Model
         internal virtual void OnAfterUpdateEntity()
         {
             Entity = Activator.CreateInstance(ProxyEntity.GetType());
-            ProxyEntity.CopyTo(Entity, "Tracker");            
+            ProxyEntity.CopyTo(Entity, "Tracker");
             this.ResetOriginalValues();
         }
 
