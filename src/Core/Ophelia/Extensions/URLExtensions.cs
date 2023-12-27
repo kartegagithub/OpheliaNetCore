@@ -14,7 +14,7 @@ namespace Ophelia
 {
     public static partial class URLExtensions
     {
-        public static int Timeout { get; set; }
+        public static int Timeout { get; set; } = 120000;
         public static Func<HttpClientHandler, DelegatingHandler> RequestLogHandler { get; set; }
         public static Action<HttpResponseMessage> OnResponseHandler { get; set; }
 
@@ -59,7 +59,7 @@ namespace Ophelia
         }
         public static T PostURL<T>(this string URL, string parameters, string contentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool PreAuthenticate = false, NetworkCredential credential = null)
         {
-            var response = URL.DownloadURL("POST", parameters, contentType, headers, PreAuthenticate, 120000, credential);
+            var response = URL.DownloadURL("POST", parameters, contentType, headers, PreAuthenticate, URLExtensions.Timeout, credential);
             if (!string.IsNullOrEmpty(response))
             {
                 if (response.StartsWith("<", StringComparison.InvariantCultureIgnoreCase))
@@ -86,7 +86,7 @@ namespace Ophelia
         }
         public static string PostURL(this string URL, string parameters, string contentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool PreAuthenticate = false, NetworkCredential credential = null)
         {
-            return URL.DownloadURL("POST", parameters, contentType, headers, PreAuthenticate, 120000, credential);
+            return URL.DownloadURL("POST", parameters, contentType, headers, PreAuthenticate, URLExtensions.Timeout, credential);
         }
         public static string DownloadURL(this string url, string method = "GET", string parameters = "", string contentType = "application/x-www-form-urlencoded", WebHeaderCollection headers = null, bool preAuthenticate = false, int timeout = 120000, NetworkCredential credential = null)
         {
