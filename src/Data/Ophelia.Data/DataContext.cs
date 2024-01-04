@@ -102,7 +102,7 @@ namespace Ophelia.Data
             if (expression == null)
                 return null;
 
-            if(expression is MethodCallExpression)
+            if (expression is MethodCallExpression)
             {
                 var type = (expression as MethodCallExpression).Arguments[0].Type.GenericTypeArguments.FirstOrDefault();
                 if (type != null)
@@ -116,10 +116,10 @@ namespace Ophelia.Data
                 else
                     return type;
             }
-            else if(expression is UnaryExpression)
+            else if (expression is UnaryExpression)
             {
                 var lmbExp = ((expression as UnaryExpression).Operand as LambdaExpression);
-                if(lmbExp != null && lmbExp.Parameters.Any())
+                if (lmbExp != null && lmbExp.Parameters.Any())
                 {
                     return lmbExp.Parameters.LastOrDefault().Type;
                 }
@@ -238,10 +238,14 @@ namespace Ophelia.Data
             this.TableMap = null;
             this.NamespaceMap = null;
             this.ContextEntities = null;
-            this.RepositoryCache.Clear();
+            if (this.RepositoryCache != null)
+                this.RepositoryCache.Clear();
             this.RepositoryCache = null;
-            this.Connection.Close();
-            this.Connection.Dispose();
+            if (this.Connection != null)
+            {
+                this.Connection.Close();
+                this.Connection.Dispose();
+            }
         }
         public virtual void OnAfterEntityLoaded(object entity)
         {

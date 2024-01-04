@@ -242,6 +242,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 }
                 else
                 {
+                    //TODO: op.IsBoolParameter & !op.Bool2Parameter fails.
                     parser.Name = expression.Left.ParsePath();
                 }
                 if (expression.Right is MemberExpression && (expression.Right as MemberExpression).Expression is ConstantExpression)

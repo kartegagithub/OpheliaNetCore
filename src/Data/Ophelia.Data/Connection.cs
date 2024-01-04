@@ -109,7 +109,7 @@ namespace Ophelia.Data
             this.CurrentTransaction = DatabaseTransaction.Create(this, IsolationLevel.ReadUncommitted);
             return this.CurrentTransaction;
         }
-        
+
         protected override DbCommand CreateDbCommand()
         {
             var command = DbProviderFactories.GetFactory(this.InternalConnection).CreateCommand();
@@ -481,7 +481,7 @@ namespace Ophelia.Data
             }
             return "";
         }
-        
+
         private void CheckConnection()
         {
             if (this.State == ConnectionState.Closed)
@@ -818,10 +818,10 @@ namespace Ophelia.Data
 
         protected override void Dispose(bool disposing)
         {
-            this.Logger.Dispose();
+            if (this.Logger != null)
+                this.Logger.Dispose();
             this.Logger = null;
             base.Dispose(disposing);
-            GC.SuppressFinalize(this);
         }
     }
 }
