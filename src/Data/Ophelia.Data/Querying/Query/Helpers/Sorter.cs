@@ -36,11 +36,13 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 this.Name = this.Name.Replace("Key.", "");
 
             var columnName = this.Name;
+            if (this.PropertyInfo == null)
+                this.PropertyInfo = query.Data.EntityType.GetPropertyInfoTree(columnName).LastOrDefault();
             if (this.PropertyInfo != null)
                 columnName = Extensions.GetColumnName(this.PropertyInfo);
 
             //TODO: GroupBy(op => new { PName = op.Product.Name }).OrderBy(op => op.Key.PName) is not working
-            if (this.Name.IndexOf(".") > -1)
+            if (this.Name.IndexOf('.') > -1)
             {
                 var props = this.Name.Split('.');
                 var parentIncluder = query.Data.Includers.Where(op => op.Name == props.FirstOrDefault()).FirstOrDefault();

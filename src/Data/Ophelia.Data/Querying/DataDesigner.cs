@@ -250,8 +250,6 @@ namespace Ophelia.Data.Querying
                 }
                 DataAttribute = (Attributes.DataProperty)p.GetCustomAttributes(typeof(Attributes.DataProperty)).FirstOrDefault();
             }
-            if (DataAttribute == null)
-                return;
 
             var datatype = this.GetSQLDataType(p.PropertyType, DataAttribute);
             var tableName = this.Context.Connection.GetTableName(tableType);

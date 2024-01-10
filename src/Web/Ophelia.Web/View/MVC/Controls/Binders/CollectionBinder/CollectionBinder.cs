@@ -732,7 +732,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                     this.DataSource.Items = (List<T>)response.GetPropertyValue("Data");
 
                                 this.DataSource.GroupPagination.ItemCount = response.TotalDataCount;
-                                
+
                                 this.OnRemoteDataSourceResponse(response);
                                 this.OnAfterQueryExecuted();
                             }
@@ -970,10 +970,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             return null;
         }
-        protected virtual T FiltersToEntity()
+        protected virtual T FiltersToEntity(bool enableScope = true)
         {
             try
             {
+                if (enableScope && this.Configuration.FiltersToEntityScope == FiltersToEntityScope.None)
+                    return null;
+
                 var entity = (T)Activator.CreateInstance(typeof(T));
                 var filters = this.DataSource.GetPropertyValue("Filters");
                 var props = filters.GetType().GetProperties();
@@ -984,6 +987,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         var entityProp = entity.GetType().GetProperty(prop.Name);
                         if (entityProp == null)
                             continue;
+                        if (enableScope && this.Configuration.FiltersToEntityScope == FiltersToEntityScope.NotMappedAndManuelFiltering)
+                        {
+                            var notMappedAttribute = prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute));
+                            var manuelFilteringAttribute = prop.GetCustomAttributes(typeof(Ophelia.Data.Attributes.ManualFiltering));
+                            if (notMappedAttribute == null && manuelFilteringAttribute == null)
+                                continue;
+                        }
 
                         entityProp.SetValue(entity, prop.GetValue(filters));
                         object value = null;
@@ -1415,7 +1425,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     {
                         if (string.IsNullOrEmpty(column.Name))
                             column.Name = column.FormatName();
-                        
+
                         var sortingFieldName = this.GetSortingFieldName(column);
                         qs.Update("OrderBy", sortingFieldName);
                         if (this.Request.GetValue("OrderBy") == sortingFieldName)
@@ -1586,7 +1596,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         {
             if (this.Configuration.EnableColumnFiltering && this.GroupedData == null)
             {
-                var entity = this.FiltersToEntity();
+                var entity = this.FiltersToEntity(false);
 
                 var tag = "th";
                 if (!this.Configuration.ColumnFiltersInHead)

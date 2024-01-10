@@ -36,6 +36,7 @@
         public ColumnFilteringType ColumnFilteringType { get; set; }
         public bool AddBlankColumnToStart { get; set; }
         public RowUpdateType RowUpdateType { get; set; }
+        public FiltersToEntityScope FiltersToEntityScope { get; set; }
         public string SaveButtonText { get; set; }
         public string SaveButtonIcon { get; set; }
         public string SaveButtonClass { get; set; }
@@ -65,6 +66,7 @@
             this.ColumnSortingByLink = false;
             this.KeepSelectedCheckboxes = true;
             this.DecimalFormat = "N2";
+            this.FiltersToEntityScope = FiltersToEntityScope.NotMappedAndManuelFiltering;
         }
     }
     public enum ColumnFilteringType
@@ -76,5 +78,12 @@
     {
         None = 0,
         CellValueChange = 1
+    }
+
+    public enum FiltersToEntityScope
+    {
+        All = 0,
+        NotMappedAndManuelFiltering = 1,
+        None = 2
     }
 }
