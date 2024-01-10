@@ -989,8 +989,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                             continue;
                         if (enableScope && this.Configuration.FiltersToEntityScope == FiltersToEntityScope.NotMappedAndManuelFiltering)
                         {
-                            var notMappedAttribute = prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute));
-                            var manuelFilteringAttribute = prop.GetCustomAttributes(typeof(Ophelia.Data.Attributes.ManualFiltering));
+                            var notMappedAttribute = prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute)).FirstOrDefault();
+                            var manuelFilteringAttribute = prop.GetCustomAttributes(typeof(Ophelia.Data.Attributes.ManualFiltering)).FirstOrDefault();
                             if (notMappedAttribute == null && manuelFilteringAttribute == null)
                                 continue;
                         }
