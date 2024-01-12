@@ -1,10 +1,10 @@
 ﻿using Ophelia.Service;
 using System;
-using Ophelia.Integration.Stock.Model;
+using Ophelia.Integration.StockExchange.Model;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ophelia.Integration.Stock
+namespace Ophelia.Integration.StockExchange
 {
 	/// <summary>
 	/// Kullanılan Site: https://www.weatherapi.com/docs/

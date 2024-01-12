@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
 
-namespace Ophelia.Integration.Stock.Model
+namespace Ophelia.Integration.StockExchange.Model
 {
 	[DataContract(IsReference = true)]
 	public class StockChartResult
