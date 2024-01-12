@@ -71,6 +71,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.WebTests", "test\Op
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Integration.Health.Hes", "src\Integration\Ophelia.Integration.Health.Hes\Ophelia.Integration.Health.Hes.csproj", "{A8E0CA3F-BEB5-4A35-8FDA-3671DA2D75A4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Integration.Stock", "src\Integration\Ophelia.Integration.Stock\Ophelia.Integration.Stock.csproj", "{36B4D6CC-4A9E-4CC9-A175-A64951B4465D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +175,10 @@ Global
 		{A8E0CA3F-BEB5-4A35-8FDA-3671DA2D75A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8E0CA3F-BEB5-4A35-8FDA-3671DA2D75A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8E0CA3F-BEB5-4A35-8FDA-3671DA2D75A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36B4D6CC-4A9E-4CC9-A175-A64951B4465D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36B4D6CC-4A9E-4CC9-A175-A64951B4465D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36B4D6CC-4A9E-4CC9-A175-A64951B4465D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36B4D6CC-4A9E-4CC9-A175-A64951B4465D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -207,6 +213,7 @@ Global
 		{607CD1D2-A1E5-4164-94B0-FABDDC09FB8B} = {B872D67B-336F-47CE-8F61-8B85BB1D95D2}
 		{289ACADC-41E3-44DA-A041-24B157AD7167} = {B872D67B-336F-47CE-8F61-8B85BB1D95D2}
 		{A8E0CA3F-BEB5-4A35-8FDA-3671DA2D75A4} = {639D4A27-2F86-4AF7-B1F0-F302651C1058}
+		{36B4D6CC-4A9E-4CC9-A175-A64951B4465D} = {639D4A27-2F86-4AF7-B1F0-F302651C1058}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2969838D-0DAF-4DE7-9620-3BA33BD1287C}
