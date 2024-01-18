@@ -8,6 +8,10 @@ namespace Ophelia.Integration.GitHub
 {
     public class GitHubService
     {
+        public string UserAgent { get; set; } = "Ophelia/GithubIntegrator";
+        public string Accept { get; set; } = "application/vnd.github+json";
+        public string AuthorizationType { get; set; } = "Bearer";
+        public string ApiVersion { get; set; } = "2022-11-28";
         public GitHubService(string ServiceURL, string AuthenticationToken)
         {
             this.ServiceURL = ServiceURL;
@@ -22,17 +26,19 @@ namespace Ophelia.Integration.GitHub
         {
             return new WebHeaderCollection
                 {
-                    { "Authorization", "Token " + this.AuthenticationToken },
-                    { "Accept", "application/vnd.github.v3+json"},
-                    { "User-Agent", "KartegaV2"}
+                    { "Authorization", $"{this.AuthorizationType} {this.AuthenticationToken}" },
+                    { "Accept", this.Accept},
+                    { "X-GitHub-Api-Version", this.ApiVersion},
+                    { "User-Agent", this.UserAgent},
+                    { "Traceid", new Guid().ToString()}
                 };
         }
 
         /// <summary>
-        /// Kullanıcıya ait tüm repoları döner
+        /// All repos associated with token user
         /// </summary>
-        /// <param name="page"> </param>
-        /// <param name="pageSize">max 100 için değer döner </param>
+        /// <param name="page">Page (default 1)</param>
+        /// <param name="pageSize">PageSize (default 100)</param>
         /// <returns></returns>
         public ServiceCollectionResult<GitHubRepoResult> GetRepos(int page = 1, int pageSize = 100)
         {
@@ -60,14 +66,14 @@ namespace Ophelia.Integration.GitHub
         }
 
         /// <summary>
-        /// Repoya ait commitleri döner
+        /// All commits associated with repository
         /// </summary>
-        /// <param name="repoOwner">Reponun sahibi</param>
-        /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>
-        /// <param name="startDate">Yalnızca bu tarihten sonraki commitleri getirir </param>
-        /// <param name="endDate">Yalnızca bu tarihten önceki commitleri getirir </param>
-        /// <param name="page"> </param>
-        /// <param name="pageSize">max 100 için değer döner </param>
+        /// <param name="repoOwner">Repo owner</param>
+        /// <param name="repoName">Repo name</param>
+        /// <param name="startDate">Commits after</param>
+        /// <param name="endDate">Commits until</param>
+        /// <param name="page">Page</param>
+        /// <param name="pageSize">PageSize</param>
         public ServiceCollectionResult<GitHubCommitResult> GetRepoCommits(string repoOwner, string repoName, DateTime startDate, DateTime endDate, string branchCommitSha, int page = 1, int pageSize = 100)
         {
             var result = new ServiceCollectionResult<GitHubCommitResult>();
@@ -98,7 +104,7 @@ namespace Ophelia.Integration.GitHub
         }
 
         /// <summary>
-        /// Repoya ait branchları döner
+        /// All branches associated with repository
         /// </summary>
         /// <param name="repoOwner">Reponun sahibi</param>
         /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>
@@ -129,7 +135,7 @@ namespace Ophelia.Integration.GitHub
         }
 
         /// <summary>
-        /// Repoya ait commitleri detayları ile  döner
+        /// All commits (with details) associated with repository
         /// </summary>
         /// <param name="repoOwner">Reponun sahibi</param>
         /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>

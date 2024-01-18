@@ -131,31 +131,36 @@ namespace Ophelia.Net.Http
             this.CreateClientIfNotSet();
 
             var authHeader = this.Headers.Where(op => op.Key.Equals("Authorization", StringComparison.InvariantCultureIgnoreCase)).Select(op => op.Value).FirstOrDefault();
+            var acceptHeader = this.Headers.Where(op => op.Key.Equals("Accept", StringComparison.InvariantCultureIgnoreCase)).Select(op => op.Value).FirstOrDefault();
+            if (!this.Accept.Any())
+                this.Accept.Add(acceptHeader);
 
             if (!string.IsNullOrEmpty(this.AuthorizationValue) && !string.IsNullOrEmpty(this.AuthorizationScheme))
                 this.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(this.AuthorizationScheme, this.AuthorizationValue);
             else if (!string.IsNullOrEmpty(authHeader))
             {
-                if (authHeader.IndexOf(" ") > -1)
-                    this.AuthorizationScheme = authHeader.Left(authHeader.IndexOf(" "));
+                if (authHeader.IndexOf(' ') > -1)
+                    this.AuthorizationScheme = authHeader.Left(authHeader.IndexOf(' '));
                 if (!string.IsNullOrEmpty(this.AuthorizationScheme))
                     this.AuthorizationValue = authHeader.Replace(this.AuthorizationScheme, "").Trim();
+                else
+                    this.AuthorizationValue = authHeader;
                 if (!string.IsNullOrEmpty(this.AuthorizationScheme) && !string.IsNullOrEmpty(authHeader))
-                    this.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(this.AuthorizationScheme, authHeader);
+                    this.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(this.AuthorizationScheme, this.AuthorizationValue);
             }
             if (this.Headers.Any())
             {
                 foreach (var item in this.Headers)
                 {
                     if (!item.Key.Equals("Authorization", StringComparison.InvariantCultureIgnoreCase))
-                        this.RequestMessage.Content.Headers.Add(item.Key, item.Value);
+                        this.RequestMessage.Content.Headers.TryAddWithoutValidation(item.Key, item.Value);
                 }
             }
-            if (this.Accept.Any())
+            if (!this.Accept.Any())
                 this.Accept.Add("*/*;q=0.8");
 
             if (this.Accept.Any())
-                this.Accept.ForEach(item => this.Client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(item)));
+                this.Accept.ForEach(item => this.Client.DefaultRequestHeaders.Accept.TryParseAdd(item));
 
             this.ResponseMessage = await this.Client.SendAsync(this.RequestMessage);
             if (this.OnResponse != null)
