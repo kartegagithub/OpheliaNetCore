@@ -6,7 +6,7 @@ using System.Net;
 
 namespace Ophelia.Integration.GitHub
 {
-    public class GitHubService
+    public class GitHubService : IDisposable
     {
         public string UserAgent { get; set; } = "Ophelia/GithubIntegrator";
         public string Accept { get; set; } = "application/vnd.github+json";
@@ -79,7 +79,7 @@ namespace Ophelia.Integration.GitHub
             var result = new ServiceCollectionResult<GitHubCommitResult>();
             try
             {
-                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits?since={startDate.ToUniversalTime().ToString("s")}Z&until={endDate.ToUniversalTime().ToString("s")}Z";
+                var URL = $"{this.ServiceURL}/repos/{FormatName(repoOwner)}/{FormatName(repoName)}/commits?since={startDate.ToUniversalTime().ToString("s")}Z&until={endDate.ToUniversalTime().ToString("s")}Z";
 
                 if (!string.IsNullOrEmpty(branchCommitSha))
                 {
@@ -89,7 +89,7 @@ namespace Ophelia.Integration.GitHub
                 {
                     URL += $"&page={page}&per_page={pageSize}";
                 }
-                
+
                 var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
                 if (!string.IsNullOrEmpty(serviceResult))
                     result.SetData(serviceResult.FromJson<List<GitHubCommitResult>>());
@@ -110,12 +110,12 @@ namespace Ophelia.Integration.GitHub
         /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>
         /// <param name="page"> </param>
         /// <param name="pageSize">max 100 için değer döner </param>
-        public ServiceCollectionResult<GitHubRepoBranchResult> GetRepoBranches(string repoOwner, string repoName,  int page = 1, int pageSize = 100)
+        public ServiceCollectionResult<GitHubRepoBranchResult> GetRepoBranches(string repoOwner, string repoName, int page = 1, int pageSize = 100)
         {
             var result = new ServiceCollectionResult<GitHubRepoBranchResult>();
             try
             {
-                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/branches";
+                var URL = $"{this.ServiceURL}/repos/{FormatName(repoOwner)}/{FormatName(repoName)}/branches";
 
                 if (page > 0 && pageSize > 0)
                 {
@@ -135,6 +135,31 @@ namespace Ophelia.Integration.GitHub
         }
 
         /// <summary>
+        /// Branch details associated with repository
+        /// </summary>
+        /// <param name="repoOwner">Reponun sahibi</param>
+        /// <param name="repoName">Commitlerini görmek istediğimiz reponun adı</param>
+        /// <param name="page"> </param>
+        /// <param name="pageSize">max 100 için değer döner </param>
+        public ServiceObjectResult<GitHubRepoBranchResult> GetRepoBranch(string repoOwner, string repoName, string branchName)
+        {
+            var result = new ServiceObjectResult<GitHubRepoBranchResult>();
+            try
+            {
+                var URL = $"{this.ServiceURL}/repos/{FormatName(repoOwner)}/{FormatName(repoName)}/branches/{FormatName(branchName)}";
+                var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
+                if (!string.IsNullOrEmpty(serviceResult))
+                    result.SetData(serviceResult.FromJson<GitHubRepoBranchResult>());
+                else
+                    result.Fail("AProblemOccurred");
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+        /// <summary>
         /// All commits (with details) associated with repository
         /// </summary>
         /// <param name="repoOwner">Reponun sahibi</param>
@@ -145,7 +170,7 @@ namespace Ophelia.Integration.GitHub
             var result = new ServiceObjectResult<GitHubCommitDetailResult>();
             try
             {
-                var URL = $"{this.ServiceURL}/repos/{repoOwner}/{repoName}/commits/{commitSha}";
+                var URL = $"{this.ServiceURL}/repos/{FormatName(repoOwner)}/{FormatName(repoName)}/commits/{FormatName(commitSha)}";
 
                 var serviceResult = URL.DownloadURL("GET", "", "application/x-www-form-urlencoded", this.Headers());
                 if (!string.IsNullOrEmpty(serviceResult))
@@ -158,6 +183,18 @@ namespace Ophelia.Integration.GitHub
                 result.Fail(ex);
             }
             return result;
+        }
+        private static string FormatName(string name)
+        {
+            return name.Replace("#", "%23");
+        }
+        public void Dispose()
+        {
+            this.UserAgent = "";
+            this.Accept = "";
+            this.ServiceURL = "";
+            this.ApiVersion = "";
+            GC.SuppressFinalize(this);
         }
     }
 

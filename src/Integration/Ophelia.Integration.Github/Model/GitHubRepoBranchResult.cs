@@ -11,21 +11,18 @@ namespace Ophelia.Integration.GitHub
     {
         [DataMember]
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
+
         [DataMember]
         [JsonProperty("commit")]
-        public GitHubRepoBranchCommit Commit { get; set; }
+        public GitHubRepoBranchCommit? Commit { get; set; }
+
         [DataMember]
-        [JsonProperty("_protected")]
+        [JsonProperty("protected")]
         public bool Protected { get; set; }
     }
-    public class GitHubRepoBranchCommit
+    public class GitHubRepoBranchCommit: GitHubCommitResult
     {
-        [DataMember]
-        [JsonProperty("sha")]
-        public string Sha { get; set; }
-        [DataMember]
-        [JsonProperty("url")]
-        public string Url { get; set; }
+
     }
 }

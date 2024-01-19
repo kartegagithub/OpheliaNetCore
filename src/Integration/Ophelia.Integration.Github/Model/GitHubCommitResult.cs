@@ -12,37 +12,43 @@ namespace Ophelia.Integration.GitHub
         /// </summary>
         [DataMember]
         [JsonProperty("sha")]
-        public string Sha { get; set; }
+        public string Sha { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("node_id")]
-        public string NodeID { get; set; }
+        public string NodeID { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("commit")]
         public Commit Commit { get; set; }
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("url")]
-        public string Url { get; set; }
+        public string Url { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("html_url")]
-        public string HtmlUrl { get; set; }
+        public string HtmlUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("comments_url")]
-        public string CommentsUrl { get; set; }
+        public string CommentsUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
@@ -70,103 +76,120 @@ namespace Ophelia.Integration.GitHub
         /// </summary>
         [DataMember]
         [JsonProperty("login")]
-        public string Login { get; set; }
+        public string Login { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("id")]
         public int ID { get; set; }
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("node_id")]
-        public string NodeID { get; set; }
+        public string NodeID { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("avatar_url")]
-        public string AvatarUrl { get; set; }
+        public string AvatarUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("gravatar_id")]
-        public string GravatarID { get; set; }
+        public string GravatarID { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("url")]
-        public string Url { get; set; }
+        public string Url { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("html_url")]
-        public string HtmlUrl { get; set; }
+        public string HtmlUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("followers_url")]
-        public string FollowersUrl { get; set; }
+        public string FollowersUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("following_url")]
-        public string FollowingUrl { get; set; }
+        public string FollowingUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("gists_url")]
-        public string GistsUrl { get; set; }
+        public string GistsUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("starred_url")]
-        public string StarredUrl { get; set; }
+        public string StarredUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("subscriptions_url")]
-        public string SubscriptionsUrl { get; set; }
+        public string SubscriptionsUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("organizations_url")]
-        public string OrganizationsUrl { get; set; }
+        public string OrganizationsUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("repos_url")]
-        public string ReposUrl { get; set; }
+        public string ReposUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("events_url")]
-        public string EventsUrl { get; set; }
+        public string EventsUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("received_events_url")]
-        public string ReceivedEventsUrl { get; set; }
+        public string ReceivedEventsUrl { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
@@ -183,36 +206,42 @@ namespace Ophelia.Integration.GitHub
         [DataMember]
         [JsonProperty("author")]
         public CommitAuthorAndCommitter Author { get; set; }
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("committer")]
         public CommitAuthorAndCommitter Committer { get; set; }
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("message")]
-        public string Message { get; set; }
+        public string Message { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("tree")]
         public Tree Tree { get; set; }
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("url")]
-        public string Url { get; set; }
+        public string Url { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("comment_count")]
         public int CommentCount { get; set; }
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
@@ -228,13 +257,15 @@ namespace Ophelia.Integration.GitHub
         /// </summary>
         [DataMember]
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
         [DataMember]
         [JsonProperty("email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = "";
+
         /// <summary>
         /// Lokasyon Bilgileri
         /// </summary>
