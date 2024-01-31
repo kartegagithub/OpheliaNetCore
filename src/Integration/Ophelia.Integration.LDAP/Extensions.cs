@@ -8,21 +8,9 @@ namespace Ophelia.Integration.LDAP
     {
         public static string GetPropertyValue(this LdapEntry result, string key)
         {
-            var value = new StringBuilder();
-            if (result == null)
-                return "";
-            if (!string.IsNullOrEmpty(result.DN) && result.DN.IndexOf(key) > -1)
-            {
-                int equalsIndex, commaIndex;
-                string resultString = result.DN.ToString();
-                equalsIndex = resultString.IndexOf(key + "=", 1);
-                commaIndex = resultString.IndexOf(",", 1);
-                if (-1 == equalsIndex)
-                    return "";
-                
-                value.Append(resultString.Substring((equalsIndex + 1), (commaIndex - equalsIndex) - 1));
-            }
-            return value.ToString();
+			if (result == null)
+				return "";
+            return result.getAttribute(key)?.StringValue;
         }
 
         public static string GetUserFirstName(this LdapEntry result)
@@ -37,6 +25,34 @@ namespace Ophelia.Integration.LDAP
         {
             return Convert.ToString(result.GetPropertyValue(ADProperties.EMAILADDRESS));
         }
-        
-    }
+		public static string GetLoginName(this LdapEntry result)
+		{
+			return Convert.ToString(result.GetPropertyValue(ADProperties.LOGINNAME));
+		}
+		public static string GetServicePrincipalName(this LdapEntry result)
+		{
+			return Convert.ToString(result.GetPropertyValue(ADProperties.SERVICEPRINCIPALNAME));
+		}
+		public static string GetUserPrincipalName(this LdapEntry result)
+		{
+			return Convert.ToString(result.GetPropertyValue(ADProperties.USERPRINCIPALNAME));
+		}
+		public static string[] GetMemberOf(this LdapEntry result)
+		{
+			return result.getAttribute(ADProperties.MEMBEROF).StringValueArray;
+		}
+		public static bool IsActive(this LdapEntry entry, int flag = 0x0002)
+		{
+			try
+			{
+				LdapAttribute attributeAcc = entry.getAttribute("userAccountControl");
+				var flags = Convert.ToInt32(attributeAcc.StringValue);
+				return !Convert.ToBoolean(flags & flag);
+			}
+			catch (Exception)
+			{
+				return true;
+			}
+		}
+	}
 }
