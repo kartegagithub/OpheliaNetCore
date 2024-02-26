@@ -758,7 +758,7 @@ namespace Ophelia
             extension = extension.ToLowerInvariant().Replace(".", "").ClearTurkishChars();
             var innerList = new List<string>();
 
-            if (allowedExtensions == null)
+            if (allowedExtensions == null || allowedExtensions.Length == 0)
                 allowedExtensions = new string[] { "png", "jpg", "jpeg", "bmp", "ico", "tiff", "gif", "webp", "doc", "docx", "pdf", "xls", "xlsx", "mp4" };
 
             foreach (var ext in allowedExtensions)

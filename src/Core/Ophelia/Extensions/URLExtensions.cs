@@ -246,6 +246,7 @@ namespace Ophelia
                     if (result is ServiceResult serviceResult)
                     {
                         serviceResult.Fail(ex, "ERRAPI");
+                        if (string.IsNullOrEmpty(response)) response = ex.ToString();
                         serviceResult.Messages.Add(new ServiceResultMessage() { Code = "ERRAPI", Description = response });
                     }
                 }
