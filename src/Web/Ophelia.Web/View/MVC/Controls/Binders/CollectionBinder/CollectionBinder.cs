@@ -1657,7 +1657,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
         }
         protected virtual string RenderColumnFilter(Columns.BaseColumn<TModel, T> column, WebControl control)
         {
-            return control.Draw() + this.DrawFilterComparison(column);
+            return "<div class='filter-container'>" + control.Draw() + this.DrawFilterComparison(column) + "</div>";
         }
         protected string DrawFilterComparison(Columns.BaseColumn<TModel, T> column)
         {
