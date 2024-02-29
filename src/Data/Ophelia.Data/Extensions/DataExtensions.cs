@@ -148,10 +148,7 @@ namespace Ophelia.Data
                                 data.ValueType = p.PropertyType.Name;
                         }
                         data.Name = string.Join('.', propTree.Select(op => op.Name));
-                    }
-                    if(data.Value != null)
-                    {
-                        if (data.Value.GetType().IsNumeric() || data.Value.IsDate())
+                        if (p.PropertyType.IsNumeric() || p.PropertyType.IsDate())
                         {
                             if (data.Comparison == Comparison.StartsWith) data.Comparison = Comparison.GreaterAndEqual;
                             if (data.Comparison == Comparison.EndsWith) data.Comparison = Comparison.LessAndEqual;

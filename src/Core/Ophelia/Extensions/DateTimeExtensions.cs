@@ -294,6 +294,23 @@ namespace Ophelia
         {
             return DateTimeOffset.ParseExact($"{dt.Day.ToString().PadLeft(2, '0')}.{dt.Month.ToString().PadLeft(2, '0')}.{dt.Year} {dt.Hour.ToString().PadLeft(2, '0')}:{dt.Minute.ToString().PadLeft(2, '0')}", "dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture);
         }
+        public static bool IsDate(this Type type)
+        {
+            if (type == null)
+                return false;
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                return Nullable.GetUnderlyingType(type).IsDate();
+
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.DateTime:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public static bool IsDate(this object val)
         {
             if (val == null || val.GetType().IsNumeric())

@@ -167,6 +167,10 @@ namespace Ophelia
         {
             if (type == null)
                 return false;
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                return Nullable.GetUnderlyingType(type).IsNumeric();
+            
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
