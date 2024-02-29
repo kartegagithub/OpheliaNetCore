@@ -149,7 +149,15 @@ namespace Ophelia.Data
                         }
                         data.Name = string.Join('.', propTree.Select(op => op.Name));
                     }
-
+                    if(data.Value != null)
+                    {
+                        if (data.Value.GetType().IsNumeric() || data.Value.IsDate())
+                        {
+                            if (data.Comparison == Comparison.StartsWith) data.Comparison = Comparison.GreaterAndEqual;
+                            if (data.Comparison == Comparison.EndsWith) data.Comparison = Comparison.LessAndEqual;
+                            if (data.Comparison == Comparison.Contains || data.Comparison == Comparison.ContainsFTS) data.Comparison = Comparison.Equal;
+                        }
+                    }
                     var applyFilter = true;
                     var comparison = "";
                     switch (data.Comparison)
