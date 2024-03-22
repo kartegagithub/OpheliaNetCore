@@ -138,8 +138,10 @@ namespace Ophelia.Data
 
                     var propTree = typeof(T).GetPropertyInfoTree(data.Name);
                     var p = propTree.LastOrDefault();
+                    var isNullable = false;
                     if (p != null)
                     {
+                        isNullable = p.PropertyType.IsNullable();
                         if (string.IsNullOrEmpty(data.ValueType))
                         {
                             if (p.PropertyType.IsGenericType)
@@ -179,7 +181,7 @@ namespace Ophelia.Data
                             break;
                         case Comparison.In:
                             applyFilter = false;
-                            var value = data.ProcessValue(data.Value, data.ValueType);
+                            var value = data.ProcessValue(data.Value, data.ValueType, isNullable);
                             if (value != null)
                                 source = source.Where("@0.Contains(outerIt." + data.Name + ")", value);
                             break;

@@ -793,6 +793,12 @@ namespace Ophelia
                 fieldInfo.SetValue(cloneObject, clonedFieldValue);
             }
         }
+        public static Type ToNullableType(this Type type)
+        {
+            if (type.IsValueType)
+                return typeof(Nullable<>).MakeGenericType(type);
+            return type;
+        }
     }
 
     public class ReferenceEqualityComparer : EqualityComparer<object>

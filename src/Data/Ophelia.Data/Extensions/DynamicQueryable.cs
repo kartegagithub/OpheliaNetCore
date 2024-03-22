@@ -1424,7 +1424,7 @@ namespace Ophelia
             {
                 if (!type.IsValueType || IsNullableType(type))
                     throw ParseError(errorPos, Res.TypeHasNoNullableForm, GetTypeName(type));
-                type = typeof(Nullable<>).MakeGenericType(type);
+                type = type.ToNullableType();
                 NextToken();
             }
             if (token.id == TokenId.OpenParen)

@@ -776,14 +776,14 @@ namespace Ophelia.Data.Querying.Query.Helpers
             return entity;
         }
 
-        public object? ProcessValue(object val, string type)
+        public object? ProcessValue(object val, string type, bool isNullable)
         {
             if (val != null && !string.IsNullOrEmpty(type))
             {
                 bool isList = type.IndexOf("List") > -1;
                 bool isArray = type.IndexOf("Array") > -1;
 
-                var subType = type.Right(type.Length - type.IndexOf(",") - 1);
+                var subType = type.Right(type.Length - type.IndexOf(',') - 1);
                 Type dataType;
                 switch (subType)
                 {
@@ -809,6 +809,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                         dataType = typeof(string);
                         break;
                 }
+                if (isNullable) dataType = dataType.ToNullableType();
                 if (val is Newtonsoft.Json.Linq.JArray)
                     isList = true;
 
