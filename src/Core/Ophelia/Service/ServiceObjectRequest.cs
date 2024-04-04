@@ -55,6 +55,7 @@ namespace Ophelia.Service
     {
         public long ID { get; set; }
         public long StatusID { get; set; }
+        public long LanguageID { get; set; }
         private byte[] oByteData;
         public string KeyName { get; set; }
         public string FileName { get; set; }
