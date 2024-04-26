@@ -107,7 +107,7 @@ namespace Ophelia.Data.Exporter
             int colInx = 0;
             foreach (var col in grid.Columns)
             {
-                AppendCell(excelColumnNames[colInx] + "1", col.Text, headerRow);
+                AppendCell(excelColumnNames[colInx] + "1", col.Text, headerRow, CellValues.String);
                 colInx++;
             }
 
@@ -120,7 +120,7 @@ namespace Ophelia.Data.Exporter
                 foreach (var cell in row.Cells)
                 {
                     var cellValue = Convert.ToString(cell.Value);
-                    AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cellValue, newExcelRow);
+                    AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cellValue, newExcelRow, CellValues.String);
                     cellValue = null;
 
                     colInx++;
@@ -134,13 +134,13 @@ namespace Ophelia.Data.Exporter
             }
         }
 
-        private void AppendCell(string cellReference, string cellStringValue, DocumentFormat.OpenXml.Spreadsheet.Row excelRow, CellValues type = CellValues.String)
+        private void AppendCell(string cellReference, string cellStringValue, DocumentFormat.OpenXml.Spreadsheet.Row excelRow, CellValues type)
         {
             //  Add a new Excel Cell to our Row 
             var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell() { CellReference = cellReference, DataType = type };
             CellValue cellValue = new CellValue();
             cellValue.Text = cellStringValue;
-            if (!string.IsNullOrEmpty(cellValue.Text) && (cellValue.Text.StartsWith("=") || cellValue.Text.StartsWith("@")))
+            if (!string.IsNullOrEmpty(cellValue.Text) && (cellValue.Text.StartsWith('=') || cellValue.Text.StartsWith('@')))
                 cellValue.Text = $" ' {cellValue.Text}";
 
             if (cellValue.Text.IsNumeric())
