@@ -47,11 +47,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         {
             if (!string.IsNullOrEmpty(this.formattedName))
                 return this.formattedName;
-            if (!string.IsNullOrEmpty(this.Name))
-            {
-                this.formattedName = this.Name;
-            }
-            else if (this.Expression != null)
+            if (this.Expression != null)
             {
                 var path = this.Expression.ParsePath();
                 if (path.IndexOf("(") > -1)
@@ -62,6 +58,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
                     path = tmp[tmp.Length - 2] + "ID";
                 }
                 this.formattedName = path;
+            }
+            else if (!string.IsNullOrEmpty(this.Name))
+            {
+                this.formattedName = this.Name;
             }
             return this.formattedName;
         }
