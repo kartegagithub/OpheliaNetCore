@@ -376,5 +376,33 @@ namespace Ophelia
             }
             return workDaysPassed;
         }
+
+        /// <summary>
+        /// Başlangıç tarihinden bitiş tarihine kaç hafta sonu günü geçtiğini belirtir.
+        /// </summary>
+        /// <param name="startDate">Başlangıç kontrol tarihi</param>
+        /// <param name="endDate">Bitiş kontrol tarihi</param>
+        /// <param name="publicHolidays">(optional)Resmi Tatiller : İlk değer tatil başlangıç tarihi , ikinci değer tatil bitiş tarihini alır.</param>
+        /// <returns></returns>
+        public static int WeekendDaysFrom(this DateTime endDate, DateTime startDate, string weekendDays = "6,0", List<(DateTime Start, DateTime End)> publicHolidays = null)
+        {
+            int daysPassed = 0, weekendDaysPassed = 0;
+            while (startDate.Date.AddDays(daysPassed).Date < endDate.Date)
+            {
+                var currentDate = startDate.AddDays(daysPassed);
+                if (currentDate.IsWeekend(weekendDays))
+                {
+                    if (publicHolidays != null)
+                    {
+                        if (!publicHolidays.Any(op => op.Start.Date <= currentDate.Date && op.End.Date >= currentDate.Date))
+                            weekendDaysPassed++;
+                    }
+                    else
+                        weekendDaysPassed++;
+                }
+                daysPassed++;
+            }
+            return weekendDaysPassed;
+        }
     }
 }
