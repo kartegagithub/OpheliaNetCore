@@ -114,6 +114,7 @@ namespace Ophelia.Data
         {
             var command = DbProviderFactories.GetFactory(this.InternalConnection).CreateCommand();
             command.Connection = this.InternalConnection;
+            if (this.Context.ExecutionTimeout > 0) command.CommandTimeout = this.Context.ExecutionTimeout;
             this.ValidateCurrentTransaction(command);
             return command;
         }
