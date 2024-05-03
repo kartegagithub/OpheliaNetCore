@@ -98,6 +98,7 @@ namespace Ophelia.Data
         {
             var command = System.Data.Common.DbProviderFactories.GetFactory(this.internalConnection).CreateCommand();
             command.Connection = this.internalConnection;
+            if (this.Context.ExecutionTimeout > 0) command.CommandTimeout = this.Context.ExecutionTimeout;
             return command;
             //switch (this.Type)
             //{
