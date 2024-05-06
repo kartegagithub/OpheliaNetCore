@@ -69,18 +69,18 @@ namespace Ophelia.Data.Querying.Query
                         }
                     }
                 }
-                if (this.Context.Connection.Type != DatabaseType.SQLServer && this.Context.Connection.Type != DatabaseType.MySQL)
+                var pks = Extensions.GetPrimaryKeyProperties(this.Data.EntityType);
+                foreach (var pk in pks)
                 {
-                    var pks = Extensions.GetPrimaryKeyProperties(this.Data.EntityType);
-                    foreach (var pk in pks)
+                    if (!Extensions.IsComputedProperty(pk))
                     {
-                        if (!Extensions.IsComputedProperty(pk))
+                        if (!Extensions.IsIdentityProperty(pk) || !this.Context.Configuration.DBIncrementedIdentityColumn)
                         {
                             sbFields.Append(",");
                             sbFields.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(pk))));
                             sbValues.Append(",");
                             sbValues.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
-                            if (Extensions.IsIdentityProperty(pk))
+                            if (Extensions.IsIdentityProperty(pk) && this.Context.Configuration.DBIncrementedIdentityColumn)
                             {
                                 this.SequenceValue[pk.Name] = this.Context.Connection.GetSequenceNextVal(this.Entity.GetType(), pk, pks.Count == 1);
                                 this.Data.Parameters.Add(this.SequenceValue[pk.Name]);
@@ -96,10 +96,10 @@ namespace Ophelia.Data.Querying.Query
                 sb.Append("INSERT INTO ");
                 sb.Append(this.Context.Connection.GetTableName(this.Data.EntityType));
                 sb.Append("(");
-                sb.Append(sbFields.ToString());
+                sb.Append(sbFields);
                 sb.Append(")");
                 sb.Append(" VALUES(");
-                sb.Append(sbValues.ToString());
+                sb.Append(sbValues);
                 sb.Append(")");
                 if (this.Context.Connection.Type == DatabaseType.SQLServer)
                 {

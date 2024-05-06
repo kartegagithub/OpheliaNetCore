@@ -23,6 +23,7 @@ namespace Ophelia.Data
         public int ObjectNameCharLimit { get; set; }
         public bool UseUppercaseObjectNames { get; set; }
         public bool QueryBooleanAsBinary { get; set; }
+        public bool DBIncrementedIdentityColumn { get; set; }
         public Func<string, string> StringParameterFormatter { get; set; }
 
         protected override void Dispose(bool disposing)

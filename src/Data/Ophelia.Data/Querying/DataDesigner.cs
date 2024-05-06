@@ -175,21 +175,33 @@ namespace Ophelia.Data.Querying
         private void CreateTable(Type type)
         {
             this.CreateSchema(type);
+            var pkProp = this.Context.Connection.GetPrimaryKeyProp(type);
+            var isIdentityColumnAttr = (System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)pkProp.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)).FirstOrDefault();
+            var isIdentityColumn = this.Context.Configuration.DBIncrementedIdentityColumn && isIdentityColumnAttr != null && isIdentityColumnAttr.DatabaseGeneratedOption != DatabaseGeneratedOption.None;
             var pkey = this.Context.Connection.GetPrimaryKeyName(type);
             var table = this.Context.Connection.GetTableName(type);
             switch (this.Context.Connection.Type)
             {
                 case DatabaseType.SQLServer:
-                    this.AddSQL("CREATE TABLE " + table + " (" + pkey + " bigint Not Null IDENTITY Primary Key)");
+                    if (isIdentityColumn)
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " bigint Not Null IDENTITY Primary Key)");
+                    else
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " bigint Not Null Primary Key)");
                     break;
                 case DatabaseType.PostgreSQL:
-                    this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT, PRIMARY KEY (" + pkey + "))");
+                    if (isIdentityColumn)
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY)");
+                    else
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT, PRIMARY KEY (" + pkey + "))");
                     break;
                 case DatabaseType.Oracle:
                     this.AddSQL("CREATE TABLE " + table + " (" + pkey + " NUMBER(38), PRIMARY KEY (" + pkey + ") VALIDATE )");
                     break;
                 case DatabaseType.MySQL:
-                    this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY)");
+                    if (isIdentityColumn)
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY)");
+                    else
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT NOT NULL PRIMARY KEY)");
                     break;
             }
             this.CreateSequence(type);
@@ -448,7 +460,7 @@ namespace Ophelia.Data.Querying
                     case DatabaseType.SQLServer:
                         return "datetime2(7)";
                     case DatabaseType.PostgreSQL:
-                        return "timestamp with time zone";
+                        return "timestamp without time zone";
                     case DatabaseType.Oracle:
                         return "DATE";
                     case DatabaseType.MySQL:

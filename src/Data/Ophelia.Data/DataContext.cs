@@ -181,6 +181,8 @@ namespace Ophelia.Data
             this.ContextEntities = new List<Type>();
             this.Configure();
             this._Connection = new Connection(this, this.GetDatabaseType(), this.GetConnectionString());
+            if (this.Connection.Type == DatabaseType.SQLServer || this.Connection.Type == DatabaseType.MySQL)
+                this.Configuration.DBIncrementedIdentityColumn = true;
         }
         protected virtual void Configure()
         {

@@ -665,9 +665,13 @@ namespace Ophelia.Data
             }
             return this.GetMappedNamespace(schema);
         }
+        public PropertyInfo GetPrimaryKeyProp(Type type)
+        {
+            return Extensions.GetPrimaryKeyProperty(type);
+        }
         public string GetPrimaryKeyName(Type type)
         {
-            var pkPRoperty = Extensions.GetPrimaryKeyProperty(type);
+            var pkPRoperty = this.GetPrimaryKeyProp(type);
             if (this.Context.Configuration.PrimaryKeyContainsEntityName)
                 return this.FormatDataElement(this.GetMappedFieldName(type.Name + Extensions.GetColumnName(pkPRoperty)));
             else
