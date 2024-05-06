@@ -175,21 +175,33 @@ namespace Ophelia.Data.Querying
         private void CreateTable(Type type)
         {
             this.CreateSchema(type);
+            var pkProp = this.Context.Connection.GetPrimaryKeyProp(type);
+            var isIdentityColumnAttr = (System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)pkProp.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute)).FirstOrDefault();
+            var isIdentityColumn = this.Context.Configuration.DBIncrementedIdentityColumn && isIdentityColumnAttr != null && isIdentityColumnAttr.DatabaseGeneratedOption != DatabaseGeneratedOption.None;
             var pkey = this.Context.Connection.GetPrimaryKeyName(type);
             var table = this.Context.Connection.GetTableName(type);
             switch (this.Context.Connection.Type)
             {
                 case DatabaseType.SQLServer:
-                    this.AddSQL("CREATE TABLE " + table + " (" + pkey + " bigint Not Null IDENTITY Primary Key)");
+                    if (isIdentityColumn)
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " bigint Not Null IDENTITY Primary Key)");
+                    else
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " bigint Not Null Primary Key)");
                     break;
                 case DatabaseType.PostgreSQL:
-                    this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT, PRIMARY KEY (" + pkey + "))");
+                    if (isIdentityColumn)
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY)");
+                    else
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT, PRIMARY KEY (" + pkey + "))");
                     break;
                 case DatabaseType.Oracle:
                     this.AddSQL("CREATE TABLE " + table + " (" + pkey + " NUMBER(38), PRIMARY KEY (" + pkey + ") VALIDATE )");
                     break;
                 case DatabaseType.MySQL:
-                    this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY)");
+                    if (isIdentityColumn)
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY)");
+                    else
+                        this.AddSQL("CREATE TABLE " + table + " (" + pkey + " BIGINT NOT NULL PRIMARY KEY)");
                     break;
             }
             this.CreateSequence(type);
@@ -242,7 +254,7 @@ namespace Ophelia.Data.Querying
         private void CreateField(Type tableType, PropertyInfo p)
         {
             Attributes.DataProperty DataAttribute = null;
-            if (p.CustomAttributes.Count() > 0)
+            if (p.CustomAttributes.Any())
             {
                 if (p.GetCustomAttributes(typeof(NotMappedAttribute)).Any())
                 {
@@ -250,6 +262,7 @@ namespace Ophelia.Data.Querying
                 }
                 DataAttribute = (Attributes.DataProperty)p.GetCustomAttributes(typeof(Attributes.DataProperty)).FirstOrDefault();
             }
+
             var datatype = this.GetSQLDataType(p.PropertyType, DataAttribute);
             var tableName = this.Context.Connection.GetTableName(tableType);
             var primaryKeyName = this.Context.Connection.GetPrimaryKeyName(tableType);
@@ -266,11 +279,11 @@ namespace Ophelia.Data.Querying
             if (!string.IsNullOrEmpty(datatype))
             {
                 var collate = "";
-                if (this.Context.Connection.Type == DatabaseType.Oracle && !string.IsNullOrEmpty(this.Context.Configuration.OracleStringColumnCollation) && !string.IsNullOrEmpty(this.Context.Configuration.DatabaseVersion) && this.Context.Configuration.DatabaseVersion.IndexOf("11") == -1)
+                if (this.Context.Connection.Type == DatabaseType.Oracle && !string.IsNullOrEmpty(this.Context.Configuration.OracleStringColumnCollation) && !string.IsNullOrEmpty(this.Context.Configuration.DatabaseVersion) && !Context.Configuration.DatabaseVersion.Contains("11", StringComparison.CurrentCulture))
                     collate = " COLLATE " + this.Context.Configuration.OracleStringColumnCollation;
 
                 var defaultValue = this.GetDefaultValue(p.PropertyType);
-                if (defaultValue != null)
+                if (!string.IsNullOrEmpty(defaultValue))
                 {
                     this.AddSQL("ALTER TABLE " + tableName + " ADD " + fieldName + " " + datatype + collate + " DEFAULT " + defaultValue + (!nullable ? " NOT NULL " : ""));
                 }
@@ -281,13 +294,9 @@ namespace Ophelia.Data.Querying
         private string GetDefaultValue(Type type)
         {
             if (type == typeof(string))
-            {
-                return null;
-            }
+                return "";
             else if (type == typeof(char) || type == typeof(Nullable<char>))
-            {
-                return null;
-            }
+                return "";
             else if (type == typeof(byte) || type == typeof(Nullable<byte>))
             {
                 return "0";
@@ -309,10 +318,8 @@ namespace Ophelia.Data.Querying
                 return "0";
             }
             else if (type == typeof(DateTime) || type == typeof(Nullable<DateTime>))
-            {
-                return null;
-            }
-            return null;
+                return "";
+            return "";
         }
         private string GetSQLDataType(Type type, Attributes.DataProperty dataAttribute)
         {
@@ -453,7 +460,7 @@ namespace Ophelia.Data.Querying
                     case DatabaseType.SQLServer:
                         return "datetime2(7)";
                     case DatabaseType.PostgreSQL:
-                        return "timestamp with time zone";
+                        return "timestamp without time zone";
                     case DatabaseType.Oracle:
                         return "DATE";
                     case DatabaseType.MySQL:

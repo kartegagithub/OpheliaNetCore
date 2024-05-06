@@ -21,7 +21,7 @@ namespace Ophelia.Data
         public string DatabaseVersion { get; set; }
         public int ObjectNameCharLimit { get; set; }
         public bool UseUppercaseObjectNames { get; set; }
-
+        public bool DBIncrementedIdentityColumn { get; set; }
         /// <summary>
         /// 
         /// </summary>
