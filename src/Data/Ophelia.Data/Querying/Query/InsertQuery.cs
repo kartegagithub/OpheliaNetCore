@@ -74,13 +74,16 @@ namespace Ophelia.Data.Querying.Query
                 {
                     if (!Extensions.IsComputedProperty(pk))
                     {
+                        //ID AutoIncrement: IsIdentityProperty = true, DBIncrementedIdentityColumn = true -> Veri tabanı incremente edecek
+                        //ID AutoIncrement: IsIdentityProperty = true, DBIncrementedIdentityColumn = false -> Ophelia incremente edecek
+
                         if (!Extensions.IsIdentityProperty(pk) || !this.Context.Configuration.DBIncrementedIdentityColumn)
                         {
                             sbFields.Append(",");
                             sbFields.Append(this.Context.Connection.FormatDataElement(this.Context.Connection.GetMappedFieldName(Extensions.GetColumnName(pk))));
                             sbValues.Append(",");
                             sbValues.Append(this.Context.Connection.FormatParameterName("p") + this.Data.Parameters.Count);
-                            if (Extensions.IsIdentityProperty(pk) && this.Context.Configuration.DBIncrementedIdentityColumn)
+                            if (Extensions.IsIdentityProperty(pk) && !this.Context.Configuration.DBIncrementedIdentityColumn)
                             {
                                 this.SequenceValue[pk.Name] = this.Context.Connection.GetSequenceNextVal(this.Entity.GetType(), pk, pks.Count == 1);
                                 this.Data.Parameters.Add(this.SequenceValue[pk.Name]);
