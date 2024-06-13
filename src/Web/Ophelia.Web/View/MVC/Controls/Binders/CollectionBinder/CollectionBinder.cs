@@ -839,13 +839,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             if (doubleSelection)
                 return !string.IsNullOrEmpty(lowValue) || !string.IsNullOrEmpty(highValue);
 
-            if (string.IsNullOrEmpty(this.Request.GetValue(path)))
-                return false;
+            //if (string.IsNullOrEmpty(this.Request.GetValue(path)))
+            //    return false;
 
             var isNumeric = propType.IsNumeric();
             if (!doubleSelection)
             {
-                if (isNumeric)
+                if (isNumeric && value != null)
                 {
                     var isDecimal = propType.IsDecimal();
                     if (isDecimal)
