@@ -183,7 +183,7 @@ namespace Ophelia.Integration.Redis
             {
                 if (Database == null)
                 {
-                    if (_options.ConfigurationOptions != null)
+                    if (string.IsNullOrEmpty(_options.Configuration))
                     {
                         _connection = ConnectionMultiplexer.Connect(_options.ConfigurationOptions);
                     }
