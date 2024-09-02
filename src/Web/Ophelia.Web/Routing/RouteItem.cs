@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Routing;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ophelia.Web.Routing
@@ -30,7 +31,7 @@ namespace Ophelia.Web.Routing
             return Param;
         }
 
-        public void AddParamsToDictionary(string friendlyUrl, IDictionary<string, object> Dictionary, RouteItemURLPattern Pattern)
+        public void AddParamsToDictionary(string friendlyUrl, IDictionary<string, object?> Dictionary, RouteItemURLPattern Pattern)
         {
             foreach (var item in this.Parameters)
             {
@@ -61,7 +62,7 @@ namespace Ophelia.Web.Routing
             }
         }
 
-        public void AddParamsToDictionary(string friendlyUrl, IDictionary<string, object> Dictionary)
+        public void AddParamsToDictionary(string friendlyUrl, IDictionary<string, object?> Dictionary)
         {
             foreach (var item in this.Parameters)
             {

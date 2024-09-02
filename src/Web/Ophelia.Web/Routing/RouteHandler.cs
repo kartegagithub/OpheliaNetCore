@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 namespace Ophelia.Web.Routing
 {
@@ -8,7 +9,8 @@ namespace Ophelia.Web.Routing
     {
         public bool CheckSSL { get; set; }
         private RouteCollection oRoutes;
-        private List<CustomRouteHandler> oCustomHandlers;
+        private List<CustomRouteHandler> oCustomHandlers = new List<CustomRouteHandler>();
+        protected virtual HttpStatusCode RedirectStatusCode { get; set; } = HttpStatusCode.TemporaryRedirect;
         public IRouter DefaulRouter { get; private set; }
 
         public List<CustomRouteHandler> CustomHandlers
@@ -36,7 +38,7 @@ namespace Ophelia.Web.Routing
             {
                 if (URL.RouteItem.IsSecure && context.HttpContext.Request.Scheme.Equals("http", StringComparison.InvariantCultureIgnoreCase) && context.HttpContext.Request.Host.ToString().IndexOf("localhost") == -1)
                 {
-                    context.HttpContext.Response.StatusCode = 301;
+                    context.HttpContext.Response.StatusCode = (int)this.RedirectStatusCode;
                     context.HttpContext.Response.AddHeader("Location", "https://" + context.HttpContext.Request.Host.ToString() + "/" + friendlyUrl);
                     return false;
                 }
@@ -45,14 +47,15 @@ namespace Ophelia.Web.Routing
                     this.SetLanguageCode(URL.LanguageCode);
                     context.RouteData.Values["controller"] = URL.RouteItem.Controller;
                     context.RouteData.Values["action"] = URL.RouteItem.Action;
+                    context.RouteData.Routers.Add(this);
                     URL.RouteItem.AddParamsToDictionary(friendlyUrl, context.RouteData.Values, URL);
-                    if (URL.Pattern.IndexOf("{") > -1)
+                    if (URL.Pattern.Contains('{'))
                     {
                         var splitted = URL.Pattern.Split('/');
                         var splittedParts = friendlyUrl.Split('/');
                         for (int i = 0; i < splitted.Length; i++)
                         {
-                            if (splitted[i].Contains("{"))
+                            if (splitted[i].Contains('{'))
                             {
                                 if (splittedParts.Length > i && !string.IsNullOrEmpty(splittedParts[i]))
                                 {
@@ -72,9 +75,9 @@ namespace Ophelia.Web.Routing
             var URL = this.Routes.GetFixedURL(friendlyUrl, this.GetLanguageCode());
             if (URL != null)
             {
-                if (this.CheckSSL && URL.RouteItem.IsSecure && context.HttpContext.Request.Scheme.Equals("http", StringComparison.InvariantCultureIgnoreCase) && context.HttpContext.Request.Host.ToString().IndexOf("localhost") == -1)
+                if (this.CheckSSL && URL.RouteItem.IsSecure && context.HttpContext.Request.Scheme.Equals("http", StringComparison.InvariantCultureIgnoreCase) && !context.HttpContext.Request.Host.ToString().Contains("localhost"))
                 {
-                    context.HttpContext.Response.StatusCode = 301;
+                    context.HttpContext.Response.StatusCode = (int)this.RedirectStatusCode;
                     context.HttpContext.Response.AddHeader("Location", "https://" + context.HttpContext.Request.Host.ToString() + "/" + friendlyUrl);
                     context.HttpContext.Response.End();
                     return false;
@@ -84,7 +87,8 @@ namespace Ophelia.Web.Routing
                     this.SetLanguageCode(URL.LanguageCode);
                     context.RouteData.Values["controller"] = URL.RouteItem.Controller;
                     context.RouteData.Values["action"] = URL.RouteItem.Action;
-                    context.RouteData.Values["Area"] = URL.RouteItem.Area;
+                    context.RouteData.Routers.Add(this);
+                    if (!string.IsNullOrEmpty(URL.RouteItem.Area)) context.RouteData.Values["Area"] = URL.RouteItem.Area;
                     URL.RouteItem.AddParamsToDictionary(friendlyUrl, context.RouteData.Values);
                     return true;
                 }
@@ -110,16 +114,16 @@ namespace Ophelia.Web.Routing
             return Handler;
         }
 
-        public virtual async Task RouteAsync(RouteContext requestContext)
+        public virtual async Task RouteAsync(RouteContext context)
         {
             bool found = false;
             try
             {
-                this.OnBeforeRoute(requestContext);
+                this.OnBeforeRoute(context);
 
-                string pageURL = Convert.ToString(requestContext.RouteData.Values["pageURL"]);
+                string pageURL = Convert.ToString(context.RouteData.Values["pageURL"]);
                 if (string.IsNullOrEmpty(Convert.ToString(pageURL)))
-                    pageURL = requestContext.HttpContext.Request.Path;
+                    pageURL = context.HttpContext.Request.Path;
 
                 if (pageURL != "/")
                 {
@@ -129,15 +133,16 @@ namespace Ophelia.Web.Routing
                     foreach (var CustomHandler in this.CustomHandlers)
                     {
                         bool hasHandled = false;
-                        var item = CustomHandler.Handle(requestContext, friendlyUrl, out hasHandled);
+                        var item = CustomHandler.Handle(context, friendlyUrl, out hasHandled);
                         if (!hasHandled && item != null)
                         {
                             if (!string.IsNullOrEmpty(item.Controller))
                             {
-                                requestContext.RouteData.Values["controller"] = item.Controller;
-                                requestContext.RouteData.Values["action"] = item.Action;
-                                requestContext.RouteData.Values["area"] = item.Area;
-                                item.AddParamsToDictionary(friendlyUrl, requestContext.RouteData.Values);
+                                context.RouteData.Values["controller"] = item.Controller;
+                                context.RouteData.Values["action"] = item.Action;
+                                context.RouteData.Routers.Add(this);
+                                if (!string.IsNullOrEmpty(item.Area)) context.RouteData.Values["area"] = item.Area;
+                                item.AddParamsToDictionary(friendlyUrl, context.RouteData.Values);
                                 HandledCustom = true;
                                 found = true;
                             }
@@ -147,9 +152,9 @@ namespace Ophelia.Web.Routing
 
                     if (!HandledCustom && this.Routes != null)
                     {
-                        if (!this.CheckFixedURL(friendlyUrl.ToString(), requestContext))
+                        if (!this.CheckFixedURL(friendlyUrl.ToString(), context))
                         {
-                            found = this.CheckPattern(friendlyUrl.ToString(), requestContext);
+                            found = this.CheckPattern(friendlyUrl.ToString(), context);
                         }
                         else
                             found = true;
@@ -157,14 +162,14 @@ namespace Ophelia.Web.Routing
                 }
 
                 if (!found)
-                    this.OnRouteNotFound(requestContext, pageURL);
+                    this.OnRouteNotFound(context, pageURL);
             }
             catch (Exception)
             {
                 throw;
             }
-
-            await this.DefaulRouter.RouteAsync(requestContext);
+            
+            await this.DefaulRouter.RouteAsync(context);
         }
         protected virtual void OnRouteNotFound(RouteContext requestContext, string pageURL)
         {
@@ -178,7 +183,7 @@ namespace Ophelia.Web.Routing
         {
 
         }
-        public RouteHandler(IRouter defaulRouter, Web.Routing.RouteCollection Routes, bool checkSSL)
+        public RouteHandler(IRouter defaulRouter, RouteCollection Routes, bool checkSSL)
         {
             this.DefaulRouter = defaulRouter;
             this.oRoutes = Routes;
