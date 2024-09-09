@@ -60,7 +60,7 @@ namespace Ophelia.Data.Model
             this._HasChanged = list.Any();
             return list;
         }
-        internal virtual void OnAfterCreateEntity()
+        internal virtual void OnAfterCreateEntity(bool processDefaults = true)
         {
             if(ProxyEntity == null)
                 ProxyEntity = Entity;
@@ -68,15 +68,15 @@ namespace Ophelia.Data.Model
             ProxyEntity.CopyTo(Entity, "Tracker");
             this.ResetOriginalValues();
         }
-        internal virtual void OnBeforeUpdateEntity()
+        internal virtual void OnBeforeUpdateEntity(bool processDefaults = true)
         {
 
         }
-        internal virtual void OnBeforeInsertEntity()
+        internal virtual void OnBeforeInsertEntity(bool processDefaults = true)
         {
 
         }
-        internal virtual void OnAfterUpdateEntity()
+        internal virtual void OnAfterUpdateEntity(bool processDefaults = true)
         {
             Entity = Activator.CreateInstance(ProxyEntity.GetType());
             ProxyEntity.CopyTo(Entity, "Tracker");            
