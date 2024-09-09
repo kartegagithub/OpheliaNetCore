@@ -229,28 +229,32 @@ namespace Ophelia.Data.Model
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        internal override void OnAfterCreateEntity()
+        internal override void OnAfterCreateEntity(bool processDefaults = true)
         {
-            
+
         }
-        internal override void OnAfterUpdateEntity()
+        internal override void OnAfterUpdateEntity(bool processDefaults = true)
         {
-            
+
         }
         internal override void OnAfterDeleteEntity()
         {
-            
+
         }
-        internal override void OnBeforeInsertEntity()
+        internal override void OnBeforeInsertEntity(bool processDefaults = true)
         {
             base.OnBeforeInsertEntity();
-            this.Entity.DateCreated = DateTime.Now;
-            this.Entity.DateModified = DateTime.Now;
+            if (processDefaults)
+            {
+                this.Entity.DateCreated = DateTime.Now;
+                this.Entity.DateModified = DateTime.Now;
+            }
         }
-        internal override void OnBeforeUpdateEntity()
+        internal override void OnBeforeUpdateEntity(bool processDefaults = true)
         {
             base.OnBeforeUpdateEntity();
-            this.Entity.DateModified = DateTime.Now;
+            if (processDefaults)
+                this.Entity.DateModified = DateTime.Now;
         }
         protected virtual void Dispose(bool disposing)
         {

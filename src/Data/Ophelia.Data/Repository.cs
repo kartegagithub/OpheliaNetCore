@@ -13,8 +13,11 @@ namespace Ophelia.Data
         {
             return this.Context.CreateDeleteQuery(entity).Execute<int>() > 0;
         }
-
         public bool SaveChanges(object entity)
+        {
+            return this.SaveChanges(entity, true);
+        }
+        public bool SaveChanges(object entity, bool runBeforeUpdateProcesseses)
         {
             var tracker = (entity.GetPropertyValue("Tracker") as PocoEntityTracker);
             if (tracker != null && (tracker.HasChanged || tracker.IsNewRecord()))
@@ -23,13 +26,13 @@ namespace Ophelia.Data
                 this.Context.OnBeforeSaveChanges(entity);
                 if (!tracker.IsNewRecord())
                 {
-                    tracker?.OnBeforeUpdateEntity();
+                    tracker?.OnBeforeUpdateEntity(runBeforeUpdateProcesseses);
                     effectedRowCount = this.Context.CreateUpdateQuery(entity).Execute<int>();
-                    tracker?.OnAfterUpdateEntity();
+                    tracker?.OnAfterUpdateEntity(runBeforeUpdateProcesseses);
                 }
                 else
                 {
-                    tracker?.OnBeforeInsertEntity();
+                    tracker?.OnBeforeInsertEntity(runBeforeUpdateProcesseses);
 
                     effectedRowCount = this.Context.CreateInsertQuery(entity).Execute<int>();
                     if (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer)
@@ -37,7 +40,7 @@ namespace Ophelia.Data
                         var pkMethod = Extensions.GetPrimaryKeyProperty(entity.GetType());
                         pkMethod.SetValue(entity, effectedRowCount);
                     }
-                    tracker?.OnAfterCreateEntity();
+                    tracker?.OnAfterCreateEntity(runBeforeUpdateProcesseses);
                 }
 
                 var entityType = entity.GetType();
