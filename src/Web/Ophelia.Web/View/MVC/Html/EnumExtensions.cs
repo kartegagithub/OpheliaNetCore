@@ -16,7 +16,7 @@ namespace Ophelia.Web.View.Mvc.Html
 
             var displayAttributeType = typeof(DisplayAttribute);
             if (modelData == null)
-                modelData = new byte[] { };
+                modelData = Array.Empty<byte>();
             string requestValue = Client.Current.Request.GetValue(name);
             if (string.IsNullOrEmpty(requestValue))
                 requestValue = "";

@@ -1,11 +1,15 @@
-﻿using Ophelia.Web.UI.Controls;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Ophelia.Web.UI.Controls;
 using Ophelia.Web.View.Mvc.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
 {
     public class EnumColumn<TModel, T> : BaseColumn<TModel, T> where T : class where TModel : ListModel<T>
     {
+        public bool IsMultiple { get; set; }
         public Type EnumType { get; set; }
         public override object GetValue(T item)
         {
@@ -19,21 +23,28 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
         {
             var identifierValue = this.IdentifierExpression.GetValue(entity);
 
-            var selectbox = new UI.Controls.Select();
-            selectbox.ID = this.IdentifierKeyword + identifierValue;
-            selectbox.Name = selectbox.ID;
-            selectbox.AddAttribute("data-identifier", Convert.ToString(identifierValue));
-            selectbox.AddAttribute("data-column", this.FormatColumnName());
+            var control = new Web.UI.Controls.Select();
+            control.ID = this.IdentifierKeyword + identifierValue;
+            control.Name = control.ID;
+            control.AddAttribute("data-identifier", Convert.ToString(identifierValue));
+            control.AddAttribute("data-column", this.FormatColumnName());
+            control.IsMultiple = this.IsMultiple;
 
-            selectbox.CssClass = "form-control";
-            selectbox.DataSource = this.EnumType.GetEnumSelectList(this.Binder.Client);
-            selectbox.DefaultText = this.Binder.Client.TranslateText("Select");
-            selectbox.DefaultValue = "-1";
-            selectbox.DisplayMemberName = "Text";
-            selectbox.ValueMemberName = "Value";
-            if (value != null)
-                selectbox.SelectedValue = Convert.ToString(value);
-            return selectbox;
+            if (!this.IsMultiple)
+                control.CssClass = "filterbox single-value select-remote-data select2-hidden-accessible";
+            else
+            {
+                control.CssClass = "filterbox multiple-value select2-hidden-accessible";
+                control.AddAttribute("multiple", "multiple");
+            }
+
+            control.DataSource = this.EnumType.GetEnumSelectList(this.Binder.Client);
+            if(value != null) control.SelectedValue = value.ToString();
+
+            control.DisplayMemberName = "Text";
+            control.ValueMemberName = "Value";
+            control.AddAttribute("data-clear", "true");
+            return control;
         }
         public EnumColumn(CollectionBinder<TModel, T> binder, string Name) : base(binder, Name)
         {

@@ -20,6 +20,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Web;
+using DocumentFormat.OpenXml.Bibliography;
+using System.Data.SqlTypes;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 {
@@ -485,10 +487,10 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                     }
                                     else
                                     {
-                                        if (value.IndexOf(",") > -1)
+                                        if (value.Contains(','))
                                         {
                                             var orParams = "";
-                                            var parameters = new List<object>();
+                                            var parameters = propType.CreateList() as IList;
                                             var values = value.Split(',');
                                             var counter = 0;
                                             foreach (var val in values)
@@ -512,7 +514,9 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                                 if (isQueryableDataSet)
                                                     this.DataSource.Query = (this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>).Where(propTree, parameters.ToArray(), Comparison.In);
                                                 else
-                                                    this.DataSource.Query = this.DataSource.Query.Where(orParams, parameters.ToArray());
+                                                {
+                                                    this.DataSource.Query = this.DataSource.Query.Where("@0.Contains(outerIt." + entityProp + ")", parameters);
+                                                }
                                             }
                                         }
                                         else
@@ -1646,7 +1650,15 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                     this.Output.Write(this.RenderColumnFilter(column, dateColumn.GetEditableControl(entity, this.DataSource.GetPropertyValue($"Filters.{columnName}Low"), this.DataSource.GetPropertyValue($"Filters.{columnName}High"))));
                                 }
                                 else
-                                    this.Output.Write(this.RenderColumnFilter(column, this.OnBeforeDrawColumnFilter(column).GetEditableControl(entity, this.DataSource.GetPropertyValue($"Filters.{columnName}"))));
+                                {
+                                    var propValue = this.DataSource.GetPropertyValue($"Filters.{columnName}");
+                                    var reqValue = this.Request.GetValue($"Filters.{columnName}");
+                                    if (!string.IsNullOrEmpty(reqValue))
+                                    {
+                                        reqValue = this.Request.GetValue($"Filters.{columnName}");
+                                    }
+                                    this.Output.Write(this.RenderColumnFilter(column, this.OnBeforeDrawColumnFilter(column).GetEditableControl(entity, reqValue ?? propValue)));
+                                }
                             }
                         }
                         this.Output.Write("</" + tag + ">");

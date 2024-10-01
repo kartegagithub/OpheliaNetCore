@@ -106,6 +106,12 @@ namespace Ophelia.Data
                 return entityType.CreateList();
             }
         }
+        public static Array ToArray(this IList list)
+        {
+            var array = new Array[list.Count];
+            list.CopyTo(array, 0);
+            return array;
+        }
         public static IEnumerable CreateList(this Type entityType)
         {
             var listType = typeof(List<>).MakeGenericType(entityType);

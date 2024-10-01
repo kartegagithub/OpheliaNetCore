@@ -673,6 +673,13 @@ namespace Ophelia.Data.Querying.Query.Helpers
                     }
                 }
             }
+            else if (expression.Arguments.Count == 2 && expression.Arguments[0] is ConstantExpression && expression.Arguments[1] is MemberExpression)
+            {
+                //idList.Contains(op.Name)
+                parser.Name = expression.Arguments[1].ParsePath();
+                parser.Comparison = Comparison.In;
+                parser.Value = (expression.Arguments[0] as ConstantExpression).Value;
+            }
             else
             {
                 var memberExpression = (expression.Arguments[0] as MemberExpression);

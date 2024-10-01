@@ -312,8 +312,8 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             return control;
         }
 
-        public static Fields.SelectboxField<T> AddEnumSelectboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class { return container.AddEnumSelectboxField("", expression, enumType, isRequired, htmlAttributes, DefaultText, DefaultValue); }
-        public static Fields.SelectboxField<T> AddEnumSelectboxField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "") where T : class
+        public static Fields.SelectboxField<T> AddEnumSelectboxField<T>(this FieldContainer<T> container, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "", bool isMultiple = false) where T : class { return container.AddEnumSelectboxField("", expression, enumType, isRequired, htmlAttributes, DefaultText, DefaultValue, isMultiple); }
+        public static Fields.SelectboxField<T> AddEnumSelectboxField<T>(this FieldContainer<T> container, string Text, Expression<Func<T, object>> expression, Type enumType, bool isRequired = false, object htmlAttributes = null, string DefaultText = "", string DefaultValue = "", bool isMultiple = false) where T : class
         {
             var control = new Fields.SelectboxField<T>(container);
             control.Expression = expression;
@@ -323,6 +323,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders
             control.DataControl.DefaultValue = DefaultValue;
             control.DataControl.DisplayMemberName = "Text";
             control.DataControl.ValueMemberName = "Value";
+            control.DataControl.IsMultiple = isMultiple;
             control.IsRequired = isRequired;
             control.HtmlAttributes = htmlAttributes;
             return (Fields.SelectboxField<T>)container.AddField(control);
