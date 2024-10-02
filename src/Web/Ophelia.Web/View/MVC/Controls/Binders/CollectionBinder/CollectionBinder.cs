@@ -688,7 +688,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                                 this.OnBeforeRemoteDataSourceCall(request);
 
-                                var response = this.DataSource.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
+                                var response = this.DataSource.RemoteDataSource(this.GetRemoteDataSourceFunctionName(), request);
                                 if (response.RawData != null)
                                 {
                                     var groupers = new List<Grouper>();
@@ -772,7 +772,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 
                                 this.OnBeforeRemoteDataSourceCall(request);
 
-                                var response = this.DataSource.RemoteDataSource("Get" + typeof(T).Name.Pluralize(), request);
+                                var response = this.DataSource.RemoteDataSource(this.GetRemoteDataSourceFunctionName(), request);
                                 if (response.RawData != null)
                                     this.DataSource.Items = (List<T>)response.RawData;
                                 else
@@ -806,6 +806,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
             }
         }
+        protected string GetRemoteDataSourceFunctionName()
+        {
+            return "Get" + typeof(T).Name.Pluralize();
+        }
+
         protected virtual string GetSortingFieldName(Columns.BaseColumn<TModel, T> column)
         {
             if (column is FilterboxColumn<TModel, T>)
