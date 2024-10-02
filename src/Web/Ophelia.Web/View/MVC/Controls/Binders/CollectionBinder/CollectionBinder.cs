@@ -806,7 +806,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
             }
         }
-        protected string GetRemoteDataSourceFunctionName()
+        protected virtual string GetRemoteDataSourceFunctionName()
         {
             return "Get" + typeof(T).Name.Pluralize();
         }
