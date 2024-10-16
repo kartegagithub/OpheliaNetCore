@@ -144,7 +144,7 @@ namespace Ophelia.Web
         {
             options ??= new CookieOptions()
             {
-                Expires = DateTime.Now.AddDays(365),
+                Expires = Ophelia.Utility.Now.AddDays(365),
                 Path = "/",
                 HttpOnly = true,
                 Secure = this.Request.IsHttps

@@ -28,11 +28,11 @@ namespace Ophelia.Data
                 {
                     tracker?.OnBeforeUpdateEntity(runBeforeUpdateProcesseses);
                     effectedRowCount = this.Context.CreateUpdateQuery(entity).Execute<int>();
-                    tracker?.OnAfterUpdateEntity(runBeforeUpdateProcesseses);
+                    tracker?.OnAfterUpdateEntity(runBeforeUpdateProcesseses, this.Context.Configuration.DateTimeKind);
                 }
                 else
                 {
-                    tracker?.OnBeforeInsertEntity(runBeforeUpdateProcesseses);
+                    tracker?.OnBeforeInsertEntity(runBeforeUpdateProcesseses, this.Context.Configuration.DateTimeKind);
 
                     effectedRowCount = this.Context.CreateInsertQuery(entity).Execute<int>();
                     if (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer)

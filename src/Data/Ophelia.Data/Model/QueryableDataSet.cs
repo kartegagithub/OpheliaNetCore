@@ -141,7 +141,7 @@ namespace Ophelia.Data.Model
         internal void Load(Querying.Query.BaseQuery query, DataTable data)
         {
             var loadLog = new Model.EntityLoadLog(query.Data.EntityType.Name);
-            var colLoadStartTime = DateTime.Now;
+            var colLoadStartTime = Utility.Now;
 
             try
             {
@@ -164,7 +164,7 @@ namespace Ophelia.Data.Model
                 {
                     foreach (DataRow row in data.Rows)
                     {
-                        var entLoadLoad = DateTime.Now;
+                        var entLoadLoad = Utility.Now;
 
                         if (type.IsPrimitiveType())
                             this._list.Add(type.ConvertData(row[0]));
@@ -231,7 +231,7 @@ namespace Ophelia.Data.Model
                             }
                         }
 
-                        var duration = DateTime.Now.Subtract(entLoadLoad).TotalMilliseconds;
+                        var duration = Utility.Now.Subtract(entLoadLoad).TotalMilliseconds;
                         if (loadLog.EntityLoadDuration < duration)
                             loadLog.EntityLoadDuration = duration;
                     }
@@ -321,7 +321,7 @@ namespace Ophelia.Data.Model
             }
             finally
             {
-                loadLog.ListLoadDuration = DateTime.Now.Subtract(colLoadStartTime).TotalMilliseconds;
+                loadLog.ListLoadDuration = Utility.Now.Subtract(colLoadStartTime).TotalMilliseconds;
                 if (query.Context.Configuration.LogEntityLoads)
                     query.Context.Connection.Logger.LogLoad(loadLog);
             }

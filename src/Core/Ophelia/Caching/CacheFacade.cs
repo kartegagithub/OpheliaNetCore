@@ -17,7 +17,7 @@ namespace Ophelia.Caching
         {
             get
             {
-                DateTime _LastCheckDate = DateTime.Now;
+                DateTime _LastCheckDate = Utility.Now;
                 try
                 {
                     if (CacheManager.Get(this.Key + "_LCD") != null)
@@ -34,7 +34,7 @@ namespace Ophelia.Caching
                 }
                 catch (Exception)
                 {
-                    _LastCheckDate = DateTime.Now;
+                    _LastCheckDate = Utility.Now;
                 }
                 return _LastCheckDate;
             }
@@ -151,10 +151,10 @@ namespace Ophelia.Caching
 
         protected virtual bool CheckCacheHealth()
         {
-            if (DateTime.Now.Subtract(this.LastCheckDate).TotalMinutes > this.CacheHealthDuration)
+            if (Utility.Now.Subtract(this.LastCheckDate).TotalMinutes > this.CacheHealthDuration)
             {
                 var Result = this.CheckPersistentCacheHealth();
-                this.LastCheckDate = DateTime.Now;
+                this.LastCheckDate = Utility.Now;
                 return Result;
             }
             return true;

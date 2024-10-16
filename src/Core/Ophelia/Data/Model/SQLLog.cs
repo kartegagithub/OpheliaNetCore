@@ -11,11 +11,11 @@ namespace Ophelia.Data.Model
         public DateTime EndTime { get; set; }
         public void Start()
         {
-            this.StartTime = DateTime.Now;
+            this.StartTime = Utility.Now;
         }
         public void Finish()
         {
-            this.EndTime = DateTime.Now;
+            this.EndTime = Utility.Now;
             this.Duration = this.EndTime.Subtract(this.StartTime).TotalMilliseconds;
         }
         public SQLLog(string text, object[] parameters)

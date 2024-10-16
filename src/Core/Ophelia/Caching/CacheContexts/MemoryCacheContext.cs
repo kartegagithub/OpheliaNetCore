@@ -35,7 +35,7 @@ namespace Ophelia.Caching.CacheContexts
 
         private MemoryCacheEntryOptions GetCachePolicy(DateTime absoluteExpiration)
         {
-            if (absoluteExpiration <= DateTime.Now) absoluteExpiration = DateTime.Now.AddMinutes(CacheManager.CacheDuration);
+            if (absoluteExpiration <= Utility.Now) absoluteExpiration = Utility.Now.AddMinutes(CacheManager.CacheDuration);
             var cachingPolicy = new MemoryCacheEntryOptions
             {
                 Priority = CacheItemPriority.Normal,

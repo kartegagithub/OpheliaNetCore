@@ -28,7 +28,7 @@ namespace Ophelia.Web.Application.Client
             if (Web.Client.Current.Context != null)
             {
                 CookieOptions options = new CookieOptions();
-                options.Expires = DateTime.Now.AddMilliseconds(expireMinute);
+                options.Expires = Ophelia.Utility.Now.AddMilliseconds(expireMinute);
                 Web.Client.Current.Response.Cookies.Append(cookieName, value, options);
             }
         }
@@ -54,7 +54,7 @@ namespace Ophelia.Web.Application.Client
             {
                 if (options == null)
                     options = new CookieOptions();
-                options.Expires = DateTime.Now.AddDays(-1);
+                options.Expires = Ophelia.Utility.Now.AddDays(-1);
                 Web.Client.Current.Response.Cookies.Delete(cookieName, options);
             }
         }

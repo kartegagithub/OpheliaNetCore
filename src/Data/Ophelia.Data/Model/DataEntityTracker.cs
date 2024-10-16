@@ -233,7 +233,7 @@ namespace Ophelia.Data.Model
         {
 
         }
-        internal override void OnAfterUpdateEntity(bool processDefaults = true)
+        internal override void OnAfterUpdateEntity(bool processDefaults = true, DateTimeKind kind = DateTimeKind.Local)
         {
 
         }
@@ -241,20 +241,20 @@ namespace Ophelia.Data.Model
         {
 
         }
-        internal override void OnBeforeInsertEntity(bool processDefaults = true)
+        internal override void OnBeforeInsertEntity(bool processDefaults = true, DateTimeKind kind = DateTimeKind.Local)
         {
             base.OnBeforeInsertEntity();
             if (processDefaults)
             {
-                this.Entity.DateCreated = DateTime.Now;
-                this.Entity.DateModified = DateTime.Now;
+                this.Entity.DateCreated = kind == DateTimeKind.Utc? DateTime.UtcNow: Utility.Now;
+                this.Entity.DateModified = kind == DateTimeKind.Utc ? DateTime.UtcNow : Utility.Now;
             }
         }
-        internal override void OnBeforeUpdateEntity(bool processDefaults = true)
+        internal override void OnBeforeUpdateEntity(bool processDefaults = true, DateTimeKind kind = DateTimeKind.Local)
         {
             base.OnBeforeUpdateEntity();
             if (processDefaults)
-                this.Entity.DateModified = DateTime.Now;
+                this.Entity.DateModified = kind == DateTimeKind.Utc ? DateTime.UtcNow : Utility.Now;
         }
         protected virtual void Dispose(bool disposing)
         {

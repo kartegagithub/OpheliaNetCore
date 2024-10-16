@@ -78,15 +78,15 @@ namespace Ophelia.Data.Model
             ProxyEntity.CopyTo(Entity, "Tracker");
             this.ResetOriginalValues();
         }
-        internal virtual void OnBeforeUpdateEntity(bool processDefaults = true)
+        internal virtual void OnBeforeUpdateEntity(bool processDefaults = true, DateTimeKind kind = DateTimeKind.Local)
         {
 
         }
-        internal virtual void OnBeforeInsertEntity(bool processDefaults = true)
+        internal virtual void OnBeforeInsertEntity(bool processDefaults = true, DateTimeKind kind = DateTimeKind.Local)
         {
 
         }
-        internal virtual void OnAfterUpdateEntity(bool processDefaults = true)
+        internal virtual void OnAfterUpdateEntity(bool processDefaults = true, DateTimeKind kind = DateTimeKind.Local)
         {
             Entity = Activator.CreateInstance(ProxyEntity.GetType());
             ProxyEntity.CopyTo(Entity, "Tracker");

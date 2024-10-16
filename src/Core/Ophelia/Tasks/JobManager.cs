@@ -118,9 +118,9 @@ namespace Ophelia.Tasks
         public virtual DateTime GetNextExecutionTime(Job job)
         {
             if (job.Routine == null)
-                return DateTime.Now;
+                return Utility.Now;
 
-            var NextExecution = DateTime.Now;
+            var NextExecution = Utility.Now;
             var IntervalType = (IntervalType)job.Routine.IntervalType;
             if (IntervalType == IntervalType.Hour && job.Routine.Interval == 24)
                 IntervalType = IntervalType.Day;
@@ -131,25 +131,25 @@ namespace Ophelia.Tasks
             switch (IntervalType)
             {
                 case IntervalType.Second:
-                    NextExecution = DateTime.Now.AddSeconds(job.Routine.Interval);
+                    NextExecution = Utility.Now.AddSeconds(job.Routine.Interval);
                     break;
                 case IntervalType.Minute:
-                    NextExecution = DateTime.Now.AddMinutes(job.Routine.Interval);
+                    NextExecution = Utility.Now.AddMinutes(job.Routine.Interval);
                     break;
                 case IntervalType.Hour:
-                    NextExecution = DateTime.Now.AddHours(job.Routine.Interval);
+                    NextExecution = Utility.Now.AddHours(job.Routine.Interval);
                     break;
                 case IntervalType.Day:
-                    NextExecution = DateTime.Now.AddDays(job.Routine.Interval);
+                    NextExecution = Utility.Now.AddDays(job.Routine.Interval);
                     break;
                 case IntervalType.Week:
-                    NextExecution = DateTime.Now.AddDays(job.Routine.Interval);
+                    NextExecution = Utility.Now.AddDays(job.Routine.Interval);
                     break;
                 case IntervalType.Month:
-                    NextExecution = DateTime.Now.AddMonths(job.Routine.Interval);
+                    NextExecution = Utility.Now.AddMonths(job.Routine.Interval);
                     break;
                 case IntervalType.Year:
-                    NextExecution = DateTime.Now.AddYears(job.Routine.Interval);
+                    NextExecution = Utility.Now.AddYears(job.Routine.Interval);
                     break;
             }
             if (job.Routine.OnlyRunAfterMidnight && string.IsNullOrEmpty(job.Routine.StartTime))
@@ -188,27 +188,27 @@ namespace Ophelia.Tasks
             if (job.Routine == null)
                 return true;
 
-            if (!job.Routine.CanRunAtWeekends && DateTime.Now.IsWeekend())
+            if (!job.Routine.CanRunAtWeekends && Utility.Now.IsWeekend())
                 return false;
-            if (!job.Routine.CanRunAtWorkingHours && !DateTime.Now.IsWeekend() && DateTime.Now.IsWithinWorkingHours())
+            if (!job.Routine.CanRunAtWorkingHours && !Utility.Now.IsWeekend() && Utility.Now.IsWithinWorkingHours())
                 return false;
-            if (job.Routine.OnlyRunAfterMidnight && !DateTime.Now.IsAfterMidnight())
+            if (job.Routine.OnlyRunAfterMidnight && !Utility.Now.IsAfterMidnight())
                 return false;
-            if (!string.IsNullOrEmpty(job.Routine.IncludedDays) && !job.Routine.IncludedDays.Contains(((int)DateTime.Now.DayOfWeek).ToString()))
+            if (!string.IsNullOrEmpty(job.Routine.IncludedDays) && !job.Routine.IncludedDays.Contains(((int)Utility.Now.DayOfWeek).ToString()))
                 return false;
-            if (!string.IsNullOrEmpty(job.Routine.ExcludedDays) && job.Routine.ExcludedDays.Contains(((int)DateTime.Now.DayOfWeek).ToString()))
+            if (!string.IsNullOrEmpty(job.Routine.ExcludedDays) && job.Routine.ExcludedDays.Contains(((int)Utility.Now.DayOfWeek).ToString()))
                 return false;
-            if (!string.IsNullOrEmpty(job.Routine.IncludedMonths) && !job.Routine.IncludedMonths.Contains(DateTime.Now.Month.ToString()))
+            if (!string.IsNullOrEmpty(job.Routine.IncludedMonths) && !job.Routine.IncludedMonths.Contains(Utility.Now.Month.ToString()))
                 return false;
-            if (!string.IsNullOrEmpty(job.Routine.ExcludedMonths) && job.Routine.ExcludedMonths.Contains(DateTime.Now.Month.ToString()))
+            if (!string.IsNullOrEmpty(job.Routine.ExcludedMonths) && job.Routine.ExcludedMonths.Contains(Utility.Now.Month.ToString()))
                 return false;
             if (job.Routine.OccurenceLimit > 0 && job.OccurenceIndex >= job.Routine.OccurenceLimit)
                 return false;
-            if (job.Routine.EndDate.GetValueOrDefault(DateTime.MinValue) > DateTime.MinValue && DateTime.Now > job.Routine.EndDate.Value)
+            if (job.Routine.EndDate.GetValueOrDefault(DateTime.MinValue) > DateTime.MinValue && Utility.Now > job.Routine.EndDate.Value)
                 return false;
-            if (job.NextExecutionTime.GetValueOrDefault(DateTime.MinValue) > DateTime.MinValue && job.NextExecutionTime.Value > DateTime.Now)
+            if (job.NextExecutionTime.GetValueOrDefault(DateTime.MinValue) > DateTime.MinValue && job.NextExecutionTime.Value > Utility.Now)
                 return false;
-            if (!string.IsNullOrEmpty(job.Routine.EndTime) && DateTime.Now > Convert.ToDateTime(DateTime.Now.ToShortDateString() + " " + job.Routine.EndTime))
+            if (!string.IsNullOrEmpty(job.Routine.EndTime) && Utility.Now > Convert.ToDateTime(Utility.Now.ToShortDateString() + " " + job.Routine.EndTime))
                 return false;
             return true;
         }

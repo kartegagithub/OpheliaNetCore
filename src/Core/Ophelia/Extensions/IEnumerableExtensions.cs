@@ -155,7 +155,7 @@ namespace Ophelia
 
         private static IEnumerable<int> TakeRandomIntegersInternal(int count, int length)
         {
-            Random rand = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
+            Random rand = new Random((int)Utility.Now.Ticks & 0x0000FFFF);
             HashSet<int> check = new HashSet<int>();
             var maxCount = count > length ? length : count;
             var maxValue = length + 1;

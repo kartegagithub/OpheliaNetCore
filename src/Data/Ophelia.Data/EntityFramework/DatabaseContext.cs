@@ -105,7 +105,7 @@ namespace Ophelia.Data.EntityFramework
                             EntityName = entry.Entity.GetType().Name,
                             EntityID = entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? 0 : Convert.ToInt64(entry.Entity.GetPropertyValue("ID")),
                             UserID = Convert.ToInt64(entry.Entity.GetPropertyValue("UserCreatedID")),
-                            Date = DateTime.Now,
+                            Date = Utility.Now,
                             State = entry.State
                         };
                         logs.Add(auditLogModel);

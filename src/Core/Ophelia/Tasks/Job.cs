@@ -122,7 +122,7 @@ namespace Ophelia.Tasks
         private void SetNextExecution()
         {
             this.NextExecutionTime = this.Manager.GetNextExecutionTime(this);
-            this.LastExecutionTime = DateTime.Now;
+            this.LastExecutionTime = Utility.Now;
         }
         public Job(JobManager Manager)
         {

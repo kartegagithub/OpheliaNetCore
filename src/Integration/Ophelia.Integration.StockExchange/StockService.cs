@@ -90,29 +90,29 @@ namespace Ophelia.Integration.StockExchange
 						var quote = chartResult.Indicators.Quote.FirstOrDefault();
 						if (quote.Close?.Count > 0)
 						{
-							var startDate = DateTime.Now;
+							var startDate = Utility.Now;
 							switch (range)
 							{
 								case "1d":
-									startDate = DateTime.Now.AddDays(-1);
+									startDate = Utility.Now.AddDays(-1);
 									break;
 								case "5d":
-									startDate = DateTime.Now.AddDays(-5);
+									startDate = Utility.Now.AddDays(-5);
 									break;
 								case "1mo":
-									startDate = DateTime.Now.AddMonths(-1);
+									startDate = Utility.Now.AddMonths(-1);
 									break;
 								case "6mo":
-									startDate = DateTime.Now.AddMonths(-6);
+									startDate = Utility.Now.AddMonths(-6);
 									break;
 								case "ytd":
-									startDate = DateTime.Now.StartOfYear();
+									startDate = Utility.Now.StartOfYear();
 									break;
 								case "1y":
-									startDate = DateTime.Now.AddYears(-1);
+									startDate = Utility.Now.AddYears(-1);
 									break;
 								case "5y":
-									startDate = DateTime.Now.AddYears(-5).AddDays(1);
+									startDate = Utility.Now.AddYears(-5).AddDays(1);
 									break;
 								case "max":
 									startDate = result.Date;

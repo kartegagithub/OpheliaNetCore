@@ -57,7 +57,7 @@ namespace Ophelia.Caching
 
         public static bool AddByContext(string contextName, string key, object value, int duration = 0)
         {
-            return AddByContext(contextName, key, value, DateTime.Now.AddMinutes(duration));
+            return AddByContext(contextName, key, value, Utility.Now.AddMinutes(duration));
         }
         public static bool AddByContext(string contextName, string key, object value, DateTime absoluteExpiration)
         {
@@ -65,7 +65,7 @@ namespace Ophelia.Caching
         }
         public static bool AddByContext(string contextName, string keyGroup, string keyItem, object value, int duration = 0)
         {
-            return AddByContext(contextName, keyGroup, keyItem, value, DateTime.Now.AddMinutes(duration));
+            return AddByContext(contextName, keyGroup, keyItem, value, Utility.Now.AddMinutes(duration));
         }
         public static bool AddByContext(string contextName, string keyGroup, string keyItem, object value, DateTime absoluteExpiration)
         {
@@ -74,7 +74,7 @@ namespace Ophelia.Caching
 
         public static bool Add(string key, object value, int duration = 0)
         {
-            return Add(key, value, DateTime.Now.AddMinutes(duration));
+            return Add(key, value, Utility.Now.AddMinutes(duration));
         }
         public static bool Add(string key, object value, DateTime absoluteExpiration)
         {
@@ -82,7 +82,7 @@ namespace Ophelia.Caching
         }
         public static bool Add(string keyGroup, string keyItem, object value, int duration = 0)
         {
-            return Add(keyGroup, keyItem, value, DateTime.Now.AddMinutes(duration));
+            return Add(keyGroup, keyItem, value, Utility.Now.AddMinutes(duration));
         }
         public static bool Add(string keyGroup, string keyItem, object value, DateTime absoluteExpiration)
         {

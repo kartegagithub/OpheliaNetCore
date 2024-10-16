@@ -183,6 +183,11 @@ namespace Ophelia.Data
             this._Connection = new Connection(this, this.GetDatabaseType(), this.GetConnectionString());
             if (this.Connection.Type == DatabaseType.SQLServer || this.Connection.Type == DatabaseType.MySQL)
                 this.Configuration.DBIncrementedIdentityColumn = true;
+
+            if (this.Connection.Type == DatabaseType.PostgreSQL)
+                this.Configuration.DateTimeKind = DateTimeKind.Utc;
+            else
+                this.Configuration.DateTimeKind = DateTimeKind.Local;
         }
         protected virtual void Configure()
         {
@@ -317,7 +322,7 @@ namespace Ophelia.Data
         }
         public virtual string GetDateTimeDataType(bool isTimespan = false)
         {
-            if(this.Connection.Type == DatabaseType.PostgreSQL)
+            if (this.Connection.Type == DatabaseType.PostgreSQL)
             {
                 if (isTimespan) return "timetz";
                 return "timestamptz";

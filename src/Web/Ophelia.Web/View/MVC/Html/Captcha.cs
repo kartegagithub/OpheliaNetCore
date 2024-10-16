@@ -25,7 +25,7 @@ namespace Ophelia.Web.View.Mvc.Html
 
         private string GetRandomCode(int Length, bool UseNumerics, bool UseLowerChars, bool UseUpperChars)
         {
-            Random Rand = new Random(DateTime.Now.Millisecond);
+            Random Rand = new Random(Ophelia.Utility.Now.Millisecond);
             char[] CharacterSet = new char[62];
             string RandomValue = string.Empty;
             int CopiedCharacterLength = 0;

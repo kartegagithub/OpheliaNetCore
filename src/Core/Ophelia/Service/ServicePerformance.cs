@@ -30,7 +30,7 @@ namespace Ophelia.Service
                 if (this.endDate != DateTime.MinValue)
                     return this.endDate;
                 else
-                    return DateTime.Now;
+                    return Utility.Now;
             }
             set
             {
@@ -52,7 +52,7 @@ namespace Ophelia.Service
         }
         public ServicePerformance()
         {
-            this.StartDate = DateTime.Now;
+            this.StartDate = Utility.Now;
             this.SQLLogs = new List<Data.Model.SQLLog>();
             this.EntityLoadLogs = new List<Data.Model.EntityLoadLog>();
         }

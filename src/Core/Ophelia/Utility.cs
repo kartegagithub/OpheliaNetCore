@@ -9,6 +9,13 @@ namespace Ophelia
 {
     public static class Utility
     {
+        private static DateTimeKind _NowType = DateTimeKind.Local;
+        public static DateTime Now => _NowType == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now;
+
+        public static void SetNowType(DateTimeKind kind)
+        {
+            _NowType = kind;
+        }
         public static string GenerateRandomPassword(int maxSize, bool isNumeric = false)
         {
             char[] chars = new char[62];
@@ -32,7 +39,7 @@ namespace Ophelia
         public static string Randomize()
         {
             var r = new Random();
-            return $"{r.Next(1, 10000000)}{$"{DateTime.Now:T}".Replace(":", string.Empty)}";
+            return $"{r.Next(1, 10000000)}{$"{Utility.Now:T}".Replace(":", string.Empty)}";
         }
         public static string GetQueryStringValue(string url, string queryString)
         {

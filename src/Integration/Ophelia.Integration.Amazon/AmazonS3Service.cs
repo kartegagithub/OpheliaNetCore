@@ -160,7 +160,7 @@ namespace Ophelia.Integration.Amazon
                 {
                     BucketName = this.Bucket,
                     Key = file,
-                    Expires = DateTime.Now.Add(this.Expiration.Value),
+                    Expires = Utility.Now.Add(this.Expiration.Value),
                     Protocol = this.Protocol
                 };
                 string url = this.Client.GetPreSignedURL(request);
