@@ -315,6 +315,30 @@ namespace Ophelia.Data
         {
             return QueryBuilder.Init(this);
         }
+        public virtual string GetDateTimeDataType(bool isTimespan = false)
+        {
+            if(this.Connection.Type == DatabaseType.PostgreSQL)
+            {
+                if (isTimespan) return "timetz";
+                return "timestamptz";
+            }
+            else if (this.Connection.Type == DatabaseType.SQLServer)
+            {
+                if (isTimespan) return "time";
+                return "datetime2(7)";
+            }
+            else if (this.Connection.Type == DatabaseType.Oracle)
+            {
+                if (isTimespan) return "DATE";
+                return "DATE";
+            }
+            else if (this.Connection.Type == DatabaseType.MySQL)
+            {
+                if (isTimespan) return "TIME";
+                return "datetime";
+            }
+            return "";
+        }
         public static void Close()
         {
             if (_Currents != null)

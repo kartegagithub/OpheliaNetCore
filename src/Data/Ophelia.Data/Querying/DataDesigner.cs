@@ -455,31 +455,11 @@ namespace Ophelia.Data.Querying
             }
             else if (type == typeof(DateTime) || type == typeof(Nullable<DateTime>))
             {
-                switch (this.Context.Connection.Type)
-                {
-                    case DatabaseType.SQLServer:
-                        return "datetime2(7)";
-                    case DatabaseType.PostgreSQL:
-                        return "timestamp without time zone";
-                    case DatabaseType.Oracle:
-                        return "DATE";
-                    case DatabaseType.MySQL:
-                        return "datetime";
-                }
+                return this.Context.GetDateTimeDataType(false);
             }
             else if (type == typeof(TimeSpan) || type == typeof(Nullable<TimeSpan>))
             {
-                switch (this.Context.Connection.Type)
-                {
-                    case DatabaseType.SQLServer:
-                        return "time";
-                    case DatabaseType.PostgreSQL:
-                        return "time without time zone";
-                    case DatabaseType.Oracle:
-                        return "DATE";
-                    case DatabaseType.MySQL:
-                        return "TIME";
-                }
+                return this.Context.GetDateTimeDataType(true);
             }
 
             return "";

@@ -25,7 +25,7 @@ namespace Ophelia.Data
         public bool QueryBooleanAsBinary { get; set; }
         public bool DBIncrementedIdentityColumn { get; set; }
         public Func<string, string> StringParameterFormatter { get; set; }
-
+        
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

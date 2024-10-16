@@ -2,6 +2,7 @@
 
 namespace Ophelia.Data.Attributes
 {
+    [AttributeUsage(AttributeTargets.Property)]
     public class DataProperty : Attribute
     {
         public int Precision { get; set; }
