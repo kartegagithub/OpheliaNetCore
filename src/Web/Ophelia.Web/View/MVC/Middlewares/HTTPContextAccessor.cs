@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Threading;
+using System.Xml.Xsl;
 
 namespace Ophelia.Web.View.Mvc.Middlewares
 {
@@ -13,8 +14,12 @@ namespace Ophelia.Web.View.Mvc.Middlewares
             }
         }
         private static AsyncLocal<HttpContextHolder> _httpContextCurrent = new AsyncLocal<HttpContextHolder>();
+        public static void SetContext(HttpContext context)
+        {
+            _httpContextCurrent.Value = new HttpContextHolder { Context = context };
+        }
 
-        public virtual HttpContext HttpContext
+        public virtual HttpContext? HttpContext
         {
             get
             {
@@ -30,7 +35,7 @@ namespace Ophelia.Web.View.Mvc.Middlewares
 
                 if (value != null)
                 {
-                    _httpContextCurrent.Value = new HttpContextHolder { Context = value };
+                    SetContext(value);
                 }
             }
         }
