@@ -52,7 +52,7 @@ namespace Ophelia.Integration.CDN.Vimeo
             string contentType = "application/x-www-form-urlencoded")
         {
             var factory = new RequestFactory()
-                    .CreateClient(Proxy)
+                    .CreateClient(Proxy, null)
                     .AddAccept("application/vnd.vimeo.*+json; version=3.2")
                     .AddHeaders(headers)
                     .CreateRequest(url, method)
@@ -71,7 +71,7 @@ namespace Ophelia.Integration.CDN.Vimeo
             try
             {
                 var factory = new RequestFactory()
-                    .CreateClient(Proxy)
+                    .CreateClient(Proxy, null)
                     .AddAccept("application/vnd.vimeo.*+json; version=3.2")
                     .AddHeaders(headers)
                     .CreateRequest(url, method)

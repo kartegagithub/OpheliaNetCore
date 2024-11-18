@@ -13,15 +13,15 @@ namespace Ophelia.Net.Http
 {
     public class RequestFactory : IDisposable
     {
-        private HttpClient Client { get; set; }
-        private HttpClientHandler ClientHandler { get; set; }
-        private string UserAgent { get; set; }
-        private string AuthorizationScheme { get; set; }
-        private string AuthorizationValue { get; set; }
-        private List<string> Accept { get; set; }
-        private Dictionary<string, string> Headers { get; set; }
-        private HttpRequestMessage RequestMessage { get; set; }
-        private HttpResponseMessage ResponseMessage { get; set; }
+        public HttpClient Client { get; private set; }
+        public HttpClientHandler ClientHandler { get; private set; }
+        public string UserAgent { get; set; }
+        public string AuthorizationScheme { get; set; }
+        public string AuthorizationValue { get; set; }
+        public List<string> Accept { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
+        public HttpRequestMessage RequestMessage { get; private set; }
+        public HttpResponseMessage ResponseMessage { get; private set; }
         public Func<HttpClientHandler, DelegatingHandler> LogHandler { get; set; }
         public Action<HttpResponseMessage> OnResponse { get; set; }
         private RequestFactory CreateClientIfNotSet()
@@ -32,11 +32,19 @@ namespace Ophelia.Net.Http
         }
         public RequestFactory CreateClient()
         {
+            return this.CreateClient(null);
+        }
+        public RequestFactory CreateClient(HttpClientHandler handler)
+        {
             this.Reset();
-            this.ClientHandler = new HttpClientHandler()
+            if (handler == null)
             {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            };
+                handler = new HttpClientHandler()
+                {
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                };
+            }
+            this.ClientHandler = handler;
             if (this.LogHandler != null)
                 this.Client = new HttpClient(this.LogHandler(this.ClientHandler));
             else
@@ -44,16 +52,16 @@ namespace Ophelia.Net.Http
             this.Client.DefaultRequestHeaders.Add("User-Agent", this.UserAgent);
             return this;
         }
-        public RequestFactory CreateClient(IWebProxy proxy)
+        public RequestFactory CreateClient(IWebProxy proxy, HttpClientHandler handler)
         {
-            this.CreateClient();
+            this.CreateClient(handler);
             this.ClientHandler.Proxy = proxy;
             this.ClientHandler.UseProxy = proxy != null;
             return this;
         }
         public RequestFactory CreateClient(string baseUrl, IWebProxy proxy = null)
         {
-            this.CreateClient(proxy);
+            this.CreateClient(proxy, null);
             return this;
         }
         public RequestFactory SetUserAgent(string userAgent)
