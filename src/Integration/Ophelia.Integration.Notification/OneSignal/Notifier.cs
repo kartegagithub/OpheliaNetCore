@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Net;
 
 namespace Ophelia.Integration.Notification.OneSignal
 {
     public class Notifier : Notification.Notifier
     {
         public string URL { get; set; }
+        public string APIKey { get; set; }
         public OneSignalNotificationResult SendToMultipleDevice(string[] registrationIds, string title, string body, string appId, string androidChannelID, string type = "", dynamic extraData = null, string EntityType = "", long EntityID = 0, long BadgeCount = 0, string webURL = "")
         {
             var Result = new OneSignalNotificationResult();
@@ -90,7 +92,13 @@ namespace Ophelia.Integration.Notification.OneSignal
             var Result = new OneSignalNotificationResult();
             try
             {
-                Result = this.URL.PostURL<OneSignalNotificationResult>(data, "application/json");
+                var headers = new WebHeaderCollection
+                {
+                    { "Accept", "application/json" },
+                    { "Content-Type", "application/json" },
+                    { "Authorization", $"Basic {this.APIKey}" }
+                };
+                Result = this.URL.PostURL<OneSignalNotificationResult>(data, "application/json", headers);
             }
             catch (Exception ex)
             {
@@ -99,9 +107,10 @@ namespace Ophelia.Integration.Notification.OneSignal
             return Result;
         }
 
-        public Notifier()
+        public Notifier(string APIKey)
         {
             this.URL = "https://onesignal.com/api/v1/notifications";
+            this.APIKey = APIKey;
         }
     }
 }
