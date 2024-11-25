@@ -13,7 +13,7 @@
 		<PackAsTool>False</PackAsTool>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<Version>8.0.0.71</Version>
+		<Version>8.0.0.72</Version>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
