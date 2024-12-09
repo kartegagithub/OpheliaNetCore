@@ -3,6 +3,7 @@ using System;
 using Ophelia.Integration.StockExchange.Model;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Ophelia.Integration.StockExchange
 {
@@ -42,7 +43,9 @@ namespace Ophelia.Integration.StockExchange
 		public static StockInformationResult GetStockInformation(this string stockCode)
 		{
 			StockInformationResult result = null;
-			var url = $"https://query2.finance.yahoo.com/v7/finance/options/{stockCode}";
+			var crumb = GetCrumb();
+
+            var url = $"https://query2.finance.yahoo.com/v7/finance/quote/{stockCode}&crumb={crumb}";
 
 			var response = url.DownloadURL();
 			if (!string.IsNullOrEmpty(response))
@@ -51,18 +54,35 @@ namespace Ophelia.Integration.StockExchange
 			}
 
 			return result;
-		}
+        }
 
-		/// <summary>
-		/// Hisse senedinin detay bilgilerini döner
-		/// </summary>
-		/// <param name="stockCode">hisse senedi kodu</param>
-		/// <param name="region">bölge kodu</param>
-		/// <param name="lang">dil culture kodu</param>
-		/// <param name="interval">ne kadar aralık ile çekileceği --1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo</param>
-		/// <param name="range">ne kadar uzunlukta çekileceği --1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max</param>
-		/// <returns></returns>
-		public static StockModel GetStockDetail(this string stockCode, string region = "US", string lang = "en-US", string interval = "2m", string range = "1d")
+        /// <summary>
+        /// 
+        /// </summary>
+        private static string GetCrumb()
+        {
+            string result = "";
+            var url = $"https://query2.finance.yahoo.com/v1/test/getcrumb";
+
+            var response = url.DownloadURL();
+            if (!string.IsNullOrEmpty(response))
+            {
+                result = response;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Hisse senedinin detay bilgilerini döner
+        /// </summary>
+        /// <param name="stockCode">hisse senedi kodu</param>
+        /// <param name="region">bölge kodu</param>
+        /// <param name="lang">dil culture kodu</param>
+        /// <param name="interval">ne kadar aralık ile çekileceği --1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo</param>
+        /// <param name="range">ne kadar uzunlukta çekileceği --1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max</param>
+        /// <returns></returns>
+        public static StockModel GetStockDetail(this string stockCode, string region = "US", string lang = "en-US", string interval = "2m", string range = "1d")
 		{
 			var result = new StockModel
 			{

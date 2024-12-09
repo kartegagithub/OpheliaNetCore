@@ -212,7 +212,7 @@ namespace Ophelia.Integration.StockExchange.Model
 	{
 		[DataMember]
 		[JsonProperty("result")]
-		public List<StockInformationResultModel> Result { get; set; }
+		public List<StockInformationDetail> Result { get; set; }
 
 		[DataMember]
 		[JsonProperty("error")]
