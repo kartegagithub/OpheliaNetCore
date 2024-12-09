@@ -203,7 +203,7 @@ namespace Ophelia.Integration.StockExchange.Model
 	public class StockInformationResult
 	{
 		[DataMember]
-		[JsonProperty("optionChain")]
+		[JsonProperty("quoteResponse")]
 		public StockInformation QuoteResponse { get; set; }
 	}
 
