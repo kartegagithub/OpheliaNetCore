@@ -77,7 +77,7 @@ namespace Ophelia.Integration.StockExchange
 
             WebHeaderCollection headers = new WebHeaderCollection
             {
-                { "Cookie", sCookie }
+                { "Cookie", Cookie }
             };
 
             var response = url.DownloadURL(headers: headers);
@@ -94,24 +94,9 @@ namespace Ophelia.Integration.StockExchange
         /// </summary>
         private static string GetCrumb()
         {
-            var cookie = "";
-            using (var client = new HttpClient())
-            {
-                var responasdse = client.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://fc.yahoo.com/"));
-
-                if (responasdse.Result.Headers.TryGetValues("Set-Cookie", out var cookies))
-                {
-                    foreach (var item in cookies)
-                    {
-                        cookie += item + ";";
-
-                    }
-                }
-            }
-
             WebHeaderCollection headers = new WebHeaderCollection
             {
-                { "Cookie", sCookie }
+                { "Cookie", Cookie }
             };
 
             string result = "Yb2ckR7FNfs";
