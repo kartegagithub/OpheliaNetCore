@@ -96,9 +96,9 @@ namespace Ophelia.Integration.StockExchange
 				if (stockDetailResult != null && stockDetailResult.QuoteResponse != null && stockDetailResult.QuoteResponse.Result?.Count > 0)
 				{
 					var detailResult = stockDetailResult.QuoteResponse.Result.FirstOrDefault();
-					result.LastPrice = decimal.Round(detailResult.Quote.RegularMarketPrice, 2);
-					result.Date = detailResult.Quote.FirstTradeDateMilliseconds.ConvertFromJSDate();
-					result.PriceChange = decimal.Round(detailResult.Quote.RegularMarketChangePercent, 2);
+					result.LastPrice = decimal.Round(detailResult.RegularMarketPrice, 2);
+					result.Date = detailResult.FirstTradeDateMilliseconds.ConvertFromJSDate();
+					result.PriceChange = decimal.Round(detailResult.RegularMarketChangePercent, 2);
 				}
 
 				var stockChartResult = stockCode.GetStockChart(region, lang, interval, range);
