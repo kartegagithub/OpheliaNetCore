@@ -7,7 +7,7 @@ namespace Ophelia.Integration.Notification.OneSignal
     {
         public string URL { get; set; }
         public string APIKey { get; set; }
-        public OneSignalNotificationResult SendToMultipleDevice(string[] registrationIds, string title, string body, string appId, string androidChannelID, string type = "", dynamic extraData = null, string EntityType = "", long EntityID = 0, long BadgeCount = 0, string webURL = "")
+        public OneSignalNotificationResult SendToMultipleDevice(string[] registrationIds, string title, string body, string appId, string type = "", dynamic extraData = null, string EntityType = "", long EntityID = 0, long BadgeCount = 0, string webURL = "")
         {
             var Result = new OneSignalNotificationResult();
             try
@@ -15,7 +15,6 @@ namespace Ophelia.Integration.Notification.OneSignal
                 var data = new
                 {
                     app_id = appId,
-                    android_channel_id = androidChannelID,
                     include_player_ids = registrationIds,
                     headings = new
                     {
@@ -47,7 +46,7 @@ namespace Ophelia.Integration.Notification.OneSignal
             }
             return Result;
         }
-        public OneSignalNotificationResult SendToSingleDevice(string token, string title, string body, string appId, string androidChannelID, string type = "", dynamic extraData = null, string EntityType = "", long EntityID = 0, long BadgeCount = 0, string webURL = "")
+        public OneSignalNotificationResult SendToSingleDevice(string token, string title, string body, string appId, string type = "", dynamic extraData = null, string EntityType = "", long EntityID = 0, long BadgeCount = 0, string webURL = "")
         {
             var Result = new OneSignalNotificationResult();
             try
@@ -55,7 +54,6 @@ namespace Ophelia.Integration.Notification.OneSignal
                 var data = new
                 {
                     app_id = appId,
-                    android_channel_id = androidChannelID,
                     include_player_ids = new string[] { token },
                     headings = new
                     {
