@@ -18,7 +18,7 @@ namespace Ophelia.Integration.AppleAuth
 
         private const string ApplePublicKeyUrl = "https://appleid.apple.com/auth/keys";
         private const string AppleIssuer = "https://appleid.apple.com";
-        private string ClientId = ""; // Bundle ID'niz burada
+        private string ClientId = "";
 
         public List<AppleAuthResponse> ValidateAppleToken(string identityToken)
         {
