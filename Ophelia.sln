@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Integration.Health.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Integration.StockExchange", "src\Integration\Ophelia.Integration.StockExchange\Ophelia.Integration.StockExchange.csproj", "{E8D28E24-4D7F-4109-B1AF-3B4C9AF7C9D1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ophelia.Integration.AppleLogin", "src\Integration\Ophelia.Integration.AppleLogin\Ophelia.Integration.AppleLogin.csproj", "{6CE6B6D2-3ECD-4C8B-BC31-44B7809F8097}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -179,6 +181,10 @@ Global
 		{E8D28E24-4D7F-4109-B1AF-3B4C9AF7C9D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8D28E24-4D7F-4109-B1AF-3B4C9AF7C9D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8D28E24-4D7F-4109-B1AF-3B4C9AF7C9D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CE6B6D2-3ECD-4C8B-BC31-44B7809F8097}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CE6B6D2-3ECD-4C8B-BC31-44B7809F8097}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CE6B6D2-3ECD-4C8B-BC31-44B7809F8097}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CE6B6D2-3ECD-4C8B-BC31-44B7809F8097}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -214,6 +220,7 @@ Global
 		{289ACADC-41E3-44DA-A041-24B157AD7167} = {B872D67B-336F-47CE-8F61-8B85BB1D95D2}
 		{A8E0CA3F-BEB5-4A35-8FDA-3671DA2D75A4} = {639D4A27-2F86-4AF7-B1F0-F302651C1058}
 		{E8D28E24-4D7F-4109-B1AF-3B4C9AF7C9D1} = {639D4A27-2F86-4AF7-B1F0-F302651C1058}
+		{6CE6B6D2-3ECD-4C8B-BC31-44B7809F8097} = {639D4A27-2F86-4AF7-B1F0-F302651C1058}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2969838D-0DAF-4DE7-9620-3BA33BD1287C}
