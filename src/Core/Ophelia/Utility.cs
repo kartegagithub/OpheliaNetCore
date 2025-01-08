@@ -10,6 +10,8 @@ namespace Ophelia
     public static class Utility
     {
         private static DateTimeKind _NowType = DateTimeKind.Local;
+        public static DateTimeKind NowType { get { return _NowType; } }
+
         public static DateTime Now => _NowType == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now;
 
         public static void SetNowType(DateTimeKind kind)

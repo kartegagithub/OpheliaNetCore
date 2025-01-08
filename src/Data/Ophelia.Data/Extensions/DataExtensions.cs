@@ -23,7 +23,7 @@ namespace Ophelia.Data
                 return true;
             else if (memberExpression.Expression is MemberExpression)
                 return (memberExpression.Expression as MemberExpression).CanGetExpressionValue(baseExpression);
-            
+
             var propInfo = memberExpression.Member as PropertyInfo;
             if (propInfo != null && propInfo.IsStaticProperty())
                 return true;
@@ -223,12 +223,21 @@ namespace Ophelia.Data
                         {
                             if (data.Value is DateTime dateData)
                             {
+                                if (Ophelia.Utility.NowType == DateTimeKind.Utc && dateData.Kind == DateTimeKind.Local)
+                                {
+                                    dateData = dateData.ToUniversalTime();
+                                }
+                                else if (Ophelia.Utility.NowType == DateTimeKind.Local && dateData.Kind == DateTimeKind.Utc)
+                                {
+                                    dateData = dateData.ToLocalTime();
+                                }
+                                else if (dateData.Kind == DateTimeKind.Unspecified)
+                                {
+                                    dateData.SetKind(Ophelia.Utility.NowType);
+                                }
                                 if (dateData > DateTime.MinValue)
                                 {
-                                    if (p == null)
-                                        source = source.Where(data.Name + comparison, data.Value);
-                                    else
-                                        source = source.Where(data.Name + comparison, p.PropertyType.ConvertData(data.Value));
+                                    source = source.Where(data.Name + comparison, dateData);
                                 }
                             }
                             else if (data.Value is double doubleData)
