@@ -287,7 +287,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
             {
                 var defaultModel = Activator.CreateInstance(typeof(TModel));
 
-                foreach (Web.View.Mvc.Controls.Binders.Fields.BaseField<TModel> item in this.FilterPanel.Controls)
+                foreach (BaseField<TModel> item in this.FilterPanel.Controls)
                 {
                     try
                     {
@@ -365,8 +365,13 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                         }
                         else
                         {
-                            if (item.Expression == null || !string.IsNullOrEmpty(this.Request.GetValue(path)))
-                                value = this.Request.GetValue(path);
+                            if (item.Expression == null || !string.IsNullOrEmpty(this.Request.GetValue(path)) || !string.IsNullOrEmpty(this.Request.GetValue(path + "[]")))
+                            {
+                                if (!string.IsNullOrEmpty(this.Request.GetValue(path + "[]")))
+                                    value = this.Request.GetValue(path + "[]");
+                                else
+                                    value = this.Request.GetValue(path);
+                            }
                             else
                                 value = Convert.ToString(item.GetExpressionValue());
                         }
@@ -864,7 +869,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                     else
                     {
-                        if (defaultValue.ToString().ToInt64() != value.ToString().ToInt64())
+                        if (value.ToString().IndexOf(',') > -1 || defaultValue.ToString().ToInt64() != value.ToString().ToInt64())
                             return true;
                     }
                 }
