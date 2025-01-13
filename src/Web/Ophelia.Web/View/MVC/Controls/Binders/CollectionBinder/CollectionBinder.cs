@@ -41,10 +41,18 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 return this.Request.GetValue("IsAjaxRequest") == "1" || this.Request.GetValue("ajaxentitybinder") == "1";
             }
         }
+        public virtual bool CanSummarize
+        {
+            get
+            {
+                return this.Request.GetValue("Summarize") == "1";
+            }
+        }
         public ControllerContext ControllerContext { get; private set; }
         public HttpRequest Request { get { return this.Client.Request; } }
         public HttpResponse Response { get { return this.Client.Response; } }
         public TModel DataSource { get; private set; }
+        public Dictionary<string, object> ColumnData { get; private set; }
         public Client Client { get { return Client.Current; } }
         public string Title { get; set; }
         private readonly ViewContext viewContext;
@@ -692,6 +700,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                     request = this.DataSource.OnBeforeRemoteDataSourceCall(request);
 
                                 this.OnBeforeRemoteDataSourceCall(request);
+                                this.SummarizeColumns(request.QueryData);
 
                                 var response = this.DataSource.RemoteDataSource(this.GetRemoteDataSourceFunctionName(), request);
                                 if (response.RawData != null)
@@ -741,6 +750,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                     this.DataSource.Items = (List<T>)response.GetPropertyValue("Data");
 
                                 this.DataSource.GroupPagination.ItemCount = response.TotalDataCount;
+                                this.ColumnData = response.ColumnData;
 
                                 this.OnRemoteDataSourceResponse(response);
                                 this.OnAfterQueryExecuted();
@@ -775,6 +785,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                 if (this.DataSource.OnBeforeRemoteDataSourceCall != null)
                                     request = this.DataSource.OnBeforeRemoteDataSourceCall(request);
 
+                                this.SummarizeColumns(request.QueryData);
                                 this.OnBeforeRemoteDataSourceCall(request);
 
                                 var response = this.DataSource.RemoteDataSource(this.GetRemoteDataSourceFunctionName(), request);
@@ -784,6 +795,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                                     this.DataSource.Items = (List<T>)response.GetPropertyValue("Data");
 
                                 this.DataSource.Pagination.ItemCount = response.TotalDataCount;
+                                this.ColumnData = response.ColumnData;
 
                                 this.OnRemoteDataSourceResponse(response);
                                 this.OnAfterQueryExecuted();
@@ -810,6 +822,50 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     }
                 }
             }
+        }
+        protected void SummarizeColumns(QueryData queryData)
+        {
+            if (this.CanSummarize)
+            {
+                var columnToSummarize = this.GetColumnsToSummarize();
+                if (columnToSummarize != null && columnToSummarize.Count > 0)
+                {
+                    foreach (var field in columnToSummarize)
+                    {
+                        queryData.Functions.Add(new DBFunction() { FunctionName = "Sum", Name = field, ManualProcess = true });
+                    }
+                }
+                else
+                {
+                    foreach (var column in this.Columns)
+                    {
+                        if (column.Expression is LambdaExpression)
+                        {
+                            var exp = (column.Expression as LambdaExpression).Body;
+                            if (exp is UnaryExpression)
+                            {
+                                exp = (exp as UnaryExpression).Operand;
+                                if (exp is MemberExpression)
+                                {
+                                    var memberExp = exp as MemberExpression;
+                                    if (memberExp != null)
+                                    {
+                                        var propInfo = (memberExp.Member as PropertyInfo);
+                                        if (propInfo != null && !propInfo.Name.EndsWith("ID") && propInfo.PropertyType.IsNumeric())
+                                        {
+                                            queryData.Functions.Add(new DBFunction() { FunctionName = "Sum", Name = column.Expression.ParsePath(), ManualProcess = true });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        protected List<string> GetColumnsToSummarize()
+        {
+            return null;
         }
         protected virtual string GetRemoteDataSourceFunctionName()
         {
@@ -1392,6 +1448,22 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 this.RenderOnAfterDrawLine(item);
                 this.Output.Write("</tr>");
             }
+            if (this.ColumnData != null && this.ColumnData.Any())
+            {
+                this.Output.Write("<tr class='totals'>");
+                if (this.Configuration.AddBlankColumnToStart || this.Configuration.Checkboxes)
+                    this.Output.Write("<td></td>");
+                foreach (var column in this.Columns)
+                {
+                    if (this.ColumnData.ContainsKey(column.Name))
+                    {
+                        this.Output.Write("<td class='text-right'>" + this.FormatColumnData(column, this.ColumnData[column.Name]) + "</td>");
+                    }
+                    else
+                        this.Output.Write("<td></td>");
+                }
+                this.Output.Write("</tr>");
+            }
             if (this.GroupedData != null && this.DataSource.Pagination.ItemCount > this.DataSource.Pagination.PageSize)
             {
                 this.Output.Write("<tr>");
@@ -1400,6 +1472,20 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 this.Output.Write("</tr>");
             }
             this.Output.Write("</tbody>");
+        }
+        protected string FormatColumnData(BaseColumn<TModel, T> column, object value)
+        {
+            if (value == null || value == DBNull.Value) return "";
+
+            var typeCode = Type.GetTypeCode(value.GetType());
+            switch (typeCode)
+            {
+                case TypeCode.Single:
+                case TypeCode.Double:
+                case TypeCode.Decimal:
+                    return Convert.ToDecimal(value).ToString("N2");
+            }
+            return value.ToString();
         }
         protected virtual void DrawColumnHeaders()
         {

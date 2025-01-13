@@ -14,6 +14,9 @@ namespace Ophelia.Data.Querying.Query.Helpers
         public string Name { get; set; }
 
         [DataMember]
+        public bool ManualProcess { get; set; }
+
+        [DataMember]
         public bool IsAggregiate { get; set; }
         public static DBFunction Create(string FunctionName, bool IsAggregiate, Expression expression)
         {

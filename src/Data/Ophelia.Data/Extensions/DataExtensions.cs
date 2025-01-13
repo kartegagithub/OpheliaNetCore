@@ -1,6 +1,9 @@
-﻿using Ophelia;
+﻿using Namotion.Reflection;
+using Ophelia;
 using Ophelia.Data;
+using Ophelia.Data.Querying.Query;
 using Ophelia.Data.Querying.Query.Helpers;
+using Ophelia.Service;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -331,6 +334,49 @@ namespace Ophelia.Data
         internal static List<PropertyInfo> GetPrimaryKeyProperties(Type type)
         {
             return type.GetProperties().Where(op => op.GetCustomAttributes(typeof(KeyAttribute)).Any()).ToList();
+        }
+
+        public static ServiceCollectionResult<T> SetData<T>(this ServiceCollectionResult<T> result, IQueryable<T> data, ServiceCollectionRequest<T> request, Action<T> onAfterSetData = null)
+        {
+            try
+            {
+                result.SetData(data.Count(), data.Paginate(request.Page, request.PageSize).ToList());
+                if (onAfterSetData != null)
+                {
+                    result.Data.ForEach(onAfterSetData);
+                }
+
+                var queryData = request.GetPropertyValue("QueryData") as QueryData;
+                if (queryData != null && queryData.Functions != null)
+                {
+                    result.ColumnData = new Dictionary<string, object>();
+                    var functions = queryData.Functions.Where(op => op.ManualProcess && !string.IsNullOrEmpty(op.FunctionName) && !string.IsNullOrEmpty(op.Name)).ToList();
+                    if (functions.Count > 0)
+                    {
+                        foreach (var item in functions)
+                        {
+                            try
+                            {
+                                var propTree = typeof(T).GetPropertyInfoTree(item.Name);
+                                if (propTree != null && propTree.Length > 0)
+                                {
+                                    var value = data.Aggregate(item.FunctionName, propTree.LastOrDefault().Name);
+                                    result.ColumnData.Add(item.Name, value);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
         }
     }
 }

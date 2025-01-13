@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Ophelia.Service
 {
@@ -7,6 +8,9 @@ namespace Ophelia.Service
     {
         [DataMember]
         public object RawData { get; set; }
+
+        [DataMember]
+        public Dictionary<string, object> ColumnData { get; set; }
 
         [DataMember]
         public long TotalDataCount { get; set; }
