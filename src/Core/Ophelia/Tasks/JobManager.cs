@@ -121,7 +121,7 @@ namespace Ophelia.Tasks
                 return Utility.Now;
 
             var NextExecution = Utility.Now;
-            if (job.Routine.StartDate > DateTime.Now)
+            if (job.Routine.StartDate > Utility.Now)
                 NextExecution = job.Routine.StartDate;
             var IntervalType = (IntervalType)job.Routine.IntervalType;
             if (IntervalType == IntervalType.Hour && job.Routine.Interval == 24)
