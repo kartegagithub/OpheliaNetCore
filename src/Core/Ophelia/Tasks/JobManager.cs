@@ -120,9 +120,13 @@ namespace Ophelia.Tasks
             if (job.Routine == null)
                 return Utility.Now;
 
+            var notWorkingInterval = false;
             var NextExecution = Utility.Now;
             if (job.Routine.StartDate > Utility.Now)
+            {
                 NextExecution = job.Routine.StartDate;
+                notWorkingInterval = true;
+            }
             var IntervalType = (IntervalType)job.Routine.IntervalType;
             if (IntervalType == IntervalType.Hour && job.Routine.Interval == 24)
                 IntervalType = IntervalType.Day;
@@ -130,29 +134,32 @@ namespace Ophelia.Tasks
                 job.Routine.Interval *= 7;
             if (IntervalType == IntervalType.Day && job.Routine.Interval % 7 == 0)
                 IntervalType = IntervalType.Week;
-            switch (IntervalType)
+            if (!notWorkingInterval)
             {
-                case IntervalType.Second:
-                    NextExecution = Utility.Now.AddSeconds(job.Routine.Interval);
-                    break;
-                case IntervalType.Minute:
-                    NextExecution = Utility.Now.AddMinutes(job.Routine.Interval);
-                    break;
-                case IntervalType.Hour:
-                    NextExecution = Utility.Now.AddHours(job.Routine.Interval);
-                    break;
-                case IntervalType.Day:
-                    NextExecution = Utility.Now.AddDays(job.Routine.Interval);
-                    break;
-                case IntervalType.Week:
-                    NextExecution = Utility.Now.AddDays(job.Routine.Interval);
-                    break;
-                case IntervalType.Month:
-                    NextExecution = Utility.Now.AddMonths(job.Routine.Interval);
-                    break;
-                case IntervalType.Year:
-                    NextExecution = Utility.Now.AddYears(job.Routine.Interval);
-                    break;
+                switch (IntervalType)
+                {
+                    case IntervalType.Second:
+                        NextExecution = Utility.Now.AddSeconds(job.Routine.Interval);
+                        break;
+                    case IntervalType.Minute:
+                        NextExecution = Utility.Now.AddMinutes(job.Routine.Interval);
+                        break;
+                    case IntervalType.Hour:
+                        NextExecution = Utility.Now.AddHours(job.Routine.Interval);
+                        break;
+                    case IntervalType.Day:
+                        NextExecution = Utility.Now.AddDays(job.Routine.Interval);
+                        break;
+                    case IntervalType.Week:
+                        NextExecution = Utility.Now.AddDays(job.Routine.Interval);
+                        break;
+                    case IntervalType.Month:
+                        NextExecution = Utility.Now.AddMonths(job.Routine.Interval);
+                        break;
+                    case IntervalType.Year:
+                        NextExecution = Utility.Now.AddYears(job.Routine.Interval);
+                        break;
+                }
             }
             if (job.Routine.OnlyRunAfterMidnight && string.IsNullOrEmpty(job.Routine.StartTime))
                 job.Routine.StartTime = "01:00";
