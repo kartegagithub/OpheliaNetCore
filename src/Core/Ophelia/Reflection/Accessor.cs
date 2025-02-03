@@ -238,6 +238,8 @@ namespace Ophelia.Reflection
                                     }
                                     else
                                     {
+                                        this.oValue = null;
+                                        this.ValueMemberName = TemporaryMemberName;
                                         return null;
                                     }
                                 }
@@ -361,6 +363,8 @@ namespace Ophelia.Reflection
                         }
                         else
                         {
+                            this.oValue = null;
+                            this.ValueMemberName = TemporaryMemberName;
                             return null;
                         }
                     }
