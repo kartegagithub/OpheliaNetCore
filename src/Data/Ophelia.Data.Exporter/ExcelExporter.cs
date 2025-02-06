@@ -148,6 +148,10 @@ namespace Ophelia.Data.Exporter
                 cellValue.Text = cellValue.Text.Trim().TrimStart('+');
                 cell.DataType = CellValues.Number;
             }
+            if (cellValue.Text.IsDate())
+            {
+                cell.DataType = CellValues.Date;
+            }
 
             cell.Append(cellValue);
             excelRow.Append(cell);
