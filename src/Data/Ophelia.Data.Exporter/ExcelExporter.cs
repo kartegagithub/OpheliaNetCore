@@ -204,7 +204,24 @@ namespace Ophelia.Data.Exporter
             cell.StyleIndex = UInt32Value.FromUInt32(this.GetStyleIndex(styleID));
 
             if (string.IsNullOrEmpty(cellValue.Text))
-                cellValue.Text = cellData?.ToString();
+            {
+                if (cellDataType.IsDecimal() && cellData != null)
+                {
+                    cellValue.Text = ((decimal)cellData).ToString(CultureInfo.InvariantCulture);
+                }
+                else if (cellDataType.IsDouble() && cellData != null)
+                {
+                    cellValue.Text = ((double)cellData).ToString(CultureInfo.InvariantCulture);
+                }
+                else if (cellDataType.IsSingle() && cellData != null)
+                {
+                    cellValue.Text = ((Single)cellData).ToString(CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    cellValue.Text = cellData?.ToString();
+                }
+            }
 
             if (cell.DataType == CellValues.Number && !string.IsNullOrEmpty(cellValue.Text))
             {
