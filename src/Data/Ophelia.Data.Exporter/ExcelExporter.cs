@@ -207,15 +207,15 @@ namespace Ophelia.Data.Exporter
             {
                 if (cellDataType.IsDecimal() && cellData != null)
                 {
-                    cellValue.Text = ((decimal)cellData).ToString(CultureInfo.InvariantCulture);
+                    cellValue.Text = Convert.ToDecimal(cellData.ToString()).ToString(CultureInfo.InvariantCulture);
                 }
                 else if (cellDataType.IsDouble() && cellData != null)
                 {
-                    cellValue.Text = ((double)cellData).ToString(CultureInfo.InvariantCulture);
+                    cellValue.Text = Convert.ToDouble(cellData.ToString()).ToString(CultureInfo.InvariantCulture);
                 }
                 else if (cellDataType.IsSingle() && cellData != null)
                 {
-                    cellValue.Text = ((Single)cellData).ToString(CultureInfo.InvariantCulture);
+                    cellValue.Text = Convert.ToSingle(cellData.ToString()).ToString(CultureInfo.InvariantCulture);
                 }
                 else
                 {
