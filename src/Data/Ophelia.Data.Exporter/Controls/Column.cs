@@ -1,4 +1,5 @@
 ﻿using System;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Ophelia.Data.Exporter.Controls
 {
@@ -7,7 +8,10 @@ namespace Ophelia.Data.Exporter.Controls
         public bool IsNumeric { get; set; }
         public string ID { get; set; }
         public string Text { get; set; }
+        public CellValues? Type { get; set; }
+        public Type? ValueType { get; set; }
         public Grid Grid { get; private set; }
+        public int StyleID { get; set; } = -1;
         public Column(Grid grid)
         {
             this.Grid = grid;

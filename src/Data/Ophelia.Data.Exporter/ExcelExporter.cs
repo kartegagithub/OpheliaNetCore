@@ -4,12 +4,17 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Ophelia.Data.Exporter.Controls;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Ophelia.Data.Exporter
 {
     public class ExcelExporter : IExporter
     {
+        public ExcelExporter()
+        {
+            this.FillCellFormats();
+        }
         public bool AutoSizeColumns { get; set; }
 
         public byte[] Export(Grid grid)
@@ -18,7 +23,6 @@ namespace Ophelia.Data.Exporter
             grids.Add(grid);
             return this.Export(grids);
         }
-
         public byte[] Export(List<Grid> grids)
         {
             System.IO.MemoryStream stream = new System.IO.MemoryStream();
@@ -45,12 +49,12 @@ namespace Ophelia.Data.Exporter
             spreadsheet.WorkbookPart.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook();
 
             //  My thanks to James Miera for the following line of code (which prevents crashes in Excel 2010)
-            spreadsheet.WorkbookPart.Workbook.Append(new BookViews(new WorkbookView()));
+            // spreadsheet.WorkbookPart.Workbook.Append(new BookViews(new WorkbookView()));
 
             //  If we don't add a "WorkbookStylesPart", OLEDB will refuse to connect to this .xlsx file !
             WorkbookStylesPart workbookStylesPart = spreadsheet.WorkbookPart.AddNewPart<WorkbookStylesPart>("rIdStyles");
-            Stylesheet stylesheet = new Stylesheet();
-            workbookStylesPart.Stylesheet = stylesheet;
+            workbookStylesPart.Stylesheet = this.GenerateStyleSheet();
+            workbookStylesPart.Stylesheet.Save();
 
             //  Loop through each of the DataTables in our DataSet, and create a new Excel Worksheet for each.
             uint worksheetNumber = 1;
@@ -78,7 +82,7 @@ namespace Ophelia.Data.Exporter
                 {
                     Id = spreadsheet.WorkbookPart.GetIdOfPart(newWorksheetPart),
                     SheetId = worksheetNumber,
-                    Name = grid.Text
+                    Name = grid.Text ?? $"Sheet{worksheetNumber}"
                 });
 
                 worksheetNumber++;
@@ -107,7 +111,7 @@ namespace Ophelia.Data.Exporter
             int colInx = 0;
             foreach (var col in grid.Columns)
             {
-                AppendCell(excelColumnNames[colInx] + "1", col.Text, headerRow, CellValues.String);
+                AppendCell(excelColumnNames[colInx] + "1", col.Text, headerRow, col.Type.GetValueOrDefault(CellValues.String), null, -1);
                 colInx++;
             }
 
@@ -119,10 +123,7 @@ namespace Ophelia.Data.Exporter
                 colInx = 0;
                 foreach (var cell in row.Cells)
                 {
-                    var cellValue = Convert.ToString(cell.Value);
-                    AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cellValue, newExcelRow, CellValues.String);
-                    cellValue = null;
-
+                    AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cell.Value, newExcelRow, cell.Column.Type.GetValueOrDefault(CellValues.String), cell.Column.ValueType, cell.Column.StyleID);
                     colInx++;
                 }
             }
@@ -134,24 +135,84 @@ namespace Ophelia.Data.Exporter
             }
         }
 
-        private void AppendCell(string cellReference, string cellStringValue, DocumentFormat.OpenXml.Spreadsheet.Row excelRow, CellValues type)
+        private void AppendCell(string cellReference, object cellData, DocumentFormat.OpenXml.Spreadsheet.Row excelRow, CellValues type, Type cellDataType, int styleID)
         {
             //  Add a new Excel Cell to our Row 
             var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell() { CellReference = cellReference, DataType = type };
             CellValue cellValue = new CellValue();
-            cellValue.Text = cellStringValue;
-            if (!string.IsNullOrEmpty(cellValue.Text) && (cellValue.Text.StartsWith('=') || cellValue.Text.StartsWith('@')))
-                cellValue.Text = $" ' {cellValue.Text}";
+            if (cellDataType != null)
+            {
+                type = CellValues.String;
+                if (cellDataType.IsNumeric())
+                {
+                    type = CellValues.Number;
+                    if (styleID == -1)
+                    {
+                        styleID = 1;
+                        if (cellDataType.IsDecimal() || cellDataType.IsDouble() || cellDataType.IsSingle()) styleID = 2;
+                    }
+                }
+                if (cellDataType.IsDate())
+                {
+                    type = CellValues.Date;
+                    if (cellData != null)
+                        cellValue.Text = ((DateTime)cellData).ToString("s");
+                    if (styleID == -1)
+                    {
+                        styleID = 22;
+                        if (!string.IsNullOrEmpty(cellValue.Text) && cellValue.Text.IndexOf(" 00:00") > -1)
+                        {
+                            styleID = 14;
+                        }
+                    }
+                }
 
-            if (cellValue.Text.IsNumeric())
+                cell.DataType = type;
+            }
+            else
+            {
+                if (cellData != null && cellData.IsDate())
+                {
+                    cell.DataType = CellValues.Date;
+                    if (cellData != null)
+                        cellValue.Text = ((DateTime)cellData).ToString("s");
+                    if (styleID == -1)
+                    {
+                        styleID = 22;
+                        if (!string.IsNullOrEmpty(cellValue.Text) && cellValue.Text.IndexOf(" 00:00") > -1)
+                        {
+                            styleID = 14;
+                        }
+                    }
+                }
+                if (cellData != null && cellData.ToString().IsNumeric())
+                {
+                    cellValue.Text = cellData.ToString();
+                    cell.DataType = CellValues.Number;
+                    if (styleID == -1)
+                    {
+                        styleID = 1;
+                        if (cellValue.Text.IndexOf('.') > -1 || cellValue.Text.IndexOf(',') > -1)
+                        {
+                            styleID = 2;
+                        }
+                    }
+                }
+            }
+            if (styleID == -1) styleID = 0;
+
+            cell.StyleIndex = UInt32Value.FromUInt32(this.GetStyleIndex(styleID));
+
+            if (string.IsNullOrEmpty(cellValue.Text))
+                cellValue.Text = cellData?.ToString();
+
+            if (cell.DataType == CellValues.Number && !string.IsNullOrEmpty(cellValue.Text))
             {
                 cellValue.Text = cellValue.Text.Trim().TrimStart('+');
-                cell.DataType = CellValues.Number;
             }
-            if (cellValue.Text.IsDate())
-            {
-                cell.DataType = CellValues.Date;
-            }
+
+            if (!string.IsNullOrEmpty(cellValue.Text) && (cellValue.Text.StartsWith('=') || cellValue.Text.StartsWith('@')))
+                cellValue.Text = $" ' {cellValue.Text}";
 
             cell.Append(cellValue);
             excelRow.Append(cell);
@@ -166,20 +227,6 @@ namespace Ophelia.Data.Exporter
             char secondChar = (char)('A' + (columnIndex % 26));
 
             return string.Format("{0}{1}", firstChar, secondChar);
-        }
-
-        private Type GetNullableType(Type t)
-        {
-            Type returnType = t;
-            if (t.IsGenericType && t.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
-            {
-                returnType = Nullable.GetUnderlyingType(t);
-            }
-            return returnType;
-        }
-        private bool IsNullableType(Type type)
-        {
-            return (type == typeof(string) || type.IsArray || (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>))));
         }
 
         private Columns AutoSize(SheetData sheetData)
@@ -206,8 +253,61 @@ namespace Ophelia.Data.Exporter
 
             return columns;
         }
+        private List<CellFormat>? CellFormats { get; set; }
 
+        public void AddCellFormat(CellFormat format)
+        {
+            this.CellFormats.Add(format);
+        }
+        private UInt32 GetStyleIndex(int id)
+        {
+            var index = this.CellFormats.FindIndex(op => op.NumberFormatId != null && op.NumberFormatId.Value == id);
+            if (index == -1) return 0;
+            return Convert.ToUInt32(index);
+        }
+        private void FillCellFormats()
+        {
+            this.CellFormats = new List<CellFormat>{new CellFormat() { ApplyNumberFormat = false },
 
+                // Numeric formats
+                new CellFormat() { NumberFormatId = 1, ApplyNumberFormat = true }, // 0
+                new CellFormat() { NumberFormatId = 2, ApplyNumberFormat = true }, // 0.00
+                new CellFormat() { NumberFormatId = 3, ApplyNumberFormat = true }, // #,##0
+                new CellFormat() { NumberFormatId = 4, ApplyNumberFormat = true }, // #,##0.00
+                new CellFormat() { NumberFormatId = 9, ApplyNumberFormat = true }, // %0
+                new CellFormat() { NumberFormatId = 10, ApplyNumberFormat = true }, // %0.00
+                new CellFormat() { NumberFormatId = 11, ApplyNumberFormat = true }, // 0.00E+00
+                new CellFormat() { NumberFormatId = 12, ApplyNumberFormat = true }, // # ?/?
+                new CellFormat() { NumberFormatId = 13, ApplyNumberFormat = true }, // # ??/??
+
+                // Date formats
+                new CellFormat() { NumberFormatId = 14, ApplyNumberFormat = true }, // YYYY-MM-DD
+                new CellFormat() { NumberFormatId = 15, ApplyNumberFormat = true }, // DD/MM/YYYY
+                new CellFormat() { NumberFormatId = 16, ApplyNumberFormat = true }, // MM/DD/YYYY
+                new CellFormat() { NumberFormatId = 17, ApplyNumberFormat = true }, // DD-MMM-YYYY
+                new CellFormat() { NumberFormatId = 18, ApplyNumberFormat = true }, // MMM-YY
+                new CellFormat() { NumberFormatId = 19, ApplyNumberFormat = true }, // HH:MM AM/PM
+                new CellFormat() { NumberFormatId = 20, ApplyNumberFormat = true }, // h:mm
+                new CellFormat() { NumberFormatId = 21, ApplyNumberFormat = true }, // h:mm:ss
+                new CellFormat() { NumberFormatId = 22, ApplyNumberFormat = true }, // M/d/yyyy h:mm
+                new CellFormat() { NumberFormatId = 45, ApplyNumberFormat = true }, // hh:mm
+                new CellFormat() { NumberFormatId = 46, ApplyNumberFormat = true }, // [h]:mm:ss
+                new CellFormat() { NumberFormatId = 47, ApplyNumberFormat = true }, // mm:ss
+                new CellFormat() { NumberFormatId = 48, ApplyNumberFormat = true }, // [mm]:ss
+
+                // Text Formats
+                new CellFormat() { ApplyNumberFormat = false } // Text
+            };
+        }
+        private Stylesheet GenerateStyleSheet()
+        {
+            return new Stylesheet(
+                new Fonts(new Font()),
+                new Fills(new Fill()),
+                new Borders(new Border()),
+                new CellFormats(this.CellFormats)
+            );
+        }
         private Dictionary<int, int> GetMaxCharacterWidth(SheetData sheetData)
         {
             //iterate over all cells getting a max char value for each column

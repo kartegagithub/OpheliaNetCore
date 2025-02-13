@@ -163,6 +163,26 @@ namespace Ophelia
                 _ => false,
             };
         }
+        public static bool IsDouble(this Type type)
+        {
+            if (type == null)
+                return false;
+            return Type.GetTypeCode(type) switch
+            {
+                TypeCode.Double => true,
+                _ => false,
+            };
+        }
+        public static bool IsSingle(this Type type)
+        {
+            if (type == null)
+                return false;
+            return Type.GetTypeCode(type) switch
+            {
+                TypeCode.Single => true,
+                _ => false,
+            };
+        }
         public static bool IsNumeric(this Type type)
         {
             if (type == null)
