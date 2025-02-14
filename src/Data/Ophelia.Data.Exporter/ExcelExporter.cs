@@ -194,6 +194,7 @@ namespace Ophelia.Data.Exporter
                         styleID = 1;
                         if (cellValue.Text.IndexOf('.') > -1 || cellValue.Text.IndexOf(',') > -1)
                         {
+                            cellValue.Text = Convert.ToDecimal(cellData.ToString()).ToString(CultureInfo.InvariantCulture);
                             styleID = 2;
                         }
                     }
