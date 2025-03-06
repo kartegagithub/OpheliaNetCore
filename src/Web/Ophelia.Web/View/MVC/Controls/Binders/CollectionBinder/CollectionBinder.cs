@@ -863,7 +863,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                 }
             }
         }
-        protected List<string> GetColumnsToSummarize()
+        protected virtual List<string> GetColumnsToSummarize()
         {
             return null;
         }
@@ -1455,12 +1455,18 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     this.Output.Write("<td></td>");
                 foreach (var column in this.Columns)
                 {
-                    if (this.ColumnData.ContainsKey(column.Name))
+                    if (column.Visible)
                     {
-                        this.Output.Write("<td class='text-right'>" + this.FormatColumnData(column, this.ColumnData[column.Name]) + "</td>");
+                        var name = column.Name;
+                        if (string.IsNullOrEmpty(name))
+                            name = column.FormatName();
+                        if (this.ColumnData.ContainsKey(name))
+                        {
+                            this.Output.Write("<td class='text-right'>" + this.FormatColumnData(column, this.ColumnData[name]) + "</td>");
+                        }
+                        else
+                            this.Output.Write("<td></td>");
                     }
-                    else
-                        this.Output.Write("<td></td>");
                 }
                 this.Output.Write("</tr>");
             }
