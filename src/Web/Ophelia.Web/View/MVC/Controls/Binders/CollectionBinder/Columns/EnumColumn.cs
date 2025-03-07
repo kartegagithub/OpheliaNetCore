@@ -31,7 +31,11 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             control.IsMultiple = this.IsMultiple;
 
             if (!this.IsMultiple)
+            {
                 control.CssClass = "filterbox single-value select-remote-data select2-hidden-accessible";
+                control.DefaultText = this.Binder.Client.TranslateText("Select");
+                control.DefaultValue = "-1";
+            }
             else
             {
                 control.CssClass = "filterbox multiple-value select2-hidden-accessible";
@@ -39,7 +43,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
             }
 
             control.DataSource = this.EnumType.GetEnumSelectList(this.Binder.Client);
-            if(value != null) control.SelectedValue = value.ToString();
+            if (value != null) control.SelectedValue = value.ToString();
 
             control.DisplayMemberName = "Text";
             control.ValueMemberName = "Value";
