@@ -175,7 +175,18 @@ namespace Ophelia.Data.Exporter
                 {
                     cell.DataType = CellValues.Date;
                     if (cellData != null)
-                        cellValue.Text = ((DateTime)cellData).ToString("s");
+                    {
+                        DateTime dateValue;
+                        if (cellData is DateTime)
+                        {
+                            dateValue = (DateTime)cellData;
+                            cellValue.Text = dateValue.ToString("s");
+                        }
+                        else if (cellData is string && DateTime.TryParse(cellData.ToString(), out dateValue) && dateValue > DateTime.MinValue)
+                        {
+                            cellValue.Text = dateValue.ToString("s");
+                        }
+                    }
                     if (styleID == -1)
                     {
                         styleID = 22;
