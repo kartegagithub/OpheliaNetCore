@@ -104,7 +104,7 @@ namespace Ophelia.Data.EntityFramework
                         {
                             EntityName = entry.Entity.GetType().Name,
                             EntityID = entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? 0 : Convert.ToInt64(entry.Entity.GetPropertyValue("ID")),
-                            UserID = Convert.ToInt64(entry.Entity.GetPropertyValue("UserCreatedID")),
+                            UserID = Convert.ToInt64(entry.Entity.GetPropertyValue("UserModifiedID")),
                             Date = Utility.Now,
                             State = entry.State
                         };
@@ -150,7 +150,7 @@ namespace Ophelia.Data.EntityFramework
                                         auditLogModel.EntityID = tmpLong;
                                 }
 
-                                if (key == "UserCreatedID")
+                                if (key == "UserModifiedID")
                                 {
                                     long tmpLong = 0;
                                     if (long.TryParse(value, out tmpLong))
