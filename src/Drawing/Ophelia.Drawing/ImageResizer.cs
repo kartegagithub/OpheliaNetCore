@@ -146,7 +146,7 @@ namespace Ophelia.Drawing
             return stream;
         }
         
-        public static MagickImage ResizeImage(MagickImage BMP, int width, int height, string PathToSave, int quality = 75)
+        public static MagickImage ResizeImage(MagickImage BMP, int width, int height, string PathToSave, int quality = 75, bool throwEx = false)
         {
             try
             {
@@ -155,33 +155,39 @@ namespace Ophelia.Drawing
                     NewBMP.Write(PathToSave);
                 return NewBMP;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                if (throwEx)
+                    throw ex;
                 return null;
             }
         }
 
-        public static void ResizeImage(Stream inputStream, int width, int height, string PathToSave, int quality = 75)
+        public static void ResizeImage(Stream inputStream, int width, int height, string PathToSave, int quality = 75, bool throwEx = false)
         {
             try
             {
                 var NewBMP = ProcessImage(inputStream.ReadFully(0), width, height, quality);
                 NewBMP.Write(PathToSave);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                if (throwEx)
+                    throw ex;
                 PathToSave = "";
             }
         }
-        public static MagickImage ResizeImage(byte[] data, int width, int height, int quality = 75)
+        public static MagickImage ResizeImage(byte[] data, int width, int height, int quality = 75, bool throwEx = false)
         {
             try
             {
                 var NewBMP = ProcessImage(data, width, height, quality);
                 return NewBMP;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                if (throwEx)
+                    throw ex;
                 return null;
             }
         }
