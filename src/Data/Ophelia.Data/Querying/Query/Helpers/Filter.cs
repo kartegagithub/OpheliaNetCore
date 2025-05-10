@@ -128,7 +128,21 @@ namespace Ophelia.Data.Querying.Query.Helpers
             this.Value = null;
             this.Value2 = null;
         }
-
+        protected object GetFormattedValue(object value)
+        {
+            if(value != null && this.PropertyInfo != null)
+            {
+                try
+                {
+                    return this.PropertyInfo.PropertyType.ConvertData(value);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+            return value;
+        }
         public virtual string Build(Query.BaseQuery query, Table subqueryTable = null)
         {
             if (this.EntityType == null && !string.IsNullOrEmpty(this.EntityTypeName))
@@ -459,7 +473,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                             }
                         }
                     }
-                    this.AddParameter(sb, query, this.Value, this.Value2, this.Comparison, this.Exclude, isStringFilter, fieldName.ToString());
+                    this.AddParameter(sb, query, this.GetFormattedValue(this.Value), this.GetFormattedValue(this.Value2), this.Comparison, this.Exclude, isStringFilter, fieldName.ToString());
                 }
             }
             return sb.ToString();
