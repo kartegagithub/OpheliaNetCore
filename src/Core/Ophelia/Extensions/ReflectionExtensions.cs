@@ -620,7 +620,13 @@ namespace Ophelia
             {
                 if (TypeCache.TryGetValue(baseType, out List<Type> existingTypes))
                     return existingTypes;
-
+            }
+            catch (Exception)
+            {
+                
+            }
+            try
+            {
                 foreach (var a in GetValidAssemblies())
                 {
                     try
@@ -641,9 +647,9 @@ namespace Ophelia
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex);
+
             }
             TypeCache[baseType] = returnTypes;
             return returnTypes;
