@@ -8,6 +8,14 @@ namespace Ophelia
 {
     public static class HolidayExtensions
     {
+        private static IEnumerable<int> GetHijriYears(int year)
+        {
+            var diff = year - 621;
+            var hijriDecimal = diff + (decimal)diff / 33;
+            var hijriYear = (int)Math.Truncate(hijriDecimal);
+            return new[] { hijriYear, hijriYear + 1 };
+        }
+
         public static List<PublicHoliday> TurkishHolidays(this int year)
         {
             var items = new List<PublicHoliday>
@@ -22,51 +30,58 @@ namespace Ophelia
                 new PublicHoliday(year, 10, 29, "Cumhuriyet Bayramı", "Republic Day", 1923)
             };
 
-            HijriCalendar hijri = new HijriCalendar();
-            CultureInfo arSA = new CultureInfo("ar-SA");
-            arSA.DateTimeFormat.Calendar = new HijriCalendar();
+            UmAlQuraCalendar umAlQura = new UmAlQuraCalendar();
+            var possibleHijriYears = GetHijriYears(year);
 
-            var nowHijriYear = hijri.GetYear(new DateTime(year, 1, 1));
+            foreach (var hijriYear in possibleHijriYears)
+            {
+                // Ramazan Bayramı eklemesi
+                // Ramazan Bayramı Arifesi 
+                var ramadanEve = umAlQura.ToDateTime(hijriYear, 10, 1, 0, 0, 0, 0).AddDays(-1);
+                if (ramadanEve.Year == year)
+                    items.Add(new PublicHoliday(ramadanEve, "Ramazan Bayramı Arifesi", "Ramadan Feast Eve", halfDay: true));
 
-            //Günü denklemek için bir gün ekleniyor.
+                // Ramazan Bayramı 1. Gün (Şevval 1)
+                var ramadan1 = umAlQura.ToDateTime(hijriYear, 10, 1, 0, 0, 0, 0);
+                if (ramadan1.Year == year)
+                    items.Add(new PublicHoliday(ramadan1, "Ramazan Bayramı 1. Günü", "Ramadan Feast First Day"));
 
-            //Ramazan Bayramı eklemesi
-            var gregorianCalendarRamadanEve = DateTime.ParseExact($"30/09/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarRamadanEve.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarRamadanEve, "Ramazan Bayramı Arifesi", "Ramadan Feast Eve", halfDay: true));
+                // Ramazan Bayramı 2. Gün (Şevval 2)
+                var ramadan2 = umAlQura.ToDateTime(hijriYear, 10, 2, 0, 0, 0, 0);
+                if (ramadan2.Year == year)
+                    items.Add(new PublicHoliday(ramadan2, "Ramazan Bayramı 2. Günü", "Ramadan Feast Second Day"));
 
-            var gregorianCalendarRamadan1 = DateTime.ParseExact($"01/10/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarRamadan1.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarRamadan1, "Ramazan Bayramı 1. Günü", "Ramadan Feast First Day"));
+                // Ramazan Bayramı 3. Gün (Şevval 3)
+                var ramadan3 = umAlQura.ToDateTime(hijriYear, 10, 3, 0, 0, 0, 0);
+                if (ramadan3.Year == year)
+                    items.Add(new PublicHoliday(ramadan3, "Ramazan Bayramı 3. Günü", "Ramadan Feast Third Day"));
 
-            var gregorianCalendarRamadan2 = DateTime.ParseExact($"02/10/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarRamadan2.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarRamadan2, "Ramazan Bayramı 2. Günü", "Ramadan Feast Second Day"));
+                //Kurban Bayramı eklemesi
+                // Kurban Bayramı Arifesi 
+                var sacrificeEve = umAlQura.ToDateTime(hijriYear, 12, 10, 0, 0, 0, 0).AddDays(-1);
+                if (sacrificeEve.Year == year)
+                    items.Add(new PublicHoliday(sacrificeEve, "Kurban Bayramı Arifesi", "Sacrifice Feast Eve", halfDay: true));
 
-            var gregorianCalendarRamadan3 = DateTime.ParseExact($"03/10/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarRamadan3.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarRamadan3, "Ramazan Bayramı 3. Günü", "Ramadan Feast Third Day"));
+                // Kurban Bayramı 1. Gün (Zilhicce 10)
+                var sacrifice1 = umAlQura.ToDateTime(hijriYear, 12, 10, 0, 0, 0, 0);
+                if (sacrifice1.Year == year)
+                    items.Add(new PublicHoliday(sacrifice1, "Kurban Bayramı 1. Günü", "Sacrifice Feast First Day"));
 
-            //Kurban Bayramı eklemesi
-            var gregorianCalendarSacrificeArife = DateTime.ParseExact($"09/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarSacrificeArife.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarSacrificeArife, "Kurban Bayramı Arifesi", "Sacrifice Feast Eve", halfDay: true));
+                // Kurban Bayramı 2. Gün (Zilhicce 11)
+                var sacrifice2 = umAlQura.ToDateTime(hijriYear, 12, 11, 0, 0, 0, 0);
+                if (sacrifice2.Year == year)
+                    items.Add(new PublicHoliday(sacrifice2, "Kurban Bayramı 2. Günü", "Sacrifice Feast Second Day"));
 
-            var gregorianCalendarSacrifice1 = DateTime.ParseExact($"10/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarSacrifice1.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarSacrifice1, "Kurban Bayramı 1. Günü", "Sacrifice Feast First Day"));
+                // Kurban Bayramı 3. Gün (Zilhicce 12)
+                var sacrifice3 = umAlQura.ToDateTime(hijriYear, 12, 12, 0, 0, 0, 0);
+                if (sacrifice3.Year == year)
+                    items.Add(new PublicHoliday(sacrifice3, "Kurban Bayramı 3. Günü", "Sacrifice Feast Third Day"));
 
-            var gregorianCalendarSacrifice2 = DateTime.ParseExact($"11/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarSacrifice2.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarSacrifice2, "Kurban Bayramı 2. Günü", "Sacrifice Feast Second Day"));
-
-            var gregorianCalendarSacrifice3 = DateTime.ParseExact($"12/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarSacrifice3.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarSacrifice3, "Kurban Bayramı 3. Günü", "Sacrifice Feast Third Day"));
-
-            var gregorianCalendarSacrifice4 = DateTime.ParseExact($"13/12/{nowHijriYear}", "dd/MM/yyyy", arSA).AddDays(1);
-            if (gregorianCalendarSacrifice4.Year == year)
-                items.Add(new PublicHoliday(gregorianCalendarSacrifice4, "Kurban Bayramı 4. Günü", "Sacrifice Feast Fourth Day"));
+                // Kurban Bayramı 4. Gün (Zilhicce 13)
+                var sacrifice4 = umAlQura.ToDateTime(hijriYear, 12, 13, 0, 0, 0, 0);
+                if (sacrifice4.Year == year)
+                    items.Add(new PublicHoliday(sacrifice4, "Kurban Bayramı 4. Günü", "Sacrifice Feast Fourth Day"));
+            }
 
             return items.Where(op => op.LaunchYear == null || op.LaunchYear <= year).OrderBy(op => op.Date).ToList();
         }
