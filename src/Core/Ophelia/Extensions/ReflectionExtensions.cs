@@ -190,7 +190,7 @@ namespace Ophelia
 
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 return Nullable.GetUnderlyingType(type).IsNumeric();
-            
+
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
@@ -609,13 +609,23 @@ namespace Ophelia
             return types;
         }
         private static Dictionary<Type, List<Type>> TypeCache { get; set; } = new Dictionary<Type, List<Type>>();
+        private static object lockObj = new object();
         public static void RemoveTypeCache(Type type)
         {
-            TypeCache.Remove(type);
+            try
+            {
+                lock (lockObj)
+                {
+                    TypeCache.Remove(type);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
         }
-        public static List<Type> GetRealTypes(this Type baseType, bool baseTypeIsDefault = true)
+        private static List<Type> GetExistingTypes(Type baseType)
         {
-            var returnTypes = new List<Type>();
             try
             {
                 if (TypeCache.TryGetValue(baseType, out List<Type> existingTypes))
@@ -623,8 +633,29 @@ namespace Ophelia
             }
             catch (Exception)
             {
-                
+
             }
+            return new List<Type>();
+        }
+        private static void AddTypeCache(Type baseType, List<Type> existingTypes)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    TypeCache[baseType] = existingTypes;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+        public static List<Type> GetRealTypes(this Type baseType, bool baseTypeIsDefault = true)
+        {
+            var returnTypes = GetExistingTypes(baseType);
+            if (returnTypes.Count > 0) return returnTypes;
+
             try
             {
                 foreach (var a in GetValidAssemblies())
@@ -651,7 +682,7 @@ namespace Ophelia
             {
 
             }
-            TypeCache[baseType] = returnTypes;
+            AddTypeCache(baseType, returnTypes);
             return returnTypes;
         }
         public static Type GetRealType(this Type baseType, bool baseTypeIsDefault = true)
