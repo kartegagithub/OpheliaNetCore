@@ -13,6 +13,10 @@ namespace Ophelia.Caching
         protected abstract List<TEntity> GetData();
         public virtual int CacheHealthDuration { get; set; }
         public virtual int CacheDuration { get; set; }
+        public virtual string KeyPrefix { get; } = "";
+        protected virtual string GetKey() {
+            return $"{this.KeyPrefix}{this.Key}";
+        }
         public DateTime LastCheckDate
         {
             get
@@ -20,15 +24,15 @@ namespace Ophelia.Caching
                 DateTime _LastCheckDate = Utility.Now;
                 try
                 {
-                    if (CacheManager.Get(this.Key + "_LCD") != null)
+                    if (CacheManager.Get(this.GetKey() + "_LCD") != null)
                     {
-                        _LastCheckDate = (DateTime)CacheManager.Get(this.Key + "_LCD");
+                        _LastCheckDate = (DateTime)CacheManager.Get(this.GetKey() + "_LCD");
                     }
                     else
                     {
                         lock (oEntity_Locker)
                         {
-                            CacheManager.Add(this.Key + "_LCD", _LastCheckDate);
+                            CacheManager.Add(this.GetKey() + "_LCD", _LastCheckDate);
                         }
                     }
                 }
@@ -42,8 +46,8 @@ namespace Ophelia.Caching
             {
                 lock (oEntity_Locker)
                 {
-                    CacheManager.Remove(this.Key + "_LCD");
-                    CacheManager.Add(this.Key + "_LCD", value);
+                    CacheManager.Remove(this.GetKey() + "_LCD");
+                    CacheManager.Add(this.GetKey() + "_LCD", value);
                 }
             }
         }
@@ -57,16 +61,16 @@ namespace Ophelia.Caching
                 }
                 if (this.oEntities == null)
                 {
-                    this.oEntities = CacheManager.Get<List<TEntity>>(this.Key);
+                    this.oEntities = CacheManager.Get<List<TEntity>>(this.GetKey());
                     if (this.oEntities == null)
                     {
                         lock (oEntity_Locker)
                         {
-                            this.oEntities = CacheManager.Get<List<TEntity>>(this.Key);
+                            this.oEntities = CacheManager.Get<List<TEntity>>(this.GetKey());
                             if (this.oEntities == null)
                             {
                                 this.oEntities = this.GetData();
-                                CacheManager.Add(this.Key, this.oEntities, this.CacheDuration);
+                                CacheManager.Add(this.GetKey(), this.oEntities, this.CacheDuration);
                             }
                         }
                     }
@@ -108,7 +112,7 @@ namespace Ophelia.Caching
             lock (oEntity_Locker)
             {
                 this.oEntities = null;
-                CacheManager.Remove(this.Key);
+                CacheManager.Remove(this.GetKey());
             }
         }
 
