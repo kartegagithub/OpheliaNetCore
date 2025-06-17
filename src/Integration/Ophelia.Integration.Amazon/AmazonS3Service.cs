@@ -5,6 +5,7 @@ using Ophelia.Service;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 
 namespace Ophelia.Integration.Amazon
@@ -106,6 +107,28 @@ namespace Ophelia.Integration.Amazon
                     if (!getResult.HasFailed && getResult.Data != null)
                         result.SetData(getResult.Data);
                 }
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        public ServiceObjectResult<HttpStatusCode> CreateBucket(string name)
+        {
+            return this.CreateBucket(new PutBucketRequest() { BucketName = name });
+        }
+
+        public ServiceObjectResult<HttpStatusCode> CreateBucket(PutBucketRequest request)
+        {
+            var result = new ServiceObjectResult<HttpStatusCode>();
+            try
+            {
+                var objectResult = this.Client.PutBucketAsync(request).Result;
+                result.SetData(objectResult.HttpStatusCode);
+                if (objectResult.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                    result.Fail($"Could not upload to AWS S3: {objectResult.HttpStatusCode.ToString()}");
             }
             catch (Exception ex)
             {
