@@ -122,6 +122,7 @@ namespace Ophelia.Tasks
 
             var notWorkingInterval = false;
             var NextExecution = Utility.Now;
+            job.Routine.StartDate.SetKind(Utility.Now.Kind);
             if (job.Routine.StartDate > Utility.Now)
             {
                 NextExecution = job.Routine.StartDate;
@@ -166,7 +167,9 @@ namespace Ophelia.Tasks
 
             if (!string.IsNullOrEmpty(job.Routine.StartTime))
             {
-                NextExecution = NextExecution.SetTime(job.Routine.StartTime, "HH:mm");
+                var tmpNextExectime = NextExecution.SetTime(job.Routine.StartTime, "HH:mm");
+                if (tmpNextExectime > Utility.Now && tmpNextExectime > NextExecution)
+                    NextExecution = tmpNextExectime;
             }
 
             if (!job.Routine.CanRunAtWorkingHours)
