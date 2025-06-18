@@ -188,6 +188,7 @@ namespace Ophelia.Tasks
                 else if (NextExecution.DayOfWeek == DayOfWeek.Sunday)
                     NextExecution = NextExecution.AddDays(1);
             }
+            NextExecution.SetKind(Utility.Now.Kind);
             return NextExecution;
         }
         internal protected virtual bool CanRunJob(Job job)
