@@ -8,7 +8,7 @@ namespace Ophelia
     public static class ReflectionExtensions
     {
         private static List<string> IncludedAssemblies { get; set; } = new List<string>();
-        
+
         public static List<string> ExcludedAssemblies { get; private set; } = new List<string>();
 
         public static void AddNamespaceToSearch(params string[] namespaces)
@@ -16,14 +16,14 @@ namespace Ophelia
             if (namespaces != null && namespaces.Length > 0)
                 IncludedAssemblies.AddRange(namespaces);
         }
-        
+
         public static List<Assembly> GetValidAssemblies()
         {
             if (IncludedAssemblies.Count > 0)
                 return AppDomain.CurrentDomain.GetAssemblies().Where(op => !ExcludedAssemblies.Contains(op.FullName) && IncludedAssemblies.Any(op2 => op.FullName.Contains(op2, StringComparison.InvariantCultureIgnoreCase))).ToList();
             return AppDomain.CurrentDomain.GetAssemblies().Where(op => !ExcludedAssemblies.Contains(op.FullName)).ToList();
         }
-        
+
         public static T2 CopyTo<T1, T2>(this T1 obj1, T2 obj2, params string[] excludedProps)
             where T1 : class
             where T2 : class
@@ -62,7 +62,7 @@ namespace Ophelia
             }.Iterate(obj1).Dispose();
             return obj2;
         }
-        
+
         public static List<T> ToList<T>(this System.Collections.ArrayList arrayList)
         {
             List<T> list = new List<T>(arrayList.Count);
@@ -72,7 +72,7 @@ namespace Ophelia
             }
             return list;
         }
-        
+
         public static System.Collections.IEnumerable ToList(this System.Collections.ArrayList arrayList, Type toType)
         {
             var listType = typeof(List<>).MakeGenericType(toType);
@@ -83,7 +83,7 @@ namespace Ophelia
             }
             return list;
         }
-        
+
         public static object ConvertData(this Type targetType, object value)
         {
             try
@@ -159,7 +159,7 @@ namespace Ophelia
                 throw;
             }
         }
-        
+
         public static bool IsDecimal(this Type type)
         {
             if (type == null)
@@ -170,7 +170,7 @@ namespace Ophelia
                 _ => false,
             };
         }
-        
+
         public static bool IsDouble(this Type type)
         {
             if (type == null)
@@ -181,7 +181,7 @@ namespace Ophelia
                 _ => false,
             };
         }
-        
+
         public static bool IsSingle(this Type type)
         {
             if (type == null)
@@ -192,7 +192,7 @@ namespace Ophelia
                 _ => false,
             };
         }
-        
+
         public static bool IsNumeric(this Type type)
         {
             if (type == null)
@@ -219,22 +219,22 @@ namespace Ophelia
                     return false;
             }
         }
-        
+
         public static byte ToByte(this Type type, object value)
         {
             return Convert.ToByte(type.ToInt64(value));
         }
-        
+
         public static short ToInt16(this Type type, object value)
         {
             return Convert.ToInt16(type.ToInt64(value));
         }
-        
+
         public static int ToInt32(this Type type, object value)
         {
             return Convert.ToInt32(type.ToInt64(value));
         }
-        
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1806:Do not ignore method results", Justification = "<Pending>")]
         public static long ToInt64(this Type type, object value)
         {
@@ -290,7 +290,7 @@ namespace Ophelia
                     return Convert.ToInt64(decValue);
             }
         }
-        
+
         public static bool ToBoolean(this Type type, object value)
         {
             if (value != null)
@@ -315,12 +315,12 @@ namespace Ophelia
             }
             return false;
         }
-        
+
         public static bool IsNullable(this Type type)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
-        
+
         public static object GetDefaultValue(this Type type)
         {
             if (type.IsValueType)
@@ -329,14 +329,14 @@ namespace Ophelia
             }
             return null;
         }
-        
+
         public static string GetNamespace(this Type type)
         {
             var arr = type.FullName.Split('.');
             var ns = arr[^2];
             return ns;
         }
-        
+
         public static object ExecuteMethod<T>(this T entity, string method, params object[] parameters) where T : class
         {
             if (entity != null)
@@ -354,14 +354,14 @@ namespace Ophelia
             }
             return null;
         }
-        
+
         public static List<MethodInfo> GetImplementingMethods<T>(this T attributeClass, Type classType) where T : Type
         {
             if (classType == null)
                 return new List<MethodInfo>();
             return classType.GetMethods().Where(op => op.GetCustomAttributes(attributeClass, true).Length > 0).ToList();
         }
-        
+
         public static List<MethodInfo> GetImplementingMethods<T>(this T attributeClass, string AssemblyPath, string className) where T : Type
         {
             if (string.IsNullOrEmpty(className))
@@ -374,7 +374,7 @@ namespace Ophelia
             }
             return new List<MethodInfo>();
         }
-        
+
         public static List<Type> GetAssignableClasses<T>(this T baseClass, string RootNamespace = "") where T : Type
         {
             var list = new List<Type>();
@@ -403,7 +403,7 @@ namespace Ophelia
             }
             return list;
         }
-        
+
         public static List<Type> GetAssignableClassesFromFile<T>(this T baseClass, string AssemblyPath, string RootNamespace = "") where T : Type
         {
             var list = new List<Type>();
@@ -433,7 +433,7 @@ namespace Ophelia
             }
             return list;
         }
-        
+
         public static PropertyInfo GetDisplayTextProperty(this Type type, string baseProperty)
         {
             var baseType = type.GetPropertyInfo(baseProperty).PropertyType;
@@ -474,7 +474,7 @@ namespace Ophelia
                 return prop;
             return null;
         }
-        
+
         public static PropertyInfo GetPropertyInfo(this Type type, string property)
         {
             PropertyInfo prop = null;
@@ -503,7 +503,7 @@ namespace Ophelia
             }
             return prop;
         }
-        
+
         public static PropertyInfo[] GetPropertyInfoTree(this Type type, string property)
         {
             var props = new List<PropertyInfo>();
@@ -527,7 +527,7 @@ namespace Ophelia
                 props.Add(type.GetProperties().Where(op => op.Name.Equals(property, StringComparison.OrdinalIgnoreCase)).FirstOrDefault());
             return props.ToArray();
         }
-        
+
         public static object GetPropertyValue<TResult>(this TResult source, string property) where TResult : class
         {
             if (source != null)
@@ -572,7 +572,7 @@ namespace Ophelia
             }
             return null;
         }
-        
+
         public static void SetPropertyValue<TResult>(this TResult source, string property, object value) where TResult : class
         {
             if (source != null)
@@ -595,12 +595,12 @@ namespace Ophelia
                 }
             }
         }
-        
+
         public static bool IsEnumarable(this Type type)
         {
             return type.IsGenericType && (type.IsAssignableFrom(typeof(System.Collections.IEnumerable)) || typeof(System.Collections.IEnumerable).IsAssignableFrom(type));
         }
-        
+
         public static List<PropertyInfo> GetPropertiesByType(this Type ObjectType, Type PropertyTpe)
         {
             if (ObjectType != null && PropertyTpe != null)
@@ -608,7 +608,7 @@ namespace Ophelia
             else
                 return null;
         }
-        
+
         public static List<Type> GetSimilarTypes(this string objectType, bool exactMatch = false)
         {
             var types = new List<Type>();
@@ -639,11 +639,11 @@ namespace Ophelia
             }
             return types;
         }
-        
+
         private static Dictionary<Type, List<Type>> TypeCache { get; set; } = new Dictionary<Type, List<Type>>();
-        
+
         private static object lockObj = new object();
-        
+
         public static void RemoveTypeCache(Type type)
         {
             try
@@ -658,7 +658,7 @@ namespace Ophelia
 
             }
         }
-        
+
         private static List<Type> GetExistingTypes(Type baseType)
         {
             try
@@ -672,7 +672,7 @@ namespace Ophelia
             }
             return new List<Type>();
         }
-        
+
         private static void AddTypeCache(Type baseType, List<Type> existingTypes)
         {
             try
@@ -687,7 +687,7 @@ namespace Ophelia
 
             }
         }
-        
+
         public static List<Type> GetRealTypes(this Type baseType, bool baseTypeIsDefault = true)
         {
             var returnTypes = GetExistingTypes(baseType);
@@ -722,7 +722,7 @@ namespace Ophelia
             AddTypeCache(baseType, returnTypes);
             return returnTypes;
         }
-        
+
         public static Type GetRealType(this Type baseType, bool baseTypeIsDefault = true)
         {
             var types = baseType.GetRealTypes(baseTypeIsDefault);
@@ -731,7 +731,7 @@ namespace Ophelia
                 type = baseType;
             return type;
         }
-        
+
         public static object GetRealTypeInstance(this Type baseType, bool baseTypeIsDefault = true, params object[] parameters)
         {
             try
@@ -748,7 +748,7 @@ namespace Ophelia
             }
             return null;
         }
-        
+
         public static Type ResolveType(this string typeName)
         {
             Type finalType = Type.GetType(typeName);
@@ -777,7 +777,7 @@ namespace Ophelia
             }
             return finalType;
         }
-        
+
         public static string GetPropertyStringValue<TResult>(this TResult source, string property) where TResult : class
         {
             return source.GetPropertyValue(property)?.ToString();
@@ -787,12 +787,12 @@ namespace Ophelia
         {
             return source.GetGetMethod().IsStatic;
         }
-        
+
         public static object GetStaticPropertyValue(this PropertyInfo source)
         {
             return source.GetValue(null);
         }
-        
+
         public static List<object> GetCustomAttributes(this MethodInfo type, Type attributeType)
         {
             if (type == null)
@@ -801,7 +801,7 @@ namespace Ophelia
             var list = type.GetCustomAttributes(true).Where(op => op.GetType().IsAssignableFrom(attributeType));
             return new List<object>(list);
         }
-        
+
         public static List<object> GetCustomAttributes(this Type type, Type attributeType)
         {
             if (type == null)
@@ -810,7 +810,7 @@ namespace Ophelia
             var list = type.GetCustomAttributes(true).Where(op => op.GetType().IsAssignableFrom(attributeType));
             return new List<object>(list);
         }
-        
+
         public static IEnumerable<object> GetCustomAttributes(this PropertyInfo info, Type attributeType, bool checkBase = false)
         {
             if (info == null)
@@ -823,7 +823,7 @@ namespace Ophelia
                     yield return op;
             }
         }
-        
+
         public static Type GetMemberInfoType(this MemberInfo member)
         {
             switch (member.MemberType)
@@ -913,11 +913,12 @@ namespace Ophelia
             {
                 if (excludeProperties != null && excludeProperties.Contains(sourceProp.Name))
                     continue;
-                var targetProp = targetProps.FirstOrDefault(p => p.Name == sourceProp.Name && p.PropertyType == sourceProp.PropertyType);
+
+                var targetProp = targetProps.FirstOrDefault(p => p.Name == sourceProp.Name);
                 if (targetProp != null && targetProp.CanWrite)
                 {
                     var value = sourceProp.GetValue(source);
-                    targetProp.SetValue(target, value);
+                    targetProp.SetValue(target, targetProp.PropertyType.ConvertData(value));
                 }
             }
 
