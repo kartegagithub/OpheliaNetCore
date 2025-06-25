@@ -84,7 +84,7 @@ namespace Ophelia
             return list;
         }
 
-        public static object ConvertData(this Type targetType, object value)
+        public static object ConvertData(this Type targetType, object value, bool setDefaultForNullValues = true)
         {
             try
             {
@@ -92,6 +92,9 @@ namespace Ophelia
                 var isNull = value == null;
                 if (!isNull && string.IsNullOrEmpty(Convert.ToString(value, System.Globalization.CultureInfo.CurrentCulture)))
                     isNull = true;
+
+                if (isNull && !setDefaultForNullValues)
+                    return value;
 
                 if (targetType == typeof(bool) || targetType == typeof(bool?))
                 {
@@ -918,7 +921,7 @@ namespace Ophelia
                 if (targetProp != null && targetProp.CanWrite)
                 {
                     var value = sourceProp.GetValue(source);
-                    targetProp.SetValue(target, targetProp.PropertyType.ConvertData(value));
+                    targetProp.SetValue(target, targetProp.PropertyType.ConvertData(value, false));
                 }
             }
 
