@@ -5,6 +5,7 @@ using Ophelia.Service;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -163,6 +164,52 @@ namespace Ophelia.Integration.Amazon
                 }
                 else
                     result.Fail($"Could not upload to AWS S3: {objectResult.HttpStatusCode.ToString()}");
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        public ServiceObjectResult<GetObjectMetadataResponse> GetObjectMetadata(string bucketName, string key)
+        {
+            var result = new ServiceObjectResult<GetObjectMetadataResponse>();
+            try
+            {
+                var request = new GetObjectMetadataRequest
+                {
+                    BucketName = bucketName,
+                    Key = key
+                };
+
+                result.Data = this.Client.GetObjectMetadataAsync(request).Result;
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.StatusCode == HttpStatusCode.NotFound)
+                    result.Fail("ObjectNotFoundInS3");
+                result.Fail(ex);
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        public ServiceObjectResult<bool> ObjectExists(string bucketName, string key)
+        {
+            var result = new ServiceObjectResult<bool>();
+            try
+            {
+                var metaDataResponse = this.GetObjectMetadata(bucketName, key);
+                if (!metaDataResponse.HasFailed)
+                    result.SetData(true);
+                else if (metaDataResponse.Messages.Any(op => op.Description.Contains("ObjectNotFoundInS3")))
+                    result.SetData(false);
+                else
+                    result.Fail(metaDataResponse);
             }
             catch (Exception ex)
             {
