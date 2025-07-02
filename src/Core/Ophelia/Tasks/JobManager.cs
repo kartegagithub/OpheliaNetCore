@@ -130,7 +130,10 @@ namespace Ophelia.Tasks
             }
             var IntervalType = (IntervalType)job.Routine.IntervalType;
             if (IntervalType == IntervalType.Hour && job.Routine.Interval == 24)
+            {
                 IntervalType = IntervalType.Day;
+                job.Routine.Interval = 1;
+            }
             if (IntervalType == IntervalType.Week)
                 job.Routine.Interval *= 7;
             if (IntervalType == IntervalType.Day && job.Routine.Interval % 7 == 0)
@@ -168,7 +171,7 @@ namespace Ophelia.Tasks
             if (!string.IsNullOrEmpty(job.Routine.StartTime))
             {
                 var tmpNextExectime = NextExecution.SetTime(job.Routine.StartTime, "HH:mm");
-                if (tmpNextExectime > Utility.Now && tmpNextExectime > NextExecution)
+                if (tmpNextExectime > Utility.Now)
                     NextExecution = tmpNextExectime;
             }
 
