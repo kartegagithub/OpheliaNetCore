@@ -8,10 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Transactions;
 
 namespace Ophelia.Integration.Amazon
 {
-    public class AmazonS3Service
+    public class AmazonS3Service: IDisposable
     {
         private string AccessKey = "";
         private string SecretKey = "";
@@ -172,14 +173,40 @@ namespace Ophelia.Integration.Amazon
             return result;
         }
 
-        public ServiceObjectResult<GetObjectMetadataResponse> GetObjectMetadata(string bucketName, string key)
+        public ServiceObjectResult<DeleteObjectResponse> Delete(string key)
+        {
+            var result = new ServiceObjectResult<DeleteObjectResponse>();
+            try
+            {
+                var request = new DeleteObjectRequest
+                {
+                    BucketName = this.Bucket,
+                    Key = key
+                };
+
+                result.Data = this.Client.DeleteObjectAsync(request).Result;
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.StatusCode == HttpStatusCode.NotFound)
+                    result.Fail("ObjectNotFoundInS3");
+                result.Fail(ex);
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
+            }
+            return result;
+        }
+
+        public ServiceObjectResult<GetObjectMetadataResponse> GetObjectMetadata(string key)
         {
             var result = new ServiceObjectResult<GetObjectMetadataResponse>();
             try
             {
                 var request = new GetObjectMetadataRequest
                 {
-                    BucketName = bucketName,
+                    BucketName = this.Bucket,
                     Key = key
                 };
 
@@ -198,12 +225,12 @@ namespace Ophelia.Integration.Amazon
             return result;
         }
 
-        public ServiceObjectResult<bool> ObjectExists(string bucketName, string key)
+        public ServiceObjectResult<bool> ObjectExists(string key)
         {
             var result = new ServiceObjectResult<bool>();
             try
             {
-                var metaDataResponse = this.GetObjectMetadata(bucketName, key);
+                var metaDataResponse = this.GetObjectMetadata(key);
                 if (!metaDataResponse.HasFailed)
                     result.SetData(true);
                 else if (metaDataResponse.Messages.Any(op => op.Description.Contains("ObjectNotFoundInS3")))
@@ -249,5 +276,14 @@ namespace Ophelia.Integration.Amazon
             return result;
         }
 
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            this.oClient?.Dispose();
+            this.oClient = null;
+            this.ServiceURL = "";
+            this.AccessKey = "";
+            this.SecretKey = "";
+        }
     }
 }
