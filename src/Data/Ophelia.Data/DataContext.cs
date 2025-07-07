@@ -254,6 +254,27 @@ namespace Ophelia.Data
                 this.Connection.Dispose();
             }
         }
+        public virtual bool CanRunDataDesigner(Exception ex)
+        {
+            if (ex.Message.IndexOf("No value given for one or more required parameters", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("does not belong to table", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("Invalid object name", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("Could not find output table", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("unknown field name", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("Exception while reading from stream", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("ORA-02289", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("ORA-00942", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("ORA-00904", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("ORA-00001", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("Invalid column name", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("42703", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("42P01", StringComparison.InvariantCultureIgnoreCase) > -1
+               || ex.Message.IndexOf("42704", StringComparison.InvariantCultureIgnoreCase) > -1)
+            {
+                return true;
+            }
+            return false;
+        }
         public virtual void OnAfterEntityLoaded(object entity)
         {
 
