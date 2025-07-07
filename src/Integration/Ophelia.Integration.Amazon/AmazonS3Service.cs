@@ -186,12 +186,6 @@ namespace Ophelia.Integration.Amazon
 
                 result.Data = this.Client.DeleteObjectAsync(request).Result;
             }
-            catch (AmazonS3Exception ex)
-            {
-                if (ex.StatusCode == HttpStatusCode.NotFound)
-                    result.Fail("ObjectNotFoundInS3");
-                result.Fail(ex);
-            }
             catch (Exception ex)
             {
                 result.Fail(ex);
@@ -212,15 +206,9 @@ namespace Ophelia.Integration.Amazon
 
                 result.Data = this.Client.GetObjectMetadataAsync(request).Result;
             }
-            catch (AmazonS3Exception ex)
-            {
-                if (ex.StatusCode == HttpStatusCode.NotFound)
-                    result.Fail("ObjectNotFoundInS3");
-                result.Fail(ex);
-            }
             catch (Exception ex)
             {
-                result.Fail(ex);
+                result.Fail(ex.ToString());
             }
             return result;
         }
@@ -240,7 +228,7 @@ namespace Ophelia.Integration.Amazon
             }
             catch (Exception ex)
             {
-                result.Fail(ex);
+                result.Fail(ex.ToString());
             }
             return result;
         }
