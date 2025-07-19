@@ -132,11 +132,13 @@ namespace Ophelia
         }
         public static string Right(this string value, int length)
         {
+            if (string.IsNullOrEmpty(value)) return value;
             return value.Substring(Math.Max(0, value.Length - length));
         }
 
         public static string Left(this string value, int length)
         {
+            if (string.IsNullOrEmpty(value)) return value;
             return value.Substring(0, Math.Min(length, value.Length));
         }
 
