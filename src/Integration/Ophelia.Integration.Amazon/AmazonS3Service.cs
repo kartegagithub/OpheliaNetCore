@@ -1,5 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using AngleSharp.Io;
 using Ophelia.Integration.Amazon.Model;
 using Ophelia.Service;
 using System;
@@ -12,7 +13,7 @@ using System.Transactions;
 
 namespace Ophelia.Integration.Amazon
 {
-    public class AmazonS3Service: IDisposable
+    public class AmazonS3Service : IDisposable
     {
         private string AccessKey = "";
         private string SecretKey = "";
@@ -209,6 +210,33 @@ namespace Ophelia.Integration.Amazon
             catch (Exception ex)
             {
                 result.Fail(ex.ToString());
+            }
+            return result;
+        }
+
+        public ServiceObjectResult<byte[]> GetFile(string key)
+        {
+            var result = new ServiceObjectResult<byte[]>();
+            try
+            {
+                var request = new GetObjectRequest
+                {
+                    BucketName = this.Bucket,
+                    Key = key
+                };
+
+                using (GetObjectResponse response = this.Client.GetObjectAsync(request).Result)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        response.ResponseStream.CopyToAsync(memoryStream).Wait();
+                        result.Data = memoryStream.ToArray(); // ← işte bu
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex);
             }
             return result;
         }
