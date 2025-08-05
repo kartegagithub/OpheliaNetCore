@@ -1,7 +1,9 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Ophelia.Data.Exporter.Controls;
+using Ophelia.Data.Exporter.Enums;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -98,13 +100,12 @@ namespace Ophelia.Data.Exporter
             var sheetData = worksheet.GetFirstChild<SheetData>();
 
             int numberOfColumns = grid.Columns.Count;
+            int numberOfRows = grid.Rows.Count;
 
             string[] excelColumnNames = new string[numberOfColumns];
             for (int n = 0; n < numberOfColumns; n++)
                 excelColumnNames[n] = GetExcelColumnName(n);
-
             uint rowIndex = 1;
-
             var headerRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
             sheetData.Append(headerRow);
 
@@ -127,11 +128,96 @@ namespace Ophelia.Data.Exporter
                     colInx++;
                 }
             }
-
             if (this.AutoSizeColumns)
             {
                 var columns = AutoSize(sheetData);
                 worksheet.InsertAt(columns, 0);
+            }
+
+            if (numberOfColumns > 0 && numberOfRows > 0 && grid.TableStyleID > 0)
+            {
+                string startCell = "A1";
+                string endCell = GetExcelColumnName(numberOfColumns - 1) + (numberOfRows + 1);
+                string reference = $"{startCell}:{endCell}";
+
+                var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
+                var table = new Table()
+                {
+                    Id = 1U,
+                    Name = $"MyTable-{grid.ID}",
+                    DisplayName = $"MyTable-{grid.ID}",
+                    Reference = reference,
+                    TotalsRowShown = grid.IsTotalRowShow
+                };
+                if(grid.IsFilterable)
+                    table.AutoFilter =  new AutoFilter() { Reference = reference };
+                var tableColumns = new TableColumns() { Count = (uint)numberOfColumns };
+                for (uint i = 0; i < numberOfColumns; i++)
+                {
+                    var tableColumn = new TableColumn() { Id = i + 1, Name = grid.Columns[(int)i].Text };
+                    if (grid.IsTotalRowShow)
+                    {
+                        switch ((CalculationType)grid.Columns[(int)i].CalculationTypeID)
+                        {
+                            case CalculationType.Sum:
+                                tableColumn.TotalsRowFunction = TotalsRowFunctionValues.Sum;
+                                break;
+                            case CalculationType.Average:
+                                tableColumn.TotalsRowFunction = TotalsRowFunctionValues.Average;
+                                break;
+                            case CalculationType.Count:
+                                tableColumn.TotalsRowFunction = TotalsRowFunctionValues.Count;
+                                break;
+                            default:
+                                tableColumn.TotalsRowFunction = TotalsRowFunctionValues.None;
+                                break;
+                        }
+
+                    }
+                    tableColumns.Append(tableColumn);
+                }
+
+                table.Append(tableColumns);
+                var tableStyleInfoName = "";
+                switch ((TableStyleType)grid.TableStyleID)
+                {
+                    case TableStyleType.TableStyleMedium9:
+                        tableStyleInfoName = "TableStyleMedium9";
+                        break;
+                    case TableStyleType.TableStyleMedium27:
+                        tableStyleInfoName = "TableStyleMedium27";
+                        break;
+                    case TableStyleType.TableStyleMedium28:
+                        tableStyleInfoName = "TableStyleMedium28";
+                        break;
+                    default:
+                        break;
+                }
+                table.Append(new TableStyleInfo()
+                {
+                    Name = tableStyleInfoName,
+                    ShowFirstColumn = false,
+                    ShowLastColumn = false,
+                    ShowRowStripes = true,
+                    ShowColumnStripes = false,  
+                });
+
+                tableDefinitionPart.Table = table;
+                tableDefinitionPart.Table.Save();
+
+                var tableParts = worksheet.Elements<TableParts>().FirstOrDefault();
+                if (tableParts == null)
+                {
+                    tableParts = new TableParts() { Count = 1U };
+                    worksheetPart.Worksheet.Append(tableParts);
+                }
+                else
+                {
+                    tableParts.Count = (uint)tableParts.ChildElements.Count + 1;
+                }
+                tableParts.AppendChild(new TablePart() { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
+                tableParts.Count = (uint)tableParts.ChildElements.Count;
+                worksheet.Save();
             }
         }
 
@@ -246,7 +332,6 @@ namespace Ophelia.Data.Exporter
             cell.Append(cellValue);
             excelRow.Append(cell);
         }
-
         private string GetExcelColumnName(int columnIndex)
         {
             if (columnIndex < 26)

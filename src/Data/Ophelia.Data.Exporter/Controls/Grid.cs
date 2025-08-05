@@ -9,6 +9,9 @@ namespace Ophelia.Data.Exporter.Controls
         public string Text { get; set; }
         public List<Row> Rows { get; set; }
         public List<Column> Columns { get; set; }
+        public long TableStyleID { get; set; }
+        public bool IsFilterable { get; set; }
+        public bool IsTotalRowShow { get; set; }
         public Grid()
         {
             this.Rows = new List<Row>();
