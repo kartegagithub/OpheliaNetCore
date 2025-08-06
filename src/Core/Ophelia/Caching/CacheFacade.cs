@@ -106,12 +106,18 @@ namespace Ophelia.Caching
         {
             return this.List.Where(predicate).ToList();
         }
-
-        public void DropCache()
+        public void Reset()
         {
             lock (oEntity_Locker)
             {
                 this.oEntities = null;
+            }
+        }
+        public void DropCache()
+        {
+            this.Reset();
+            lock (oEntity_Locker)
+            {
                 CacheManager.Remove(this.GetKey());
             }
         }
@@ -121,7 +127,6 @@ namespace Ophelia.Caching
             this.DropCache();
             if (CanSetCacheDirty)
                 this.SetCacheDirty();
-            this.oEntities = null;
             return this.Load();
         }
 
