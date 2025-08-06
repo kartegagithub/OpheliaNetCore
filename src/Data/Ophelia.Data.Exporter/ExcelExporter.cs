@@ -1,7 +1,6 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Ophelia.Data.Exporter.Controls;
 using Ophelia.Data.Exporter.Enums;
 using System;
@@ -64,7 +63,7 @@ namespace Ophelia.Data.Exporter
             {
                 //  For each worksheet you want to create
                 string workSheetID = "rId" + worksheetNumber.ToString();
-                string worksheetName = grid.Text;
+                string worksheetName = grid.Text.ReplaceSpecialVowelsAndConsonant();
 
                 WorksheetPart newWorksheetPart = spreadsheet.WorkbookPart.AddNewPart<WorksheetPart>();
                 newWorksheetPart.Worksheet = new DocumentFormat.OpenXml.Spreadsheet.Worksheet();
@@ -84,7 +83,7 @@ namespace Ophelia.Data.Exporter
                 {
                     Id = spreadsheet.WorkbookPart.GetIdOfPart(newWorksheetPart),
                     SheetId = worksheetNumber,
-                    Name = grid.Text ?? $"Sheet{worksheetNumber}"
+                    Name = worksheetName ?? $"Sheet{worksheetNumber}"
                 });
 
                 worksheetNumber++;
@@ -128,6 +127,44 @@ namespace Ophelia.Data.Exporter
                     colInx++;
                 }
             }
+
+            string startCell = "A1";
+            string endCell = GetExcelColumnName(numberOfColumns - 1) + (grid.IsTotalRowShow ? (rowIndex + 1).ToString() : (numberOfRows + 1).ToString());
+
+            if (grid.IsTotalRowShow)
+            {
+                ++rowIndex;
+                var totalRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
+                sheetData.Append(totalRow);
+                for (int i = 0; i < numberOfColumns; i++)
+                {
+                    string cellReference = excelColumnNames[i] + rowIndex.ToString();
+                    var column = grid.Columns[i];
+                    var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell() { CellReference = cellReference, StyleIndex = UInt32Value.FromUInt32(this.GetStyleIndex(column.StyleID)) };
+
+                    if (column.CalculationTypeID > 0)
+                    {
+                        string dataRange = $"{excelColumnNames[i]}2:{excelColumnNames[i]}{rowIndex - 1}";
+                        string formula = "";
+                        switch ((CalculationType)column.CalculationTypeID)
+                        {
+                            case CalculationType.Sum:
+                                formula = $"SUBTOTAL(109, {dataRange})";
+                                break;
+                            case CalculationType.Average:
+                                formula = $"SUBTOTAL(101, {dataRange})";
+                                break;
+                            case CalculationType.Count:
+                                formula = $"SUBTOTAL(103, {dataRange})";
+                                break;
+                        }
+                        cell.CellFormula = new DocumentFormat.OpenXml.Spreadsheet.CellFormula() { Text = formula };
+                    }
+                    totalRow.Append(cell);
+                }
+                endCell = GetExcelColumnName(numberOfColumns - 1) + rowIndex.ToString();
+            }
+
             if (this.AutoSizeColumns)
             {
                 var columns = AutoSize(sheetData);
@@ -136,47 +173,24 @@ namespace Ophelia.Data.Exporter
 
             if (numberOfColumns > 0 && numberOfRows > 0 && grid.TableStyleID > 0)
             {
-                string startCell = "A1";
-                string endCell = GetExcelColumnName(numberOfColumns - 1) + (numberOfRows + 1);
                 string reference = $"{startCell}:{endCell}";
 
                 var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
                 var table = new Table()
-                {
+                {   
                     Id = 1U,
-                    Name = $"MyTable-{grid.ID}",
-                    DisplayName = $"MyTable-{grid.ID}",
+                    Name = $"MyTable{grid.ID ?? Ophelia.Utility.GenerateRandomPassword(6, true)}",
+                    DisplayName = $"MyTable{grid.ID ?? Ophelia.Utility.GenerateRandomPassword(6, true)}",
                     Reference = reference,
                     TotalsRowShown = grid.IsTotalRowShow
                 };
-                if(grid.IsFilterable)
-                    table.AutoFilter =  new AutoFilter() { Reference = reference };
+                if (grid.IsFilterable)
+                    table.AutoFilter = new AutoFilter() { Reference = reference };
                 var tableColumns = new TableColumns() { Count = (uint)numberOfColumns };
                 for (uint i = 0; i < numberOfColumns; i++)
                 {
-                    var tableColumn = new TableColumn() { Id = i + 1, Name = grid.Columns[(int)i].Text };
-                    if (grid.IsTotalRowShow)
-                    {
-                        switch ((CalculationType)grid.Columns[(int)i].CalculationTypeID)
-                        {
-                            case CalculationType.Sum:
-                                tableColumn.TotalsRowFunction = TotalsRowFunctionValues.Sum;
-                                break;
-                            case CalculationType.Average:
-                                tableColumn.TotalsRowFunction = TotalsRowFunctionValues.Average;
-                                break;
-                            case CalculationType.Count:
-                                tableColumn.TotalsRowFunction = TotalsRowFunctionValues.Count;
-                                break;
-                            default:
-                                tableColumn.TotalsRowFunction = TotalsRowFunctionValues.None;
-                                break;
-                        }
-
-                    }
-                    tableColumns.Append(tableColumn);
+                    tableColumns.Append(new TableColumn() { Id = i + 1, Name = grid.Columns[(int)i].Text });
                 }
-
                 table.Append(tableColumns);
                 var tableStyleInfoName = "";
                 switch ((TableStyleType)grid.TableStyleID)
@@ -193,31 +207,34 @@ namespace Ophelia.Data.Exporter
                     default:
                         break;
                 }
-                table.Append(new TableStyleInfo()
+                if (!string.IsNullOrEmpty(tableStyleInfoName))
                 {
-                    Name = tableStyleInfoName,
-                    ShowFirstColumn = false,
-                    ShowLastColumn = false,
-                    ShowRowStripes = true,
-                    ShowColumnStripes = false,  
-                });
+                    table.Append(new TableStyleInfo()
+                    {
+                        Name = tableStyleInfoName,
+                        ShowFirstColumn = false,
+                        ShowLastColumn = false,
+                        ShowRowStripes = true,
+                        ShowColumnStripes = false
+                    });
 
-                tableDefinitionPart.Table = table;
-                tableDefinitionPart.Table.Save();
+                    tableDefinitionPart.Table = table;
+                    tableDefinitionPart.Table.Save();
 
-                var tableParts = worksheet.Elements<TableParts>().FirstOrDefault();
-                if (tableParts == null)
-                {
-                    tableParts = new TableParts() { Count = 1U };
-                    worksheetPart.Worksheet.Append(tableParts);
+                    var tableParts = worksheet.Elements<TableParts>().FirstOrDefault();
+                    if (tableParts == null)
+                    {
+                        tableParts = new TableParts() { Count = 1U };
+                        worksheetPart.Worksheet.Append(tableParts);
+                    }
+                    else
+                    {
+                        tableParts.Count = (uint)tableParts.ChildElements.Count + 1;
+                    }
+                    tableParts.AppendChild(new TablePart() { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
+                    tableParts.Count = (uint)tableParts.ChildElements.Count;
+                    worksheet.Save();
                 }
-                else
-                {
-                    tableParts.Count = (uint)tableParts.ChildElements.Count + 1;
-                }
-                tableParts.AppendChild(new TablePart() { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
-                tableParts.Count = (uint)tableParts.ChildElements.Count;
-                worksheet.Save();
             }
         }
 

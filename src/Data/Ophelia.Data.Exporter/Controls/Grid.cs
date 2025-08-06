@@ -16,6 +16,7 @@ namespace Ophelia.Data.Exporter.Controls
         {
             this.Rows = new List<Row>();
             this.Columns = new List<Column>();
+            this.IsFilterable = true;
         }
         public Row AddRow()
         {
