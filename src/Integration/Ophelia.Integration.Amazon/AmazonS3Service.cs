@@ -194,6 +194,28 @@ namespace Ophelia.Integration.Amazon
             return result;
         }
 
+        public ServiceObjectResult<CopyObjectResponse> CopyObject(string sourceKey, string destinationKey)
+        {
+            var result = new ServiceObjectResult<CopyObjectResponse>();
+            try
+            {
+                var request = new CopyObjectRequest
+                {
+                    SourceBucket = this.Bucket,
+                    SourceKey = sourceKey,
+                    DestinationBucket = this.Bucket,
+                    DestinationKey = destinationKey
+                };
+
+                result.Data = this.Client.CopyObjectAsync(request).Result;
+            }
+            catch (Exception ex)
+            {
+                result.Fail(ex.ToString());
+            }
+            return result;
+        }
+
         public ServiceObjectResult<GetObjectMetadataResponse> GetObjectMetadata(string key)
         {
             var result = new ServiceObjectResult<GetObjectMetadataResponse>();
