@@ -12,6 +12,7 @@ namespace Ophelia.Data.Exporter.Controls
         public Type? ValueType { get; set; }
         public Grid Grid { get; private set; }
         public int StyleID { get; set; } = -1;
+        public long CalculationTypeID { get; set; }
         public Column(Grid grid)
         {
             this.Grid = grid;
