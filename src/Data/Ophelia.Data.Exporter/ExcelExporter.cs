@@ -83,7 +83,7 @@ namespace Ophelia.Data.Exporter
                 {
                     Id = spreadsheet.WorkbookPart.GetIdOfPart(newWorksheetPart),
                     SheetId = worksheetNumber,
-                    Name = worksheetName ?? $"Sheet{worksheetNumber}"
+                    Name = !string.IsNullOrEmpty(worksheetName) ? worksheetName : $"Sheet{worksheetNumber}"
                 });
 
                 worksheetNumber++;
@@ -102,141 +102,26 @@ namespace Ophelia.Data.Exporter
             int numberOfRows = grid.Rows.Count;
 
             string[] excelColumnNames = new string[numberOfColumns];
-            for (int n = 0; n < numberOfColumns; n++)
-                excelColumnNames[n] = GetExcelColumnName(n);
+            AddHeaderRow(grid, sheetData, excelColumnNames);
             uint rowIndex = 1;
-            var headerRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
-            sheetData.Append(headerRow);
-
-            int colInx = 0;
-            foreach (var col in grid.Columns)
-            {
-                AppendCell(excelColumnNames[colInx] + "1", col.Text, headerRow, col.Type.GetValueOrDefault(CellValues.String), null, -1);
-                colInx++;
-            }
-
-            foreach (var row in grid.Rows)
-            {
-                ++rowIndex;
-                var newExcelRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
-                sheetData.Append(newExcelRow);
-                colInx = 0;
-                foreach (var cell in row.Cells)
-                {
-                    AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cell.Value, newExcelRow, cell.Column.Type.GetValueOrDefault(CellValues.String), cell.Column.ValueType, cell.Column.StyleID);
-                    colInx++;
-                }
-            }
+            AddDataRows(grid, sheetData, excelColumnNames, ref rowIndex);
 
             string startCell = "A1";
-            string endCell = GetExcelColumnName(numberOfColumns - 1) + (grid.IsTotalRowShow ? (rowIndex + 1).ToString() : (numberOfRows + 1).ToString());
+            string endCell = GetExcelColumnName(numberOfColumns - 1) + rowIndex.ToString();
+            string reference = $"{startCell}:{endCell}";
+            string tableStyleInfoName = this.GetTableStyleName(grid.TableStyleID);
+            string totalTableStyleInfoName = this.GetTableStyleName(grid.TotalTableStyleID);
+            AddTableDefinition(grid, worksheetPart, reference, numberOfColumns, excelColumnNames, tableStyleInfoName);
 
             if (grid.IsTotalRowShow)
-            {
-                ++rowIndex;
-                var totalRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
-                sheetData.Append(totalRow);
-                for (int i = 0; i < numberOfColumns; i++)
-                {
-                    string cellReference = excelColumnNames[i] + rowIndex.ToString();
-                    var column = grid.Columns[i];
-                    var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell() { CellReference = cellReference, StyleIndex = UInt32Value.FromUInt32(this.GetStyleIndex(column.StyleID)) };
-
-                    if (column.CalculationTypeID > 0)
-                    {
-                        string dataRange = $"{excelColumnNames[i]}2:{excelColumnNames[i]}{rowIndex - 1}";
-                        string formula = "";
-                        switch ((CalculationType)column.CalculationTypeID)
-                        {
-                            case CalculationType.Sum:
-                                formula = $"SUBTOTAL(109, {dataRange})";
-                                break;
-                            case CalculationType.Average:
-                                formula = $"SUBTOTAL(101, {dataRange})";
-                                break;
-                            case CalculationType.Count:
-                                formula = $"SUBTOTAL(103, {dataRange})";
-                                break;
-                        }
-                        cell.CellFormula = new DocumentFormat.OpenXml.Spreadsheet.CellFormula() { Text = formula };
-                    }
-                    totalRow.Append(cell);
-                }
-                endCell = GetExcelColumnName(numberOfColumns - 1) + rowIndex.ToString();
-            }
-
+                AddTotalRows(grid, sheetData, excelColumnNames, ref rowIndex, worksheetPart, numberOfColumns, totalTableStyleInfoName);
             if (this.AutoSizeColumns)
             {
                 var columns = AutoSize(sheetData);
                 worksheet.InsertAt(columns, 0);
             }
-
-            if (numberOfColumns > 0 && numberOfRows > 0 && grid.TableStyleID > 0)
-            {
-                string reference = $"{startCell}:{endCell}";
-
-                var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
-                var table = new Table()
-                {   
-                    Id = 1U,
-                    Name = $"MyTable{grid.ID ?? Ophelia.Utility.GenerateRandomPassword(6, true)}",
-                    DisplayName = $"MyTable{grid.ID ?? Ophelia.Utility.GenerateRandomPassword(6, true)}",
-                    Reference = reference,
-                    TotalsRowShown = grid.IsTotalRowShow
-                };
-                if (grid.IsFilterable)
-                    table.AutoFilter = new AutoFilter() { Reference = reference };
-                var tableColumns = new TableColumns() { Count = (uint)numberOfColumns };
-                for (uint i = 0; i < numberOfColumns; i++)
-                {
-                    tableColumns.Append(new TableColumn() { Id = i + 1, Name = grid.Columns[(int)i].Text });
-                }
-                table.Append(tableColumns);
-                var tableStyleInfoName = "";
-                switch ((TableStyleType)grid.TableStyleID)
-                {
-                    case TableStyleType.TableStyleMedium9:
-                        tableStyleInfoName = "TableStyleMedium9";
-                        break;
-                    case TableStyleType.TableStyleMedium27:
-                        tableStyleInfoName = "TableStyleMedium27";
-                        break;
-                    case TableStyleType.TableStyleMedium28:
-                        tableStyleInfoName = "TableStyleMedium28";
-                        break;
-                    default:
-                        break;
-                }
-                if (!string.IsNullOrEmpty(tableStyleInfoName))
-                {
-                    table.Append(new TableStyleInfo()
-                    {
-                        Name = tableStyleInfoName,
-                        ShowFirstColumn = false,
-                        ShowLastColumn = false,
-                        ShowRowStripes = true,
-                        ShowColumnStripes = false
-                    });
-
-                    tableDefinitionPart.Table = table;
-                    tableDefinitionPart.Table.Save();
-
-                    var tableParts = worksheet.Elements<TableParts>().FirstOrDefault();
-                    if (tableParts == null)
-                    {
-                        tableParts = new TableParts() { Count = 1U };
-                        worksheetPart.Worksheet.Append(tableParts);
-                    }
-                    else
-                    {
-                        tableParts.Count = (uint)tableParts.ChildElements.Count + 1;
-                    }
-                    tableParts.AppendChild(new TablePart() { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
-                    tableParts.Count = (uint)tableParts.ChildElements.Count;
-                    worksheet.Save();
-                }
-            }
         }
+
 
         private void AppendCell(string cellReference, object cellData, DocumentFormat.OpenXml.Spreadsheet.Row excelRow, CellValues type, Type cellDataType, int styleID)
         {
@@ -434,7 +319,12 @@ namespace Ophelia.Data.Exporter
         {
             return new Stylesheet(
                 new Fonts(new Font()),
-                new Fills(new Fill()),
+                new Fills(new Fill(
+    new PatternFill(
+        new ForegroundColor { Rgb = new HexBinaryValue() { Value = "FFFFFF00" } }
+    )
+    { PatternType = PatternValues.Solid }
+)),
                 new Borders(new Border()),
                 new CellFormats(this.CellFormats)
             );
@@ -488,5 +378,402 @@ namespace Ophelia.Data.Exporter
 
             return maxColWidth;
         }
+        private void AddHeaderRow(Controls.Grid grid, SheetData sheetData, string[] excelColumnNames)
+        {
+            for (int n = 0; n < grid.Columns.Count; n++)
+                excelColumnNames[n] = GetExcelColumnName(n);
+
+            var headerRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = 1 };
+            sheetData.Append(headerRow);
+
+            for (int colInx = 0; colInx < grid.Columns.Count; colInx++)
+            {
+                var column = grid.Columns[colInx];
+                AppendCell(
+                    excelColumnNames[colInx] + "1",
+                    column.Text,
+                    headerRow,
+                    column.Type.GetValueOrDefault(CellValues.String),
+                    null,
+                    -1
+                );
+            }
+        }
+
+        private void AddDataRows(Controls.Grid grid, SheetData sheetData, string[] excelColumnNames, ref uint rowIndex)
+        {
+            foreach (var row in grid.Rows)
+            {
+                ++rowIndex;
+                var newExcelRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
+                sheetData.Append(newExcelRow);
+
+                for (int colInx = 0; colInx < grid.Columns.Count; colInx++)
+                {
+                    var cell = row.Cells[colInx];
+                    AppendCell(
+                        excelColumnNames[colInx] + rowIndex.ToString(),
+                        cell.Value,
+                        newExcelRow,
+                        cell.Column.Type.GetValueOrDefault(CellValues.String),
+                        cell.Column.ValueType,
+                        cell.Column.StyleID
+                    );
+                }
+            }
+        }
+        private void AddTableDefinition(Controls.Grid grid, WorksheetPart worksheetPart, string reference, int numberOfColumns, string[] excelColumnNames, string tableStyleInfoName)
+        {
+            var worksheet = worksheetPart.Worksheet;
+
+            var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
+            var table = new Table()
+            {
+                Id = 1U,
+                Name = $"MyTable{grid.ID ?? Ophelia.Utility.GenerateRandomPassword(6, true)}",
+                DisplayName = $"MyTable{grid.ID ?? Ophelia.Utility.GenerateRandomPassword(6, true)}",
+                Reference = reference,
+                TotalsRowShown = false
+            };
+
+            if (grid.IsFilterable)
+                table.AutoFilter = new AutoFilter() { Reference = reference };
+
+            var tableColumns = new TableColumns() { Count = (uint)numberOfColumns };
+            for (uint i = 0; i < numberOfColumns; i++)
+                tableColumns.Append(new TableColumn() { Id = i + 1, Name = grid.Columns[(int)i].Text });
+            table.Append(tableColumns);
+            if (!string.IsNullOrEmpty(tableStyleInfoName))
+            {
+                table.Append(new TableStyleInfo()
+                {
+                    Name = tableStyleInfoName,
+                    ShowFirstColumn = false,
+                    ShowLastColumn = false,
+                    ShowRowStripes = true,
+                    ShowColumnStripes = false
+                });
+
+                tableDefinitionPart.Table = table;
+                tableDefinitionPart.Table.Save();
+
+                var tableParts = worksheet.Elements<TableParts>().FirstOrDefault();
+                if (tableParts == null)
+                {
+                    tableParts = new TableParts() { Count = 1U };
+                    worksheetPart.Worksheet.Append(tableParts);
+                }
+                else
+                {
+                    tableParts.Count = (uint)tableParts.ChildElements.Count + 1;
+                }
+                tableParts.AppendChild(new TablePart() { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
+                tableParts.Count = (uint)tableParts.ChildElements.Count;
+                worksheet.Save();
+            }
+        }
+        private void AddTotalRows(
+            Controls.Grid grid,
+            SheetData sheetData,
+            string[] excelColumnNames,
+            ref uint rowIndex,
+            WorksheetPart worksheetPart,
+            int numberOfColumns,
+            string totalTableStyleInfoName)
+        {
+            ++rowIndex;
+            var labelRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
+            sheetData.Append(labelRow);
+            for (int i = 0; i < numberOfColumns; i++)
+            {
+                string cellReference = excelColumnNames[i] + rowIndex.ToString();
+
+                var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell()
+                {
+                    CellReference = cellReference,
+                    StyleIndex = (UInt32)grid.Columns[i].Type.GetValueOrDefault(CellValues.String).ToInt32(),
+                    DataType = CellValues.String
+                };
+                cell.Append(new CellValue(i == 0 ? "Toplam" : new string('\u200B', (int)i)));
+                labelRow.Append(cell);
+            }
+
+            ++rowIndex;
+            var totalRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
+            sheetData.Append(totalRow);
+            for (int i = 0; i < numberOfColumns; i++)
+            {
+                string cellReference = excelColumnNames[i] + rowIndex.ToString();
+                var column = grid.Columns[i];
+                var cell = new DocumentFormat.OpenXml.Spreadsheet.Cell()
+                {
+                    CellReference = cellReference,
+                    StyleIndex = (UInt32)column.Type.GetValueOrDefault(CellValues.String).ToInt32()
+                };
+
+                if (column.CalculationTypeID > 0)
+                {
+                    string dataRange = $"{excelColumnNames[i]}2:{excelColumnNames[i]}{rowIndex - 1}";
+                    string formula = "";
+                    switch ((CalculationType)column.CalculationTypeID)
+                    {
+                        case CalculationType.Sum:
+                            formula = $"SUBTOTAL(109, {dataRange})";
+                            break;
+                        case CalculationType.Average:
+                            formula = $"SUBTOTAL(101, {dataRange})";
+                            break;
+                        case CalculationType.Count:
+                            formula = $"SUBTOTAL(103, {dataRange})";
+                            break;
+                    }
+                    cell.CellFormula = new CellFormula() { Text = formula };
+                }
+                totalRow.Append(cell);
+            }
+
+
+            string totalStartCell = excelColumnNames[0] + (rowIndex-1).ToString();
+            string totalEndCell = excelColumnNames[numberOfColumns - 1] + rowIndex.ToString();
+            string totalReference = $"{totalStartCell}:{totalEndCell}";
+
+            var totalTableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
+            var totalTable = new Table()
+            {
+                Id = 2U,
+                Name = $"TotalTable{grid.ID ?? Ophelia.Utility.GenerateRandomPassword(6, true)}",
+                DisplayName = $"TotalTable{grid.ID ?? Ophelia.Utility.GenerateRandomPassword(6, true)}",
+                Reference = totalReference,
+                TotalsRowShown = false,
+            };
+            var tableColumns = new TableColumns() { Count = (uint)numberOfColumns };
+            for (uint i = 0; i < numberOfColumns; i++)
+                tableColumns.Append(new TableColumn() { Id = i + 1, Name = i == 0 ? "Toplam" : new string('\u200B', (int)i) });
+
+            totalTable.Append(tableColumns);
+
+            if (!string.IsNullOrEmpty(totalTableStyleInfoName))
+            {
+                totalTable.Append(new TableStyleInfo()
+                {
+                    Name = totalTableStyleInfoName,
+                    ShowFirstColumn = false,
+                    ShowLastColumn = false,
+                    ShowRowStripes = true,
+                    ShowColumnStripes = false
+                });
+
+                totalTableDefinitionPart.Table = totalTable;
+                totalTableDefinitionPart.Table.Save();
+
+                var worksheet = worksheetPart.Worksheet;
+                var tableParts = worksheet.Elements<TableParts>().FirstOrDefault();
+                if (tableParts == null)
+                {
+                    tableParts = new TableParts() { Count = 1U };
+                    worksheet.Append(tableParts);
+                }
+                else
+                {
+                    tableParts.Count = (uint)tableParts.ChildElements.Count + 1;
+                }
+                tableParts.AppendChild(new TablePart() { Id = worksheetPart.GetIdOfPart(totalTableDefinitionPart) });
+                tableParts.Count = (uint)tableParts.ChildElements.Count;
+                worksheet.Save();
+            }
+        }
+        private string GetTableStyleName(long tableStyleID = 0)
+        {
+            var tableStyleInfoName = "";
+            switch ((TableStyleType)tableStyleID)
+            {
+                case TableStyleType.TableStyleLight1:
+                    tableStyleInfoName = "TableStyleLight1";
+                    break;
+                case TableStyleType.TableStyleLight2:
+                    tableStyleInfoName = "TableStyleLight2";
+                    break;
+                case TableStyleType.TableStyleLight3:
+                    tableStyleInfoName = "TableStyleLight3";
+                    break;
+                case TableStyleType.TableStyleLight4:
+                    tableStyleInfoName = "TableStyleLight4";
+                    break;
+                case TableStyleType.TableStyleLight5:
+                    tableStyleInfoName = "TableStyleLight5";
+                    break;
+                case TableStyleType.TableStyleLight6:
+                    tableStyleInfoName = "TableStyleLight6";
+                    break;
+                case TableStyleType.TableStyleLight7:
+                    tableStyleInfoName = "TableStyleLight7";
+                    break;
+                case TableStyleType.TableStyleLight8:
+                    tableStyleInfoName = "TableStyleLight8";
+                    break;
+                case TableStyleType.TableStyleLight9:
+                    tableStyleInfoName = "TableStyleLight9";
+                    break;
+                case TableStyleType.TableStyleLight10:
+                    tableStyleInfoName = "TableStyleLight10";
+                    break;
+                case TableStyleType.TableStyleLight11:
+                    tableStyleInfoName = "TableStyleLight11";
+                    break;
+                case TableStyleType.TableStyleLight12:
+                    tableStyleInfoName = "TableStyleLight12";
+                    break;
+                case TableStyleType.TableStyleLight13:
+                    tableStyleInfoName = "TableStyleLight13";
+                    break;
+                case TableStyleType.TableStyleLight14:
+                    tableStyleInfoName = "TableStyleLight14";
+                    break;
+                case TableStyleType.TableStyleLight15:
+                    tableStyleInfoName = "TableStyleLight15";
+                    break;
+                case TableStyleType.TableStyleLight16:
+                    tableStyleInfoName = "TableStyleLight16";
+                    break;
+                case TableStyleType.TableStyleLight17:
+                    tableStyleInfoName = "TableStyleLight17";
+                    break;
+                case TableStyleType.TableStyleLight18:
+                    tableStyleInfoName = "TableStyleLight18";
+                    break;
+                case TableStyleType.TableStyleLight19:
+                    tableStyleInfoName = "TableStyleLight19";
+                    break;
+                case TableStyleType.TableStyleLight20:
+                    tableStyleInfoName = "TableStyleLight20";
+                    break;
+                case TableStyleType.TableStyleLight21:
+                    tableStyleInfoName = "TableStyleLight21";
+                    break;
+                case TableStyleType.TableStyleMedium1:
+                    tableStyleInfoName = "TableStyleMedium1";
+                    break;
+                case TableStyleType.TableStyleMedium2:
+                    tableStyleInfoName = "TableStyleMedium2";
+                    break;
+                case TableStyleType.TableStyleMedium3:
+                    tableStyleInfoName = "TableStyleMedium3";
+                    break;
+                case TableStyleType.TableStyleMedium4:
+                    tableStyleInfoName = "TableStyleMedium4";
+                    break;
+                case TableStyleType.TableStyleMedium5:
+                    tableStyleInfoName = "TableStyleMedium5";
+                    break;
+                case TableStyleType.TableStyleMedium6:
+                    tableStyleInfoName = "TableStyleMedium6";
+                    break;
+                case TableStyleType.TableStyleMedium7:
+                    tableStyleInfoName = "TableStyleMedium7";
+                    break;
+                case TableStyleType.TableStyleMedium8:
+                    tableStyleInfoName = "TableStyleMedium8";
+                    break;
+                case TableStyleType.TableStyleMedium9:
+                    tableStyleInfoName = "TableStyleMedium9";
+                    break;
+                case TableStyleType.TableStyleMedium10:
+                    tableStyleInfoName = "TableStyleMedium10";
+                    break;
+                case TableStyleType.TableStyleMedium11:
+                    tableStyleInfoName = "TableStyleMedium11";
+                    break;
+                case TableStyleType.TableStyleMedium12:
+                    tableStyleInfoName = "TableStyleMedium12";
+                    break;
+                case TableStyleType.TableStyleMedium13:
+                    tableStyleInfoName = "TableStyleMedium13";
+                    break;
+                case TableStyleType.TableStyleMedium14:
+                    tableStyleInfoName = "TableStyleMedium14";
+                    break;
+                case TableStyleType.TableStyleMedium15:
+                    tableStyleInfoName = "TableStyleMedium15";
+                    break;
+                case TableStyleType.TableStyleMedium16:
+                    tableStyleInfoName = "TableStyleMedium16";
+                    break;
+                case TableStyleType.TableStyleMedium17:
+                    tableStyleInfoName = "TableStyleMedium17";
+                    break;
+                case TableStyleType.TableStyleMedium18:
+                    tableStyleInfoName = "TableStyleMedium18";
+                    break;
+                case TableStyleType.TableStyleMedium19:
+                    tableStyleInfoName = "TableStyleMedium19";
+                    break;
+                case TableStyleType.TableStyleMedium20:
+                    tableStyleInfoName = "TableStyleMedium20";
+                    break;
+                case TableStyleType.TableStyleMedium21:
+                    tableStyleInfoName = "TableStyleMedium21";
+                    break;
+                case TableStyleType.TableStyleMedium22:
+                    tableStyleInfoName = "TableStyleMedium22";
+                    break;
+                case TableStyleType.TableStyleMedium23:
+                    tableStyleInfoName = "TableStyleMedium23";
+                    break;
+                case TableStyleType.TableStyleMedium24:
+                    tableStyleInfoName = "TableStyleMedium24";
+                    break;
+                case TableStyleType.TableStyleMedium25:
+                    tableStyleInfoName = "TableStyleMedium25";
+                    break;
+                case TableStyleType.TableStyleMedium26:
+                    tableStyleInfoName = "TableStyleMedium26";
+                    break;
+                case TableStyleType.TableStyleMedium27:
+                    tableStyleInfoName = "TableStyleMedium27";
+                    break;
+                case TableStyleType.TableStyleMedium28:
+                    tableStyleInfoName = "TableStyleMedium28";
+                    break;
+                case TableStyleType.TableStyleDark1:
+                    tableStyleInfoName = "TableStyleDark1";
+                    break;
+                case TableStyleType.TableStyleDark2:
+                    tableStyleInfoName = "TableStyleDark2";
+                    break;
+                case TableStyleType.TableStyleDark3:
+                    tableStyleInfoName = "TableStyleDark3";
+                    break;
+                case TableStyleType.TableStyleDark4:
+                    tableStyleInfoName = "TableStyleDark4";
+                    break;
+                case TableStyleType.TableStyleDark5:
+                    tableStyleInfoName = "TableStyleDark5";
+                    break;
+                case TableStyleType.TableStyleDark6:
+                    tableStyleInfoName = "TableStyleDark6";
+                    break;
+                case TableStyleType.TableStyleDark7:
+                    tableStyleInfoName = "TableStyleDark7";
+                    break;
+                case TableStyleType.TableStyleDark8:
+                    tableStyleInfoName = "TableStyleDark8";
+                    break;
+                case TableStyleType.TableStyleDark9:
+                    tableStyleInfoName = "TableStyleDark9";
+                    break;
+                case TableStyleType.TableStyleDark10:
+                    tableStyleInfoName = "TableStyleDark10";
+                    break;
+                case TableStyleType.TableStyleDark11:
+                    tableStyleInfoName = "TableStyleDark11";
+                    break;
+                case TableStyleType.None:
+                default:
+                    tableStyleInfoName = "";
+                    break;
+            }
+            return tableStyleInfoName;
+        }
+
     }
 }
