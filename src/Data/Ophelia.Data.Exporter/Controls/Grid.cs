@@ -10,6 +10,7 @@ namespace Ophelia.Data.Exporter.Controls
         public List<Row> Rows { get; set; }
         public List<Column> Columns { get; set; }
         public long TableStyleID { get; set; }
+        public long TotalTableStyleID { get; set; }
         public bool IsFilterable { get; set; }
         public bool IsTotalRowShow { get; set; }
         public Grid()
