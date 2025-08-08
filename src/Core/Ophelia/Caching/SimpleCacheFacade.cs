@@ -34,9 +34,25 @@
 
         public void DropCache()
         {
-            CacheManager.Remove(this.GetKey());
+            this.Reset();
+            lock (oEntity_Locker)
+            {
+                CacheManager.Remove(this.GetKey());
+            }
         }
 
+        public bool Reload(bool CanSetCacheDirty = true)
+        {
+            this.DropCache();
+            return this.Load();
+        }
+        public void Reset()
+        {
+            lock (oEntity_Locker)
+            {
+                this.oData = null;
+            }
+        }
         public bool Load()
         {
             return this.Data != null;
