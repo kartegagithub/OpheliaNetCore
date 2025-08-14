@@ -35,7 +35,7 @@ namespace Ophelia.Data
                     tracker?.OnBeforeInsertEntity(runBeforeUpdateProcesseses);
 
                     effectedRowCount = this.Context.CreateInsertQuery(entity).Execute<int>();
-                    if (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer)
+                    if (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer || this.Context.Connection.Type == DatabaseType.PostgreSQL)
                     {
                         var pkMethod = Extensions.GetPrimaryKeyProperty(entity.GetType());
                         pkMethod.SetValue(entity, effectedRowCount);

@@ -109,6 +109,10 @@ namespace Ophelia.Data.Querying.Query
                 {
                     sb.Append("; SELECT LAST_INSERT_ID();");
                 }
+                if (this.Context.Connection.Type == DatabaseType.PostgreSQL)
+                {
+                    sb.Append(" RETURNING \"ID\";");
+                }
                 sbValues = null;
                 sbFields = null;
                 return sb.ToString();
