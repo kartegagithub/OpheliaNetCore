@@ -38,7 +38,7 @@ namespace Ophelia.Data.Querying.Query
                 TResult returnVal = default(TResult);
                 if (!string.IsNullOrEmpty(query))
                 {
-                    if (this.GetType().IsAssignableFrom(typeof(SelectQuery)) || (this.GetType().IsAssignableFrom(typeof(InsertQuery)) && (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer)))
+                    if (this.GetType().IsAssignableFrom(typeof(SelectQuery)) || (this.GetType().IsAssignableFrom(typeof(InsertQuery)) && (this.Context.Connection.Type == DatabaseType.MySQL || this.Context.Connection.Type == DatabaseType.SQLServer || (this.Context.Connection.Type == DatabaseType.PostgreSQL & this.Context.Configuration.DBIncrementedIdentityColumn))))
                     {
                         var tmp = this.Context.Connection.ExecuteScalar(query, this.Data.Parameters.ToArray());
                         if (tmp != DBNull.Value)

@@ -112,6 +112,11 @@ namespace Ophelia.Data.Querying.Query
                 {
                     sb.Append("; SELECT LAST_INSERT_ID();");
                 }
+                if (this.Context.Connection.Type == DatabaseType.PostgreSQL && this.Context.Configuration.DBIncrementedIdentityColumn)
+                {
+                    var idProp = Ophelia.Data.Extensions.GetPrimaryKeyProperty(this.Data.EntityType);
+                    sb.Append($" RETURNING \"{idProp.Name}\";");
+                }
                 sbValues = null;
                 sbFields = null;
                 return sb.ToString();
