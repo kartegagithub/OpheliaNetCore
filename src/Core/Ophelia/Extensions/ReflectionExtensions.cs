@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Ophelia
 {
@@ -128,6 +129,10 @@ namespace Ophelia
                 {
                     convertedValue = Enum.ToObject(targetType, Enum.GetUnderlyingType(targetType).ConvertData(value));
                 }
+                else if (!value.GetType().IsStringType() && value.GetType().IsEnumarable())
+                {
+                    convertedValue = value;
+                }
                 else if (value != null)
                 {
                     var valueType = value.GetType();
@@ -162,7 +167,12 @@ namespace Ophelia
                 throw;
             }
         }
-
+        public static bool IsStringType(this Type type)
+        {
+            if (type.Name == "String")
+                return true;
+            return false;
+        }
         public static bool IsDecimal(this Type type)
         {
             if (type == null)
@@ -599,9 +609,16 @@ namespace Ophelia
             }
         }
 
-        public static bool IsEnumarable(this Type type)
+        public static bool IsEnumarableGeneric(this Type type)
         {
             return type.IsGenericType && (type.IsAssignableFrom(typeof(System.Collections.IEnumerable)) || typeof(System.Collections.IEnumerable).IsAssignableFrom(type));
+        }
+
+        public static bool IsEnumarable(this Type type, bool checkForGenericType = true)
+        {
+            if (checkForGenericType)
+                return type.IsEnumarableGeneric();
+            return (type.IsAssignableFrom(typeof(System.Collections.IEnumerable)) || typeof(System.Collections.IEnumerable).IsAssignableFrom(type));
         }
 
         public static List<PropertyInfo> GetPropertiesByType(this Type ObjectType, Type PropertyTpe)

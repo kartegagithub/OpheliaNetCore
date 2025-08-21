@@ -570,7 +570,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 case Comparison.In:
                     sb.Append(fieldName);
                     sb.Append(" IN (");
-                    if (value != null && value.GetType().IsEnumarable())
+                    if (value != null && value.GetType().IsEnumarable(false))
                     {
                         var enumarable = value as System.Collections.IEnumerable;
                         if (enumarable != null)
