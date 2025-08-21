@@ -72,12 +72,28 @@ namespace Ophelia
             }
         }
 
-        public static string GetIPAddress(this HttpRequest request, string fwdHeader = "X-Forwarded-For")
+        public static string GetIPAddress(this HttpRequest request)
         {
-            if (request.Headers.TryGetValue(fwdHeader, out var value) && !string.IsNullOrEmpty(value)){
-                return value;
+            string[] IpHeaders = new[]
+            {
+                "CF-Connecting-IP",    // Cloudflare
+                "True-Client-IP",      // Akamai / Cloudflare Enterprise
+                "X-Real-IP",           // Nginx
+                "X-Client-IP",         // Azure
+                "Fastly-Client-IP",    // Fastly
+                "X-Appengine-User-IP", // Google AppEngine
+                "X-Forwarded-For"      // Standard
+            };
+            foreach (var header in IpHeaders)
+            {
+                if (request.Headers.TryGetValue(header, out var altValue) && !string.IsNullOrEmpty(altValue))
+                {
+                    return altValue;
+                }
             }
-            return request.HttpContext.Connection?.RemoteIpAddress?.ToString();
+
+            // Header yoksa doğrudan bağlantı IP'sini dön
+            return request.HttpContext?.Connection?.RemoteIpAddress?.ToString();
         }
     }
 }
