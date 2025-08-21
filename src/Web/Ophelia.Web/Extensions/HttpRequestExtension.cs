@@ -71,5 +71,13 @@ namespace Ophelia
                 yield return (T)obj;
             }
         }
+
+        public static string GetIPAddress(this HttpRequest request, string fwdHeader = "X-Forwarded-For")
+        {
+            if (request.Headers.TryGetValue(fwdHeader, out var value) && !string.IsNullOrEmpty(value)){
+                return value;
+            }
+            return request.HttpContext.Connection?.RemoteIpAddress?.ToString();
+        }
     }
 }
