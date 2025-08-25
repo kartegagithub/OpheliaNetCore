@@ -283,7 +283,7 @@ namespace Ophelia.Integration.Amazon
             return result;
         }
 
-        public ServiceObjectResult<AmazonResponse> GetURL(string file)
+        public ServiceObjectResult<AmazonResponse> GetURL(string file, DateTime? expires = null)
         {
             var result = new ServiceObjectResult<AmazonResponse>();
             try
@@ -302,7 +302,7 @@ namespace Ophelia.Integration.Amazon
 
                 var model = new AmazonResponse
                 {
-                    ExpireDate = request.Expires,
+                    ExpireDate = request.Expires.HasValue? request.Expires.Value: (expires.HasValue ? expires.Value: Ophelia.Utility.Now.AddDays(1)),
                     URL = url
                 };
                 result.SetData(model);

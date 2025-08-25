@@ -22,11 +22,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\Core\Ophelia\Ophelia.csproj" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<GlobalAnalyzerConfigFiles Include="$(SolutionDir)\.globalconfig" />

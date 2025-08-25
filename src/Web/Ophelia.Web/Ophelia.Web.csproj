@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0;net8.0;</TargetFrameworks>
+		<TargetFrameworks>net8.0;</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Authors>Kartega</Authors>
@@ -30,7 +30,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\Ophelia\Ophelia.csproj" />
 		<ProjectReference Include="..\..\Data\Ophelia.Data.Exporter\Ophelia.Data.Exporter.csproj" />
-		<ProjectReference Include="..\..\Data\Ophelia.Data.Importer\Ophelia.Data.Importer.csproj" />
 		<ProjectReference Include="..\..\Data\Ophelia.Data\Ophelia.Data.csproj" />
 	</ItemGroup>
 

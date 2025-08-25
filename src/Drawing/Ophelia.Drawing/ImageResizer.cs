@@ -28,32 +28,36 @@ namespace Ophelia.Drawing
             return CropImage(new MagickImage(data), Width, Height);
         }
 
-        public static MagickImage CropImage(MagickImage image, int Width, int Height)
+        public static MagickImage CropImage(MagickImage image, int width, int height)
         {
+            var uWidth = Convert.ToUInt32(width);
+            var uHeight = Convert.ToUInt32(height);
             if ((image != null))
             {
-                if (image.Width > Width || image.Height > Height)
+                if (image.Width > uWidth || image.Height > uHeight)
                 {
                     decimal Ratio = Convert.ToDecimal(image.Width) / Convert.ToDecimal(image.Height);
-                    int SizedWidth = image.Width;
-                    int SizedHeight = image.Height;
+                    uint SizedWidth = image.Width;
+                    uint SizedHeight = image.Height;
                     if (Ratio > 1)
                     {
-                        if (Height > image.Height)
-                            Height = image.Height;
-                        SizedHeight = Height;
-                        SizedWidth = Convert.ToInt32(SizedHeight * Ratio);
+                        if (uHeight > image.Height)
+                            uHeight = image.Height;
+                        SizedHeight = uHeight;
+                        SizedWidth = Convert.ToUInt32(SizedHeight * Ratio);
                     }
                     else
                     {
-                        if (Width > image.Width)
-                            Width = image.Width;
-                        SizedWidth = Width;
-                        SizedHeight = Convert.ToInt32(SizedWidth / Ratio);
+                        if (uWidth > image.Width)
+                            uWidth = image.Width;
+                        SizedWidth = uWidth;
+                        SizedHeight = Convert.ToUInt32(SizedWidth / Ratio);
                     }
 
-                    var NewImage = ProcessImage(image.ToByteArray(), SizedWidth, SizedHeight);
-                    return (MagickImage)NewImage.Clone((NewImage.Width - Width) / 2, (NewImage.Height - Height) / 2, Width, Height);
+                    var NewImage = ProcessImage(image.ToByteArray(), Convert.ToInt32(SizedWidth), Convert.ToInt32(SizedHeight));
+                    var x = Convert.ToInt32((NewImage.Width - uWidth) / 2);
+                    var y = Convert.ToInt32((NewImage.Height - uHeight) / 2);
+                    return (MagickImage)NewImage.CloneArea(x, y, uWidth, uHeight);
                 }
                 else
                 {
@@ -80,6 +84,9 @@ namespace Ophelia.Drawing
         }
         public static MagickImage ProcessImage(byte[] data, int width = 0, int height = 0, int quality = 75, ImageFormat format = ImageFormat.Invalid)
         {
+            var uWidth = Convert.ToUInt32(width);
+            var uHeight = Convert.ToUInt32(height);
+            var uQuality = Convert.ToUInt32(quality);
             if (format == ImageFormat.Invalid)
             {
                 format = data.GetImageFormat();
@@ -88,13 +95,13 @@ namespace Ophelia.Drawing
             }
             var mImage = new MagickImage(data);
             if (mImage.Width > width && width > 0)
-                height = width * mImage.Height / mImage.Width;
+                uHeight = uWidth * mImage.Height / mImage.Width;
             else if (mImage.Height > height && height > 0)
-                width = height * mImage.Width / mImage.Height;
+                uWidth = uHeight * mImage.Width / mImage.Height;
             else
             {
-                width = mImage.Width;
-                height = mImage.Height;
+                uWidth = mImage.Width;
+                uHeight = mImage.Height;
             }
 
             if (format == ImageFormat.PNG)
@@ -108,9 +115,9 @@ namespace Ophelia.Drawing
             else if (format == ImageFormat.BMP)
                 mImage.Format = MagickFormat.Bmp;
 
-            mImage.Quality = quality;
+            mImage.Quality = uQuality;
             if (mImage.Width != width && mImage.Height != height && width > 0 && height > 0)
-                mImage.Resize(width, height);
+                mImage.Resize(uWidth, uHeight);
 
             return Rotate(LosslessCompress(mImage.ToByteArray()));
         }
