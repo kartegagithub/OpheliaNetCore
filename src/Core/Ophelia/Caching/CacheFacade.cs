@@ -14,7 +14,8 @@ namespace Ophelia.Caching
         public virtual int CacheHealthDuration { get; set; }
         public virtual int CacheDuration { get; set; }
         public virtual string KeyPrefix { get; } = "";
-        protected virtual string GetKey() {
+        protected virtual string GetKey()
+        {
             return $"{this.KeyPrefix}{this.Key}";
         }
         public DateTime LastCheckDate
@@ -57,22 +58,28 @@ namespace Ophelia.Caching
             {
                 if (!this.CheckCacheHealth())
                 {
-                    this.DropCache();
+                    this.Reset();
                 }
                 if (this.oEntities == null)
                 {
-                    this.oEntities = CacheManager.Get<List<TEntity>>(this.GetKey());
+                    this.oEntities = (List<TEntity>)LocalCache.Get(this.Key);
                     if (this.oEntities == null)
                     {
-                        lock (oEntity_Locker)
+                        this.oEntities = CacheManager.Get<List<TEntity>>(this.GetKey());
+                        if (this.oEntities == null)
                         {
-                            this.oEntities = CacheManager.Get<List<TEntity>>(this.GetKey());
-                            if (this.oEntities == null)
+                            lock (oEntity_Locker)
                             {
-                                this.oEntities = this.GetData();
-                                CacheManager.Add(this.GetKey(), this.oEntities, this.CacheDuration);
+                                this.oEntities = CacheManager.Get<List<TEntity>>(this.GetKey());
+                                if (this.oEntities == null)
+                                {
+                                    this.oEntities = this.GetData();
+                                    CacheManager.Add(this.GetKey(), this.oEntities, this.CacheDuration);
+                                }
                             }
                         }
+                        if (this.oEntities != null)
+                            LocalCache.Update(this.Key, this.oEntities);
                     }
                 }
                 return this.oEntities;
@@ -119,6 +126,7 @@ namespace Ophelia.Caching
             lock (oEntity_Locker)
             {
                 CacheManager.Remove(this.GetKey());
+                LocalCache.Remove(this.Key);
             }
         }
 
