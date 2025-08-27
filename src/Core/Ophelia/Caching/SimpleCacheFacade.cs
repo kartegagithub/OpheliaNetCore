@@ -1,4 +1,7 @@
-﻿namespace Ophelia.Caching
+﻿using AngleSharp.Dom;
+using System.Collections.Generic;
+
+namespace Ophelia.Caching
 {
     public abstract class CacheFacade
     {
@@ -7,6 +10,7 @@
         protected abstract string Key { get; }
         protected abstract object GetData();
         public virtual string KeyPrefix { get; } = "";
+        protected bool UseLocalCache { get; set; } = true;
         protected virtual string GetKey()
         {
             return $"{this.KeyPrefix}{this.Key}";
@@ -15,19 +19,29 @@
         {
             get
             {
-                this.oData = CacheManager.Get(this.GetKey());
+                var key = this.GetKey();
+                if (this.UseLocalCache)
+                    this.oData = LocalCache.Get(key);
+
                 if (this.oData == null)
                 {
-                    lock (oEntity_Locker)
+                    this.oData = CacheManager.Get(key);
+                    if (this.oData == null)
                     {
-                        this.oData = CacheManager.Get(this.GetKey());
-                        if (this.oData == null)
+                        lock (oEntity_Locker)
                         {
-                            this.oData = this.GetData();
-                            CacheManager.Add(this.GetKey(), this.oData);
+                            this.oData = CacheManager.Get(key);
+                            if (this.oData == null)
+                            {
+                                this.oData = this.GetData();
+                                CacheManager.Add(key, this.oData);
+                            }
                         }
                     }
+                    if (this.oData != null && this.UseLocalCache)
+                        LocalCache.Update(key, this.oData);
                 }
+                    
                 return this.oData;
             }
         }
@@ -37,7 +51,10 @@
             this.Reset();
             lock (oEntity_Locker)
             {
-                CacheManager.Remove(this.GetKey());
+                var key = this.GetKey();
+                CacheManager.Remove(key);
+                if (this.UseLocalCache)
+                    LocalCache.Remove(key);
             }
         }
 
@@ -61,7 +78,10 @@
         public void Update(object Data)
         {
             this.DropCache();
-            CacheManager.Add(this.GetKey(), Data);
+            var key = this.GetKey();
+            CacheManager.Add(key, Data);
+            if (this.UseLocalCache)
+                LocalCache.Update(key, Data);
         }
     }
 }
