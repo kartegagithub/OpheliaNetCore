@@ -140,5 +140,18 @@ namespace Ophelia.Caching
         {
             return Contexts[contextName].GetAllKeys();
         }
+        public static void Disconnect()
+        {
+            if(Contexts != null)
+            {
+                foreach (var context in Contexts)
+                {
+                    if(context.Value is IDisposable)
+                    {
+                        context.Value.Disconnect();
+                    }
+                }
+            }
+        }
     }
 }

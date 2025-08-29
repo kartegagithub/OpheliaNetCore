@@ -24,5 +24,7 @@ namespace Ophelia.Caching.CacheContexts
         object Get(string keyGroup, string keyItem);
 
         List<string> GetAllKeys();
+
+        void Disconnect();
     }
 }

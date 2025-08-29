@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Ophelia.Caching.CacheContexts
 {
-    public class MemoryCacheContext : ICacheContext
+    public class MemoryCacheContext : ICacheContext, IDisposable
     {
         private MemoryCache _MemoryCacheContext = new MemoryCache(new MemoryCacheOptions() { });
 
@@ -153,6 +153,17 @@ namespace Ophelia.Caching.CacheContexts
                 return true;
             }
             return false;
+        }
+
+        public void Disconnect()
+        {
+            
+        }
+
+        public void Dispose()
+        {
+            this.Disconnect();
+            GC.SuppressFinalize(this);
         }
     }
 }

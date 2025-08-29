@@ -446,9 +446,8 @@ namespace Ophelia.Integration.Redis
         public void Dispose()
         {
             if (_connection != null)
-            {
                 _connection.Close();
-            }
+            _connection = null;
         }
     }
 }

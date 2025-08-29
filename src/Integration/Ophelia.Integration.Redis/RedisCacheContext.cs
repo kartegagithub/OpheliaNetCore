@@ -9,7 +9,7 @@ using StackExchange.Redis.Extensions.Core.Implementations;
 
 namespace Ophelia.Integration.Redis
 {
-    public class RedisCacheContext : Ophelia.Caching.CacheContexts.ICacheContext
+    public class RedisCacheContext : Ophelia.Caching.CacheContexts.ICacheContext, IDisposable
     {
         internal RedisCache _RedisCache { get; set; }
         public RedisCacheContext(IOptions<RedisCacheOptions> optionsAccessor)
@@ -110,6 +110,18 @@ namespace Ophelia.Integration.Redis
                 return default;
 
             return JsonConvert.DeserializeObject(System.Text.Encoding.UTF8.GetString(data));
+        }
+
+        public void Disconnect()
+        {
+            if (this._RedisCache != null)
+                this._RedisCache.Dispose();
+        }
+
+        public void Dispose()
+        {
+            this.Disconnect();
+            GC.SuppressFinalize(this);
         }
     }
 }

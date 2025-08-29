@@ -5,7 +5,7 @@ using Ophelia.Caching.DistributedCaches;
 
 namespace Ophelia.Caching.CacheContexts
 {
-    public class APICacheContext: ICacheContext
+    public class APICacheContext : ICacheContext, IDisposable
     {
         private APICache APICache { get; set; }
 
@@ -108,6 +108,18 @@ namespace Ophelia.Caching.CacheContexts
                 return default(object);
 
             return JsonConvert.DeserializeObject(System.Text.Encoding.UTF8.GetString(data));
+        }
+
+        public void Disconnect()
+        {
+            if (this.APICache != null)
+                this.APICache.Dispose();
+        }
+
+        public void Dispose()
+        {
+            this.Disconnect();
+            GC.SuppressFinalize(this);
         }
     }
 }
