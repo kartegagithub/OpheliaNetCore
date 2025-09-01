@@ -61,7 +61,7 @@ namespace Ophelia.Caching
                 var key = this.GetKey() + "_LCD";
                 try
                 {
-                    var objDate = CacheManager.Get(key);
+                    var objDate = LocalCache.Get(key);
                     if (objDate != null)
                     {
                         _LastCheckDate = (DateTime)objDate;
@@ -70,8 +70,8 @@ namespace Ophelia.Caching
                     {
                         lock (oEntity_Locker)
                         {
-                            CacheManager.Remove(key);
-                            CacheManager.Add(key, _LastCheckDate, 1440);
+                            LocalCache.Remove(key);
+                            LocalCache.Update(key, _LastCheckDate);
                         }
                     }
                 }
@@ -86,8 +86,8 @@ namespace Ophelia.Caching
                 lock (oEntity_Locker)
                 {
                     var key = this.GetKey() + "_LCD";
-                    CacheManager.Remove(key);
-                    CacheManager.Add(key, value, 1440);
+                    LocalCache.Remove(key);
+                    LocalCache.Update(key, value);
                 }
             }
         }

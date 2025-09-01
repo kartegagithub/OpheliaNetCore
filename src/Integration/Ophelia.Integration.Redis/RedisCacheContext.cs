@@ -32,7 +32,7 @@ namespace Ophelia.Integration.Redis
 
         public bool ClearAll()
         {
-            ((RedisDatabase)_RedisCache.Database).FlushDbAsync();
+            this.GetAllKeys().ForEach(x => _RedisCache.Remove(x));
             return true;
         }
 
