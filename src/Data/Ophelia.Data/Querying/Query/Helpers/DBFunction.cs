@@ -30,7 +30,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
 
         protected virtual void Dispose(bool disposing)
         {
-        
+
         }
 
         public string Build(BaseQuery query)

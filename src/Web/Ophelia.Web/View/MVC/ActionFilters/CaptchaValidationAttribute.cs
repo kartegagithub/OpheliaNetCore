@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Ophelia.Web.View.Mvc.Html;
-using Ophelia.Web.View.Mvc.Controllers.Base;
 
 namespace Ophelia.Web.View.Mvc.ActionFilters
 {
@@ -11,7 +10,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
         public string EncKey { get; set; }
         public CaptchaValidationAttribute()
         {
-            
+
         }
         public override void OnActionExecuting(ActionExecutingContext actionContext)
         {

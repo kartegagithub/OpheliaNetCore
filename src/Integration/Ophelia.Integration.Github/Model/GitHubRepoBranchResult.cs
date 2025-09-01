@@ -1,8 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace Ophelia.Integration.GitHub
 {
@@ -21,7 +18,7 @@ namespace Ophelia.Integration.GitHub
         [JsonProperty("protected")]
         public bool Protected { get; set; }
     }
-    public class GitHubRepoBranchCommit: GitHubCommitResult
+    public class GitHubRepoBranchCommit : GitHubCommitResult
     {
 
     }

@@ -1,5 +1,4 @@
 ﻿using Npgsql;
-using System;
 
 namespace Ophelia.Data.Npgsql
 {

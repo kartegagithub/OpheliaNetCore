@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Ophelia.Integration.FacebookAuth.Model;
+using System;
+using System.Collections.Generic;
 
 namespace Ophelia.Integration.FacebookAuth
 {

@@ -17,7 +17,7 @@ namespace Ophelia.Data.Model
 
         [DataMember]
         public int Count { get; internal set; }
-        
+
         [DataMember]
         public TKey Key { get; private set; }
 
@@ -45,7 +45,7 @@ namespace Ophelia.Data.Model
 
         public OGrouping()
         {
-            
+
         }
 
         public IEnumerator<TElement> GetEnumerator()

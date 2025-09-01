@@ -1,6 +1,6 @@
-﻿using Ophelia.Service;
+﻿using Ophelia.Integration.Weather.WeatherAPI.Model;
+using Ophelia.Service;
 using System;
-using Ophelia.Integration.Weather.WeatherAPI.Model;
 
 namespace Ophelia.Integration.Weather.WeatherAPI
 {

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Ophelia.Integration.I18NService.Models
 {
-    public class TranslationAccess: IDisposable
+    public class TranslationAccess : IDisposable
     {
         public string Name { get; set; }
         public string ProjectCode { get; set; }

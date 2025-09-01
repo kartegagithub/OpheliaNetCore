@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using Ophelia.Data;
 using Ophelia.Data.Querying.Query;
 using Ophelia.Data.Querying.Query.Helpers;
 using Ophelia.Reflection;
-using Ophelia.Web.Service;
 using Ophelia.Service;
+using Ophelia.Web.Service;
 using Ophelia.Web.UI.Controls;
 using Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns;
 using Ophelia.Web.View.Mvc.Controls.Binders.Fields;
@@ -20,8 +19,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Web;
-using DocumentFormat.OpenXml.Bibliography;
-using System.Data.SqlTypes;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
 {
@@ -671,7 +668,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     //TODO: https://stackoverflow.com/a/12829015/1766100
                     IQueryable<IGrouping<object, T>> groupedData = null;
                     if (this.DataSource.Query is Ophelia.Data.Model.QueryableDataSet<T>)
-                        groupedData = (IQueryable<IGrouping<object, T>>)(QueryableDataSetExtensions.GroupBy(this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>, selectedGroupers.ToArray()));
+                        groupedData = QueryableDataSetExtensions.GroupBy(this.DataSource.Query as Ophelia.Data.Model.QueryableDataSet<T>, selectedGroupers.ToArray());
                     else
                         groupedData = (IQueryable<IGrouping<object, T>>)this.DataSource.Query.GroupBy(selectedGroupers.ToArray());
                     if (this.DataSource.RemoteDataSource != null)
@@ -841,7 +838,7 @@ namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder
                     {
                         if (column.Expression is LambdaExpression)
                         {
-                            var exp = (column.Expression as LambdaExpression).Body;
+                            var exp = column.Expression.Body;
                             if (exp is UnaryExpression)
                             {
                                 exp = (exp as UnaryExpression).Operand;

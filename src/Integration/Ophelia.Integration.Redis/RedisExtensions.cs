@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
+using System.Threading.Tasks;
 
 namespace Ophelia.Integration.Redis
 {

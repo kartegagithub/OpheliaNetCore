@@ -1,15 +1,11 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using AngleSharp.Io;
 using Ophelia.Integration.Amazon.Model;
 using Ophelia.Service;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Transactions;
 
 namespace Ophelia.Integration.Amazon
 {

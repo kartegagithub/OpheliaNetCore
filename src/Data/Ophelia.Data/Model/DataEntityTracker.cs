@@ -246,7 +246,7 @@ namespace Ophelia.Data.Model
             base.OnBeforeInsertEntity();
             if (processDefaults)
             {
-                this.Entity.DateCreated = kind == DateTimeKind.Utc? DateTime.UtcNow: Utility.Now;
+                this.Entity.DateCreated = kind == DateTimeKind.Utc ? DateTime.UtcNow : Utility.Now;
                 this.Entity.DateModified = kind == DateTimeKind.Utc ? DateTime.UtcNow : Utility.Now;
             }
         }

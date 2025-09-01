@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
 
 namespace Ophelia.Web
 {

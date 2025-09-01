@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Ophelia.Integration.I18NService.Services.Base
 {
-    public class Facade: IDisposable
+    public class Facade : IDisposable
     {
         public I18NIntegratorClient API { get; private set; }
 

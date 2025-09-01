@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Ophelia.Globalization.NumberToWords
+﻿namespace Ophelia.Globalization.NumberToWords
 {
     internal class FrenchConverter : Converter
     {

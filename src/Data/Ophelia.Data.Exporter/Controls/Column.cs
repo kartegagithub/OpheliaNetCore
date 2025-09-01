@@ -1,5 +1,5 @@
-﻿using System;
-using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using System;
 
 namespace Ophelia.Data.Exporter.Controls
 {

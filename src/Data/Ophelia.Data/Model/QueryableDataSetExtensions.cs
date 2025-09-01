@@ -373,7 +373,7 @@ namespace Ophelia.Data
 
         public static Expression GetSourceExpression(this QueryableDataSet source)
         {
-            var q = source as QueryableDataSet;
+            var q = source;
             if (q != null) return q.Expression;
             return Expression.Constant(source, typeof(QueryableDataSet));
         }

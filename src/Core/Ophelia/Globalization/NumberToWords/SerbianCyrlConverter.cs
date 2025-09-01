@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-
-namespace Ophelia.Globalization.NumberToWords
+﻿namespace Ophelia.Globalization.NumberToWords
 {
     internal class SerbianCyrlConverter : Converter
     {

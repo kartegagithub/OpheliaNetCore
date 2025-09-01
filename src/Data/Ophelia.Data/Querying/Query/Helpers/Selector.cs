@@ -275,7 +275,7 @@ namespace Ophelia.Data.Querying.Query.Helpers
                 return;
 
             var p = type.GetProperty(member.Name);
-            if(p == null)
+            if (p == null)
                 p = type.GetProperty(bindingMember.Key.Name);
 
             if (bindingMember.Value != null)

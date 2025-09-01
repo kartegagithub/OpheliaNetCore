@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using NJsonSchema.Annotations;
 using NSwag.Annotations;
-using System.Collections.Generic;
 
 namespace Ophelia.Web.Service
 {

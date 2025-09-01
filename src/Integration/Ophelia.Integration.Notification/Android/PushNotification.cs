@@ -1,11 +1,6 @@
 ﻿using Ophelia.Net.Http;
 using Ophelia.Service;
 using System;
-using System.IO;
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace Ophelia.Integration.Notification.Android
 {

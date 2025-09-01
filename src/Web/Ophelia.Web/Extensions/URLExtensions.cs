@@ -1,23 +1,10 @@
-﻿using AngleSharp.Dom;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
 using Ophelia;
-using Ophelia.Net.Http;
 using Ophelia.Service;
 using Ophelia.Web.Service;
-using System;
 using System.Collections.Generic;
-using System.Drawing.Printing;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Xml;
 
 namespace Ophelia.Web
 {

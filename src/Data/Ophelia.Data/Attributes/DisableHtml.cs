@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ophelia.Data.Attributes
+﻿namespace Ophelia.Data.Attributes
 {
     public class DisableHtml : AllowHtml
     {

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ophelia.Globalization.NumberToWords
 {
@@ -134,10 +130,10 @@ namespace Ophelia.Globalization.NumberToWords
             this.PartPrecision = 2;
             this.IsCurrencyPartNameFeminine = false;
             this.IsCurrencyNameFeminine = false;
-            
+
             switch (Culturecode)
             {
-                case "ar-SA" /*Arabic - Saudi Arabia*/: 
+                case "ar-SA" /*Arabic - Saudi Arabia*/:
                     this.Arabic1CurrencyName = "ريال سعودي";
                     this.Arabic2CurrencyName = "ريالان سعوديان";
                     this.Arabic310CurrencyName = "ريالات سعودية";
@@ -158,7 +154,7 @@ namespace Ophelia.Globalization.NumberToWords
                     this.Arabic1CurrencyPartName = "قرش";
                     this.Arabic2CurrencyPartName = "قرشان";
                     this.Arabic310CurrencyPartName = "قروش";
-                    this.Arabic1199CurrencyPartName = "قرشاً";                    
+                    this.Arabic1199CurrencyPartName = "قرشاً";
                     break;
                 case "ar-TN" /*Arabic - Tunisia*/:
                     this.Arabic1CurrencyName = "دينار تونسي";
@@ -171,7 +167,7 @@ namespace Ophelia.Globalization.NumberToWords
                     this.Arabic1199CurrencyPartName = "مليماً";
                     this.PartPrecision = 3;
                     break;
-                case "ar-AE" /*Arabic - United Arab Emirates*/:                    
+                case "ar-AE" /*Arabic - United Arab Emirates*/:
                     this.Arabic1CurrencyName = "درهم إماراتي";
                     this.Arabic2CurrencyName = "درهمان إماراتيان";
                     this.Arabic310CurrencyName = "دراهم إماراتية";
@@ -251,21 +247,21 @@ namespace Ophelia.Globalization.NumberToWords
                     formattedNumber += this.Arabic1CurrencyName;
                 else
                     if (remaining100 == 1)
-                        formattedNumber += this.Arabic1CurrencyName;
-                    else
+                    formattedNumber += this.Arabic1CurrencyName;
+                else
                         if (remaining100 == 2)
-                        {
-                            if (this.IntegerValue == 2)
-                                formattedNumber += this.Arabic2CurrencyName;
-                            else
-                                formattedNumber += this.Arabic1CurrencyName;
-                        }
-                        else
+                {
+                    if (this.IntegerValue == 2)
+                        formattedNumber += this.Arabic2CurrencyName;
+                    else
+                        formattedNumber += this.Arabic1CurrencyName;
+                }
+                else
                             if (remaining100 >= 3 && remaining100 <= 10)
-                                formattedNumber += this.Arabic310CurrencyName;
-                            else
+                    formattedNumber += this.Arabic310CurrencyName;
+                else
                                 if (remaining100 >= 11 && remaining100 <= 99)
-                                    formattedNumber += this.Arabic1199CurrencyName;
+                    formattedNumber += this.Arabic1199CurrencyName;
             }
             formattedNumber += (this.DecimalValue != 0) ? " و " : String.Empty;
             formattedNumber += (this.DecimalValue != 0) ? decimalString : String.Empty;
@@ -273,22 +269,22 @@ namespace Ophelia.Globalization.NumberToWords
             { // here we add currency part name depending on this.IntegerValue : 1 ,2 , 3--->10 , 11--->99
                 formattedNumber += " ";
 
-                int remaining100 = (int)(this.DecimalValue % 100);
+                int remaining100 = this.DecimalValue % 100;
 
                 if (remaining100 == 0)
                     formattedNumber += this.Arabic1CurrencyPartName;
                 else
                     if (remaining100 == 1)
-                        formattedNumber += this.Arabic1CurrencyPartName;
-                    else
+                    formattedNumber += this.Arabic1CurrencyPartName;
+                else
                         if (remaining100 == 2)
-                            formattedNumber += this.Arabic2CurrencyPartName;
-                        else
+                    formattedNumber += this.Arabic2CurrencyPartName;
+                else
                             if (remaining100 >= 3 && remaining100 <= 10)
-                                formattedNumber += this.Arabic310CurrencyPartName;
-                            else
+                    formattedNumber += this.Arabic310CurrencyPartName;
+                else
                                 if (remaining100 >= 11 && remaining100 <= 99)
-                                    formattedNumber += this.Arabic1199CurrencyPartName;
+                    formattedNumber += this.Arabic1199CurrencyPartName;
             }
             formattedNumber += (this.Suffix != String.Empty) ? String.Format(" {0}", this.Suffix) : String.Empty;
 
@@ -330,9 +326,9 @@ namespace Ophelia.Globalization.NumberToWords
                             retVal += " ";
                         else
                             if ((tens == 1 || tens == 2) && (groupLevel == 0 || groupLevel == -1) && hundreds == 0 && remainingNumber == 0)
-                                retVal += String.Empty; // Special case for 1 and 2 numbers like: ليرة سورية و ليرتان سوريتان
-                            else
-                                retVal += GetDigitFeminineStatus(tens, groupLevel);// Get Feminine status for this digit
+                            retVal += String.Empty; // Special case for 1 and 2 numbers like: ليرة سورية و ليرتان سوريتان
+                        else
+                            retVal += GetDigitFeminineStatus(tens, groupLevel);// Get Feminine status for this digit
                     }
                 }
                 else
@@ -371,14 +367,14 @@ namespace Ophelia.Globalization.NumberToWords
             }
             else
                 if (groupLevel == 0)
-                {
-                    if (this.IsCurrencyNameFeminine)
-                        return arabicFeminineOnes[digit];// use feminine field
-                    else
-                        return arabicOnes[digit];
-                }
+            {
+                if (this.IsCurrencyNameFeminine)
+                    return arabicFeminineOnes[digit];// use feminine field
                 else
                     return arabicOnes[digit];
+            }
+            else
+                return arabicOnes[digit];
         }
     }
 }

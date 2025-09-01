@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography;
-using Microsoft.IdentityModel.Tokens;
-using System.Linq;
+﻿using Microsoft.IdentityModel.Tokens;
 using Ophelia;
 using Ophelia.Integration.AppleAuth.Model;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Cryptography;
 
 namespace Ophelia.Integration.AppleAuth
 {

@@ -54,7 +54,7 @@ namespace Ophelia
             var source = Enum.GetValues(typeToDrawEnum);
             if (selectedValue.GetType().IsEnum)
                 selectedValue = Convert.ChangeType(selectedValue, Enum.GetUnderlyingType(typeToDrawEnum));
-            
+
             var displayAttributeType = typeof(DisplayAttribute);
             foreach (var value in source)
             {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ophelia
+﻿namespace Ophelia
 {
     public static class ObjectExtensions
     {

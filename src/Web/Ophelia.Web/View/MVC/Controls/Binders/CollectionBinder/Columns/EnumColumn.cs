@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Ophelia.Web.UI.Controls;
+﻿using Ophelia.Web.UI.Controls;
 using Ophelia.Web.View.Mvc.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Ophelia.Web.View.Mvc.Controls.Binders.CollectionBinder.Columns
 {

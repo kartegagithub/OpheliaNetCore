@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 namespace Ophelia.Integration.Redis
@@ -175,7 +177,7 @@ namespace Ophelia.Integration.Redis
         {
             if (this.Database != null)
                 return;
-            
+
             _connectionLock.Wait();
             try
             {
@@ -198,6 +200,19 @@ namespace Ophelia.Integration.Redis
             }
         }
 
+        public List<string> GetKeys(string pattern = "*")
+        {
+            try
+            {
+                var endpoints = _lazyConnection.Value.GetEndPoints();
+                var server = _lazyConnection.Value.GetServer(endpoints.First());
+                return server.Keys(pattern: pattern).Where(op => !string.IsNullOrEmpty((string)op)).Select(op => (string)op)!.Cast<string>().ToList();
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
+        }
         private byte[] GetAndRefresh(string key, bool getData)
         {
             try
@@ -395,7 +410,7 @@ namespace Ophelia.Integration.Redis
         {
             if (options.AbsoluteExpiration.HasValue && options.AbsoluteExpiration <= creationTime)
                 options.AbsoluteExpiration = Ophelia.Utility.Now.AddHours(1);
-            
+
             var absoluteExpiration = options.AbsoluteExpiration;
             if (options.AbsoluteExpirationRelativeToNow.HasValue)
             {

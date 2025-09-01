@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ophelia.Data.MySQL
+﻿namespace Ophelia.Data.MySQL
 {
     public static class Extensions
     {

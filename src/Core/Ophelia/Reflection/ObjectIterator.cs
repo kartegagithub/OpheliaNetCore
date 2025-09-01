@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace Ophelia.Reflection
 {
@@ -40,7 +39,7 @@ namespace Ophelia.Reflection
             var props = obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
             foreach (var p in props)
             {
-                if (!p.PropertyType.IsPrimitiveType() && p.PropertyType.IsClass && !p.PropertyType.IsAbstract && p.GetMethod != null && p.GetMethod.IsPublic) 
+                if (!p.PropertyType.IsPrimitiveType() && p.PropertyType.IsClass && !p.PropertyType.IsAbstract && p.GetMethod != null && p.GetMethod.IsPublic)
                 {
                     try
                     {
@@ -59,7 +58,7 @@ namespace Ophelia.Reflection
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
-                    }                    
+                    }
                 }
             }
         }

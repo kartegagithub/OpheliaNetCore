@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Threading;
-using System.Xml.Xsl;
 
 namespace Ophelia.Web.View.Mvc.Middlewares
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ophelia.Data.SQLServer
+﻿namespace Ophelia.Data.SQLServer
 {
     public static class Extensions
     {

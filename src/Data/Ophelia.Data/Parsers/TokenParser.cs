@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Ophelia.Data.Parsers
@@ -148,7 +147,7 @@ namespace Ophelia.Data.Parsers
         public class TokenFilterGroup : TokenFilterEntity
         {
             public TokenFilterGroup Parent { get; set; }
-            
+
             public override string ToString()
             {
                 var result = "";
@@ -178,7 +177,7 @@ namespace Ophelia.Data.Parsers
                 return result;
             }
         }
-        public class TokenFilter:TokenFilterEntity
+        public class TokenFilter : TokenFilterEntity
         {
             public string SQL { get; set; }
             public override string ToString()

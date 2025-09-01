@@ -1,8 +1,5 @@
-﻿using IInterceptor = Castle.DynamicProxy.IInterceptor;
-using Castle.DynamicProxy;
-using Microsoft.EntityFrameworkCore.Metadata;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using IInterceptor = Castle.DynamicProxy.IInterceptor;
 
 namespace Ophelia.Data.Model.Proxy
 {

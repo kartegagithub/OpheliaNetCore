@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Ophelia.Caching.DistributedCaches;
+using System;
+using System.Collections.Generic;
 
 namespace Ophelia.Caching.CacheContexts
 {

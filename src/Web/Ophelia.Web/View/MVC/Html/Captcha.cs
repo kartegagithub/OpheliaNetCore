@@ -3,7 +3,6 @@ using Ophelia.Web.Application.Client;
 using Ophelia.Web.View.Mvc.Models;
 using SixLaborsCaptcha.Core;
 using System;
-using System.IO;
 
 namespace Ophelia.Web.View.Mvc.Html
 {
@@ -12,7 +11,7 @@ namespace Ophelia.Web.View.Mvc.Html
         public string CaptchaSessionKey { get; private set; }
         private string GeneratedCode { get; set; }
         public string EncKey { get; set; }
-        public CaptchaModel CaptchaModel{get; set; }
+        public CaptchaModel CaptchaModel { get; set; }
 
         public Captcha(CaptchaModel Model)
         {

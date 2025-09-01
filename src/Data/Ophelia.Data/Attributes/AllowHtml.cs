@@ -6,7 +6,8 @@ namespace Ophelia.Data.Attributes
     {
         public bool Sanitize { get; set; }
         public bool Forbidden { get; set; }
-        public AllowHtml() {
+        public AllowHtml()
+        {
             this.Sanitize = true;
             this.Forbidden = false;
         }

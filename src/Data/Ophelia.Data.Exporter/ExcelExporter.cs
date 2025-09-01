@@ -494,7 +494,7 @@ namespace Ophelia.Data.Exporter
                     StyleIndex = (UInt32)grid.Columns[i].Type.GetValueOrDefault(CellValues.String).ToInt32(),
                     DataType = CellValues.String
                 };
-                cell.Append(new CellValue(i == 0 ? "Toplam" : new string('\u200B', (int)i)));
+                cell.Append(new CellValue(i == 0 ? "Toplam" : new string('\u200B', i)));
                 labelRow.Append(cell);
             }
 

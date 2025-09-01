@@ -1,6 +1,5 @@
 ﻿using Ophelia.Data.Model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -42,7 +41,7 @@ namespace Ophelia.Data.Querying.Query
             {
                 var relationClassProperty = this.Data.EntityType.GetCustomAttributes(typeof(Attributes.RelationClass)).FirstOrDefault() as Attributes.RelationClass;
                 var changedProperties = (this.Entity.GetPropertyValue("Tracker") as PocoEntityTracker)?.GetChanges();
-                
+
                 if (changedProperties != null && changedProperties.Count > 0)
                 {
                     int i = 0;

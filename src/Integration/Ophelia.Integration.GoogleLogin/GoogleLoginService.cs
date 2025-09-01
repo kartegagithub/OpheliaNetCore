@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Google.Apis.Auth;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using Google.Apis.Auth;
-using Ophelia;
 using static Google.Apis.Auth.GoogleJsonWebSignature;
 
 namespace Ophelia.Integration.GoogleAuth

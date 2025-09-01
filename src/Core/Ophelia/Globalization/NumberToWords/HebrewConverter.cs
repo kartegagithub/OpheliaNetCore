@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-
-namespace Ophelia.Globalization.NumberToWords
+﻿namespace Ophelia.Globalization.NumberToWords
 {
     internal class HebrewConverter : Converter
     {

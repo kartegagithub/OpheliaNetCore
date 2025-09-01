@@ -1,7 +1,4 @@
-﻿using AngleSharp.Dom;
-using System.Collections.Generic;
-
-namespace Ophelia.Caching
+﻿namespace Ophelia.Caching
 {
     public abstract class CacheFacade
     {
@@ -41,7 +38,7 @@ namespace Ophelia.Caching
                     if (this.oData != null && this.UseLocalCache)
                         LocalCache.Update(key, this.oData);
                 }
-                    
+
                 return this.oData;
             }
         }

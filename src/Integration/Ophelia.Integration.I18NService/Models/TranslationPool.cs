@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Ophelia.Integration.I18NService.Models
 {
-    public class TranslationPool: IDisposable
+    public class TranslationPool : IDisposable
     {
         public string Name { get; set; }
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ophelia.Integration.Notification
+﻿namespace Ophelia.Integration.Notification
 {
     public enum OperatingSystem : int
     {

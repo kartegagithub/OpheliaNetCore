@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Ophelia.Data.Exporter.Enums
+﻿namespace Ophelia.Data.Exporter.Enums
 {
     public enum CalculationType
     {

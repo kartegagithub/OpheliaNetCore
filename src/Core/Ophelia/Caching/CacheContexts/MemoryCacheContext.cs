@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 
 namespace Ophelia.Caching.CacheContexts
@@ -157,7 +156,7 @@ namespace Ophelia.Caching.CacheContexts
 
         public void Disconnect()
         {
-            
+
         }
 
         public void Dispose()

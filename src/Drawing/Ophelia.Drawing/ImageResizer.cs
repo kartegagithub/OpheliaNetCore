@@ -1,6 +1,5 @@
 ﻿using ImageMagick;
 using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -128,7 +127,7 @@ namespace Ophelia.Drawing
             catch (Exception)
             {
                 return false;
-            }            
+            }
         }
         public static Stream LosslessCompress(Stream stream, bool optimalCompression = false)
         {
@@ -145,7 +144,7 @@ namespace Ophelia.Drawing
             optimizer.LosslessCompress(stream);
             return stream;
         }
-        
+
         public static MagickImage ResizeImage(MagickImage BMP, int width, int height, string PathToSave, int quality = 75, bool throwEx = false)
         {
             try

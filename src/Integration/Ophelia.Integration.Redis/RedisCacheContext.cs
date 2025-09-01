@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Ophelia;
-using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core.Implementations;
+using System;
+using System.Collections.Generic;
 
 namespace Ophelia.Integration.Redis
 {
@@ -17,7 +13,7 @@ namespace Ophelia.Integration.Redis
             _RedisCache = new RedisCache(optionsAccessor);
         }
 
-        public long CacheCount { get { return ((RedisDatabase)_RedisCache.Database).SearchKeysAsync("*").Result.Count(); } }
+        public long CacheCount { get { return _RedisCache.GetKeys().Count; } }
 
         public bool Add(string key, object value, DateTime absoluteExpiration)
         {
@@ -53,7 +49,7 @@ namespace Ophelia.Integration.Redis
 
         public List<string> GetAllKeys()
         {
-            return ((RedisDatabase)_RedisCache.Database).SearchKeysAsync("*").Result.ToList();
+            return _RedisCache.GetKeys();
         }
 
         public bool Remove(string key)

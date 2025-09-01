@@ -19,7 +19,7 @@ namespace Ophelia.Application
         public virtual string UserAgent { get; set; }
         public virtual string SessionID { get; set; }
         public virtual int CurrentLanguageID { get; set; }
-        
+
         public virtual string TranslateText(string Text)
         {
             return Text;

@@ -1,13 +1,10 @@
-﻿using System;
+﻿using Ophelia.Net.Http;
+using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.Net;
-using System.Diagnostics;
-using System.IO;
-using Ophelia.Net.Http;
-using System.Net.Http;
 
 namespace Ophelia.Integration.CDN.Vimeo
 {
@@ -76,13 +73,13 @@ namespace Ophelia.Integration.CDN.Vimeo
                     .AddHeaders(headers)
                     .CreateRequest(url, method)
                     .CreateStringContent(payload, contentType);
-                return  factory.SendAsync().Result;
+                return factory.SendAsync().Result;
             }
             catch (Exception)
             {
 
                 throw;
-            }            
+            }
         }
     }
 }

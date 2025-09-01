@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Ophelia.Globalization.NumberToWords
+﻿namespace Ophelia.Globalization.NumberToWords
 {
     internal class UzbekCyrlConverter : Converter
     {
