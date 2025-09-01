@@ -110,6 +110,7 @@ namespace Ophelia.Caching
         }
         public static bool Remove(string key)
         {
+            Console.WriteLine($"Cache_State:{key}::REMOVED");
             return DefaultContext.Remove(key);
         }
         public static object GetByContext(string contextName, string key)

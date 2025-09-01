@@ -118,13 +118,15 @@ namespace Ophelia.Caching
                                     this.oEntities = CacheManager.Get<List<TEntity>>(key);
                                     if (this.oEntities == null)
                                     {
-                                        this.oEntities = this.GetData();
-                                        CacheManager.Add(key, this.oEntities, this.CacheDuration);
+                                        this.LoadData();
                                     }
                                 }
                             }
                             if (this.oEntities != null && this.UseLocalCache)
+                            {
                                 LocalCache.Update(key, this.oEntities);
+                                this.OnStateChange("LOCALY_CACHED");
+                            }
                         }
                     }
                 }
@@ -136,10 +138,34 @@ namespace Ophelia.Caching
             }
         }
 
+        /// <summary>
+        /// Loads and caches data
+        /// </summary>
+        protected void LoadData()
+        {
+            this.OnStateChange("LOADING");
+            this.oEntities = this.GetData();
+            this.OnStateChange("LOADED");
+            this.Commit();
+        }
+
+        /// <summary>
+        /// Updates cache
+        /// </summary>
+        public void Commit()
+        {
+            CacheManager.Add(this.GetKey(), this.oEntities, this.CacheDuration);
+        }
+
+        /// <summary>
+        /// Logs exception
+        /// </summary>
+        /// <param name="ex"></param>
         protected void OnFail(Exception ex)
         {
             Console.WriteLine(ex.ToString());
         }
+
         /// <summary>
         /// Gets an entity by its unique identifier.
         /// </summary>
@@ -189,6 +215,7 @@ namespace Ophelia.Caching
         /// </summary>
         public void Reset()
         {
+            this.OnStateChange("RESET");
             lock (oEntity_Locker)
             {
                 var key = this.GetKey();
@@ -206,38 +233,36 @@ namespace Ophelia.Caching
             this.Reset();
             lock (oEntity_Locker)
             {
+                this.OnStateChange("DROPPED");
                 var key = this.GetKey();
                 CacheManager.Remove(key);
             }
         }
 
         /// <summary>
-        /// Reloads the cached entities, optionally marking the cache as dirty.
-        /// </summary>
-        /// <param name="CanSetCacheDirty"></param>
-        /// <returns></returns>
-        public bool Reload(bool CanSetCacheDirty = true)
-        {
-            this.DropCache();
-            if (CanSetCacheDirty)
-                this.SetCacheDirty();
-            return this.Load();
-        }
-
-        /// <summary>
-        /// Loads the cached entities if available.
+        /// Drops and reloads the cached entities.
         /// </summary>
         /// <returns></returns>
-        public bool Load()
+        public bool Reload()
         {
-            return this.List.Count > 0;
+            try
+            {
+                this.DropCache();
+                this.LoadData();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.OnFail(ex);
+                return false;
+            }
         }
 
         /// <summary>
         /// Removes an entity from the cache by its unique identifier.
         /// </summary>
         /// <param name="id"></param>
-        public void Remove(object id)
+        public void Remove(object id, bool commit = true)
         {
             lock (oEntity_Locker)
             {
@@ -245,6 +270,8 @@ namespace Ophelia.Caching
                 if (entity != null)
                 {
                     this.List.Remove(entity);
+                    if (commit)
+                        this.Commit();
                 }
             }
         }
@@ -253,14 +280,17 @@ namespace Ophelia.Caching
         /// Adds a new entity to the cache.
         /// </summary>
         /// <param name="entity"></param>
-        public void Update(TEntity entity)
+        public void Update(TEntity entity, bool commit = true)
         {
             this.Remove(entity.GetPropertyValue(this.IDColumn));
             lock (oEntity_Locker)
             {
                 if (this.CanAdd(entity))
+                {
                     this.List.Add(entity);
-                this.SetCacheDirty();
+                    if (commit)
+                        this.Commit();
+                }
             }
         }
 
@@ -272,18 +302,15 @@ namespace Ophelia.Caching
         {
             if (this.CacheAutoReloadDuration > 0 && Utility.Now.Subtract(this.LastCheckDate).TotalMinutes > this.CacheAutoReloadDuration)
             {
+                this.OnStateChange("INVALIDATED");
                 this.LastCheckDate = Utility.Now;
                 return false;
             }
             return true;
         }
-
-        /// <summary>
-        /// This method can be overridden to mark the cache as dirty, prompting a reload.
-        /// </summary>
-        protected virtual void SetCacheDirty()
+        protected void OnStateChange(string state)
         {
-
+            Console.WriteLine($"Cache_State:{this.GetKey()}::{state}");
         }
 
         /// <summary>
