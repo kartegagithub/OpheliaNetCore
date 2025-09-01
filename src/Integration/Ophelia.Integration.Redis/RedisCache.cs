@@ -205,14 +205,48 @@ namespace Ophelia.Integration.Redis
             try
             {
                 var endpoints = _lazyConnection.Value.GetEndPoints();
-                var server = _lazyConnection.Value.GetServer(endpoints.First());
-                return server.Keys(pattern: pattern).Where(op => !string.IsNullOrEmpty((string)op)).Select(op => (string)op)!.Cast<string>().ToList();
+                var keys = new List<string>();
+                foreach (var endpoint in _lazyConnection.Value.GetEndPoints())
+                {
+                    var server = _lazyConnection.Value.GetServer(endpoint);
+                    if (!server.IsReplica) // sadece master node
+                    {
+                        keys.AddRange(server.Keys(pattern: pattern, pageSize: 1000).Where(op => !string.IsNullOrEmpty((string)op)).Select(op => (string)op)!.Cast<string>().ToList());
+                    }
+                }
+                keys = keys.Distinct().ToList();
+                return keys;
             }
             catch (Exception)
             {
                 return new List<string>();
             }
         }
+
+        public Dictionary<string, List<string>> GetEndpointKeys(string pattern = "*")
+        {
+            try
+            {
+                var endpointKeys = new Dictionary<string, List<string>>();
+                var endpoints = _lazyConnection.Value.GetEndPoints();
+                foreach (var endpoint in _lazyConnection.Value.GetEndPoints())
+                {
+                    var keys = new List<string>();
+                    var server = _lazyConnection.Value.GetServer(endpoint);
+                    if (!server.IsReplica) // sadece master node
+                    {
+                        keys.AddRange(server.Keys(pattern: pattern, pageSize: 1000).Where(op => !string.IsNullOrEmpty((string)op)).Select(op => (string)op)!.Cast<string>().ToList());
+                    }
+                    endpointKeys[endpoint.ToString()] = keys;
+                }
+                return endpointKeys;
+            }
+            catch (Exception)
+            {
+                return new Dictionary<string, List<string>>();
+            }
+        }
+
         private byte[] GetAndRefresh(string key, bool getData)
         {
             try
