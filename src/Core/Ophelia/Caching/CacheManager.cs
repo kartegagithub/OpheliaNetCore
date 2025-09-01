@@ -142,11 +142,11 @@ namespace Ophelia.Caching
         }
         public static void Disconnect()
         {
-            if(Contexts != null)
+            if (Contexts != null)
             {
                 foreach (var context in Contexts)
                 {
-                    if(context.Value is IDisposable)
+                    if (context.Value is IDisposable)
                     {
                         context.Value.Disconnect();
                     }

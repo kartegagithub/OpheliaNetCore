@@ -99,37 +99,48 @@ namespace Ophelia.Caching
         {
             get
             {
-                if (!this.CheckCacheHealth())
-                    this.Reset();
-
-                if (this.oEntities == null)
+                try
                 {
-                    var key = this.GetKey();
-                    if (this.UseLocalCache)
-                        this.oEntities = (List<TEntity>)LocalCache.Get(key);
+                    if (!this.CheckCacheHealth())
+                        this.Reset();
+
                     if (this.oEntities == null)
                     {
-                        this.oEntities = CacheManager.Get<List<TEntity>>(key);
+                        var key = this.GetKey();
+                        if (this.UseLocalCache)
+                            this.oEntities = (List<TEntity>)LocalCache.Get(key);
                         if (this.oEntities == null)
                         {
-                            lock (oEntity_Locker)
+                            this.oEntities = CacheManager.Get<List<TEntity>>(key);
+                            if (this.oEntities == null)
                             {
-                                this.oEntities = CacheManager.Get<List<TEntity>>(key);
-                                if (this.oEntities == null)
+                                lock (oEntity_Locker)
                                 {
-                                    this.oEntities = this.GetData();
-                                    CacheManager.Add(key, this.oEntities, this.CacheDuration);
+                                    this.oEntities = CacheManager.Get<List<TEntity>>(key);
+                                    if (this.oEntities == null)
+                                    {
+                                        this.oEntities = this.GetData();
+                                        CacheManager.Add(key, this.oEntities, this.CacheDuration);
+                                    }
                                 }
                             }
+                            if (this.oEntities != null && this.UseLocalCache)
+                                LocalCache.Update(key, this.oEntities);
                         }
-                        if (this.oEntities != null && this.UseLocalCache)
-                            LocalCache.Update(key, this.oEntities);
                     }
+                }
+                catch (Exception ex)
+                {
+                    this.OnFail(ex);
                 }
                 return this.oEntities;
             }
         }
 
+        protected void OnFail(Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
         /// <summary>
         /// Gets an entity by its unique identifier.
         /// </summary>

@@ -30,7 +30,7 @@ namespace Ophelia.Integration.Redis
         private const string DataKey = "data";
         private const long NotPresent = -1;
 
-        private volatile ConnectionMultiplexer _connection;
+        private static Lazy<ConnectionMultiplexer> _lazyConnection;
         internal IDatabase Database { get; set; }
 
         private readonly RedisCacheOptions _options;
@@ -133,7 +133,7 @@ namespace Ophelia.Integration.Redis
 
             token.ThrowIfCancellationRequested();
 
-            await ConnectAsync(token);
+            this.Connect();
 
             var creationTime = DateTimeOffset.UtcNow;
 
@@ -173,58 +173,24 @@ namespace Ophelia.Integration.Redis
 
         private void Connect()
         {
-            if (Database != null)
-            {
+            if (this.Database != null)
                 return;
-            }
-
+            
             _connectionLock.Wait();
             try
             {
-                if (Database == null)
+                if (_lazyConnection == null)
                 {
-                    if (string.IsNullOrEmpty(_options.Configuration))
+                    _lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
                     {
-                        _connection = ConnectionMultiplexer.Connect(_options.ConfigurationOptions);
-                    }
-                    else
-                    {
-                        _connection = ConnectionMultiplexer.Connect(_options.Configuration);
-                    }
-                    Database = _connection.GetDatabase();
+                        if (_options.ConfigurationOptions != null)
+                            return ConnectionMultiplexer.Connect(_options.ConfigurationOptions);
+                        else
+                            return ConnectionMultiplexer.Connect(_options.Configuration);
+                    });
                 }
-            }
-            finally
-            {
-                _connectionLock.Release();
-            }
-        }
 
-        private async Task ConnectAsync(CancellationToken token = default)
-        {
-            token.ThrowIfCancellationRequested();
-
-            if (Database != null)
-            {
-                return;
-            }
-
-            await _connectionLock.WaitAsync(token);
-            try
-            {
-                if (Database == null)
-                {
-                    if (_options.ConfigurationOptions != null)
-                    {
-                        _connection = await ConnectionMultiplexer.ConnectAsync(_options.ConfigurationOptions);
-                    }
-                    else
-                    {
-                        _connection = await ConnectionMultiplexer.ConnectAsync(_options.Configuration);
-                    }
-
-                    Database = _connection.GetDatabase();
-                }
+                this.Database = _lazyConnection.Value.GetDatabase();
             }
             finally
             {
@@ -283,7 +249,7 @@ namespace Ophelia.Integration.Redis
 
             token.ThrowIfCancellationRequested();
             _CacheKey = key;
-            await ConnectAsync(token);
+            this.Connect();
 
             // This also resets the LRU status as desired.
             // TODO: Can this be done in one operation on the server side? Probably, the trick would just be the DateTimeOffset math.
@@ -332,7 +298,7 @@ namespace Ophelia.Integration.Redis
                 throw new ArgumentNullException(nameof(key));
             }
             _CacheKey = key;
-            await ConnectAsync(token);
+            this.Connect();
 
             await Database.KeyDeleteAsync(_instance + key);
             // TODO: Error handling
@@ -428,12 +394,8 @@ namespace Ophelia.Integration.Redis
         private static DateTimeOffset? GetAbsoluteExpiration(DateTimeOffset creationTime, DistributedCacheEntryOptions options)
         {
             if (options.AbsoluteExpiration.HasValue && options.AbsoluteExpiration <= creationTime)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(DistributedCacheEntryOptions.AbsoluteExpiration),
-                    options.AbsoluteExpiration.Value,
-                    "The absolute expiration value must be in the future.");
-            }
+                options.AbsoluteExpiration = Ophelia.Utility.Now.AddHours(1);
+            
             var absoluteExpiration = options.AbsoluteExpiration;
             if (options.AbsoluteExpirationRelativeToNow.HasValue)
             {
@@ -445,9 +407,7 @@ namespace Ophelia.Integration.Redis
 
         public void Dispose()
         {
-            if (_connection != null)
-                _connection.Close();
-            _connection = null;
+            this.Database = null;
         }
     }
 }
