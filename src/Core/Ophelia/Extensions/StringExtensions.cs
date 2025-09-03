@@ -566,7 +566,7 @@ namespace Ophelia
         /// </summary>
         public static string ClearTurkishChars(this string value)
         {
-            StringBuilder sb = new StringBuilder(value);
+            var sb = new StringBuilder(value);
             sb = sb.Replace("ı", "i");
             sb = sb.Replace("ğ", "g");
             sb = sb.Replace("ü", "u");
@@ -579,8 +579,6 @@ namespace Ophelia
             sb = sb.Replace("Ş", "S");
             sb = sb.Replace("Ö", "O");
             sb = sb.Replace("Ç", "C");
-            sb = sb.Replace("'", string.Empty);
-
             return sb.ToString();
         }
 
