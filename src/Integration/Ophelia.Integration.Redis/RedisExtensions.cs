@@ -6,13 +6,14 @@ namespace Ophelia.Integration.Redis
     internal static class RedisExtensions
     {
         private const string HmGetScript = @"return redis.call('HMGET', KEYS[1], unpack(ARGV))";
-
+        internal static CommandFlags GetCommandFlags { get; set; } = CommandFlags.None;
         internal static RedisValue[] HashMemberGet(this IDatabase cache, string key, params string[] members)
         {
             var result = cache.ScriptEvaluate(
                 HmGetScript,
                 new RedisKey[] { key },
-                GetRedisMembers(members));
+                GetRedisMembers(members),
+                 GetCommandFlags);
 
             // TODO: Error checking?
             return (RedisValue[])result;
@@ -26,7 +27,8 @@ namespace Ophelia.Integration.Redis
             var result = await cache.ScriptEvaluateAsync(
                 HmGetScript,
                 new RedisKey[] { key },
-                GetRedisMembers(members));
+                GetRedisMembers(members),
+                GetCommandFlags);
 
             // TODO: Error checking?
             return (RedisValue[])result;

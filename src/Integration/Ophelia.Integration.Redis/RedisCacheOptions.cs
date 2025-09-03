@@ -6,6 +6,11 @@ namespace Ophelia.Integration.Redis
     public class RedisCacheOptions : IOptions<RedisCacheOptions>
     {
         /// <summary>
+        /// The command flags to use when reading data.
+        /// </summary>
+        public CommandFlags GetCommandFlags { get; set; } = CommandFlags.None;
+
+        /// <summary>
         /// The configuration used to connect to Redis.
         /// </summary>
         public string Configuration { get; set; }

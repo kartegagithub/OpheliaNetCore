@@ -261,6 +261,7 @@ namespace Ophelia.Integration.Redis
                 // This also resets the LRU status as desired.
                 // TODO: Can this be done in one operation on the server side? Probably, the trick would just be the DateTimeOffset math.
                 RedisValue[] results;
+                RedisExtensions.GetCommandFlags = this._options.GetCommandFlags;
                 if (getData)
                 {
                     results = Database.HashMemberGet(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey, DataKey);
@@ -303,6 +304,7 @@ namespace Ophelia.Integration.Redis
             // This also resets the LRU status as desired.
             // TODO: Can this be done in one operation on the server side? Probably, the trick would just be the DateTimeOffset math.
             RedisValue[] results;
+            RedisExtensions.GetCommandFlags = this._options.GetCommandFlags;
             if (getData)
             {
                 results = await Database.HashMemberGetAsync(_instance + key, AbsoluteExpirationKey, SlidingExpirationKey, DataKey);

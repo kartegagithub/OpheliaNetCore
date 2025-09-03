@@ -128,7 +128,7 @@ namespace Ophelia
                 {
                     convertedValue = Enum.ToObject(targetType, Enum.GetUnderlyingType(targetType).ConvertData(value));
                 }
-                else if (!value.GetType().IsStringType() && value.GetType().IsEnumarable())
+                else if (value != null && !value.GetType().IsStringType() && value.GetType().IsEnumarable())
                 {
                     convertedValue = value;
                 }
