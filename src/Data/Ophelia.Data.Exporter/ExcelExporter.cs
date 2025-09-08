@@ -407,18 +407,11 @@ namespace Ophelia.Data.Exporter
                 ++rowIndex;
                 var newExcelRow = new DocumentFormat.OpenXml.Spreadsheet.Row { RowIndex = rowIndex };
                 sheetData.Append(newExcelRow);
-
-                for (int colInx = 0; colInx < grid.Columns.Count; colInx++)
+                var colInx = 0;
+                foreach (var cell in row.Cells)
                 {
-                    var cell = row.Cells[colInx];
-                    AppendCell(
-                        excelColumnNames[colInx] + rowIndex.ToString(),
-                        cell.Value,
-                        newExcelRow,
-                        cell.Column.Type.GetValueOrDefault(CellValues.String),
-                        cell.Column.ValueType,
-                        cell.Column.StyleID
-                    );
+                    AppendCell(excelColumnNames[colInx] + rowIndex.ToString(), cell.Value, newExcelRow, cell.Column.Type.GetValueOrDefault(CellValues.String), cell.Column.ValueType, cell.Column.StyleID);
+                    colInx++;
                 }
             }
         }
