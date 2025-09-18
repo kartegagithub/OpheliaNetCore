@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -173,11 +174,33 @@ namespace Ophelia.Caching
         /// <returns></returns>
         public TEntity Get(object id)
         {
+            TEntity data = null;
             if (id != null)
             {
-                return this.Get(this.IDColumn, id);
+                data = this.Get(this.IDColumn, id);
             }
-            return null;
+            return data;
+        }
+
+        /// <summary>
+        /// Return true to reload cache if persistent data exists but cache does not, otherwise false. 
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        protected bool OnCacheNotFound(string property, object value)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Return true to reload cache if persistent data exists but cache does not, otherwise false. 
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        protected bool OnCacheNotFound(Func<TEntity, bool> predicate)
+        {
+            return false;
         }
 
         /// <summary>
@@ -197,6 +220,10 @@ namespace Ophelia.Caching
                     return item;
                 }
             }
+            if (this.OnCacheNotFound(property, value))
+            {
+                this.Reload();
+            }
             return null;
         }
 
@@ -207,7 +234,15 @@ namespace Ophelia.Caching
         /// <returns></returns>
         public List<TEntity> Find(Func<TEntity, bool> predicate)
         {
-            return this.List.Where(predicate).ToList();
+            var data = this.List.Where(predicate).ToList();
+            if (data.Count == 0)
+            {
+                if (this.OnCacheNotFound(predicate))
+                {
+                    this.Reload();
+                }
+            }
+            return data;
         }
 
         /// <summary>
