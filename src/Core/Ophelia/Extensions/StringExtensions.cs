@@ -166,6 +166,35 @@ namespace Ophelia
                 return false;
             }
         }
+
+        public static string NormalizeEmail(this string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return string.Empty;
+
+            email = email.Trim().ToLowerInvariant();
+
+            var parts = email.Split('@');
+            if (parts.Length != 2)
+                return email; // geçersiz format, aynen dön
+
+            var local = parts[0];
+            var domain = parts[1];
+
+            var plusIndex = local.IndexOf('+');
+            if (plusIndex >= 0)
+                local = local.Substring(0, plusIndex);
+
+            // Gmail özel kuralları
+            if (domain == "gmail.com" || domain == "googlemail.com")
+            {
+                // '.' noktalarını kaldır
+                local = local.Replace(".", "");
+                domain = "gmail.com";
+            }
+            return $"{local}@{domain}";
+        }
+
         public static bool IsEmailAddress(this string value)
         {
             if (!string.IsNullOrEmpty(value))
