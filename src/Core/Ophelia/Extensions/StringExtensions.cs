@@ -159,7 +159,7 @@ namespace Ophelia
             try
             {
                 var addr = new System.Net.Mail.MailAddress(value);
-                return addr.Address == value;
+                return addr.Address == value && Regex.IsMatch(addr.Host, @"^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
             }
             catch
             {
