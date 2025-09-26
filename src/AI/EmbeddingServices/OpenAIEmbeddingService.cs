@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using OpenAI.Embeddings;
+﻿using OpenAI.Embeddings;
 using Ophelia.AI.Interfaces;
 using Ophelia.AI.Models;
 using Ophelia.Caching;
@@ -14,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Ophelia.AI.EmbeddingServices
 {
-    public class OpenAIEmbeddingService: IEmbeddingService
+    public class OpenAIEmbeddingService : IEmbeddingService
     {
         private readonly EmbeddingClient _embeddingClient;
 

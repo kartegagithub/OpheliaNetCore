@@ -1,6 +1,6 @@
 ﻿namespace Ophelia.AI
 {
-    public enum LLMType: int
+    public enum LLMType : int
     {
         OpenAI = 1,
         AzureOpenAI = 2,

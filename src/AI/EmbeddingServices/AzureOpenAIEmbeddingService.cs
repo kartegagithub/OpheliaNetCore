@@ -18,7 +18,7 @@ namespace Ophelia.AI.EmbeddingServices
         {
             var endpoint = config.LLMConfig.Endpoint ?? throw new InvalidOperationException("Azure OpenAI endpoint not configured");
             var apiKey = config.LLMConfig.APIKey ?? throw new InvalidOperationException("Azure OpenAI API key not configured");
-            
+
             _embeddingClient = new EmbeddingClient(endpoint, new System.ClientModel.ApiKeyCredential(apiKey));
             _embeddingDimension = 1536; // Azure OpenAI text-embedding-ada-002
             _enableCache = config.LLMConfig.EnableCache;

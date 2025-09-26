@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Ophelia.AI.Interfaces;
+﻿using Ophelia.AI.Interfaces;
 using Ophelia.AI.Models;
 using System;
 using System.Collections.Generic;
@@ -25,7 +24,7 @@ namespace Ophelia.AI.ChatServices
             this._httpClient = new HttpClient();
         }
 
-        public override async Task<ChatResponse> ProcessQueryAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -73,7 +72,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task ProcessQueryStreamAsync(string userMessage, Stream outputStream, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             var writer = new StreamWriter(outputStream, Encoding.UTF8, leaveOpen: true, bufferSize: 1024);

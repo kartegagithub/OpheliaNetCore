@@ -1,7 +1,5 @@
 ﻿using Ophelia.AI.Models;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Ophelia.AI.Interfaces

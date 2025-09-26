@@ -15,13 +15,13 @@ namespace Ophelia.AI.ChatServices
     public class OpenAIChatService : BaseChatService
     {
         private readonly ChatClient _chatClient;
-        
-        public OpenAIChatService(AIConfig configuration, IChatHistoryStore chatHistoryStore): base(configuration, chatHistoryStore)
+
+        public OpenAIChatService(AIConfig configuration, IChatHistoryStore chatHistoryStore) : base(configuration, chatHistoryStore)
         {
             _chatClient = new ChatClient(configuration.LLMConfig.Model, configuration.LLMConfig.APIKey);
         }
 
-        public override async Task<ChatResponse> ProcessQueryAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -61,7 +61,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task ProcessQueryStreamAsync(string userMessage, Stream outputStream, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             var writer = new StreamWriter(outputStream, Encoding.UTF8, leaveOpen: true, bufferSize: 1024);

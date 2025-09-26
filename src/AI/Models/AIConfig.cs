@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Ophelia.AI.Models
+﻿namespace Ophelia.AI.Models
 {
     public class AIConfig
     {
         public LLMConfig? LLMConfig { get; set; }
+        public VectorConfig? VectorConfig { get; set; }
         public int MaxChatHistoryMessages { get; set; } = 20;
         public int MaxRetrievedChunks { get; set; } = 5;
     }
@@ -24,7 +21,7 @@ namespace Ophelia.AI.Models
         public string SystemPrompt { get; set; } = "";
         public int MaxBatchSize { get; set; } = 100;
         public bool EnableCache { get; set; } = true;
-        public int CacheExpirationHours { get;set; } = 24;
+        public int CacheExpirationHours { get; set; } = 24;
     }
 
     public class VectorConfig
@@ -32,5 +29,7 @@ namespace Ophelia.AI.Models
         public VectorDbType Type { get; set; } = VectorDbType.Pinecone;
         public string Endpoint { get; set; } = "";
         public string APIKey { get; set; } = string.Empty;
+        public string IndexName { get; set; } = string.Empty;
+        public bool UseSSL { get; set; } = true;
     }
 }

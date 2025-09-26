@@ -1,15 +1,15 @@
-﻿using Ophelia.AI.Interfaces;
+﻿using Azure.AI.OpenAI;
+using OpenAI.Chat;
+using Ophelia.AI.Interfaces;
 using Ophelia.AI.Models;
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json;
-using OpenAI.Chat;
-using Azure.AI.OpenAI;
-using System.ClientModel;
+using System.Threading.Tasks;
 
 namespace Ophelia.AI.ChatServices
 {
@@ -29,7 +29,7 @@ namespace Ophelia.AI.ChatServices
             _chatClient = _openAIClient.GetChatClient(configuration.LLMConfig.Model);
         }
 
-        public override async Task<ChatResponse> ProcessQueryAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -67,7 +67,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task ProcessQueryStreamAsync(string userMessage, Stream outputStream, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             var writer = new StreamWriter(outputStream, Encoding.UTF8, leaveOpen: true, bufferSize: 1024);

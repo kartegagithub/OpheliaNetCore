@@ -11,8 +11,8 @@ namespace Ophelia.AI.ChatServices
 {
     public abstract class BaseChatService : IChatService, IDisposable
     {
-        protected IVectorStore? _vectorStore;
-        protected IEmbeddingService? _embeddingService;
+        private IVectorStore? _vectorStore;
+        private IEmbeddingService? _embeddingService;
         protected AIConfig _configuration;
         protected IChatHistoryStore? _chatHistoryStore;
 
@@ -20,14 +20,15 @@ namespace Ophelia.AI.ChatServices
             AIConfig configuration,
             IChatHistoryStore chatHistoryStore)
         {
-            //_vectorStore = vectorStore;
-            //_embeddingService = embeddingService;
             _configuration = configuration;
             _chatHistoryStore = chatHistoryStore;
+
+            _vectorStore = Factory.CreateVectorStore(configuration);
+            _embeddingService = Factory.CreateEmbedingService(configuration);
         }
 
-        public abstract Task<ChatResponse> ProcessQueryAsync(string userMessage, string? userId = null);
-        public abstract Task ProcessQueryStreamAsync(string userMessage, Stream outputStream, string? userId = null);
+        public abstract Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null);
+        public abstract Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null);
 
         public async Task<IEnumerable<ChatHistoryMessage>> GetChatHistoryAsync(string userId)
         {
@@ -91,6 +92,34 @@ namespace Ophelia.AI.ChatServices
             this._chatHistoryStore = null;
             this._embeddingService = null;
             GC.SuppressFinalize(this);
+        }
+
+        public async Task UploadFileAsync(string filePath)
+        {
+            var fileContent = Ophelia.Integration.Documents.DocumentParserService.ExtractText(System.IO.Path.GetFileName(filePath), File.ReadAllBytes(filePath));
+            var data = await this._embeddingService.GenerateEmbeddingAsync(fileContent);
+            this._vectorStore.UpsertAsync(new List<VectorDocument>() {
+                new VectorDocument(){
+                   Id = System.IO.Path.GetFileName(filePath),
+                   Content = fileContent,
+                   Embedding = data,
+                   Source = filePath
+                }
+            }).Wait();
+        }
+
+        public async Task UploadFileAsync(string fileName, byte[] fileData)
+        {
+            var fileContent = Ophelia.Integration.Documents.DocumentParserService.ExtractText(fileName, fileData);
+            var data = await this._embeddingService.GenerateEmbeddingAsync(fileContent);
+            this._vectorStore.UpsertAsync(new List<VectorDocument>() {
+                new VectorDocument(){
+                   Id = fileName,
+                   Content = fileContent,
+                   Embedding = data,
+                   Source = fileName
+                }
+            }).Wait();
         }
     }
 }
