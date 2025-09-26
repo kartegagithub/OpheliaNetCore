@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Kartega</Authors>
+		<Company>Kartega Yazılım ve Danışmanlık A.Ş.</Company>
+		<Description>Ophelia Framework</Description>
+		<Copyright>© Kartega Yazılım ve Danışmanlık A.Ş. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://www.kartega.com</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/kartegagithub/OpheliaNetCore</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackAsTool>False</PackAsTool>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<AnalysisLevel>latest-recommended</AnalysisLevel>
+		<Version>8.0.0.154</Version>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+		<PackageOutputPath>$(SolutionDir)packages\nuget\$(Configuration)\</PackageOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Anthropic.SDK" Version="5.5.2" />
+		<PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
+		<PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
+		<PackageReference Include="OpenAI" Version="2.5.0" />
+		<PackageReference Include="Pinecone.Client" Version="4.0.2" />
+	</ItemGroup>
+	<ItemGroup>
+		<GlobalAnalyzerConfigFiles Include="$(SolutionDir)\.globalconfig" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Core\Ophelia\Ophelia.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Extensions\" />
+	</ItemGroup>
+</Project>

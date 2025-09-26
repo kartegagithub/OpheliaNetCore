@@ -1,0 +1,150 @@
+﻿using Anthropic.SDK;
+using Anthropic.SDK.Messaging;
+using Microsoft.Extensions.Logging;
+using Ophelia.AI.Interfaces;
+using Ophelia.AI.Models;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.ServiceModel.Channels;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Message = Anthropic.SDK.Messaging.Message;
+
+namespace Ophelia.AI.ChatServices
+{
+    public class ClaudeChatService : BaseChatService
+    {
+        private readonly AnthropicClient _claudeClient;
+
+        public ClaudeChatService(
+            AIConfig configuration,
+            IChatHistoryStore chatHistoryStore) : base(configuration, chatHistoryStore)
+        {
+            var apiKey = configuration.LLMConfig.APIKey ?? throw new InvalidOperationException("Claude API key not configured");
+
+            _claudeClient = new AnthropicClient(apiKey);
+        }
+
+        public override async Task<ChatResponse> ProcessQueryAsync(string userMessage, string? userId = null)
+        {
+            var startTime = DateTime.UtcNow;
+            var conversationId = userId ?? Guid.NewGuid().ToString();
+
+            try
+            {
+                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
+                var context = BuildContext(chunks);
+                var sources = chunks.Select(c => c.Source).Distinct().ToList();
+
+                var messages = BuildClaudeMessages(userMessage, history);
+                var systemPrompt = GetSystemPrompt(context);
+
+                var model = _configuration.LLMConfig.Model ?? "claude-3-sonnet-20240229";
+
+                var messageRequest = new MessageParameters
+                {
+                    Model = model,
+                    MaxTokens = 4096,
+                    Messages = messages,
+                    System = (new SystemMessage[] { new SystemMessage(systemPrompt) }).ToList(),
+                };
+
+                var response = await _claudeClient.Messages.GetClaudeMessageAsync(messageRequest);
+                var responseMessage = string.Join("", response.Content);//TODO: To be validated
+
+                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
+
+                var processingTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
+
+                return new ChatResponse
+                {
+                    Message = responseMessage,
+                    Sources = sources,
+                    TokensUsed = response.Usage.InputTokens + response.Usage.OutputTokens,
+                    ProcessingTimeMs = processingTime,
+                    ConversationId = conversationId
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public override async Task ProcessQueryStreamAsync(string userMessage, Stream outputStream, string? userId = null)
+        {
+            var conversationId = userId ?? Guid.NewGuid().ToString();
+            var writer = new StreamWriter(outputStream, Encoding.UTF8, leaveOpen: true, bufferSize: 1024);
+
+            try
+            {
+                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
+                var context = BuildContext(chunks);
+                var sources = chunks.Select(c => c.Source).Distinct().ToList();
+
+                await SendSseEventAsync(writer, "sources", JsonSerializer.Serialize(sources));
+
+                var messages = BuildClaudeMessages(userMessage, history);
+                var systemPrompt = GetSystemPrompt(context);
+                var model = _configuration.LLMConfig.Model ?? "claude-3-sonnet-20240229";
+
+                var messageRequest = new MessageParameters
+                {
+                    Model = model,
+                    MaxTokens = 4096,
+                    Messages = messages,
+                    System = (new SystemMessage[] { new SystemMessage(systemPrompt) }).ToList(),
+                    Stream = true
+                };
+
+                var responseBuilder = new StringBuilder();
+
+                await foreach (var streamEvent in _claudeClient.Messages.StreamClaudeMessageAsync(messageRequest))
+                {
+                    if (streamEvent.Delta?.Text != null)
+                    {
+                        responseBuilder.Append(streamEvent.Delta.Text);
+                        await SendSseEventAsync(writer, "message", streamEvent.Delta.Text);
+                    }
+                }
+
+                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+
+                await SendSseEventAsync(writer, "done", "");
+                await writer.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                await SendSseEventAsync(writer, "error", ex.Message);
+                await writer.FlushAsync();
+            }
+        }
+
+        private List<Message> BuildClaudeMessages(string userMessage, List<ChatHistoryMessage> history)
+        {
+            var messages = new List<Message>();
+
+            foreach (var historyMsg in history.TakeLast(this._configuration.MaxChatHistoryMessages))
+            {
+                messages.Add(new Message
+                {
+                    Role = historyMsg.Role == "user" ? RoleType.User : RoleType.Assistant,
+                    Content = new List<ContentBase> { new TextContent { Text = historyMsg.Content } }
+                });
+            }
+
+            messages.Add(new Message
+            {
+                Role = RoleType.User,
+                Content = new List<ContentBase> { new TextContent { Text = userMessage } }
+            });
+
+            return messages;
+        }
+    }
+}
