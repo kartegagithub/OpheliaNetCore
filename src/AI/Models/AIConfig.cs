@@ -30,6 +30,8 @@
         public string Endpoint { get; set; } = "";
         public string APIKey { get; set; } = string.Empty;
         public string IndexName { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
         public bool UseSSL { get; set; } = true;
     }
 }

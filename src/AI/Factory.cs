@@ -55,6 +55,10 @@ namespace Ophelia.AI
             {
                 case VectorDbType.Pinecone:
                     return new PineconeService(config.VectorConfig.APIKey, config.VectorConfig.IndexName, config.VectorConfig.Endpoint, config.VectorConfig.UseSSL);
+                case VectorDbType.Redis:
+                    return new RedisService(config.VectorConfig.Endpoint.Split(","), config.VectorConfig.IndexName, config.VectorConfig.UserName, config.VectorConfig.Password);
+                case VectorDbType.ElasticSearch:
+                    return new ElasticSearchService(config.VectorConfig.Endpoint, config.VectorConfig.IndexName, config.VectorConfig.UserName, config.VectorConfig.Password);
             }
             throw new NotImplementedException($"LLM Type {config.LLMConfig.Type} not implemented");
         }
