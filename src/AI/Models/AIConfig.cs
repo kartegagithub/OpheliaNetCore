@@ -35,6 +35,9 @@
         public int MaxBatchSize { get; set; } = 100;
         public bool EnableCache { get; set; } = true;
         public int CacheExpirationHours { get; set; } = 24;
+        public int MaxTokens { get; set; } = 512;
+        public double Temperature { get; internal set; } = 0.7;
+        public double TopP { get; internal set; } = 0.9;
     }
 
     public class VectorConfig

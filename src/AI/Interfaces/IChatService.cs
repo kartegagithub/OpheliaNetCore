@@ -14,5 +14,7 @@ namespace Ophelia.AI.Interfaces
         Task ClearChatHistoryAsync(string userId);
         Task UploadFileAsync(string filePath);
         Task UploadFileAsync(string fileName, byte[] fileData);
+        IVectorStore CreateVectorStore(AIConfig config);
+        IEmbeddingService CreateEmbedingService(AIConfig config);
     }
 }

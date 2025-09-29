@@ -1,5 +1,7 @@
-﻿using Ophelia.AI.Interfaces;
+﻿using Ophelia.AI.EmbeddingServices;
+using Ophelia.AI.Interfaces;
 using Ophelia.AI.Models;
+using Ophelia.AI.VectorServices;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,8 +28,8 @@ namespace Ophelia.AI.ChatServices
             _configuration = configuration;
             _chatHistoryStore = chatHistoryStore;
 
-            _vectorStore = Factory.CreateVectorStore(configuration);
-            _embeddingService = Factory.CreateEmbedingService(configuration);
+            _vectorStore = this.CreateVectorStore(configuration);
+            _embeddingService = this.CreateEmbedingService(configuration);
         }
 
         public abstract Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null);
@@ -123,6 +125,40 @@ namespace Ophelia.AI.ChatServices
                    Source = fileName
                 }
             }).Wait();
+        }
+
+        public virtual IEmbeddingService CreateEmbedingService(AIConfig config)
+        {
+            switch (config.LLMConfig.Type)
+            {
+                case LLMType.OpenAI:
+                    return new OpenAIEmbeddingService(config);
+                case LLMType.AzureOpenAI:
+                    return new AzureOpenAIEmbeddingService(config);
+                case LLMType.Claude:
+                    return new ClaudeEmbeddingService(config);
+                case LLMType.Gemini:
+                    return new GeminiEmbeddingService(config);
+                case LLMType.HuggingFace:
+                    return new HuggingFaceEmbeddingService(config);
+                case LLMType.Custom:
+                    break;
+            }
+            throw new NotImplementedException($"LLM Type {config.LLMConfig.Type} not implemented");
+        }
+
+        public virtual IVectorStore CreateVectorStore(AIConfig config)
+        {
+            switch (config.VectorConfig.Type)
+            {
+                case VectorDbType.Pinecone:
+                    return new PineconeService(config.VectorConfig.APIKey, config.VectorConfig.IndexName, config.VectorConfig.Endpoint, config.VectorConfig.UseSSL);
+                case VectorDbType.Redis:
+                    return new RedisService(config.VectorConfig.Endpoint.Split(","), config.VectorConfig.IndexName, config.VectorConfig.UserName, config.VectorConfig.Password);
+                case VectorDbType.ElasticSearch:
+                    return new ElasticSearchService(config.VectorConfig.Endpoint, config.VectorConfig.IndexName, config.VectorConfig.UserName, config.VectorConfig.Password);
+            }
+            throw new NotImplementedException($"LLM Type {config.LLMConfig.Type} not implemented");
         }
     }
 }
