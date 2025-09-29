@@ -19,24 +19,17 @@ namespace Ophelia.AI.EmbeddingServices
         private readonly int _embeddingDimension;
         private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta";
 
-        // Gemini embedding modelleri
-        public static class Models
+        public GeminiEmbeddingService(AIConfig config)
         {
-            public const string TextEmbedding004 = "text-embedding-004";
-            public const string TextEmbedding = "embedding-001";
-        }
-
-        public GeminiEmbeddingService(string apiKey, string model = Models.TextEmbedding004)
-        {
-            _apiKey = apiKey ?? throw new ArgumentNullException(nameof(apiKey));
-            _model = model;
+            _apiKey = config.LLMConfig.APIKey;
+            _model = config.LLMConfig.EmbedingModel;
             _httpClient = new HttpClient();
 
             // Model'e göre embedding dimension ayarla
-            _embeddingDimension = model switch
+            _embeddingDimension = _model switch
             {
-                Models.TextEmbedding004 => 768,
-                Models.TextEmbedding => 768,
+                "embedding-001" => 768,
+                "text-embedding-004" => 768,
                 _ => 768 // Default
             };
         }

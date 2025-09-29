@@ -13,8 +13,11 @@ namespace Ophelia.AI.ChatServices
     {
         private IVectorStore? _vectorStore;
         private IEmbeddingService? _embeddingService;
-        protected AIConfig _configuration;
-        protected IChatHistoryStore? _chatHistoryStore;
+        private AIConfig _configuration;
+        private IChatHistoryStore? _chatHistoryStore;
+
+        public AIConfig Config => _configuration;
+        public IChatHistoryStore? ChatHistoryStore => _chatHistoryStore;
 
         protected BaseChatService(
             AIConfig configuration,

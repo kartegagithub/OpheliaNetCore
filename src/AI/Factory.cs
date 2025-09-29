@@ -9,8 +9,20 @@ namespace Ophelia.AI
 {
     public static class Factory
     {
-        public static IChatService CreateChatService(AIConfig config, IChatHistoryStore historyStore)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly", Justification = "<Pending>")]
+        public static IChatService CreateChatService(AIConfig config, IChatHistoryStore? historyStore = null)
         {
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+            if (config.LLMConfig == null)
+                throw new ArgumentNullException(nameof(config.LLMConfig));
+            if (string.IsNullOrEmpty(config.LLMConfig.APIKey))
+                throw new ArgumentNullException(nameof(config.LLMConfig.APIKey), "API Key is required in LLMConfig");
+            if (string.IsNullOrEmpty(config.LLMConfig.Model))
+                throw new ArgumentNullException(nameof(config.LLMConfig.Model), "Model is required in LLMConfig");
+            if (string.IsNullOrEmpty(config.LLMConfig.SystemPrompt))
+                throw new ArgumentNullException(nameof(config.LLMConfig.SystemPrompt), "System prompt is required in LLMConfig");
+
             switch (config.LLMConfig.Type)
             {
                 case LLMType.OpenAI:
@@ -38,9 +50,9 @@ namespace Ophelia.AI
                 case LLMType.AzureOpenAI:
                     return new AzureOpenAIEmbeddingService(config);
                 case LLMType.Claude:
-                    return new ClaudeEmbeddingService(config.LLMConfig.APIKey);
+                    return new ClaudeEmbeddingService(config);
                 case LLMType.Gemini:
-                    return new GeminiEmbeddingService(config.LLMConfig.APIKey);
+                    return new GeminiEmbeddingService(config);
                 case LLMType.HuggingFace:
                     break;
                 case LLMType.Custom:

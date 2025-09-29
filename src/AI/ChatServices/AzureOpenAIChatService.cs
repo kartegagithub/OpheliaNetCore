@@ -47,8 +47,11 @@ namespace Ophelia.AI.ChatServices
 
                 var responseMessage = response.Value.Content[0].Text;
 
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
+                if (this.ChatHistoryStore != null)
+                {
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
+                }
 
                 var processingTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
 
@@ -96,8 +99,11 @@ namespace Ophelia.AI.ChatServices
                     }
                 }
 
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+                if (this.ChatHistoryStore != null)
+                {
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+                }
 
                 await SendSseEventAsync(writer, "done", "");
                 await writer.FlushAsync();
@@ -115,7 +121,7 @@ namespace Ophelia.AI.ChatServices
             var systemPrompt = GetSystemPrompt(context);
             messages.Add(ChatMessage.CreateSystemMessage(systemPrompt));
 
-            foreach (var historyMsg in history.TakeLast(this._configuration.MaxChatHistoryMessages))
+            foreach (var historyMsg in history.TakeLast(this.Config.MaxChatHistoryMessages))
             {
                 if (historyMsg.Role == "user")
                     messages.Add(ChatMessage.CreateUserMessage(historyMsg.Content));

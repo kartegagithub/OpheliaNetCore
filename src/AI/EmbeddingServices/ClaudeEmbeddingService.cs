@@ -1,4 +1,5 @@
-﻿using Ophelia.AI.Interfaces;
+﻿using Microsoft.Extensions.AI;
+using Ophelia.AI.Interfaces;
 using Ophelia.AI.Models;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,11 @@ using System.Threading.Tasks;
 
 namespace Ophelia.AI.EmbeddingServices
 {
+    /// <summary>
+    /// Not: Claude'un native embedding API'si yoktur
+    /// Bu implementation text'i Claude ile process edip synthetic embedding oluşturur
+    /// Gerçek production için OpenAI, Cohere vs. kullanılmalı
+    /// </summary>
     public class ClaudeEmbeddingService : IDisposable, IEmbeddingService
     {
         private readonly HttpClient _httpClient;
@@ -18,20 +24,10 @@ namespace Ophelia.AI.EmbeddingServices
         private readonly int _embeddingDimension;
         private const string BaseUrl = "https://api.anthropic.com/v1";
 
-        // Not: Claude'un native embedding API'si yoktur
-        // Bu implementation text'i Claude ile process edip synthetic embedding oluşturur
-        // Gerçek production için OpenAI, Cohere vs. kullanılmalı
-
-        public static class Models
+        public ClaudeEmbeddingService(AIConfig config, int dimension = 384)
         {
-            public const string Claude3Sonnet = "claude-3-sonnet-20240229";
-            public const string Claude3Haiku = "claude-3-haiku-20240307";
-        }
-
-        public ClaudeEmbeddingService(string apiKey, string model = Models.Claude3Haiku, int dimension = 384)
-        {
-            _apiKey = apiKey ?? throw new ArgumentNullException(nameof(apiKey));
-            _model = model;
+            _apiKey = config.LLMConfig.APIKey;
+            _model = config.LLMConfig.Model;
             _embeddingDimension = dimension;
 
             _httpClient = new HttpClient();

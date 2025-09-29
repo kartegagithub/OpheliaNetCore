@@ -40,7 +40,7 @@ namespace Ophelia.AI.ChatServices
                 var messages = BuildClaudeMessages(userMessage, history);
                 var systemPrompt = GetSystemPrompt(context);
 
-                var model = _configuration.LLMConfig.Model ?? "claude-3-sonnet-20240229";
+                var model = this.Config.LLMConfig.Model ?? "claude-3-sonnet-20240229";
 
                 var messageRequest = new MessageParameters
                 {
@@ -53,9 +53,12 @@ namespace Ophelia.AI.ChatServices
                 var response = await _claudeClient.Messages.GetClaudeMessageAsync(messageRequest);
                 var responseMessage = string.Join("", response.Content);//TODO: To be validated
 
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
-
+                if(this.ChatHistoryStore != null)
+                {
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
+                }
+                
                 var processingTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
 
                 return new ChatResponse
@@ -88,7 +91,7 @@ namespace Ophelia.AI.ChatServices
 
                 var messages = BuildClaudeMessages(userMessage, history);
                 var systemPrompt = GetSystemPrompt(context);
-                var model = _configuration.LLMConfig.Model ?? "claude-3-sonnet-20240229";
+                var model = this.Config.LLMConfig.Model ?? "claude-3-sonnet-20240229";
 
                 var messageRequest = new MessageParameters
                 {
@@ -110,8 +113,11 @@ namespace Ophelia.AI.ChatServices
                     }
                 }
 
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+                if (this.ChatHistoryStore != null)
+                {
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+                }
 
                 await SendSseEventAsync(writer, "done", "");
                 await writer.FlushAsync();
@@ -127,7 +133,7 @@ namespace Ophelia.AI.ChatServices
         {
             var messages = new List<Message>();
 
-            foreach (var historyMsg in history.TakeLast(this._configuration.MaxChatHistoryMessages))
+            foreach (var historyMsg in history.TakeLast(this.Config.MaxChatHistoryMessages))
             {
                 messages.Add(new Message
                 {

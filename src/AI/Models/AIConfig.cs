@@ -13,7 +13,20 @@
         public LLMType Type { get; set; } = LLMType.OpenAI;
         public string Endpoint { get; set; } = "";
         public string APIKey { get; set; } = string.Empty;
-        public string Model { get; set; } = "gpt-4-turbo-preview";
+
+        /// <summary>
+        /// Claude: claude-3-sonnet-20240229, claude-3-haiku-20240307
+        /// Gemini: text-bison-001, gemini-1.5-pro, gemini-1.5-turbo, gemini-1.0-pro, gemini-1.0-turbo
+        /// OpenAI: gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-4, gpt-3.5-turbo
+        /// </summary>
+        public string Model { get; set; } = "";
+
+        /// <summary>
+        /// Gemini: textembedding-gecko-001, textembedding-gecko-002
+        /// Claude: claude-3-sonnet-20240229, claude-3-haiku-20240307
+        /// OpenAI: text-embedding-3-small, text-embedding-3-large, text-embedding-ada-002
+        /// </summary>
+        public string EmbedingModel { get; set; } = "";
 
         /// <summary>
         /// Use {context} placeholder for context definition

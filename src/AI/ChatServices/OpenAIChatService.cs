@@ -40,10 +40,13 @@ namespace Ophelia.AI.ChatServices
                 var chatCompletion = await _chatClient.CompleteChatAsync(messages);
                 var responseMessage = chatCompletion.Value.Content[0].Text;
 
-                // 6. Chat geçmişini kaydet
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
-
+                if(this.ChatHistoryStore != null)
+                {
+                    // 6. Chat geçmişini kaydet
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
+                }
+                
                 var processingTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
 
                 return new ChatResponse
@@ -94,9 +97,12 @@ namespace Ophelia.AI.ChatServices
                     }
                 }
 
-                // 7. Chat geçmişini kaydet
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+                if(this.ChatHistoryStore != null)
+                {
+                    // 7. Chat geçmişini kaydet
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+                }
 
                 await SendSseEventAsync(writer, "done", "");
                 await writer.FlushAsync();
@@ -127,11 +133,11 @@ namespace Ophelia.AI.ChatServices
             //Firma dokümanları:
             //{context}";
 
-            var systemPrompt = _configuration.LLMConfig.SystemPrompt.Replace("{context}", context);
+            var systemPrompt = this.Config.LLMConfig.SystemPrompt.Replace("{context}", context);
             messages.Add(ChatMessage.CreateSystemMessage(systemPrompt));
 
             // Chat geçmişi
-            foreach (var historyMsg in history.TakeLast(this._configuration.MaxChatHistoryMessages))
+            foreach (var historyMsg in history.TakeLast(this.Config.MaxChatHistoryMessages))
             {
                 if (historyMsg.Role == "user")
                     messages.Add(ChatMessage.CreateUserMessage(historyMsg.Content));

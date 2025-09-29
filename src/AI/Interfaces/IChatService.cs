@@ -7,6 +7,7 @@ namespace Ophelia.AI.Interfaces
 {
     public interface IChatService
     {
+        AIConfig Config { get; }
         Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null);
         Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null);
         Task<IEnumerable<ChatHistoryMessage>> GetChatHistoryAsync(string userId);

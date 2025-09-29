@@ -35,7 +35,7 @@ namespace Ophelia.AI.ChatServices
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
-                var model = _configuration.LLMConfig.Model ?? "gemini-1.5-pro-latest";
+                var model = this.Config.LLMConfig.Model ?? "gemini-1.5-pro-latest";
                 var requestBody = BuildGeminiRequest(context, userMessage, history);
 
                 var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={_apiKey}";
@@ -52,8 +52,11 @@ namespace Ophelia.AI.ChatServices
                 var geminiResponse = JsonSerializer.Deserialize<GeminiResponse>(responseContent);
                 var responseMessage = geminiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "Yanıt alınamadı";
 
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
+                if (this.ChatHistoryStore != null)
+                {
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
+                }
 
                 var processingTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
 
@@ -85,7 +88,7 @@ namespace Ophelia.AI.ChatServices
 
                 await SendSseEventAsync(writer, "sources", JsonSerializer.Serialize(sources));
 
-                var model = _configuration.LLMConfig.Model ?? "gemini-1.5-pro-latest";
+                var model = this.Config.LLMConfig.Model ?? "gemini-1.5-pro-latest";
                 var requestBody = BuildGeminiRequest(context, userMessage, history);
 
                 var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?key={_apiKey}";
@@ -131,8 +134,11 @@ namespace Ophelia.AI.ChatServices
                     }
                 }
 
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
-                await _chatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+                if(this.ChatHistoryStore != null)
+                {
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
+                }                
 
                 await SendSseEventAsync(writer, "done", "");
                 await writer.FlushAsync();
@@ -150,7 +156,7 @@ namespace Ophelia.AI.ChatServices
             var contents = new List<object>();
 
             // Chat history
-            foreach (var historyMsg in history.TakeLast(this._configuration.MaxChatHistoryMessages))
+            foreach (var historyMsg in history.TakeLast(this.Config.MaxChatHistoryMessages))
             {
                 contents.Add(new
                 {
