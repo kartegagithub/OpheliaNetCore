@@ -17,6 +17,7 @@ namespace Ophelia.AI.EmbeddingServices
         private readonly string _apiKey;
         private readonly string _model;
         private readonly int _embeddingDimension;
+        private readonly int _requestedDimension;
         private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta";
 
         public GeminiEmbeddingService(AIConfig config)
@@ -24,6 +25,7 @@ namespace Ophelia.AI.EmbeddingServices
             _apiKey = config.LLMConfig.APIKey;
             _model = config.LLMConfig.EmbedingModel;
             _httpClient = new HttpClient();
+            this._requestedDimension = config.VectorConfig.Dimension;
 
             // Model'e göre embedding dimension ayarla
             _embeddingDimension = _model switch
@@ -32,9 +34,11 @@ namespace Ophelia.AI.EmbeddingServices
                 "text-embedding-004" => 768,
                 _ => 768 // Default
             };
+            if (this._requestedDimension <= 0)
+                this._requestedDimension = _embeddingDimension;
         }
 
-        public int GetEmbeddingDimension() => _embeddingDimension;
+        public int GetEmbeddingDimension() => Math.Min(_embeddingDimension, _requestedDimension);
 
         public async Task<float[]> GenerateEmbeddingAsync(string text)
         {
@@ -54,6 +58,7 @@ namespace Ophelia.AI.EmbeddingServices
                             new { text = text }
                         }
                     },
+                    outputDimensionality = this.GetEmbeddingDimension(),
                     taskType = "RETRIEVAL_DOCUMENT", // veya "RETRIEVAL_QUERY", "SEMANTIC_SIMILARITY"
                     title = "Document" // Opsiyonel
                 };
@@ -126,6 +131,7 @@ namespace Ophelia.AI.EmbeddingServices
 
                 var requests = texts.Select(text => new
                 {
+                    model = $"models/{_model}",
                     content = new
                     {
                         parts = new[]
@@ -133,6 +139,7 @@ namespace Ophelia.AI.EmbeddingServices
                             new { text = text }
                         }
                     },
+                    outputDimensionality = this.GetEmbeddingDimension(),
                     taskType = "RETRIEVAL_DOCUMENT"
                 }).ToArray();
 
@@ -191,8 +198,6 @@ namespace Ophelia.AI.EmbeddingServices
                     catch (Exception individualEx)
                     {
                         Console.WriteLine($"Individual embedding failed for text: {individualEx.Message}");
-                        // Boş embedding ekle veya skip et
-                        results.Add(new float[_embeddingDimension]);
                     }
                 }
 
@@ -222,7 +227,6 @@ namespace Ophelia.AI.EmbeddingServices
                 {
                     results.Add(new EmbeddingResult
                     {
-                        Embedding = new float[_embeddingDimension],
                         Text = texts[i],
                         Index = i
                     });

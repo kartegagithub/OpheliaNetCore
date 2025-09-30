@@ -9,6 +9,7 @@ namespace Ophelia.Service
     public class ServiceObjectRequest<T> : IDisposable
     {
         public long ID { get; set; }
+        public string UID { get; set; }
         public long LanguageID { get; set; }
         public string Name { get; set; }
         public virtual T Data { get; set; }

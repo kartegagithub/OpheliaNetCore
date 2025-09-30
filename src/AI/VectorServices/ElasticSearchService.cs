@@ -13,18 +13,21 @@ namespace Ophelia.AI.VectorServices
     {
         private readonly ElasticClient _client;
         private readonly string _indexName;
+        private bool _indexChecked;
+        private readonly int _embeddingDimension;
 
-        public ElasticSearchService(string url, string indexName, string username = null, string password = null)
+        public ElasticSearchService(AIConfig config)
         {
-            var settings = new ConnectionSettings(new Uri(url))
-                .DefaultIndex(_indexName = indexName);
+            var settings = new ConnectionSettings(new Uri(config.VectorConfig.Endpoint))
+                .DefaultIndex(_indexName = config.VectorConfig.IndexName);
 
-            if (!string.IsNullOrEmpty(username))
+            if (!string.IsNullOrEmpty(config.VectorConfig.UserName))
             {
-                settings.BasicAuthentication(username, password);
+                settings.BasicAuthentication(config.VectorConfig.UserName, config.VectorConfig.Password);
             }
 
             _client = new ElasticClient(settings);
+            this._embeddingDimension = config.VectorConfig.Dimension;
         }
 
         public void Dispose()
@@ -36,6 +39,8 @@ namespace Ophelia.AI.VectorServices
         {
             try
             {
+                await EnsureIndexExistsAsync();
+
                 var searchResponse = await _client.SearchAsync<VectorDoc>(s => s
                     .Index(_indexName)
                     .Size(topK)
@@ -52,7 +57,7 @@ namespace Ophelia.AI.VectorServices
 
                 var results = new List<VectorSearchResult>();
 
-                if (searchResponse.IsValid && searchResponse.Documents != null)
+                if (searchResponse.Documents != null)
                 {
                     foreach (var doc in searchResponse.Documents)
                     {
@@ -81,6 +86,8 @@ namespace Ophelia.AI.VectorServices
 
             try
             {
+                await EnsureIndexExistsAsync();
+
                 const int batchSize = 100;
                 var batches = documents
                     .Select((doc, i) => new { doc, i })
@@ -113,7 +120,7 @@ namespace Ophelia.AI.VectorServices
 
                     if (!bulkResponse.IsValid)
                     {
-                        throw new Exception($"Bulk upsert failed: {bulkResponse.DebugInformation}");
+                        Console.WriteLine($"Bulk upsert is not valid: {bulkResponse.DebugInformation}");
                     }
 
                     if (batches.Count > 1)
@@ -126,6 +133,24 @@ namespace Ophelia.AI.VectorServices
             {
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Index yoksa otomatik oluşturur (thread-safe)
+        /// </summary>
+        private async Task EnsureIndexExistsAsync()
+        {
+            if (_indexChecked)
+                return;
+
+            var existsResponse = await _client.Indices.ExistsAsync(_indexName);
+
+            if (!existsResponse.Exists)
+            {
+                await CreateIndexAsync(_embeddingDimension);
+            }
+
+            _indexChecked = true;
         }
 
         /// <summary>

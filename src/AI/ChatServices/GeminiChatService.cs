@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Ophelia.AI.ChatServices
@@ -39,7 +38,7 @@ namespace Ophelia.AI.ChatServices
                 var requestBody = BuildGeminiRequest(context, userMessage, history);
 
                 var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={_apiKey}";
-                var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(requestBody.ToJson(), Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.PostAsync(url, jsonContent);
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -49,7 +48,7 @@ namespace Ophelia.AI.ChatServices
                     throw new Exception($"Gemini API error: {response.StatusCode}");
                 }
 
-                var geminiResponse = JsonSerializer.Deserialize<GeminiResponse>(responseContent);
+                var geminiResponse = responseContent.FromJson<GeminiResponse>();
                 var responseMessage = geminiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "Yanıt alınamadı";
 
                 if (this.ChatHistoryStore != null)
@@ -75,31 +74,30 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
-            var writer = new StreamWriter(outputStream, Encoding.UTF8, leaveOpen: true, bufferSize: 1024);
-
+            
             try
             {
                 var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
-                await SendSseEventAsync(writer, "sources", JsonSerializer.Serialize(sources));
+                outputAction("sources", sources.ToJson());
 
                 var model = this.Config.LLMConfig.Model ?? "gemini-1.5-pro-latest";
                 var requestBody = BuildGeminiRequest(context, userMessage, history);
 
                 var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?key={_apiKey}";
-                var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(requestBody.ToJson(), Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.PostAsync(url, jsonContent);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    await SendSseEventAsync(writer, "error", $"Gemini API error: {response.StatusCode}");
+                    outputAction("error", $"Gemini API error: {response.StatusCode}");
                     return;
                 }
 
@@ -117,16 +115,16 @@ namespace Ophelia.AI.ChatServices
                         {
                             try
                             {
-                                var streamResponse = JsonSerializer.Deserialize<GeminiResponse>(jsonData);
+                                var streamResponse = jsonData.FromJson<GeminiResponse>();
                                 var text = streamResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
 
                                 if (!string.IsNullOrEmpty(text))
                                 {
                                     responseBuilder.Append(text);
-                                    await SendSseEventAsync(writer, "message", text);
+                                    outputAction("message", text);
                                 }
                             }
-                            catch (JsonException ex)
+                            catch (Exception ex)
                             {
                                 Console.WriteLine(ex.ToString());
                             }
@@ -140,13 +138,11 @@ namespace Ophelia.AI.ChatServices
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
                 }                
 
-                await SendSseEventAsync(writer, "done", "");
-                await writer.FlushAsync();
+                outputAction("done", "");
             }
             catch (Exception ex)
             {
-                await SendSseEventAsync(writer, "error", ex.Message);
-                await writer.FlushAsync();
+                outputAction("error", ex.Message);
             }
         }
 
@@ -192,28 +188,34 @@ namespace Ophelia.AI.ChatServices
 
     public class GeminiResponse
     {
-        public List<GeminiCandidate>? Candidates { get; set; }
-        public GeminiUsageMetadata? UsageMetadata { get; set; }
+        public List<GeminiCandidate> Candidates { get; set; } = new List<GeminiCandidate>();
+        public GeminiUsageMetadata UsageMetadata { get; set; } = new GeminiUsageMetadata();
     }
 
     public class GeminiCandidate
     {
-        public GeminiContent? Content { get; set; }
+        public GeminiContent Content { get; set; } = new GeminiContent();
+        public string FinishReason { get; set; } = "";
+        public int Index { get; set; }
     }
 
     public class GeminiContent
     {
-        public List<GeminiPart>? Parts { get; set; }
+        public List<GeminiPart> Parts { get; set; } = new List<GeminiPart>();
+        public string Role { get; set; } = "";
     }
 
     public class GeminiPart
     {
-        public string? Text { get; set; }
+        public string Text { get; set; } = "";
     }
 
     public class GeminiUsageMetadata
     {
         public int TotalTokenCount { get; set; }
+        public int PromptTokenCount { get; set; }
+        public int CandidatesTokenCount { get; set; }
+        public int ThoughtsTokenCount { get; set; }
     }
 
     // Factory Pattern for Service Selection

@@ -76,18 +76,16 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
-            var writer = new StreamWriter(outputStream, Encoding.UTF8, leaveOpen: true, bufferSize: 1024);
-
             try
             {
                 var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
-                await SendSseEventAsync(writer, "sources", JsonSerializer.Serialize(sources));
+                outputAction("sources", JsonSerializer.Serialize(sources));
 
                 var messages = BuildClaudeMessages(userMessage, history);
                 var systemPrompt = GetSystemPrompt(context);
@@ -109,7 +107,7 @@ namespace Ophelia.AI.ChatServices
                     if (streamEvent.Delta?.Text != null)
                     {
                         responseBuilder.Append(streamEvent.Delta.Text);
-                        await SendSseEventAsync(writer, "message", streamEvent.Delta.Text);
+                        outputAction("message", streamEvent.Delta.Text);
                     }
                 }
 
@@ -119,13 +117,11 @@ namespace Ophelia.AI.ChatServices
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
                 }
 
-                await SendSseEventAsync(writer, "done", "");
-                await writer.FlushAsync();
+                outputAction("done", "");
             }
             catch (Exception ex)
             {
-                await SendSseEventAsync(writer, "error", ex.Message);
-                await writer.FlushAsync();
+                outputAction("error", ex.Message);
             }
         }
 

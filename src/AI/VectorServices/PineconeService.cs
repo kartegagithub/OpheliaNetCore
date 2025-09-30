@@ -21,25 +21,26 @@ namespace Ophelia.AI.VectorServices
         }
 
         // Local Pinecone constructor
-        public PineconeService(string apiKey, string indexName, string hostUrl, bool useHttps = false)
+        public PineconeService(AIConfig config)
         {
             var clientOptions = new ClientOptions();
 
+            var hostUrl = config.VectorConfig.Endpoint;
             if (!string.IsNullOrEmpty(hostUrl))
             {
                 var baseUri = new Uri(hostUrl);
-                if (!useHttps && baseUri.Scheme == "https")
+                if (!config.VectorConfig.UseSSL && baseUri.Scheme == "https")
                 {
                     hostUrl = hostUrl.Replace("https://", "http://");
                 }
-                else if (useHttps && baseUri.Scheme == "http")
+                else if (config.VectorConfig.UseSSL && baseUri.Scheme == "http")
                 {
                     hostUrl = hostUrl.Replace("http://", "https://");
                 }
                 clientOptions.BaseUrl = hostUrl;
             }
-            _pineconeClient = new PineconeClient(apiKey, clientOptions);
-            _indexName = indexName;
+            _pineconeClient = new PineconeClient(config.VectorConfig.APIKey, clientOptions);
+            _indexName = config.VectorConfig.IndexName;
         }
 
         public void Dispose()

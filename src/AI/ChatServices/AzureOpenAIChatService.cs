@@ -70,18 +70,16 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
-            var writer = new StreamWriter(outputStream, Encoding.UTF8, leaveOpen: true, bufferSize: 1024);
-
             try
             {
                 var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
-                await SendSseEventAsync(writer, "sources", JsonSerializer.Serialize(sources));
+                outputAction("sources", JsonSerializer.Serialize(sources));
 
                 var messages = BuildChatMessages(context, userMessage, history);
                 var responseBuilder = new StringBuilder();
@@ -94,7 +92,7 @@ namespace Ophelia.AI.ChatServices
                         if (contentPart.Text != null)
                         {
                             responseBuilder.Append(contentPart.Text);
-                            await SendSseEventAsync(writer, "message", contentPart.Text);
+                            outputAction("message", contentPart.Text);
                         }
                     }
                 }
@@ -105,12 +103,11 @@ namespace Ophelia.AI.ChatServices
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
                 }
 
-                await SendSseEventAsync(writer, "done", "");
-                await writer.FlushAsync();
+                outputAction("done", "");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                outputAction("error", ex.Message);
             }
         }
 

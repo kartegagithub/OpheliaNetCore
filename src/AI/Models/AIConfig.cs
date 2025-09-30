@@ -22,7 +22,7 @@
         public string Model { get; set; } = "";
 
         /// <summary>
-        /// Gemini: textembedding-gecko-001, textembedding-gecko-002
+        /// Gemini: gemini-embedding-001
         /// Claude: claude-3-sonnet-20240229, claude-3-haiku-20240307
         /// OpenAI: text-embedding-3-small, text-embedding-3-large, text-embedding-ada-002
         /// </summary>
@@ -38,6 +38,7 @@
         public int MaxTokens { get; set; } = 512;
         public double Temperature { get; internal set; } = 0.7;
         public double TopP { get; internal set; } = 0.9;
+        //public int MaxDocumentByteCount { get; set; } = 36000;
     }
 
     public class VectorConfig
@@ -45,9 +46,15 @@
         public VectorDbType Type { get; set; } = VectorDbType.Pinecone;
         public string Endpoint { get; set; } = "";
         public string APIKey { get; set; } = string.Empty;
+
+        /// <summary>
+        /// If you use Elastic Search, please see <see cref="https://discuss.elastic.co/t/index-name-must-be-lowercase-after-upgrade-to-7-9-2/251433" />
+        /// </summary>
         public string IndexName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public bool UseSSL { get; set; } = true;
+
+        public int Dimension { get; set; } = 1536;
     }
 }

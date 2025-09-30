@@ -33,20 +33,20 @@ namespace Ophelia.AI.ChatServices
         }
 
         public abstract Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null);
-        public abstract Task CompleteChatStreamingAsync(string userMessage, Stream outputStream, string? userId = null);
+        public abstract Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null);
 
         public async Task<IEnumerable<ChatHistoryMessage>> GetChatHistoryAsync(string userId)
         {
-            if (_chatHistoryStore == null) return null;
+            if (this.ChatHistoryStore == null) return null;
 
-            var history = await _chatHistoryStore.GetHistoryAsync(userId, 50);
+            var history = await this.ChatHistoryStore.GetHistoryAsync(userId, 50);
             return history;
         }
 
         public async Task ClearChatHistoryAsync(string userId)
         {
-            if (_chatHistoryStore == null) return;
-            await _chatHistoryStore.ClearHistoryAsync(userId);
+            if (this.ChatHistoryStore == null) return;
+            await this.ChatHistoryStore.ClearHistoryAsync(userId);
         }
 
         // Common helper methods
@@ -54,7 +54,10 @@ namespace Ophelia.AI.ChatServices
         {
             var queryEmbedding = await _embeddingService.GenerateEmbeddingAsync(userMessage);
             var relevantChunks = await _vectorStore.SearchAsync(queryEmbedding, this._configuration.MaxRetrievedChunks);
-            var chatHistory = await _chatHistoryStore.GetHistoryAsync(conversationId, this._configuration.MaxChatHistoryMessages);
+            List<ChatHistoryMessage> chatHistory = new List<ChatHistoryMessage>();
+            if (this.ChatHistoryStore != null)
+                chatHistory = await this.ChatHistoryStore.GetHistoryAsync(conversationId, this._configuration.MaxChatHistoryMessages);
+
             return (relevantChunks, chatHistory);
         }
 
@@ -77,14 +80,6 @@ namespace Ophelia.AI.ChatServices
             return contextBuilder.ToString();
         }
 
-        protected async Task SendSseEventAsync(StreamWriter writer, string eventType, string data)
-        {
-            await writer.WriteLineAsync($"event: {eventType}");
-            await writer.WriteLineAsync($"data: {data}");
-            await writer.WriteLineAsync();
-            await writer.FlushAsync();
-        }
-
         protected string GetSystemPrompt(string context)
         {
             return _configuration.LLMConfig.SystemPrompt?.Replace("{context}", context);
@@ -101,32 +96,46 @@ namespace Ophelia.AI.ChatServices
 
         public async Task UploadFileAsync(string filePath)
         {
-            var fileContent = Ophelia.Integration.Documents.DocumentParserService.ExtractText(System.IO.Path.GetFileName(filePath), File.ReadAllBytes(filePath));
-            var data = await this._embeddingService.GenerateEmbeddingAsync(fileContent);
-            this._vectorStore.UpsertAsync(new List<VectorDocument>() {
-                new VectorDocument(){
-                   Id = System.IO.Path.GetFileName(filePath),
-                   Content = fileContent,
-                   Embedding = data,
-                   Source = filePath
-                }
-            }).Wait();
+            await this.UploadFileAsync(System.IO.Path.GetFileName(filePath), File.ReadAllBytes(filePath));
         }
 
         public async Task UploadFileAsync(string fileName, byte[] fileData)
         {
-            var fileContent = Ophelia.Integration.Documents.DocumentParserService.ExtractText(fileName, fileData);
-            var data = await this._embeddingService.GenerateEmbeddingAsync(fileContent);
-            this._vectorStore.UpsertAsync(new List<VectorDocument>() {
-                new VectorDocument(){
-                   Id = fileName,
-                   Content = fileContent,
-                   Embedding = data,
-                   Source = fileName
+            var fileContent = CleanText(Ophelia.Integration.Documents.DocumentParserService.ExtractText(fileName, fileData));
+            if (!string.IsNullOrEmpty(fileContent))
+            {
+                var lines = fileContent.SplitToLines(this.Config.VectorConfig.Dimension);
+                
+                var data = await this._embeddingService.GenerateEmbeddingsAsync(lines);
+                var counter = 0;
+                foreach (var item in data)
+                {
+                    this._vectorStore.UpsertAsync(new List<VectorDocument>() {
+                        new VectorDocument(){
+                            Id = $"{fileName}_{counter}",
+                            Content = lines[counter],
+                            Embedding = item,
+                            Source = $"{fileName}"
+                        }
+                    }).Wait();
+                    counter++;
                 }
-            }).Wait();
+                
+            }
         }
 
+        protected static string CleanText(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            while (text.IndexOf("\n\n") > -1 || text.IndexOf("\r\r") > -1 || text.IndexOf("  ") > -1)
+            {
+                text = text.Replace("\r ", "\r");
+                text = text.Replace("\n\n", "\n");
+                text = text.Replace("\r\r", "\r");
+                text = text.Replace("  ", " ");
+            }
+            return text;
+        }
         public virtual IEmbeddingService CreateEmbedingService(AIConfig config)
         {
             switch (config.LLMConfig.Type)
@@ -152,11 +161,11 @@ namespace Ophelia.AI.ChatServices
             switch (config.VectorConfig.Type)
             {
                 case VectorDbType.Pinecone:
-                    return new PineconeService(config.VectorConfig.APIKey, config.VectorConfig.IndexName, config.VectorConfig.Endpoint, config.VectorConfig.UseSSL);
+                    return new PineconeService(config);
                 case VectorDbType.Redis:
-                    return new RedisService(config.VectorConfig.Endpoint.Split(","), config.VectorConfig.IndexName, config.VectorConfig.UserName, config.VectorConfig.Password);
+                    return new RedisService(config);
                 case VectorDbType.ElasticSearch:
-                    return new ElasticSearchService(config.VectorConfig.Endpoint, config.VectorConfig.IndexName, config.VectorConfig.UserName, config.VectorConfig.Password);
+                    return new ElasticSearchService(config);
             }
             throw new NotImplementedException($"LLM Type {config.LLMConfig.Type} not implemented");
         }

@@ -20,6 +20,10 @@ namespace Ophelia.AI.VectorServices
         private readonly string _indexName;
         private readonly string _keyPrefix;
 
+        public RedisService(AIConfig config) : this(config.VectorConfig.Endpoint.Split(","), config.VectorConfig.IndexName, config.VectorConfig.UserName, config.VectorConfig.Password)
+        {
+
+        }
         public RedisService(string[] endpoints, string indexName, string? username = null, string? password = null, int database = 0)
         {
             var config = new ConfigurationOptions();

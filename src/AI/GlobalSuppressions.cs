@@ -5,7 +5,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:Ophelia.AI.OpenAIChatService.SendSseEventAsync(System.IO.StreamWriter,System.String,System.String)~System.Threading.Tasks.Task")]
 [assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:Ophelia.AI.OpenAIChatService.BuildContext(System.Collections.Generic.List{Ophelia.AI.VectorSearchResult})~System.String")]
 [assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:Ophelia.AI.ChatServices.BaseChatService.SendSseEventAsync(System.IO.StreamWriter,System.String,System.String)~System.Threading.Tasks.Task")]
 [assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:Ophelia.AI.ChatServices.BaseChatService.BuildContext(System.Collections.Generic.List{Ophelia.AI.Models.VectorSearchResult})~System.String")]
