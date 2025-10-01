@@ -211,13 +211,26 @@ namespace Ophelia.Caching
         /// <returns></returns>
         public TEntity Get(string property, object value)
         {
-            var convertedData = typeof(TEntity).GetProperty(property).PropertyType.ConvertData(value);
+            if (this.List == null)
+                throw new Exception("The entity list is null. Ensure that GetData() method returns a valid list.");
+
+            if (string.IsNullOrEmpty(property))
+                throw new Exception("Property name is null.");
+
+            var propertyInfo = typeof(TEntity).GetProperty(property);
+            if (propertyInfo == null)
+                throw new Exception($"{property} is not found on type {typeof(TEntity).FullName}.");
+
+            var convertedData = propertyInfo.PropertyType.ConvertData(value);
             foreach (var item in this.List)
             {
-                var val = item.GetPropertyValue(property);
-                if (val.Equals(convertedData))
+                if (item != null)
                 {
-                    return item;
+                    var val = item.GetPropertyValue(property);
+                    if (val != null && convertedData != null && val.Equals(convertedData))
+                    {
+                        return item;
+                    }
                 }
             }
             if (this.OnCacheNotFound(property, value))
