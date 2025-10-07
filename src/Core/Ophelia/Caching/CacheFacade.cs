@@ -356,9 +356,9 @@ namespace Ophelia.Caching
             }
             return true;
         }
-        protected void OnStateChange(string state)
+        protected virtual void OnStateChange(string state)
         {
-            Console.WriteLine($"Cache_State:{this.GetKey()}::{state}");
+            //Console.WriteLine($"Cache_State:{this.GetKey()}::{state}");
         }
 
         /// <summary>
