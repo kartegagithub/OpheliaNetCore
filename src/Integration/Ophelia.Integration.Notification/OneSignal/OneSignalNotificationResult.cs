@@ -7,11 +7,21 @@ namespace Ophelia.Integration.Notification.OneSignal
         public string id { get; set; }
         public int recipients { get; set; }
         public string external_id { get; set; }
-        public List<string> errors { get; set; }
+        public List<OneSignalNotificationErrorResult> errors { get; set; }
 
         public OneSignalNotificationResult()
         {
-            this.errors = new List<string>();
+            this.errors = new List<OneSignalNotificationErrorResult>();
+        }
+    }
+
+    public class OneSignalNotificationErrorResult
+    {
+        public List<string> invalid_player_ids { get; set; }
+
+        public OneSignalNotificationErrorResult()
+        {
+            this.invalid_player_ids = new List<string>();
         }
     }
 }
