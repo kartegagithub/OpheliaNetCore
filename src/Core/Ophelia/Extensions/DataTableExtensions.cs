@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
+using System.Linq;
+using System.Reflection;
 
 namespace Ophelia
 {
@@ -84,6 +87,73 @@ namespace Ophelia
                 return Convert.ToByte(row[ColumnName]);
             }
             return 0;
+        }
+
+        public static List<T> ToList<T>(this DataTable table)
+        {
+            var list = new List<T>();
+            var type = typeof(T);
+            if (type == typeof(ExpandoObject) || type.Name == "Object")
+            {
+                foreach (DataRow row in table.Rows)
+                {
+                    dynamic dynamicObject = new ExpandoObject();
+                    var expandoDict = (IDictionary<string, object>)dynamicObject;
+
+                    foreach (DataColumn column in table.Columns)
+                    {
+                        expandoDict[column.ColumnName] = row[column] == DBNull.Value ? null : row[column];
+                    }
+
+                    list.Add((T)(object)dynamicObject);
+                }
+            }
+            else
+            {
+                var columnMapping = new Dictionary<string, string>();
+                foreach (DataColumn column in table.Columns)
+                {
+                    var columnName = column.ColumnName.ToLowerInvariant().Replace("ı", "i").Replace(" ", "_");
+                    columnMapping[columnName] = column.ColumnName;
+                }
+
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanWrite).ToList();
+                var propertyMapping = new Dictionary<string, PropertyInfo>();
+                foreach (var prop in properties)
+                {
+                    var propName = prop.Name.ToLowerInvariant().Replace("ı", "i").Replace(" ", "_");
+                    propertyMapping[propName] = prop;
+                }
+
+                foreach (DataRow row in table.Rows)
+                {
+                    var obj = Activator.CreateInstance<T>();
+                    foreach (var map in propertyMapping)
+                    {
+                        if (columnMapping.TryGetValue(map.Key, out string columnName) && !string.IsNullOrEmpty(columnName))
+                        {
+                            var value = row[columnName];
+                            if (value != DBNull.Value)
+                            {
+                                try
+                                {
+                                    var propertyType = Nullable.GetUnderlyingType(map.Value.PropertyType) ?? map.Value.PropertyType;
+                                    var convertedValue = propertyType.ConvertData(value);
+                                    map.Value.SetValue(obj, convertedValue);
+                                }
+                                catch
+                                {
+                                    // Type dönüşümü başarısız olursa skip et
+                                }
+                            }
+                        }
+                    }
+
+                    list.Add(obj);
+                }
+            }
+
+            return list;
         }
     }
 }
