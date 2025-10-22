@@ -4,7 +4,6 @@ using Ophelia.AI.Interfaces;
 using Ophelia.AI.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;

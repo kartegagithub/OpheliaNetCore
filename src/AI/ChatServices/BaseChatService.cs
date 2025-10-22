@@ -147,6 +147,7 @@ namespace Ophelia.AI.ChatServices
                 case LLMType.Claude:
                     return new ClaudeEmbeddingService(config);
                 case LLMType.Gemini:
+                case LLMType.Zai:
                     return new GeminiEmbeddingService(config);
                 case LLMType.HuggingFace:
                     return new HuggingFaceEmbeddingService(config);
