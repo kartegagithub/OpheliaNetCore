@@ -6,65 +6,30 @@ namespace Ophelia
     {
         public static short ToShort(this object value)
         {
-            short result = 0;
-            if (value != null && short.TryParse(value.ToString(), out result))
-                return result;
-            return result;
+            return value.ToInt16();
         }
         public static Int16 ToInt16(this object value)
         {
-            Int16 result = 0;
-            if (value != null && Int16.TryParse(value.ToString(), out result))
-                return result;
-            return result;
+            return value != null ? value.GetType().ToInt16(value) : (short)0;
         }
 
-        public static Int32 ToInt32(this object value)
+        public static int ToInt32(this object value)
         {
-            Int32 result = 0;
-            if (value != null && Int32.TryParse(value.ToString(), out result))
-                return result;
-            return result;
+            return value != null ? value.GetType().ToInt32(value) : 0;
         }
 
         public static long ToInt64(this object value)
         {
-            Int64 result = 0;
-            if (Int64.TryParse(value.ToString(), out result))
-                return result;
-            return result;
+            return value != null ? value.GetType().ToInt64(value) : 0;
         }
 
         public static byte ToByte(this object value)
         {
-            byte result = 0;
-            if (value != null && byte.TryParse(value.ToString(), out result))
-                return result;
-            return result;
+            return value != null ? value.GetType().ToByte(value) : (byte)0;
         }
         public static bool ToBoolean(this object value)
         {
-            if (value != null)
-            {
-                var typeCode = Type.GetTypeCode(value.GetType());
-                switch (typeCode)
-                {
-                    case TypeCode.Boolean:
-                        return (bool)value;
-                    case TypeCode.Char:
-                        var cValue = (char)value;
-                        return cValue.Equals("Y") || cValue.Equals("y");
-                    case TypeCode.String:
-                        var sValue = value.ToString().ToLowerInvariant();
-                        if (string.IsNullOrEmpty(sValue))
-                            return false;
-
-                        return value.Equals("true") || value.Equals("yes");
-                    default:
-                        return value.ToInt64() > 0;
-                }
-            }
-            return false;
+            return value != null ? value.GetType().ToBoolean(value) : false;
         }
     }
 }
