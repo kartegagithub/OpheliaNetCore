@@ -251,6 +251,9 @@ namespace Ophelia
         public static long ToInt64(this Type type, object value)
         {
             var typeCode = Type.GetTypeCode(type);
+            if (value != null && value != DBNull.Value && (typeCode == TypeCode.Empty || typeCode == TypeCode.Object || typeCode == TypeCode.DBNull))
+                typeCode = TypeCode.String;
+            
             switch (typeCode)
             {
                 case TypeCode.Empty:
