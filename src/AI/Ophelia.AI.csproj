@@ -14,7 +14,7 @@
 		<PackAsTool>False</PackAsTool>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<Version>8.0.0.169</Version>
+		<Version>8.0.0.170</Version>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -33,10 +33,10 @@
 		<GlobalAnalyzerConfigFiles Include="$(SolutionDir)\.globalconfig" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\Core\Ophelia\Ophelia.csproj" />
-	  <ProjectReference Include="..\Integration\Ophelia.Integration.Documents\Ophelia.Integration.Documents.csproj" />
+		<ProjectReference Include="..\Core\Ophelia\Ophelia.csproj" />
+		<ProjectReference Include="..\Integration\Ophelia.Integration.Documents\Ophelia.Integration.Documents.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Extensions\" />
+		<Folder Include="Extensions\" />
 	</ItemGroup>
 </Project>
