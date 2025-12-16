@@ -2,10 +2,14 @@
 {
     public static class Extensions
     {
+        private static object LockObj = new object();
         public static void UseSQLServer()
         {
-            if (!Connection.ConnectionProviders.ContainsKey("SQLServer"))
-                Connection.ConnectionProviders.Add("SQLServer", typeof(System.Data.SqlClient.SqlConnection));
+            lock (LockObj)
+            {
+                if (!Connection.ConnectionProviders.ContainsKey("SQLServer"))
+                    Connection.ConnectionProviders.TryAdd("SQLServer", typeof(System.Data.SqlClient.SqlConnection));
+            }
         }
 
         public static DatabaseType UseSQLServer(this DataContext context)

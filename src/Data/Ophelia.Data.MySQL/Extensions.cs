@@ -2,10 +2,14 @@
 {
     public static class Extensions
     {
+        private static object LockObj = new object();
         public static void UseMySQL()
         {
-            if (!Connection.ConnectionProviders.ContainsKey("MySQL"))
-                Connection.ConnectionProviders.Add("MySQL", typeof(MySql.Data.MySqlClient.MySqlConnection));
+            lock (LockObj)
+            {
+                if (!Connection.ConnectionProviders.ContainsKey("MySQL"))
+                    Connection.ConnectionProviders.TryAdd("MySQL", typeof(MySql.Data.MySqlClient.MySqlConnection));
+            }
         }
 
         public static DatabaseType UseMySQL(this DataContext context)
