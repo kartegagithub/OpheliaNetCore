@@ -29,7 +29,6 @@ namespace Ophelia
                         settings = new JsonSerializerSettings()
                         {
                             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                            MaxDepth = 3,
                             NullValueHandling = NullValueHandling.Ignore
                         };
                     }
@@ -51,7 +50,6 @@ namespace Ophelia
                     settings = new JsonSerializerSettings()
                     {
                         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                        MaxDepth = 3,
                         NullValueHandling = NullValueHandling.Ignore
                     };
                 }
