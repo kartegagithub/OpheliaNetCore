@@ -188,7 +188,7 @@ namespace Ophelia.Caching
         /// <param name="property"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        protected bool OnCacheNotFound(string property, object value)
+        protected virtual bool OnCacheNotFound(string property, object value)
         {
             return false;
         }
@@ -198,7 +198,7 @@ namespace Ophelia.Caching
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        protected bool OnCacheNotFound(Func<TEntity, bool> predicate)
+        protected virtual bool OnCacheNotFound(Func<TEntity, bool> predicate)
         {
             return false;
         }
@@ -210,6 +210,17 @@ namespace Ophelia.Caching
         /// <param name="value"></param>
         /// <returns></returns>
         public TEntity Get(string property, object value)
+        {
+            var entity = this.GetInternal(property, value);
+            if (this.OnCacheNotFound(property, value))
+            {
+                this.Reload();
+                entity = this.GetInternal(property, value);
+            }
+            return entity;
+        }
+
+        protected virtual TEntity GetInternal(string property, object value)
         {
             if (this.List == null)
                 throw new Exception("The entity list is null. Ensure that GetData() method returns a valid list.");
@@ -233,13 +244,8 @@ namespace Ophelia.Caching
                     }
                 }
             }
-            if (this.OnCacheNotFound(property, value))
-            {
-                this.Reload();
-            }
             return null;
         }
-
         /// <summary>
         /// Finds entities that match a specified predicate.
         /// </summary>
@@ -253,6 +259,7 @@ namespace Ophelia.Caching
                 if (this.OnCacheNotFound(predicate))
                 {
                     this.Reload();
+                    data = this.List.Where(predicate).ToList();
                 }
             }
             return data;
