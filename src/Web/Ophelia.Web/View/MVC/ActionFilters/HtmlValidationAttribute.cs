@@ -65,7 +65,6 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
             }
             base.OnActionExecuting(actionContext);
         }
-        private Ganss.Xss.HtmlSanitizer Sanitizer;
         protected virtual string ProcessHtml(string val, Ophelia.Data.Attributes.AllowHtml p, HtmlValidationProcessType type)
         {
             if (!string.IsNullOrEmpty(val))
@@ -75,42 +74,43 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                 case HtmlValidationProcessType.None:
                     return val;
                 case HtmlValidationProcessType.Sanitize:
-                    if (this.Sanitizer == null)
+                    var Sanitizer = new Ganss.Xss.HtmlSanitizer();
+                    Sanitizer.AllowedTags.Add("tel");
+                    Sanitizer.AllowedTags.Add("iframe");
+                    Sanitizer.AllowedTags.Add("meta");
+                    Sanitizer.AllowedTags.Add("link");
+
+                    Sanitizer.AllowedSchemes.Add("mailto");
+                    Sanitizer.AllowedSchemes.Add("tel");
+
+                    Sanitizer.AllowedAttributes.Add("content");
+                    Sanitizer.AllowedAttributes.Add("property");
+                    Sanitizer.AllowedAttributes.Add("sizes");
+                    Sanitizer.AllowedAttributes.Add("rel");
+                    Sanitizer.AllowedAttributes.Add("target");
+                    Sanitizer.AllowedAttributes.Add("href");
+                    Sanitizer.AllowedAttributes.Add("class");
+                    Sanitizer.AllowedAttributes.Add("frameborder");
+                    if (p != null)
                     {
-                        this.Sanitizer = new Ganss.Xss.HtmlSanitizer();
                         if (p.AllowedTags != null)
                         {
-                            var newTags = p.AllowedTags.Where(op => !this.Sanitizer.AllowedTags.Contains(op)).ToList();
-                            this.Sanitizer.AllowedTags.AddRange(newTags);
+                            var newTags = p.AllowedTags.Where(op => !Sanitizer.AllowedTags.Contains(op)).ToList();
+                            Sanitizer.AllowedTags.AddRange(newTags);
                         }
                         if (p.AllowedSchemes != null)
                         {
-                            var newTags = p.AllowedSchemes.Where(op => !this.Sanitizer.AllowedSchemes.Contains(op)).ToList();
-                            this.Sanitizer.AllowedSchemes.AddRange(newTags);
+                            var newTags = p.AllowedSchemes.Where(op => !Sanitizer.AllowedSchemes.Contains(op)).ToList();
+                            Sanitizer.AllowedSchemes.AddRange(newTags);
                         }
                         if (p.AllowedAttributes != null)
                         {
-                            var newTags = p.AllowedAttributes.Where(op => !this.Sanitizer.AllowedAttributes.Contains(op)).ToList();
-                            this.Sanitizer.AllowedAttributes.AddRange(newTags);
+                            var newTags = p.AllowedAttributes.Where(op => !Sanitizer.AllowedAttributes.Contains(op)).ToList();
+                            Sanitizer.AllowedAttributes.AddRange(newTags);
                         }
-                        this.Sanitizer.AllowedTags.Add("tel");
-                        this.Sanitizer.AllowedTags.Add("iframe");
-                        this.Sanitizer.AllowedTags.Add("meta");
-                        this.Sanitizer.AllowedTags.Add("link");
-
-                        this.Sanitizer.AllowedSchemes.Add("mailto");
-                        this.Sanitizer.AllowedSchemes.Add("tel");
-
-                        this.Sanitizer.AllowedAttributes.Add("content");
-                        this.Sanitizer.AllowedAttributes.Add("property");
-                        this.Sanitizer.AllowedAttributes.Add("sizes");
-                        this.Sanitizer.AllowedAttributes.Add("rel");
-                        this.Sanitizer.AllowedAttributes.Add("target");
-                        this.Sanitizer.AllowedAttributes.Add("href");
-                        this.Sanitizer.AllowedAttributes.Add("class");
-                        this.Sanitizer.AllowedAttributes.Add("frameborder");
                     }
-                    return this.Sanitizer.Sanitize(val);
+
+                    return Sanitizer.Sanitize(val);
                 case HtmlValidationProcessType.RemoveHtml:
                     return val.RemoveHTML().CheckHTMLOnFuntions();
             }
