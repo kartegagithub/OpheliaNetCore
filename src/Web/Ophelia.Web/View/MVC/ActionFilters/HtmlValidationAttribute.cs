@@ -40,17 +40,17 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                                     {
                                         HtmlValidationProcessType type = HtmlValidationProcessType.Sanitize;
 
-                                        var attribute = p.GetCustomAttributes(typeof(Ophelia.Data.Attributes.AllowHtml), checkBase: true).FirstOrDefault();
+                                        var attribute = p.GetCustomAttributes(typeof(Ophelia.Data.Attributes.AllowHtml), checkBase: true).FirstOrDefault() as Ophelia.Data.Attributes.AllowHtml;
                                         if (attribute != null)
                                         {
-                                            if ((attribute as Ophelia.Data.Attributes.AllowHtml).Sanitize)
+                                            if (attribute.Sanitize)
                                                 type = HtmlValidationProcessType.Sanitize;
-                                            else if ((attribute as Ophelia.Data.Attributes.AllowHtml).Forbidden)
+                                            else if (attribute.Forbidden)
                                                 type = HtmlValidationProcessType.RemoveHtml;
                                             else
                                                 type = HtmlValidationProcessType.None;
                                         }
-                                        p.SetValue(obj, this.ProcessHtml(strValue, p, type));
+                                        p.SetValue(obj, this.ProcessHtml(strValue, attribute, type));
                                     }
                                 }
                                 return null;
@@ -66,7 +66,7 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
             base.OnActionExecuting(actionContext);
         }
         private Ganss.Xss.HtmlSanitizer Sanitizer;
-        protected virtual string ProcessHtml(string val, PropertyInfo p, HtmlValidationProcessType type)
+        protected virtual string ProcessHtml(string val, Ophelia.Data.Attributes.AllowHtml p, HtmlValidationProcessType type)
         {
             if (!string.IsNullOrEmpty(val))
                 val = HttpUtility.HtmlDecode(val);
@@ -78,7 +78,21 @@ namespace Ophelia.Web.View.Mvc.ActionFilters
                     if (this.Sanitizer == null)
                     {
                         this.Sanitizer = new Ganss.Xss.HtmlSanitizer();
-
+                        if (p.AllowedTags != null)
+                        {
+                            var newTags = p.AllowedTags.Where(op => !this.Sanitizer.AllowedTags.Contains(op)).ToList();
+                            this.Sanitizer.AllowedTags.AddRange(newTags);
+                        }
+                        if (p.AllowedSchemes != null)
+                        {
+                            var newTags = p.AllowedSchemes.Where(op => !this.Sanitizer.AllowedSchemes.Contains(op)).ToList();
+                            this.Sanitizer.AllowedSchemes.AddRange(newTags);
+                        }
+                        if (p.AllowedAttributes != null)
+                        {
+                            var newTags = p.AllowedAttributes.Where(op => !this.Sanitizer.AllowedAttributes.Contains(op)).ToList();
+                            this.Sanitizer.AllowedAttributes.AddRange(newTags);
+                        }
                         this.Sanitizer.AllowedTags.Add("tel");
                         this.Sanitizer.AllowedTags.Add("iframe");
                         this.Sanitizer.AllowedTags.Add("meta");
