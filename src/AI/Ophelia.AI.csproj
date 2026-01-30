@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Anthropic.SDK" Version="5.5.2" />
+		<PackageReference Include="AWSSDK.BedrockRuntime" Version="4.0.15.1" />
 		<PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
 		<PackageReference Include="NEST" Version="7.17.4" />
 		<PackageReference Include="NRedisStack" Version="1.1.1" />

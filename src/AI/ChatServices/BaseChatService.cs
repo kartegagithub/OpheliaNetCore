@@ -141,6 +141,10 @@ namespace Ophelia.AI.ChatServices
             switch (config.LLMConfig.Type)
             {
                 case LLMType.OpenAI:
+                case LLMType.Groq:
+                case LLMType.DeepSeek:
+                case LLMType.Ollama:
+                case LLMType.LMStudio:
                     return new OpenAIEmbeddingService(config);
                 case LLMType.AzureOpenAI:
                     return new AzureOpenAIEmbeddingService(config);

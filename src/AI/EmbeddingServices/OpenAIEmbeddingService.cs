@@ -1,4 +1,5 @@
-﻿using OpenAI.Embeddings;
+﻿using OpenAI;
+using OpenAI.Embeddings;
 using Ophelia.AI.Interfaces;
 using Ophelia.AI.Models;
 using Ophelia.Caching;
@@ -26,7 +27,15 @@ namespace Ophelia.AI.EmbeddingServices
             var apiKey = config.LLMConfig.APIKey ?? throw new InvalidOperationException("OpenAI API key not configured");
 
             var modelName = config.LLMConfig.Model ?? "text-embedding-3-small";
-            _embeddingClient = new EmbeddingClient(modelName, apiKey);
+            
+            var options = new OpenAIClientOptions();
+            if (!string.IsNullOrEmpty(config.LLMConfig.Endpoint))
+            {
+                options.Endpoint = new Uri(config.LLMConfig.Endpoint);
+            }
+            
+            var client = new OpenAIClient(new System.ClientModel.ApiKeyCredential(apiKey), options);
+            _embeddingClient = client.GetEmbeddingClient(modelName);
 
             // Konfigürasyon
             _embeddingDimension = modelName switch
