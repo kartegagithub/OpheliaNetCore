@@ -23,21 +23,25 @@ namespace Ophelia.AI.ChatServices
             this._httpClient = new HttpClient();
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
 
             try
             {
-                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
+                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId, filter);
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
-                var model = this.Config.LLMConfig.Model ?? "gemini-1.5-pro-latest";
+                var model = !string.IsNullOrEmpty(this.Config.LLMConfig.Model) ? this.Config.LLMConfig.Model : "gemini-1.5-pro-latest";
                 var requestBody = BuildGeminiRequest(context, userMessage, history);
 
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={_apiKey}";
+                var baseUrl = !string.IsNullOrEmpty(this.Config.LLMConfig.Endpoint) 
+                    ? this.Config.LLMConfig.Endpoint.TrimEnd('/') 
+                    : "https://generativelanguage.googleapis.com/v1beta";
+
+                var url = $"{baseUrl}/models/{model}:generateContent?key={_apiKey}";
                 var jsonContent = new StringContent(requestBody.ToJson(), Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.PostAsync(url, jsonContent);
@@ -45,7 +49,7 @@ namespace Ophelia.AI.ChatServices
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"Gemini API error: {response.StatusCode}");
+                    throw new Exception($"Gemini API error: {responseContent}");
                 }
 
                 var geminiResponse = responseContent.FromJson<GeminiResponse>();
@@ -74,13 +78,13 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             
             try
             {
-                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
+                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId, filter);
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
@@ -89,7 +93,11 @@ namespace Ophelia.AI.ChatServices
                 var model = this.Config.LLMConfig.Model ?? "gemini-1.5-pro-latest";
                 var requestBody = BuildGeminiRequest(context, userMessage, history);
 
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?key={_apiKey}";
+                var baseUrl = !string.IsNullOrEmpty(this.Config.LLMConfig.Endpoint) 
+                    ? this.Config.LLMConfig.Endpoint.TrimEnd('/') 
+                    : "https://generativelanguage.googleapis.com/v1";
+
+                var url = $"{baseUrl}/models/{model}:streamGenerateContent?key={_apiKey}";
                 var jsonContent = new StringContent(requestBody.ToJson(), Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.PostAsync(url, jsonContent);
@@ -151,29 +159,62 @@ namespace Ophelia.AI.ChatServices
             var systemInstruction = GetSystemPrompt(context);
             var contents = new List<object>();
 
-            // Chat history
-            foreach (var historyMsg in history.TakeLast(this.Config.MaxChatHistoryMessages))
+            // If we have system instruction, treat it as part of the context of the interaction.
+            // Since some API versions/models don't support "system_instruction", 
+            // we prepend it to the first user message or handle it logicially.
+            
+            var effectiveHistory = history.TakeLast(this.Config.MaxChatHistoryMessages).ToList();
+            
+            // Logic: 
+            // 1. If history exists, we prepend system instruction to the FIRST history message if it is from user.
+            // 2. If first is model, we might need to insert a user message or prepend to current user message.
+            // Simplest robust strategy: Prepend to the LATEST user message (current request) if history is long, 
+            // OR prepend to first message if it's the start.
+            // Actually, "Context" usually implies global context. 
+            // Let's prepend to the very first message sent in this batch.
+            
+            bool systemPromptAdded = false;
+
+            if (effectiveHistory.Any())
             {
-                contents.Add(new
+                for (int i = 0; i < effectiveHistory.Count; i++)
                 {
-                    role = historyMsg.Role == "user" ? "user" : "model",
-                    parts = new[] { new { text = historyMsg.Content } }
-                });
+                    var msg = effectiveHistory[i];
+                    var role = msg.Role == "user" ? "user" : "model";
+                    var text = msg.Content;
+
+                    if (!systemPromptAdded && role == "user")
+                    {
+                        // Add system prompt to the first user message found
+                        text = $"System Instruction: {systemInstruction}\n\n{text}";
+                        systemPromptAdded = true;
+                    }
+
+                    contents.Add(new
+                    {
+                        role = role,
+                        parts = new[] { new { text = text } }
+                    });
+                }
             }
 
             // Current user message
+            var finalUserText = userMessage;
+            if (!systemPromptAdded)
+            {
+                // If we haven't added it (empty history, or history started with model?), add to current message
+                finalUserText = $"System Instruction: {systemInstruction}\n\n{userMessage}";
+            }
+
             contents.Add(new
             {
                 role = "user",
-                parts = new[] { new { text = userMessage } }
+                parts = new[] { new { text = finalUserText } }
             });
 
             return new
             {
-                system_instruction = new
-                {
-                    parts = new[] { new { text = systemInstruction } }
-                },
+                // system_instruction removed to avoid 400 Bad Request
                 contents,
                 generationConfig = new
                 {

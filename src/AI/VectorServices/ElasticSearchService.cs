@@ -35,7 +35,7 @@ namespace Ophelia.AI.VectorServices
             GC.SuppressFinalize(this);
         }
 
-        public async Task<List<VectorSearchResult>> SearchAsync(float[] embedding, int topK)
+        public async Task<List<VectorSearchResult>> SearchAsync(float[] embedding, int topK, Dictionary<string, string>? filter = null)
         {
             try
             {
@@ -46,7 +46,22 @@ namespace Ophelia.AI.VectorServices
                     .Size(topK)
                     .Query(q => q
                         .ScriptScore(ss => ss
-                            .Query(qq => qq.MatchAll())
+                            .Query(qq => qq
+                                .Bool(b => b
+                                    .Filter(f =>
+                                    {
+                                        var queries = new List<QueryContainer>();
+                                        if (filter != null)
+                                        {
+                                            foreach (var item in filter)
+                                            {
+                                                queries.Add(f.Term(t => t.Field($"metadata.{item.Key}.keyword").Value(item.Value)));
+                                            }
+                                        }
+                                        return f.Bool(bb => bb.Must(queries.ToArray()));
+                                    })
+                                )
+                            )
                             .Script(script => script
                                 .Source("cosineSimilarity(params.query_vector, 'embedding') + 1.0")
                                 .Params(p => p.Add("query_vector", embedding))
@@ -106,6 +121,7 @@ namespace Ophelia.AI.VectorServices
                             Id = doc.Id ?? Guid.NewGuid().ToString(),
                             Embedding = doc.Embedding,
                             Content = doc.Content ?? string.Empty,
+                            Metadata = doc.Metadata,
                             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                         };
 
@@ -171,6 +187,7 @@ namespace Ophelia.AI.VectorServices
                             .Name(nn => nn.Timestamp)
                             .Type(NumberType.Long)
                         )
+                        .Object<Dictionary<string, string>>(o => o.Name(n => n.Metadata))
                     )
                 )
             );
@@ -187,6 +204,7 @@ namespace Ophelia.AI.VectorServices
             public string Id { get; set; }
             public float[] Embedding { get; set; }
             public string Content { get; set; }
+            public Dictionary<string, string> Metadata { get; set; }
             public long Timestamp { get; set; }
             public float Score { get; set; }
         }

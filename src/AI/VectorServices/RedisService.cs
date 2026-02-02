@@ -46,7 +46,7 @@ namespace Ophelia.AI.VectorServices
             GC.SuppressFinalize(this);
         }
 
-        public async Task<List<VectorSearchResult>> SearchAsync(float[] embedding, int topK)
+        public async Task<List<VectorSearchResult>> SearchAsync(float[] embedding, int topK, Dictionary<string, string>? filter = null)
         {
             try
             {

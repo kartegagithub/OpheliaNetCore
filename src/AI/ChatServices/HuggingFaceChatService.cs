@@ -27,7 +27,7 @@ namespace Ophelia.AI.ChatServices
             _apiUrl = $"{configuration.LLMConfig.Endpoint ?? "https://api-inference.huggingface.co"}/models/{configuration.LLMConfig.Model}";
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -93,7 +93,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
 

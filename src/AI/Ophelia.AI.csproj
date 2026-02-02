@@ -14,7 +14,7 @@
 		<PackAsTool>False</PackAsTool>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<Version>8.0.0.177</Version>
+		<Version>8.0.0.187</Version>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -25,6 +25,8 @@
 		<PackageReference Include="Anthropic.SDK" Version="5.5.2" />
 		<PackageReference Include="AWSSDK.BedrockRuntime" Version="4.0.15.1" />
 		<PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.23.2" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.23.2" />
 		<PackageReference Include="NEST" Version="7.17.4" />
 		<PackageReference Include="NRedisStack" Version="1.1.1" />
 		<PackageReference Include="OpenAI" Version="2.5.0" />

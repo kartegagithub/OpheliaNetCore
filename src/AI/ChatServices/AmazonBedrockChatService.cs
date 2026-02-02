@@ -51,7 +51,7 @@ namespace Ophelia.AI.ChatServices
             _modelId = configuration.LLMConfig.Model ?? "anthropic.claude-3-sonnet-20240229-v1:0"; 
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -116,7 +116,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
         {
              // Similar logic but with ConverseStreamAsync. 
              // For brevity in this turn, calling blocking.

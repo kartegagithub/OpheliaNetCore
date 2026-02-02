@@ -19,7 +19,7 @@ namespace Ophelia.AI.ChatServices
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly string _model;
-        private const string BaseUrl = "https://api.z.ai/v1/chat/completions";
+        private const string BaseUrl = "https://api.z.ai/api/paas/v4/chat/completions";
 
         public ZaiChatService(AIConfig configuration, IChatHistoryStore chatHistoryStore)
             : base(configuration, chatHistoryStore)
@@ -31,12 +31,12 @@ namespace Ophelia.AI.ChatServices
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
 
-            var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
+            var (chunks, history) = await PrepareContextAsync(userMessage, conversationId, filter);
             var context = this.BuildContext(chunks);
             var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
@@ -84,11 +84,11 @@ namespace Ophelia.AI.ChatServices
             };
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
 
-            var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
+            var (chunks, history) = await PrepareContextAsync(userMessage, conversationId, filter);
             var context = this.BuildContext(chunks);
             var sources = chunks.Select(c => c.Source).Distinct().ToList();
             outputAction("sources", JsonSerializer.Serialize(sources));

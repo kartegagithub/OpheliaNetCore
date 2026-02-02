@@ -16,7 +16,7 @@
 
         /// <summary>
         /// Claude: claude-3-sonnet-20240229, claude-3-haiku-20240307
-        /// Gemini: text-bison-001, gemini-1.5-pro, gemini-1.5-turbo, gemini-1.0-pro, gemini-1.0-turbo
+        /// Gemini: text-bison-001, gemini-1.5-pro, gemini-1.5-flash, gemini-1.5-turbo, gemini-1.0-pro, gemini-1.0-turbo
         /// OpenAI: gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-4, gpt-3.5-turbo
         /// </summary>
         public string Model { get; set; } = "";
@@ -29,9 +29,25 @@
         public string EmbedingModel { get; set; } = "";
 
         /// <summary>
+        /// Use LocalOnnx Embeding Model
+        /// </summary>
+        public bool UseLocalEmbeding { get; set; }
+
+        /// <summary>
+        /// LocalOnnx Embeding Model Path
+        /// </summary>
+        public string LocalModelPath { get; set; } = "";
+
+        /// <summary>
+        /// LocalOnnx Tokenizer Model Path
+        /// </summary>
+        public string TokenizerPath { get; set; } = "";
+
+        /// <summary>
         /// Use {context} placeholder for context definition
         /// </summary>
         public string SystemPrompt { get; set; } = "";
+        
         public int MaxBatchSize { get; set; } = 100;
         public bool EnableCache { get; set; } = true;
         public int CacheExpirationHours { get; set; } = 24;

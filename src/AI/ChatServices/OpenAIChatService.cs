@@ -20,14 +20,14 @@ namespace Ophelia.AI.ChatServices
             _chatClient = new ChatClient(configuration.LLMConfig.Model, configuration.LLMConfig.APIKey);
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
 
             try
             {
-                var contextData = await this.PrepareContextAsync(userMessage, userId);
+                var contextData = await this.PrepareContextAsync(userMessage, userId, filter);
 
                 // 4. Context oluştur
                 var context = BuildContext(contextData.chunks);
@@ -63,13 +63,13 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             try
             {
                 // 1-3. Embedding ve context oluştur (aynı)
-                var contextData = await this.PrepareContextAsync(userMessage, userId);
+                var contextData = await this.PrepareContextAsync(userMessage, userId, filter);
                 var context = BuildContext(contextData.chunks);
 
                 // 4. Kaynakları gönder

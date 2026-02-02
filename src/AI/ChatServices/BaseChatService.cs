@@ -32,8 +32,8 @@ namespace Ophelia.AI.ChatServices
             _embeddingService = this.CreateEmbedingService(configuration);
         }
 
-        public abstract Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null);
-        public abstract Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null);
+        public abstract Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null);
+        public abstract Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null);
 
         public async Task<IEnumerable<ChatHistoryMessage>> GetChatHistoryAsync(string userId)
         {
@@ -50,10 +50,34 @@ namespace Ophelia.AI.ChatServices
         }
 
         // Common helper methods
-        protected async Task<(List<VectorSearchResult> chunks, List<ChatHistoryMessage> history)> PrepareContextAsync(string userMessage, string conversationId)
+        protected async Task<(List<VectorSearchResult> chunks, List<ChatHistoryMessage> history)> PrepareContextAsync(string userMessage, string conversationId, Dictionary<string, string>? filter = null)
         {
-            var queryEmbedding = await _embeddingService.GenerateEmbeddingAsync(userMessage);
-            var relevantChunks = await _vectorStore.SearchAsync(queryEmbedding, this._configuration.MaxRetrievedChunks);
+            float[] queryEmbedding = null;
+            if (_embeddingService != null)
+            {
+                try
+                {
+                    queryEmbedding = await _embeddingService.GenerateEmbeddingAsync(userMessage);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            List<VectorSearchResult> relevantChunks = new List<VectorSearchResult>();
+            if (queryEmbedding != null && _vectorStore != null)
+            {
+                try
+                {
+                    relevantChunks = await _vectorStore.SearchAsync(queryEmbedding, this._configuration.MaxRetrievedChunks, filter);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
             List<ChatHistoryMessage> chatHistory = new List<ChatHistoryMessage>();
             if (this.ChatHistoryStore != null)
                 chatHistory = await this.ChatHistoryStore.GetHistoryAsync(conversationId, this._configuration.MaxChatHistoryMessages);
@@ -64,10 +88,9 @@ namespace Ophelia.AI.ChatServices
         protected string BuildContext(List<VectorSearchResult> chunks)
         {
             if (!chunks.Any())
-                return "Şu anda bu konuyla ilgili doküman bilgisi bulunamadı.";
+                return "";
 
             var contextBuilder = new StringBuilder();
-            contextBuilder.AppendLine("İlgili Doküman Bilgileri:");
             contextBuilder.AppendLine();
 
             for (int i = 0; i < chunks.Count; i++)
@@ -94,18 +117,18 @@ namespace Ophelia.AI.ChatServices
             GC.SuppressFinalize(this);
         }
 
-        public async Task UploadFileAsync(string filePath)
+        public async Task UploadFileAsync(string filePath, Dictionary<string, string>? metadata = null)
         {
-            await this.UploadFileAsync(System.IO.Path.GetFileName(filePath), File.ReadAllBytes(filePath));
+            await this.UploadFileAsync(System.IO.Path.GetFileName(filePath), File.ReadAllBytes(filePath), metadata);
         }
 
-        public async Task UploadFileAsync(string fileName, byte[] fileData)
+        public async Task UploadFileAsync(string fileName, byte[] fileData, Dictionary<string, string>? metadata = null)
         {
             var fileContent = CleanText(Ophelia.Integration.Documents.DocumentParserService.ExtractText(fileName, fileData));
             if (!string.IsNullOrEmpty(fileContent))
             {
                 var lines = fileContent.SplitToLines(this.Config.VectorConfig.Dimension);
-                
+
                 var data = await this._embeddingService.GenerateEmbeddingsAsync(lines);
                 var counter = 0;
                 foreach (var item in data)
@@ -115,12 +138,13 @@ namespace Ophelia.AI.ChatServices
                             Id = $"{fileName}_{counter}",
                             Content = lines[counter],
                             Embedding = item,
-                            Source = $"{fileName}"
+                            Source = $"{fileName}",
+                            Metadata = metadata ?? new Dictionary<string, string>()
                         }
                     }).Wait();
                     counter++;
                 }
-                
+
             }
         }
 
@@ -138,6 +162,9 @@ namespace Ophelia.AI.ChatServices
         }
         public virtual IEmbeddingService CreateEmbedingService(AIConfig config)
         {
+            if(config.LLMConfig.UseLocalEmbeding)
+                return new LocalOnnxEmbeddingService(config);
+
             switch (config.LLMConfig.Type)
             {
                 case LLMType.OpenAI:
@@ -145,13 +172,13 @@ namespace Ophelia.AI.ChatServices
                 case LLMType.DeepSeek:
                 case LLMType.Ollama:
                 case LLMType.LMStudio:
+                case LLMType.Zai:
                     return new OpenAIEmbeddingService(config);
                 case LLMType.AzureOpenAI:
                     return new AzureOpenAIEmbeddingService(config);
                 case LLMType.Claude:
                     return new ClaudeEmbeddingService(config);
                 case LLMType.Gemini:
-                case LLMType.Zai:
                     return new GeminiEmbeddingService(config);
                 case LLMType.HuggingFace:
                     return new HuggingFaceEmbeddingService(config);

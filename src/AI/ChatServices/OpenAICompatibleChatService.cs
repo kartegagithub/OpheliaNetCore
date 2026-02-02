@@ -47,14 +47,14 @@ namespace Ophelia.AI.ChatServices
             _chatClient = client.GetChatClient(model);
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
 
             try
             {
-                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
+                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId, filter);
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
@@ -86,12 +86,12 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             try
             {
-                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId);
+                var (chunks, history) = await PrepareContextAsync(userMessage, conversationId, filter);
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 

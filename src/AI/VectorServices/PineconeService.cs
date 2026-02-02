@@ -56,7 +56,7 @@ namespace Ophelia.AI.VectorServices
         /// <param name="embedding">Arama yapılacak embedding</param>
         /// <param name="topK">Döndürülecek sonuç sayısı</param>
         /// <returns>VectorSearchResult listesi</returns>
-        public async Task<List<VectorSearchResult>> SearchAsync(float[] embedding, int topK)
+        public async Task<List<VectorSearchResult>> SearchAsync(float[] embedding, int topK, Dictionary<string, string>? filter = null)
         {
             try
             {
@@ -67,8 +67,18 @@ namespace Ophelia.AI.VectorServices
                     Vector = embedding,
                     TopK = (uint)topK,
                     IncludeMetadata = true,
-                    IncludeValues = false // Performans için values'ları dahil etme
+                    IncludeValues = false
                 };
+
+                if (filter != null && filter.Any())
+                {
+                    var metadataFilter = new Metadata();
+                    foreach (var item in filter)
+                    {
+                        metadataFilter.Add(item.Key, item.Value);
+                    }
+                    queryRequest.Filter = metadataFilter;
+                }
 
                 var queryResponse = await index.QueryAsync(queryRequest);
                 var results = new List<VectorSearchResult>();

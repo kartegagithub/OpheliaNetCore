@@ -35,6 +35,8 @@ namespace Ophelia.AI
                     return new GeminiChatService(config, historyStore);
                 case LLMType.HuggingFace:
                     return new HuggingFaceChatService(config, historyStore);
+                case LLMType.Zai:
+                    return new ZaiChatService(config, historyStore);
                 case LLMType.Groq:
                     return new GroqChatService(config, historyStore);
                 case LLMType.Cohere:

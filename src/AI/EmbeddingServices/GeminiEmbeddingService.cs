@@ -18,7 +18,7 @@ namespace Ophelia.AI.EmbeddingServices
         private readonly string _model;
         private readonly int _embeddingDimension;
         private readonly int _requestedDimension;
-        private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta";
+        private readonly string _baseUrl;
 
         public GeminiEmbeddingService(AIConfig config)
         {
@@ -26,6 +26,9 @@ namespace Ophelia.AI.EmbeddingServices
             _model = config.LLMConfig.EmbedingModel;
             _httpClient = new HttpClient();
             this._requestedDimension = config.VectorConfig.Dimension;
+            _baseUrl = !string.IsNullOrEmpty(config.LLMConfig.Endpoint) 
+                ? config.LLMConfig.Endpoint.TrimEnd('/') 
+                : "https://generativelanguage.googleapis.com/v1";
 
             // Model'e göre embedding dimension ayarla
             _embeddingDimension = _model switch
@@ -47,7 +50,7 @@ namespace Ophelia.AI.EmbeddingServices
 
             try
             {
-                var url = $"{BaseUrl}/models/{_model}:embedContent?key={_apiKey}";
+                var url = $"{_baseUrl}/models/{_model}:embedContent?key={_apiKey}";
 
                 var requestBody = new
                 {
@@ -127,7 +130,7 @@ namespace Ophelia.AI.EmbeddingServices
         {
             try
             {
-                var url = $"{BaseUrl}/models/{_model}:batchEmbedContents?key={_apiKey}";
+                var url = $"{_baseUrl}/models/{_model}:batchEmbedContents?key={_apiKey}";
 
                 var requests = texts.Select(text => new
                 {
@@ -183,25 +186,26 @@ namespace Ophelia.AI.EmbeddingServices
             }
             catch (Exception ex)
             {
-                // Fallback: tek tek embedding oluştur
-                Console.WriteLine($"Gemini batch embedding failed, falling back to individual requests: {ex.Message}");
-                var results = new List<float[]>();
+                //// Fallback: tek tek embedding oluştur
+                //Console.WriteLine($"Gemini batch embedding failed, falling back to individual requests: {ex.Message}");
+                //var results = new List<float[]>();
 
-                foreach (var text in texts)
-                {
-                    try
-                    {
-                        var embedding = await GenerateEmbeddingAsync(text);
-                        results.Add(embedding);
-                        await Task.Delay(50); // Rate limiting
-                    }
-                    catch (Exception individualEx)
-                    {
-                        Console.WriteLine($"Individual embedding failed for text: {individualEx.Message}");
-                    }
-                }
+                //foreach (var text in texts)
+                //{
+                //    try
+                //    {
+                //        var embedding = await GenerateEmbeddingAsync(text);
+                //        results.Add(embedding);
+                //        await Task.Delay(50); // Rate limiting
+                //    }
+                //    catch (Exception individualEx)
+                //    {
+                //        Console.WriteLine($"Individual embedding failed for text: {individualEx.Message}");
+                //    }
+                //}
 
-                return results;
+                //return results;
+                return new List<float[]>();
             }
         }
 
