@@ -212,7 +212,7 @@ namespace Ophelia.Caching
         public TEntity Get(string property, object value)
         {
             var entity = this.GetInternal(property, value);
-            if (this.OnCacheNotFound(property, value))
+            if (entity == null && this.OnCacheNotFound(property, value))
             {
                 this.Reload();
                 entity = this.GetInternal(property, value);
