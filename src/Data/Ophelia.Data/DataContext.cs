@@ -7,6 +7,10 @@ using System.Reflection;
 
 namespace Ophelia.Data
 {
+    /// <summary>
+    /// Represents the primary entry point for communicating with the underlying database.
+    /// Manages entities, repositories, and database connections.
+    /// </summary>
     public class DataContext : IDisposable
     {
         private Connection _Connection;
@@ -19,6 +23,9 @@ namespace Ophelia.Data
         public Dictionary<string, string> FieldMap { get; set; }
         public List<Type> ContextEntities { get; set; }
         private Dictionary<Type, Repository> RepositoryCache { get; set; } = new Dictionary<Type, Repository>();
+        /// <summary>
+        /// Gets the current <see cref="DataContext"/> instance for the calling type.
+        /// </summary>
         public static DataContext Current
         {
             get
@@ -48,6 +55,11 @@ namespace Ophelia.Data
         }
         public DataConfiguration Configuration { get; set; }
 
+        /// <summary>
+        /// Retrieves a <see cref="Repository{T}"/> for the specified entity type.
+        /// </summary>
+        /// <typeparam name="T">The type of the entity.</typeparam>
+        /// <returns>A repository for the specified type.</returns>
         public Repository<T> GetRepository<T>() where T : class
         {
             if (this.RepositoryCache.ContainsKey(typeof(T)))
@@ -57,6 +69,12 @@ namespace Ophelia.Data
             this.RepositoryCache.Add(typeof(T), repository);
             return repository;
         }
+        /// <summary>
+        /// Saves changes to the specified entity using its corresponding repository.
+        /// </summary>
+        /// <typeparam name="T">The type of the entity.</typeparam>
+        /// <param name="entity">The entity instance to save.</param>
+        /// <returns>True if the save was successful, false otherwise.</returns>
         public bool SaveChanges<T>(T entity) where T : class
         {
             var repository = this.GetRepository<T>();
@@ -66,11 +84,21 @@ namespace Ophelia.Data
         {
 
         }
+        /// <summary>
+        /// Creates a new instance of the specified entity type.
+        /// </summary>
+        /// <typeparam name="T">The type of the entity.</typeparam>
+        /// <returns>A new instance of the entity.</returns>
         public virtual T Create<T>() where T : class
         {
             var repository = this.GetRepository<T>();
             return repository.Create();
         }
+        /// <summary>
+        /// Gets a queryable dataset for the specified entity type.
+        /// </summary>
+        /// <typeparam name="T">The type of the entity.</typeparam>
+        /// <returns>A queryable dataset.</returns>
         public virtual Model.QueryableDataSet<T> GetQuery<T>() where T : class
         {
             var repository = this.GetRepository<T>();

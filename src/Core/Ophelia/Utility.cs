@@ -7,17 +7,32 @@ using System.Text.RegularExpressions;
 
 namespace Ophelia
 {
+    /// <summary>
+    /// Provides various utility methods for common tasks such as password generation, string manipulation, and object cloning.
+    /// </summary>
     public static class Utility
     {
         private static DateTimeKind _NowType = DateTimeKind.Local;
+        /// <summary>
+        /// Gets the current DateTimeKind setting for the application.
+        /// </summary>
         public static DateTimeKind NowType { get { return _NowType; } }
 
+        /// <summary>
+        /// Gets the current time based on the <see cref="NowType"/>.
+        /// </summary>
         public static DateTime Now => _NowType == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now;
 
         public static void SetNowType(DateTimeKind kind)
         {
             _NowType = kind;
         }
+        /// <summary>
+        /// Generates a random password string of the specified size.
+        /// </summary>
+        /// <param name="maxSize">The length of the password to generate.</param>
+        /// <param name="isNumeric">If true, the password will only contain numeric characters.</param>
+        /// <returns>A randomly generated string.</returns>
         public static string GenerateRandomPassword(int maxSize, bool isNumeric = false)
         {
             char[] chars = new char[62];
@@ -38,6 +53,10 @@ namespace Ophelia
             }
             return result.ToString();
         }
+        /// <summary>
+        /// Generates a semi-random unique string based on the current time.
+        /// </summary>
+        /// <returns>A string representation of a random number and time.</returns>
         public static string Randomize()
         {
             var r = new Random();
@@ -56,6 +75,11 @@ namespace Ophelia
             }
             return string.Empty;
         }
+        /// <summary>
+        /// Creates a deep clone of the specified object using JSON serialization.
+        /// </summary>
+        /// <param name="Original">The object to clone.</param>
+        /// <returns>A new instance of the object with the same values.</returns>
         public static object Clone(object Original)
         {
             object clonedObject = null;
@@ -83,6 +107,12 @@ namespace Ophelia
             return clonedObject;
         }
 
+        /// <summary>
+        /// Encodes a URL string and optionally replaces special characters with dashes.
+        /// </summary>
+        /// <param name="strIn">The input string to encode.</param>
+        /// <param name="ReplaceSpecialChars">If true, replaces non-alphanumeric characters with dashes.</param>
+        /// <returns>The encoded and formatted URL string.</returns>
         public static string EncodeUrl(string strIn, bool ReplaceSpecialChars = true)
         {
             if (string.IsNullOrEmpty(strIn)) return strIn;
