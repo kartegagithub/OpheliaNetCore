@@ -32,6 +32,7 @@
 		<ProjectReference Include="..\Ophelia.Data.Exporter\Ophelia.Data.Exporter.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+  	<PackageReference Include="HtmlSanitizer" Version="9.0.892" />
 		<GlobalAnalyzerConfigFiles Include="$(SolutionDir)\.globalconfig" />
 	</ItemGroup>
 </Project>
