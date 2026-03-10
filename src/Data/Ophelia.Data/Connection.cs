@@ -444,7 +444,7 @@ namespace Ophelia.Data
                         return this.Context.Configuration.MinDateTime.SetKind(this.Context.Configuration.DateTimeKind);
                     else if (val > this.Context.Configuration.MaxDateTime)
                         return this.Context.Configuration.MaxDateTime.SetKind(this.Context.Configuration.DateTimeKind);
-                    return value;
+                    return val;
                 }
             }
             else if (value != null && isString && this.Context.Configuration.StringParameterFormatter != null)

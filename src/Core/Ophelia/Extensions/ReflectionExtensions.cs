@@ -84,7 +84,7 @@ namespace Ophelia
             return list;
         }
 
-        public static object ConvertData(this Type targetType, object value, bool setDefaultForNullValues = true)
+        public static object ConvertData(this Type targetType, object value, bool setDefaultForNullValues = true, DateTimeKind dateKind = DateTimeKind.Unspecified)
         {
             try
             {
@@ -123,6 +123,13 @@ namespace Ophelia
                 else if (targetType == typeof(double) || targetType == typeof(double?))
                 {
                     convertedValue = isNull ? default : Convert.ToDouble(value, System.Globalization.CultureInfo.CurrentCulture);
+                }
+                else if ((targetType == typeof(DateTime) || targetType == typeof(DateTime?)) && (value is DateTime || value is Nullable<DateTime>) && dateKind != DateTimeKind.Unspecified)
+                {
+                    if(value is DateTime)
+                        convertedValue = DateTime.SpecifyKind((DateTime)value, dateKind);
+                    else
+                        convertedValue = DateTime.SpecifyKind(((Nullable<DateTime>)value).Value, dateKind);
                 }
                 else if (targetType.IsEnum)
                 {

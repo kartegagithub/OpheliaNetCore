@@ -193,7 +193,7 @@ namespace Ophelia.Data.Model
                                     {
                                         try
                                         {
-                                            p.SetValue(entity, p.PropertyType.ConvertData(row[fieldName]));
+                                            p.SetValue(entity, p.PropertyType.ConvertData(row[fieldName], true, query.Context.Configuration.DateTimeKind));
                                         }
                                         catch (Exception)
                                         {
