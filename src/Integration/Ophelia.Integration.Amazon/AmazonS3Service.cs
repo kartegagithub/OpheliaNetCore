@@ -105,7 +105,19 @@ namespace Ophelia.Integration.Amazon
                     var getResult = this.GetURL(request.Key);
                     if (!getResult.HasFailed && getResult.Data != null)
                         result.SetData(getResult.Data);
+                    else
+                        result.Fail(getResult);
                 }
+                else if (objectResult.HttpStatusCode == HttpStatusCode.OK)
+                {
+                    result.SetData(new AmazonResponse()
+                    {
+                        URL = filePath,
+                        ExpireDate = DateTime.Now.AddYears(100)
+                    });
+                }
+                else
+                    result.Fail(objectResult.ToJson());
             }
             catch (Exception ex)
             {
