@@ -7,7 +7,7 @@ namespace Ophelia.Cryptography
     public static class CryptoManager
     {
         public static Encoding Encoding { get; set; }
-        public static string Encrypt(string chipperText, string encryptionKey = "")
+        public static string Encrypt(string chipperText, string encryptionKey = "", bool throwEx = false)
         {
             try
             {
@@ -27,10 +27,12 @@ namespace Ophelia.Cryptography
             }
             catch
             {
+                if (throwEx)
+                    throw;
                 return chipperText;
             }
         }
-        public static string Decrypt(string richText, string decryptionKey = "")
+        public static string Decrypt(string richText, string decryptionKey = "", bool throwEx = false)
         {
             try
             {
@@ -50,6 +52,8 @@ namespace Ophelia.Cryptography
             }
             catch
             {
+                if (throwEx)
+                    throw;
                 return richText;
             }
         }
