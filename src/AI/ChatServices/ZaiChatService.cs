@@ -31,7 +31,7 @@ namespace Ophelia.AI.ChatServices
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -40,7 +40,7 @@ namespace Ophelia.AI.ChatServices
             var context = this.BuildContext(chunks);
             var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
-            var messages = BuildZaiMessages(userMessage, history);
+            var messages = BuildZaiMessages(userMessage, history, attachments);
             var systemPrompt = GetSystemPrompt(context);
 
             var requestBody = new
@@ -68,7 +68,7 @@ namespace Ophelia.AI.ChatServices
 
             if (this.ChatHistoryStore != null)
             {
-                await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                 await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", message);
             }
 
@@ -84,7 +84,7 @@ namespace Ophelia.AI.ChatServices
             };
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
 
@@ -94,7 +94,7 @@ namespace Ophelia.AI.ChatServices
             outputAction("sources", JsonSerializer.Serialize(sources));
 
             var systemPrompt = GetSystemPrompt(context);
-            var messages = BuildZaiMessages(userMessage, history);
+            var messages = BuildZaiMessages(userMessage, history, attachments);
 
             var requestBody = new
             {
@@ -145,14 +145,14 @@ namespace Ophelia.AI.ChatServices
 
             if (this.ChatHistoryStore != null)
             {
-                await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                 await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", fullResponse.ToString());
             }
 
             outputAction("done", "");
         }
 
-        private List<object> BuildZaiMessages(string userMessage, List<ChatHistoryMessage> history)
+        private List<object> BuildZaiMessages(string userMessage, List<ChatHistoryMessage> history, List<ChatAttachment>? attachments)
         {
             var messages = new List<object>();
             foreach (var msg in history.TakeLast(this.Config.MaxChatHistoryMessages))
@@ -160,14 +160,16 @@ namespace Ophelia.AI.ChatServices
                 messages.Add(new
                 {
                     role = msg.Role,
-                    content = msg.Content
+                    content = msg.Role == "user"
+                        ? AppendAttachmentSummary(msg.Content, msg.Attachments)
+                        : msg.Content
                 });
             }
 
             messages.Add(new
             {
                 role = "user",
-                content = userMessage
+                content = AppendAttachmentSummary(userMessage, attachments)
             });
 
             return messages;

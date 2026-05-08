@@ -26,7 +26,7 @@ namespace Ophelia.AI.ChatServices
             _claudeClient = new AnthropicClient(apiKey);
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -37,7 +37,7 @@ namespace Ophelia.AI.ChatServices
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
-                var messages = BuildClaudeMessages(userMessage, history);
+                var messages = BuildClaudeMessages(userMessage, history, attachments);
                 var systemPrompt = GetSystemPrompt(context);
 
                 var model = this.Config.LLMConfig.Model ?? "claude-3-sonnet-20240229";
@@ -55,7 +55,7 @@ namespace Ophelia.AI.ChatServices
 
                 if(this.ChatHistoryStore != null)
                 {
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
                 }
                 
@@ -76,7 +76,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             try
@@ -87,7 +87,7 @@ namespace Ophelia.AI.ChatServices
 
                 outputAction("sources", JsonSerializer.Serialize(sources));
 
-                var messages = BuildClaudeMessages(userMessage, history);
+                var messages = BuildClaudeMessages(userMessage, history, attachments);
                 var systemPrompt = GetSystemPrompt(context);
                 var model = this.Config.LLMConfig.Model ?? "claude-3-sonnet-20240229";
 
@@ -113,7 +113,7 @@ namespace Ophelia.AI.ChatServices
 
                 if (this.ChatHistoryStore != null)
                 {
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
                 }
 
@@ -125,26 +125,123 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        private List<Message> BuildClaudeMessages(string userMessage, List<ChatHistoryMessage> history)
+        private List<Message> BuildClaudeMessages(string userMessage, List<ChatHistoryMessage> history, List<ChatAttachment>? attachments)
         {
             var messages = new List<Message>();
 
             foreach (var historyMsg in history.TakeLast(this.Config.MaxChatHistoryMessages))
             {
-                messages.Add(new Message
+                if (historyMsg.Role == "user")
                 {
-                    Role = historyMsg.Role == "user" ? RoleType.User : RoleType.Assistant,
-                    Content = new List<ContentBase> { new TextContent { Text = historyMsg.Content } }
-                });
+                    messages.Add(new Message
+                    {
+                        Role = RoleType.User,
+                        Content = BuildUserContent(historyMsg.Content, historyMsg.Attachments)
+                    });
+                }
+                else
+                {
+                    messages.Add(new Message
+                    {
+                        Role = RoleType.Assistant,
+                        Content = new List<ContentBase> { new TextContent { Text = historyMsg.Content } }
+                    });
+                }
             }
 
             messages.Add(new Message
             {
                 Role = RoleType.User,
-                Content = new List<ContentBase> { new TextContent { Text = userMessage } }
+                Content = BuildUserContent(userMessage, attachments)
             });
 
             return messages;
+        }
+
+        private List<ContentBase> BuildUserContent(string userMessage, List<ChatAttachment>? attachments)
+        {
+            var contentItems = new List<ContentBase>();
+            var unsupported = new List<ChatAttachment>();
+
+            if (attachments != null)
+            {
+                foreach (var attachment in attachments)
+                {
+                    var mimeType = GetAttachmentMimeType(attachment);
+                    var fileName = GetAttachmentFileName(attachment);
+                    var base64 = GetAttachmentBase64(attachment);
+
+                    if (!string.IsNullOrWhiteSpace(attachment.FileUrl))
+                    {
+                        if (IsImageMimeType(mimeType))
+                        {
+                            contentItems.Add(new ImageContent
+                            {
+                                Source = new ImageSource
+                                {
+                                    Type = SourceType.url,
+                                    Url = attachment.FileUrl,
+                                    MediaType = mimeType
+                                }
+                            });
+                        }
+                        else
+                        {
+                            contentItems.Add(new DocumentContent
+                            {
+                                Source = new DocumentSource
+                                {
+                                    Type = SourceType.url,
+                                    Url = attachment.FileUrl,
+                                    MediaType = mimeType
+                                },
+                                Title = fileName
+                            });
+                        }
+                        continue;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(base64))
+                    {
+                        if (IsImageMimeType(mimeType))
+                        {
+                            contentItems.Add(new ImageContent
+                            {
+                                Source = new ImageSource
+                                {
+                                    Type = SourceType.base64,
+                                    Data = base64,
+                                    MediaType = mimeType
+                                }
+                            });
+                        }
+                        else
+                        {
+                            contentItems.Add(new DocumentContent
+                            {
+                                Source = new DocumentSource
+                                {
+                                    Type = SourceType.base64,
+                                    Data = base64,
+                                    MediaType = mimeType
+                                },
+                                Title = fileName
+                            });
+                        }
+                    }
+                    else
+                    {
+                        unsupported.Add(attachment);
+                    }
+                }
+            }
+
+            contentItems.Add(new TextContent
+            {
+                Text = AppendAttachmentSummary(userMessage, unsupported)
+            });
+
+            return contentItems;
         }
     }
 }

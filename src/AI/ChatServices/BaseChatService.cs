@@ -32,8 +32,8 @@ namespace Ophelia.AI.ChatServices
             _embeddingService = this.CreateEmbedingService(configuration);
         }
 
-        public abstract Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null);
-        public abstract Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null);
+        public abstract Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null);
+        public abstract Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null);
 
         public async Task<IEnumerable<ChatHistoryMessage>> GetChatHistoryAsync(string userId)
         {
@@ -124,6 +124,9 @@ namespace Ophelia.AI.ChatServices
 
         public async Task UploadFileAsync(string fileName, byte[] fileData, Dictionary<string, string>? metadata = null)
         {
+            if (this.Config.VectorConfig == null || _embeddingService == null || _vectorStore == null)
+                return;
+
             var fileContent = CleanText(Ophelia.Integration.Documents.DocumentParserService.ExtractText(fileName, fileData));
             if (!string.IsNullOrEmpty(fileContent))
             {
@@ -146,6 +149,115 @@ namespace Ophelia.AI.ChatServices
                 }
 
             }
+        }
+
+        protected static string GetAttachmentFileName(ChatAttachment attachment)
+        {
+            if (!string.IsNullOrWhiteSpace(attachment.FileName))
+                return attachment.FileName;
+
+            if (!string.IsNullOrWhiteSpace(attachment.ProviderFileId))
+                return attachment.ProviderFileId;
+
+            if (!string.IsNullOrWhiteSpace(attachment.ProviderFileUri))
+                return attachment.ProviderFileUri;
+
+            if (!string.IsNullOrWhiteSpace(attachment.FileUrl))
+                return attachment.FileUrl;
+
+            return "attachment";
+        }
+
+        protected static string GetAttachmentMimeType(ChatAttachment attachment)
+        {
+            if (!string.IsNullOrWhiteSpace(attachment.MimeType))
+                return attachment.MimeType;
+
+            var extension = Path.GetExtension(attachment.FileName)?.TrimStart('.').ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(extension))
+                return "application/octet-stream";
+
+            return extension switch
+            {
+                "pdf" => "application/pdf",
+                "txt" => "text/plain",
+                "md" => "text/markdown",
+                "json" => "application/json",
+                "csv" => "text/csv",
+                "tsv" => "text/tab-separated-values",
+                "xml" => "application/xml",
+                "html" => "text/html",
+                "htm" => "text/html",
+                "doc" => "application/msword",
+                "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "xls" => "application/vnd.ms-excel",
+                "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "png" => "image/png",
+                "jpg" => "image/jpeg",
+                "jpeg" => "image/jpeg",
+                "webp" => "image/webp",
+                "gif" => "image/gif",
+                _ => "application/octet-stream"
+            };
+        }
+
+        protected static byte[]? GetAttachmentBytes(ChatAttachment attachment)
+        {
+            if (attachment.FileData != null && attachment.FileData.Length > 0)
+                return attachment.FileData;
+
+            if (string.IsNullOrWhiteSpace(attachment.Base64Data))
+                return null;
+
+            try
+            {
+                return Convert.FromBase64String(attachment.Base64Data);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        protected static string? GetAttachmentBase64(ChatAttachment attachment)
+        {
+            if (!string.IsNullOrWhiteSpace(attachment.Base64Data))
+                return attachment.Base64Data;
+
+            var bytes = GetAttachmentBytes(attachment);
+            if (bytes == null || bytes.Length == 0)
+                return null;
+
+            return Convert.ToBase64String(bytes);
+        }
+
+        protected static bool IsImageMimeType(string mimeType)
+        {
+            return !string.IsNullOrWhiteSpace(mimeType) &&
+                mimeType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+        }
+
+        protected static string BuildAttachmentSummary(List<ChatAttachment>? attachments)
+        {
+            if (attachments == null || attachments.Count == 0)
+                return string.Empty;
+
+            var lines = attachments.Select(item =>
+            {
+                var fileName = GetAttachmentFileName(item);
+                var mimeType = GetAttachmentMimeType(item);
+                var providerRef = item.ProviderFileId ?? item.ProviderFileUri ?? item.FileUrl;
+                return string.IsNullOrWhiteSpace(providerRef)
+                    ? $"- {fileName} ({mimeType})"
+                    : $"- {fileName} ({mimeType}) [{providerRef}]";
+            });
+
+            return "\n\nAttached Files:\n" + string.Join("\n", lines);
+        }
+
+        protected static string AppendAttachmentSummary(string text, List<ChatAttachment>? attachments)
+        {
+            return text + BuildAttachmentSummary(attachments);
         }
 
         protected static string CleanText(string text)
@@ -188,8 +300,11 @@ namespace Ophelia.AI.ChatServices
             throw new NotImplementedException($"LLM Type {config.LLMConfig.Type} not implemented");
         }
 
-        public virtual IVectorStore CreateVectorStore(AIConfig config)
+        public virtual IVectorStore? CreateVectorStore(AIConfig config)
         {
+            if (config.VectorConfig == null)
+                return null;
+
             switch (config.VectorConfig.Type)
             {
                 case VectorDbType.Pinecone:
@@ -199,7 +314,7 @@ namespace Ophelia.AI.ChatServices
                 case VectorDbType.ElasticSearch:
                     return new ElasticSearchService(config);
             }
-            throw new NotImplementedException($"LLM Type {config.LLMConfig.Type} not implemented");
+            throw new NotImplementedException($"Vector DB Type {config.VectorConfig.Type} not implemented");
         }
     }
 }

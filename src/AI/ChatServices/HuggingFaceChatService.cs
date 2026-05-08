@@ -27,7 +27,7 @@ namespace Ophelia.AI.ChatServices
             _apiUrl = $"{configuration.LLMConfig.Endpoint ?? "https://api-inference.huggingface.co"}/models/{configuration.LLMConfig.Model}";
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -41,7 +41,7 @@ namespace Ophelia.AI.ChatServices
                 var sources = contextData.chunks.Select(c => c.Source).Distinct().ToList();
 
                 // Prompt oluştur
-                var prompt = BuildPrompt(context, userMessage, contextData.history);
+                var prompt = BuildPrompt(context, userMessage, contextData.history, attachments);
 
                 // Hugging Face API request
                 var requestBody = new
@@ -72,7 +72,7 @@ namespace Ophelia.AI.ChatServices
                 if (this.ChatHistoryStore != null)
                 {
                     // Chat geçmişini kaydet
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
                 }
 
@@ -93,7 +93,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
 
@@ -108,7 +108,7 @@ namespace Ophelia.AI.ChatServices
                 outputAction("sources", JsonSerializer.Serialize(sources));
 
                 // Prompt oluştur
-                var prompt = BuildPrompt(context, userMessage, contextData.history);
+                var prompt = BuildPrompt(context, userMessage, contextData.history, attachments);
 
                 // Hugging Face Streaming API request
                 var requestBody = new
@@ -176,7 +176,7 @@ namespace Ophelia.AI.ChatServices
                 if (this.ChatHistoryStore != null)
                 {
                     // Chat geçmişini kaydet
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
                 }
 
@@ -188,7 +188,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        private string BuildPrompt(string context, string userMessage, List<ChatHistoryMessage> history)
+        private string BuildPrompt(string context, string userMessage, List<ChatHistoryMessage> history, List<ChatAttachment>? attachments)
         {
             var promptBuilder = new StringBuilder();
 
@@ -200,13 +200,13 @@ namespace Ophelia.AI.ChatServices
             foreach (var historyMsg in history.TakeLast(this.Config.MaxChatHistoryMessages))
             {
                 if (historyMsg.Role == "user")
-                    promptBuilder.AppendLine($"<|user|>\n{historyMsg.Content}\n<|end|>");
+                    promptBuilder.AppendLine($"<|user|>\n{AppendAttachmentSummary(historyMsg.Content, historyMsg.Attachments)}\n<|end|>");
                 else
                     promptBuilder.AppendLine($"<|assistant|>\n{historyMsg.Content}\n<|end|>");
             }
 
             // Mevcut kullanıcı mesajı
-            promptBuilder.AppendLine($"<|user|>\n{userMessage}\n<|end|>");
+            promptBuilder.AppendLine($"<|user|>\n{AppendAttachmentSummary(userMessage, attachments)}\n<|end|>");
             promptBuilder.Append("<|assistant|>");
 
             return promptBuilder.ToString();

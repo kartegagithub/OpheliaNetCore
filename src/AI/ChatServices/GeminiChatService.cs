@@ -23,7 +23,7 @@ namespace Ophelia.AI.ChatServices
             this._httpClient = new HttpClient();
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -35,7 +35,7 @@ namespace Ophelia.AI.ChatServices
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
                 var model = !string.IsNullOrEmpty(this.Config.LLMConfig.Model) ? this.Config.LLMConfig.Model : "gemini-1.5-pro-latest";
-                var requestBody = BuildGeminiRequest(context, userMessage, history);
+                var requestBody = BuildGeminiRequest(context, userMessage, history, attachments);
 
                 var baseUrl = !string.IsNullOrEmpty(this.Config.LLMConfig.Endpoint) 
                     ? this.Config.LLMConfig.Endpoint.TrimEnd('/') 
@@ -57,7 +57,7 @@ namespace Ophelia.AI.ChatServices
 
                 if (this.ChatHistoryStore != null)
                 {
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
                 }
 
@@ -78,7 +78,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             
@@ -91,7 +91,7 @@ namespace Ophelia.AI.ChatServices
                 outputAction("sources", sources.ToJson());
 
                 var model = this.Config.LLMConfig.Model ?? "gemini-1.5-pro-latest";
-                var requestBody = BuildGeminiRequest(context, userMessage, history);
+                var requestBody = BuildGeminiRequest(context, userMessage, history, attachments);
 
                 var baseUrl = !string.IsNullOrEmpty(this.Config.LLMConfig.Endpoint) 
                     ? this.Config.LLMConfig.Endpoint.TrimEnd('/') 
@@ -142,7 +142,7 @@ namespace Ophelia.AI.ChatServices
 
                 if(this.ChatHistoryStore != null)
                 {
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
                 }                
 
@@ -154,7 +154,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        private object BuildGeminiRequest(string context, string userMessage, List<ChatHistoryMessage> history)
+        private object BuildGeminiRequest(string context, string userMessage, List<ChatHistoryMessage> history, List<ChatAttachment>? attachments)
         {
             var systemInstruction = GetSystemPrompt(context);
             var contents = new List<object>();
@@ -193,7 +193,7 @@ namespace Ophelia.AI.ChatServices
                     contents.Add(new
                     {
                         role = role,
-                        parts = new[] { new { text = text } }
+                        parts = BuildGeminiParts(text, msg.Attachments)
                     });
                 }
             }
@@ -209,7 +209,7 @@ namespace Ophelia.AI.ChatServices
             contents.Add(new
             {
                 role = "user",
-                parts = new[] { new { text = finalUserText } }
+                parts = BuildGeminiParts(finalUserText, attachments)
             });
 
             return new
@@ -222,6 +222,69 @@ namespace Ophelia.AI.ChatServices
                     topK = 40,
                     topP = 0.95,
                     maxOutputTokens = 8192
+                }
+            };
+        }
+
+        private List<object> BuildGeminiParts(string text, List<ChatAttachment>? attachments)
+        {
+            var parts = new List<object>();
+            var unsupported = new List<ChatAttachment>();
+
+            if (attachments != null)
+            {
+                foreach (var attachment in attachments)
+                {
+                    var part = BuildGeminiAttachmentPart(attachment);
+                    if (part != null)
+                        parts.Add(part);
+                    else
+                        unsupported.Add(attachment);
+                }
+            }
+
+            parts.Insert(0, new { text = AppendAttachmentSummary(text, unsupported) });
+            return parts;
+        }
+
+        private object? BuildGeminiAttachmentPart(ChatAttachment attachment)
+        {
+            var mimeType = GetAttachmentMimeType(attachment);
+
+            if (!string.IsNullOrWhiteSpace(attachment.ProviderFileUri))
+            {
+                return new
+                {
+                    file_data = new
+                    {
+                        mime_type = mimeType,
+                        file_uri = attachment.ProviderFileUri
+                    }
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(attachment.FileUrl))
+            {
+                return new
+                {
+                    file_data = new
+                    {
+                        mime_type = mimeType,
+                        file_uri = attachment.FileUrl
+                    }
+                };
+            }
+
+            var base64 = GetAttachmentBase64(attachment);
+            if (string.IsNullOrWhiteSpace(base64))
+                return null;
+
+            return new
+            {
+                inline_data = new
+                {
+                    mime_type = mimeType,
+                    data = base64
                 }
             };
         }

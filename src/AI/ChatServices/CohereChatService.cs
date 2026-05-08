@@ -25,7 +25,7 @@ namespace Ophelia.AI.ChatServices
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -39,12 +39,14 @@ namespace Ophelia.AI.ChatServices
                 var chatHistory = history.TakeLast(this.Config.MaxChatHistoryMessages).Select(h => new 
                 {
                     role = h.Role == "user" ? "USER" : "CHATBOT",
-                    message = h.Content
+                    message = h.Role == "user"
+                        ? AppendAttachmentSummary(h.Content, h.Attachments)
+                        : h.Content
                 }).ToList();
 
                 var requestBody = new
                 {
-                    message = userMessage,
+                    message = AppendAttachmentSummary(userMessage, attachments),
                     model = _model,
                     chat_history = chatHistory,
                     preamble = GetSystemPrompt(context)
@@ -61,7 +63,7 @@ namespace Ophelia.AI.ChatServices
 
                 if (this.ChatHistoryStore != null)
                 {
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
                 }
 
@@ -93,10 +95,10 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
              // Simple fallback to non-streaming for now
-             var response = await CompleteChatAsync(userMessage, userId);
+             var response = await CompleteChatAsync(userMessage, userId, filter, attachments);
              outputAction("sources", JsonSerializer.Serialize(response.Sources));
              outputAction("message", response.Message);
              outputAction("done", "");

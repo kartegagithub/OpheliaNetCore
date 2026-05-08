@@ -47,7 +47,7 @@ namespace Ophelia.AI.ChatServices
             _chatClient = client.GetChatClient(model);
         }
 
-        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task<ChatResponse> CompleteChatAsync(string userMessage, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var startTime = DateTime.UtcNow;
             var conversationId = userId ?? Guid.NewGuid().ToString();
@@ -58,14 +58,14 @@ namespace Ophelia.AI.ChatServices
                 var context = BuildContext(chunks);
                 var sources = chunks.Select(c => c.Source).Distinct().ToList();
 
-                var messages = BuildChatMessages(context, userMessage, history);
+                var messages = BuildChatMessages(context, userMessage, history, attachments);
 
                 var chatCompletion = await _chatClient.CompleteChatAsync(messages);
                 var responseMessage = chatCompletion.Value.Content[0].Text;
 
                 if (this.ChatHistoryStore != null)
                 {
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseMessage);
                 }
 
@@ -86,7 +86,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null)
+        public override async Task CompleteChatStreamingAsync(string userMessage, Action<string, string> outputAction, string? userId = null, Dictionary<string, string>? filter = null, List<ChatAttachment>? attachments = null)
         {
             var conversationId = userId ?? Guid.NewGuid().ToString();
             try
@@ -97,7 +97,7 @@ namespace Ophelia.AI.ChatServices
 
                 outputAction("sources", JsonSerializer.Serialize(sources));
 
-                var messages = BuildChatMessages(context, userMessage, history);
+                var messages = BuildChatMessages(context, userMessage, history, attachments);
                 var responseBuilder = new StringBuilder();
 
                 await foreach (var update in _chatClient.CompleteChatStreamingAsync(messages))
@@ -115,7 +115,7 @@ namespace Ophelia.AI.ChatServices
 
                 if (this.ChatHistoryStore != null)
                 {
-                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage);
+                    await this.ChatHistoryStore.SaveMessageAsync(conversationId, "user", userMessage, attachments);
                     await this.ChatHistoryStore.SaveMessageAsync(conversationId, "assistant", responseBuilder.ToString());
                 }
                 outputAction("done", "");
@@ -126,7 +126,7 @@ namespace Ophelia.AI.ChatServices
             }
         }
 
-        private List<ChatMessage> BuildChatMessages(string context, string userMessage, List<ChatHistoryMessage> history)
+        private List<ChatMessage> BuildChatMessages(string context, string userMessage, List<ChatHistoryMessage> history, List<ChatAttachment>? attachments)
         {
             var messages = new List<ChatMessage>();
 
@@ -136,12 +136,12 @@ namespace Ophelia.AI.ChatServices
             foreach (var historyMsg in history.TakeLast(this.Config.MaxChatHistoryMessages))
             {
                 if (historyMsg.Role == "user")
-                    messages.Add(ChatMessage.CreateUserMessage(historyMsg.Content));
+                    messages.Add(ChatMessage.CreateUserMessage(AppendAttachmentSummary(historyMsg.Content, historyMsg.Attachments)));
                 else
                     messages.Add(ChatMessage.CreateAssistantMessage(historyMsg.Content));
             }
 
-            messages.Add(ChatMessage.CreateUserMessage(userMessage));
+            messages.Add(ChatMessage.CreateUserMessage(AppendAttachmentSummary(userMessage, attachments)));
             return messages;
         }
     }
