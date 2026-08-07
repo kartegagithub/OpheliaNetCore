@@ -25,9 +25,11 @@ namespace Ophelia.AI.EmbeddingServices
             _apiKey = config.LLMConfig.APIKey;
             _model = config.LLMConfig.EmbedingModel;
             _httpClient = new HttpClient();
-            this._requestedDimension = config.VectorConfig.Dimension;
-            _baseUrl = !string.IsNullOrEmpty(config.LLMConfig.Endpoint) 
-                ? config.LLMConfig.Endpoint.TrimEnd('/') 
+            if (config.VectorConfig != null)
+                this._requestedDimension = config.VectorConfig.Dimension;
+
+            _baseUrl = !string.IsNullOrEmpty(config.LLMConfig.Endpoint)
+                ? config.LLMConfig.Endpoint.TrimEnd('/')
                 : "https://generativelanguage.googleapis.com/v1";
 
             // Model'e göre embedding dimension ayarla

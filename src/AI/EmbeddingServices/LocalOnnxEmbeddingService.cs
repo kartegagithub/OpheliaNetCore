@@ -233,7 +233,7 @@ namespace Ophelia.AI.EmbeddingServices
         
         public int GetEmbeddingDimension()
         {
-            return _config.VectorConfig.Dimension > 0 ? _config.VectorConfig.Dimension : 384; 
+            return _config.VectorConfig != null && _config.VectorConfig.Dimension > 0 ? _config.VectorConfig.Dimension : 384; 
         }
     }
 }
